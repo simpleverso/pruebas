@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detector De Grietas y Baches</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+</head>
+<style>
+.wrapper {position:relative;}
+</style>
+<body>
+
+<script type="text/javascript">
+    function processImage() 
+    {
+        //limpiar caja roja
+        var css = ".box {border:2px solid transparent} .box2 {border:2px solid transparent}",
+        head = document.head || document.getElementsByTagName('head')[0],
+        style = document.createElement('style');head.appendChild(style);style.type = 'text/css';if (style.styleSheet)
+        {style.styleSheet.cssText = css;} else {style.appendChild(document.createTextNode(css));}
+        //limpiar caja roja
+        
+        var subscriptionKey = "45457a78b3f34504afb54fe08e9bf50f";
+        var uriBase =
+            "https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/ce0dc147-006d-4dad-b7b8-d4ae3dae9260/detect/iterations/Iteration6/url";
+        var params = {
+            "visualFeatures": "Categories,Description,Color","details": "","language": "en",
+        };
+
+        var sourceImageUrl = document.getElementById("inputImage").value;
+        document.querySelector("#sourceImage").src = sourceImageUrl;
+
+        // Request ___________________________
+        $.ajax({
+            url: uriBase + "?" + $.param(params),
+            // Request headers.
+            beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Content-Type","application/json");
+                xhrObj.setRequestHeader("Prediction-Key", subscriptionKey);
+            },
+            type: "POST",
+            // Request body.
+            data: '{"url": ' + '"' + sourceImageUrl + '"}',
+        })
+        .done(function(data) {
+            // Show formatted JSON on webpage.
+            $("#responseTextArea").val(JSON.stringify(data, null, 2));
+        })
+
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            // Display error message.
+            var errorString = (errorThrown === "") ? "Error. " :
+                errorThrown + " (" + jqXHR.status + "): ";
+            errorString += (jqXHR.responseText === "") ? "" :
+                jQuery.parseJSON(jqXHR.responseText).message;
+            alert(errorString);
+        });
+        //end request------------------
+    };
+    
+    function pintarResultados() 
+    {
+        var resultados = JSON.parse(responseTextArea.value); //se obtiene el texto json y se convierte en objeto
+        //Ordenar por probabilidad
+        var ordenados = resultados.predictions.slice(0);
+        ordenados.sort(function(a,b) 
+        {
+            return a.probability - b.probability;
+        });
+
+       var ultimos = ordenados.slice(Math.max(ordenados.length - 2, 1)); //ultimos 2
+       
+        //escribir caja roja
+        var css = ".box {position:absolute;top:"+((400*ultimos[0].boundingBox.top)/1).toString()+"px;left:"+((400*ultimos[0].boundingBox.left)/1).toString()+"px;width:"+((400*ultimos[0].boundingBox.width)/1).toString()+"px;height:"+((400*ultimos[0].boundingBox.height)/1).toString()+"px;border:2px solid red;background-color:transparent} .box2 {position:absolute;top:"+((400*ultimos[1].boundingBox.top)/1).toString()+"px;left:"+((400*ultimos[1].boundingBox.left)/1).toString()+"px;width:"+((400*ultimos[1].boundingBox.width)/1).toString()+"px;height:"+((400*ultimos[1].boundingBox.height)/1).toString()+"px;border:2px solid red;background-color:transparent}",
+        head = document.head || document.getElementsByTagName('head')[0],
+        style = document.createElement('style');
+        head.appendChild(style);
+
+        style.type = 'text/css';
+        if (style.styleSheet){
+          // This is required for IE8 and below.
+          style.styleSheet.cssText = css;
+        } else {
+          style.appendChild(document.createTextNode(css));
+        }
+        //escribir caja roja
+    };
+    
+    
+</script>
+
+<h1>Analizar imagen en busca de grietas:</h1>
+Ingresa la url de una imagen, y da click en el boton 
+<strong>Analizar imagen</strong> que se encuentra abajo.
+<br><br>
+Imagen a analizar:
+<input type="text" name="inputImage" id="inputImage"
+    value="https://josecardenas.com/wp-content/uploads/2017/08/bache.jpg" />
+<button onclick="processImage()">Analizar Imagen</button><button onclick="pintarResultados()">Mostrar Detecciones</button>
+<br><br>
+<div id="wrapper" style="width:1020px; display:table;">
+    <div id="jsonOutput" style="width:600px; display:table-cell;">
+        Respuesta:
+        <br><br>
+        <textarea id="responseTextArea" class="UIInput"
+                  style="width:580px; height:400px;"></textarea>
+    </div>
+    <div id="imageDiv" style="width:420px; display:table-cell;">
+        Imagen:
+        <br><br>     
+<div class="wrapper">
+        <img id="sourceImage" width="400" height="400"/>
+        <div class="box"></div>
+        <div class="box2"></div>
+</div>
+    </div>
+</div>
+Izyalyth E. Alvarez Cisneros - Instituto Politecnico Nacional - Escuela Superior De Computo
+<div>
+</div>
+</body>
+</html>
