@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CV - Brand</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/css/pikaday.min.css">
+    <link rel="stylesheet" href="assets/css/untitled.css">
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+     <script src="https://unpkg.com/@tensorflow-models/knn-classifier"></script>
+    <script src="https://unpkg.com/@tensorflow-models/mobilenet"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+</head>
+
+<body>
+    <main class="page cv-page">
+        <section class="portfolio-block block-intro border-bottom">
+            <h1>Reconocimiento de cultivos</h1><div class="select">
+        <label for="videoSource">Seleccionar Cámara: </label><select id="videoSource"></select>
+    </div>
+<video autoplay playsinline muted id="webcam" width="320" height="240"></video>
+<div id="console"></div>
+<script src="index.js"></script><button class="btn btn-primary" id="btn1" type="button">Comenzar Reconocimiento</button>
+            <div class="container">
+                <div class="about-me"></div>
+            </div>
+        </section>
+        <section class="portfolio-block cv">
+            <h1 class="text-center" style="margin: 12px, 10px;padding: 44px;">Patrones de entrenamiento</h1>
+            <div></div>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th><img id="img01" style="background-size: cover;width: 77px;" src="assets/img/m1.png"></th>
+                                <th><img id="img02" style="background-size: cover;width: 79px;" src="assets/img/frame60_45.jpg"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><img id="img03" style="background-image: url(&quot;assets/img/frame60_44.jpg&quot;);background-size: cover;" src="assets/img/frame60_46.jpg"></td>
+                                <td><img id="img04" style="background-image: url(&quot;assets/img/frame66_36.jpg&quot;);background-size: cover;width: 76px;" src="assets/img/m2.png"></td>
+                            </tr>
+                            <tr>
+                                <td><img id="img05" style="background-image: url(&quot;assets/img/frame66_35.jpg&quot;);background-size: cover;width: 75px;" src="assets/img/m3.png"></td>
+                                <td><img id="img06" style="background-image: url(&quot;assets/img/frame62_28.jpg&quot;);background-size: cover;width: 81px;" src="assets/img/m4.png"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <h1>Pasto -&nbsp;Clase B</h1>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th><img id="img11" style="background-image: url(&quot;assets/img/frame60_61.jpg&quot;);background-size: cover;" src="assets/img/frame60_61.jpg"></th>
+                                <th><img id="img12" style="background-image: url(&quot;assets/img/frame60_62.jpg&quot;);background-size: cover;width: 82px;" src="assets/img/p2.png"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><img id="img13" style="background-image: url(&quot;assets/img/frame74_55.jpg&quot;);background-size: cover;" src="assets/img/frame65_52.jpg"></td>
+                                <td><img id="img14" style="background-image: url(&quot;assets/img/frame70_55.jpg&quot;);background-size: cover;" src="assets/img/frame67_53.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><img id="img15" style="background-image: url(&quot;assets/img/frame65_52.jpg&quot;);background-size: cover;" src="assets/img/frame70_55.jpg"></td>
+                                <td><img id="img16" style="background-image: url(&quot;assets/img/frame67_53.jpg&quot;);background-size: cover;width: 80px;" src="assets/img/p1.png"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <h1>Tierra -&nbsp;Clase C&nbsp;</h1>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th><img id="img21" style="background-image: url(&quot;assets/img/frame180_51.jpg&quot;);background-size: cover;" src="assets/img/frame180_42.jpg"></th>
+                                <th><img id="img22" style="background-image: url(&quot;assets/img/frame182_51.jpg&quot;);background-size: cover;width: 75px;" src="assets/img/t1.png"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><img id="img23" style="background-image: url(&quot;assets/img/frame180_51.jpg&quot;);background-size: cover;" src="assets/img/frame180_51.jpg"></td>
+                                <td><img id="img24" style="background-image: url(&quot;assets/img/frame182_50.jpg&quot;);background-size: cover;" src="assets/img/frame181_51.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><img id="img25" style="background-image: url(&quot;assets/img/frame180_42.jpg&quot;);background-size: cover;width: 75px;" src="assets/img/t2.png"></td>
+                                <td><img id="img26" style="background-image: url(&quot;assets/img/frame180_49.jpg&quot;);background-size: cover;" src="assets/img/frame182_51.jpg"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="page-footer">
+        <div class="container">
+            <div class="social-icons"></div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
+    <script src="assets/js/index.js"></script>
+    <script src="assets/js/local.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+</html>
