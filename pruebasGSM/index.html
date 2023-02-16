@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Camera Example</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		video {
+			width: 100%;
+			height: auto;
+		}
+		canvas {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<h1>Camera Example</h1>
+	<p>Select a camera:</p>
+	<select id="camera-select">
+	</select>
+	<br>
+	<button id="start-button">Start Camera</button>
+	<button id="stop-button">Stop Camera</button>
+	<br>
+	<video id="video" autoplay></video>
+	<canvas id="canvas"></canvas>
+	<img id="image-color" alt="Color Image">
+	<img id="image-grayscale" alt="Grayscale Image">
+	<script>
+		var video = document.getElementById('video');
+		var canvas = document.getElementById('canvas');
+		var context = canvas.getContext('2d');
+		var imageColor = document.getElementById('image-color');
+		var imageGrayscale = document.getElementById('image-grayscale');
+		var stream;
+
+		// Get list of available cameras and populate the select element
+		navigator.mediaDevices.enumerateDevices().then(function(devices) {
+			var cameras = devices.filter(function(device) {
+				return device.kind === 'videoinput';
+			});
+			var select = document.getElementById('camera-select');
+			cameras.forEach(function(camera) {
+				var option = document.createElement('option');
+				option.value = camera.deviceId;
+				option.text = camera.label || 'Camera ' + (select.length + 1);
+				select.appendChild(option);
+			});
+		}).catch(function(error) {
+			console.error('Error enumerating devices:', error);
+		});
+
+		// Start the camera when the Start button is clicked
+		document.getElementById('start-button').addEventListener('click', function() {
+			var constraints = {
+				video: {
+					deviceId: { exact: document.getElementById('camera-select').value }
+				}
+			};
+			navigator.mediaDevices.getUserMedia(constraints).then(function(newStream) {
+				stream = newStream;
+				video.srcObject = stream;
+			}).catch(function(error) {
+				console.error('Error starting camera:', error);
+			});
+		});
+
+		// Stop the camera when the Stop button is clicked
+		document.getElementById('stop-button').addEventListener('click', function() {
+			if (stream) {
+				stream.getTracks().forEach(function(track) {
+					track.stop();
+				});
+				video.srcObject = null;
+				stream = null;
+			}
+		});
+
+		// Capture a frame from the video stream and display it in color
+		function captureFrame() {
+			context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			imageColor.src = canvas.toDataURL();
+		}
+
+		// Convert the image to grayscale and display it
+        function convertToGrayscale() {
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        var data = imageData.data;
+        for (var i = 0; i < data.length; i += 4) {
+            var grayscale = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+            data[i] = grayscale;
+            data[i + 1] = grayscale;
+            data[i + 2] = grayscale;
+        }
+        context.putImageData(imageData, 0, 0);
+        imageGrayscale.src = canvas.toDataURL();
+        }
+    </script>
+</body>
+</html>
