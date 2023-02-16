@@ -80,7 +80,7 @@
 		// Capture a frame from the video stream and display it in color
 		function captureFrame() {
 			context.drawImage(video, 0, 0, canvas.width, canvas.height);
-			imageColor.src = canvas.toDataURL();
+			imageColor.srcObject  = canvas.toDataURL();
 		}
 
 		// Convert the image to grayscale and display it
@@ -94,7 +94,7 @@
             data[i + 2] = grayscale;
         }
         context.putImageData(imageData, 0, 0);
-        imageGrayscale.src = canvas.toDataURL();
+        imageGrayscale.srcObject = canvas.toDataURL();
         }
     </script>
 </body>
