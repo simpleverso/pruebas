@@ -1,101 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Camera Example</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<style>
-		video {
-			width: 100%;
-			height: auto;
-		}
-		canvas {
-			display: none;
-		}
-	</style>
+  <title>Webcam in Color and Grayscale</title>
 </head>
 <body>
-	<h1>Camera Example</h1>
-	<p>Select a camera:</p>
-	<select id="camera-select">
-	</select>
-	<br>
-	<button id="start-button">Start Camera</button>
-	<button id="stop-button">Stop Camera</button>
-	<br>
-	<video id="video" autoplay></video>
-	<canvas id="canvas"></canvas>
-	<img id="image-color" alt="Color Image">
-	<img id="image-grayscale" alt="Grayscale Image">
-	<script>
-		var video = document.getElementById('video');
-		var canvas = document.getElementById('canvas');
-		var context = canvas.getContext('2d');
-		var imageColor = document.getElementById('image-color');
-		var imageGrayscale = document.getElementById('image-grayscale');
-		var stream;
+  <h1>Webcam in Color and Grayscale</h1>
+  <video id="video" width="640" height="480"></video>
+  <canvas id="canvas" width="640" height="480"></canvas>
+  <canvas id="canvas-grayscale" width="640" height="480"></canvas>
+  <script>
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var canvasGrayscale = document.getElementById('canvas-grayscale');
+    var contextGrayscale = canvasGrayscale.getContext('2d');
 
-		// Get list of available cameras and populate the select element
-		navigator.mediaDevices.enumerateDevices().then(function(devices) {
-			var cameras = devices.filter(function(device) {
-				return device.kind === 'videoinput';
-			});
-			var select = document.getElementById('camera-select');
-			cameras.forEach(function(camera) {
-				var option = document.createElement('option');
-				option.value = camera.deviceId;
-				option.text = camera.label || 'Camera ' + (select.length + 1);
-				select.appendChild(option);
-			});
-		}).catch(function(error) {
-			console.error('Error enumerating devices:', error);
-		});
+    // getUserMedia options
+    var constraints = { audio: false, video: true };
 
-		// Start the camera when the Start button is clicked
-		document.getElementById('start-button').addEventListener('click', function() {
-			var constraints = {
-				video: {
-					deviceId: { exact: document.getElementById('camera-select').value }
-				}
-			};
-			navigator.mediaDevices.getUserMedia(constraints).then(function(newStream) {
-				stream = newStream;
-				video.srcObject = stream;
-			}).catch(function(error) {
-				console.error('Error starting camera:', error);
-			});
-		});
+    // Success callback for getUserMedia
+    function successCallback(stream) {
+      video.srcObject = stream;
+      video.play();
+    }
 
-		// Stop the camera when the Stop button is clicked
-		document.getElementById('stop-button').addEventListener('click', function() {
-			if (stream) {
-				stream.getTracks().forEach(function(track) {
-					track.stop();
-				});
-				video.srcObject = null;
-				stream = null;
-			}
-		});
+    // Error callback for getUserMedia
+    function errorCallback(error) {
+      console.log('navigator.getUserMedia error: ', error);
+    }
 
-		// Capture a frame from the video stream and display it in color
-		function captureFrame() {
-			context.drawImage(video, 0, 0, canvas.width, canvas.height);
-			imageColor.srcObject  = canvas.toDataURL();
-		}
+    // Get user media
+    if (navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(successCallback)
+        .catch(errorCallback);
+    } else {
+      console.log('getUserMedia not supported');
+    }
 
-		// Convert the image to grayscale and display it
-        function convertToGrayscale() {
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        var data = imageData.data;
-        for (var i = 0; i < data.length; i += 4) {
-            var grayscale = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
-            data[i] = grayscale;
-            data[i + 1] = grayscale;
-            data[i + 2] = grayscale;
-        }
-        context.putImageData(imageData, 0, 0);
-        imageGrayscale.srcObject = canvas.toDataURL();
-        }
-    </script>
+    // Convert the image to grayscale and display it
+    function convertToGrayscale() {
+      var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      var data = imageData.data;
+      for (var i = 0; i < data.length; i += 4) {
+        var grayscale = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+        data[i] = grayscale;
+        data[i + 1] = grayscale;
+        data[i + 2] = grayscale;
+      }
+      contextGrayscale.putImageData(imageData, 0, 0);
+      requestAnimationFrame(convertToGrayscale);
+    }
+
+    // Draw the video stream in color and grayscale
+    function drawVideo() {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      requestAnimationFrame(drawVideo);
+    }
+
+    // Start drawing the video stream in color and grayscale
+    video.addEventListener('canplay', function() {
+      requestAnimationFrame(drawVideo);
+      requestAnimationFrame(convertToGrayscale);
+    });
+  </script>
 </body>
 </html>
