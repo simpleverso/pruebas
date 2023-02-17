@@ -48,11 +48,7 @@
 
     // Start the camera when the Start button is clicked
 		document.getElementById('start-button').addEventListener('click', function() {
-			var constraints = {
-				video: {
-					deviceId: { exact: document.getElementById('camera-select').value }
-				}
-			};
+			var constraints = { audio: false, video: { deviceId: { exact: cameraSelect.value } } };
 			navigator.mediaDevices.getUserMedia(constraints).then(function(newStream) {
 				stream = newStream;
 				video.srcObject = stream;
@@ -75,7 +71,7 @@
     // getUserMedia options
     //var constraints = { audio: false, video: true };
     // getUserMedia options
-    var constraints = { audio: false, video: { deviceId: { exact: cameraSelect.value } } };
+    //var constraints = { audio: false, video: { deviceId: { exact: cameraSelect.value } } };
 
 
     // Success callback for getUserMedia
