@@ -86,14 +86,14 @@
       console.log('navigator.getUserMedia error: ', error);
     }
 
-    // Get user media
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(successCallback)
-        .catch(errorCallback);
-    } else {
-      console.log('getUserMedia not supported');
-    }
+  //  // Get user media
+  //  if (navigator.mediaDevices.getUserMedia) {
+  //     navigator.mediaDevices.getUserMedia(constraints)
+  //       .then(successCallback)
+  //       .catch(errorCallback);
+  //   } else {
+  //     console.log('getUserMedia not supported');
+  //   }
 
     // Convert the image to grayscale and display it
     function convertToGrayscale() {
