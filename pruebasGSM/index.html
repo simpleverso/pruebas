@@ -5,6 +5,8 @@
 </head>
 <body>
   <h1>Webcam in Color and Grayscale</h1>
+  <select id="camera-select"></select>
+  <br>
   <video id="video" width="640" height="480"></video>
   <canvas id="canvas" width="640" height="480"></canvas>
   <canvas id="canvas-grayscale" width="640" height="480"></canvas>
@@ -14,9 +16,35 @@
     var context = canvas.getContext('2d');
     var canvasGrayscale = document.getElementById('canvas-grayscale');
     var contextGrayscale = canvasGrayscale.getContext('2d');
+    var cameraSelect = document.getElementById('camera-select');
+
+     // Get a list of available media devices
+     navigator.mediaDevices.enumerateDevices().then(function(devices) {
+      // Filter for video devices
+      var videoDevices = devices.filter(function(device) {
+        return device.kind === 'videoinput';
+      });
+
+      // Add a select option for each camera
+      videoDevices.forEach(function(device) {
+        var option = document.createElement('option');
+        option.value = device.deviceId;
+        option.text = device.label || 'Camera ' + (cameraSelect.length + 1);
+        cameraSelect.appendChild(option);
+      });
+
+    
+    // Set the initial camera to the first available
+    if (videoDevices.length > 0) {
+        cameraSelect.value = videoDevices[0].deviceId;
+      }
+    });
 
     // getUserMedia options
-    var constraints = { audio: false, video: true };
+    //var constraints = { audio: false, video: true };
+    // getUserMedia options
+    var constraints = { audio: false, video: { deviceId: { exact: cameraSelect.value } } };
+
 
     // Success callback for getUserMedia
     function successCallback(stream) {
