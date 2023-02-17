@@ -5,7 +5,12 @@
 </head>
 <body>
   <h1>Webcam in Color and Grayscale</h1>
+  <br>
   <select id="camera-select"></select>
+  <br>
+	<button id="start-button">Start Camera</button>
+	<button id="stop-button">Stop Camera</button>
+  
   <br>
   <video id="video" width="640" height="480"></video>
   <canvas id="canvas" width="640" height="480"></canvas>
@@ -39,6 +44,32 @@
         cameraSelect.value = videoDevices[0].deviceId;
       }
     });
+
+    // Start the camera when the Start button is clicked
+		document.getElementById('start-button').addEventListener('click', function() {
+			var constraints = {
+				video: {
+					deviceId: { exact: document.getElementById('camera-select').value }
+				}
+			};
+			navigator.mediaDevices.getUserMedia(constraints).then(function(newStream) {
+				stream = newStream;
+				video.srcObject = stream;
+			}).catch(function(error) {
+				console.error('Error starting camera:', error);
+			});
+		});
+
+		// Stop the camera when the Stop button is clicked
+		document.getElementById('stop-button').addEventListener('click', function() {
+			if (stream) {
+				stream.getTracks().forEach(function(track) {
+					track.stop();
+				});
+				video.srcObject = null;
+				stream = null;
+			}
+		});
 
     // getUserMedia options
     //var constraints = { audio: false, video: true };
