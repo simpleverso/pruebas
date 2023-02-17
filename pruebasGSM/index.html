@@ -23,6 +23,7 @@
     var contextGrayscale = canvasGrayscale.getContext('2d');
     var cameraSelect = document.getElementById('camera-select');
     var stream;
+    var constraints;
 
      // Get a list of available media devices
      navigator.mediaDevices.enumerateDevices().then(function(devices) {
@@ -48,7 +49,7 @@
 
     // Start the camera when the Start button is clicked
 		document.getElementById('start-button').addEventListener('click', function() {
-			var constraints = { audio: false, video: { deviceId: { exact: cameraSelect.value } } };
+			constraints = { audio: false, video: { deviceId: { exact: cameraSelect.value } } };
 			navigator.mediaDevices.getUserMedia(constraints).then(function(newStream) {
 				stream = newStream;
 				video.srcObject = stream;
