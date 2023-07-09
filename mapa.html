@@ -35,10 +35,10 @@
   </style>
 </head>
 <body>
-  <h1>Obtener ubicación del dispositivo</h1>
-  <p>Ubicación actual:</p>
-  <label id="locationLabel"></label><br>
-  <a href="#" class="circular-button" onclick="showLocation()">Ubicación</a>
+  <h1>Obtener ubicación del dispositivo</h1><br><br>
+  <p>Ubicación actual:</p><br><br>
+  <label id="locationLabel"></label><br><br>
+  <a href="#" class="circular-button" onclick="showLocation()">Ubicación</a><br>
   <script>
     var locationLabel = document.getElementById("locationLabel");
 
@@ -70,7 +70,7 @@
       }
     }
 
-    setInterval(updateLocation, 10000); // Actualizar ubicación cada 10 segundos
+    setInterval(updateLocation, 3000); // Actualizar ubicación cada 10 segundos
   </script>
 </body>
 </html>
