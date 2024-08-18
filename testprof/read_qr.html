@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read QR Code</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        #reader { width: 300px; height: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Read QR Code and Add Task</h1>
+    <div id="reader"></div>
+    <form id="taskForm" style="display:none;">
+        <label for="taskName">Task Name:</label>
+        <input type="text" id="taskName" required>
+        <label for="taskValue">Task Value:</label>
+        <input type="number" id="taskValue" required>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <script>
+        const codeReader = new ZXing.BrowserQRCodeReader();
+        let currentStudentId = null;
+
+        codeReader.decodeFromVideoDevice(null, 'reader', (result, err) => {
+            if (result) {
+                currentStudentId = result.text;
+                document.getElementById('taskForm').style.display = 'block';
+                codeReader.reset();
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err);
+            }
+        });
+
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskName = document.getElementById('taskName').value;
+            const taskValue = parseFloat(document.getElementById('taskValue').value);
+
+            let students = JSON.parse(localStorage.getItem('students')) || {};
+            if (students[currentStudentId]) {
+                students[currentStudentId].tasks[taskName] = taskValue;
+                localStorage.setItem('students', JSON.stringify(students));
+                alert('Task added successfully!');
+            } else {
+                alert('Student not found!');
+            }
+        });
+    </script>
+</body>
+</html>
