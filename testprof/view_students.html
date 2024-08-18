@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Students</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>View Students</h1>
+    <table id="studentsTable">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Tasks</th>
+                <th>Average Value</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        function displayStudents() {
+            const students = JSON.parse(localStorage.getItem('students')) || {};
+            const tbody = document.querySelector('#studentsTable tbody');
+            tbody.innerHTML = '';
+
+            for (const [id, student] of Object.entries(students)) {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = id;
+                row.insertCell().textContent = student.name;
+
+                const tasksCell = row.insertCell();
+                let totalValue = 0;
+                let taskCount = 0;
+
+                for (const [task, value] of Object.entries(student.tasks)) {
+                    tasksCell.innerHTML += `${task}: ${value}<br>`;
+                    totalValue += value;
+                    taskCount++;
+                }
+
+                const avgValue = taskCount > 0 ? totalValue / taskCount : 0;
+                row.insertCell().textContent = avgValue.toFixed(2);
+            }
+        }
+
+        displayStudents();
+    </script>
+</body>
+</html>
