@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Barcode Scanner</title>
+    <title>Free Barcode Scanner</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,22 +20,15 @@
             max-width: 800px;
             height: 60vh;
             margin: 20px 0;
-            border: 3px solid #333;
-            border-radius: 10px;
             overflow: hidden;
             background: black;
-        }
-        #video-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
         #result {
             padding: 15px 25px;
@@ -50,7 +43,7 @@
         button {
             padding: 12px 24px;
             font-size: 1.1em;
-            background-color: #007bff;
+            background-color: #2196F3;
             color: white;
             border: none;
             border-radius: 25px;
@@ -59,144 +52,143 @@
             margin: 10px;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #1976D2;
             transform: translateY(-2px);
         }
-        .scanning {
-            animation: scanning-border 2s infinite;
+        .scanning-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 30%;
+            border: 4px solid #2196F3;
+            border-radius: 8px;
+            animation: scanning 2s infinite;
+            pointer-events: none;
         }
-        @keyframes scanning-border {
-            0% { border-color: #007bff; }
-            50% { border-color: #00ff88; }
-            100% { border-color: #007bff; }
+        @keyframes scanning {
+            0% { opacity: 0.7; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.7; }
         }
-        .valid { color: #28a745; }
-        .error { color: #dc3545; }
+        .valid { color: #4CAF50; }
+        .error { color: #f44336; }
     </style>
 </head>
 <body>
-    <h1>Advanced Barcode Scanner</h1>
+    <h1>Free Barcode Scanner</h1>
     <button id="startButton">Start Scanning</button>
     <div id="scanner-container">
-        <div id="video-container"></div>
+        <div class="scanning-overlay"></div>
+        <video id="videoElement"></video>
     </div>
     <div id="result"></div>
 
-    <!-- Dynamsoft Barcode Reader -->
-    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.2/dist/dbr.js"></script>
+    <script src="https://unpkg.com/@zxing/library@0.19.1"></script>
     <script>
-        let scanner = null;
-        let isScanning = false;
-        const resultDiv = document.getElementById('result');
+        const codeReader = new ZXing.BrowserMultiFormatReader();
         const startButton = document.getElementById('startButton');
-        const container = document.getElementById('scanner-container');
+        const resultDiv = document.getElementById('result');
+        const videoElement = document.getElementById('videoElement');
+        let isScanning = false;
 
-        // Initialize Dynamsoft Barcode Reader
-        Dynamsoft.DBR.BarcodeReader.license = 'DLS2eyJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSJ9';
-        Dynamsoft.DBR.BarcodeScanner.createInstance({
-            UIElement: document.getElementById('video-container'),
-            onFrameRead: results => {
-                if (results.length > 0) {
-                    handleResults(results);
-                }
-            }
-        }).then(async instance => {
-            scanner = instance;
-            await scanner.updateRuntimeSettings("balance");
-            
-            // Configure scanner settings
-            const settings = await scanner.getRuntimeSettings();
-            settings.barcodeFormatIds = Dynamsoft.DBR.EnumBarcodeFormat.BF_ALL;
-            settings.expectedBarcodesCount = 1;
-            settings.minResultConfidence = 30;
-            await scanner.updateRuntimeSettings(settings);
-        });
+        startButton.addEventListener('click', toggleScanning);
 
-        startButton.addEventListener('click', () => {
+        async function toggleScanning() {
             if (!isScanning) {
                 startScanning();
             } else {
                 stopScanning();
             }
-        });
-
-        function startScanning() {
-            if (!scanner) return;
-            
-            scanner.show();
-            scanner.play();
-            isScanning = true;
-            startButton.textContent = 'Stop Scanning';
-            container.classList.add('scanning');
-            resultDiv.textContent = '';
-            resultDiv.className = '';
         }
 
-        function stopScanning() {
-            if (!scanner) return;
-            
-            scanner.pause();
-            scanner.hide();
-            isScanning = false;
-            startButton.textContent = 'Start Scanning';
-            container.classList.remove('scanning');
+        async function startScanning() {
+            try {
+                await codeReader.decodeFromVideoDevice(
+                    undefined, 
+                    videoElement,
+                    (result, error) => {
+                        if (result) {
+                            handleResult(result);
+                        }
+                        if (error && !(error instanceof ZXing.NotFoundException)) {
+                            showError(error.message);
+                        }
+                    }
+                );
+                isScanning = true;
+                startButton.textContent = 'Stop Scanning';
+                resultDiv.textContent = '';
+                resultDiv.className = '';
+            } catch (error) {
+                showError(`Error accessing camera: ${error.message}`);
+            }
         }
 
-        function handleResults(results) {
-            const barcode = results[0];
-            if (!barcode || !barcode.barcodeText) return;
-
-            if (validateBarcode(barcode)) {
-                resultDiv.textContent = `Detected ${barcode.barcodeFormat}: ${barcode.barcodeText}`;
+        function handleResult(result) {
+            if (validateBarcode(result)) {
+                resultDiv.textContent = `Detected ${result.getBarcodeFormat()}: ${result.getText()}`;
                 resultDiv.className = 'valid';
                 playBeep();
                 stopScanning();
             } else {
-                resultDiv.textContent = 'Invalid barcode detected';
-                resultDiv.className = 'error';
+                showError('Invalid barcode format');
             }
         }
 
-        function validateBarcode(barcode) {
-            // Add custom validation logic here
-            const value = barcode.barcodeText;
+        function validateBarcode(result) {
+            const text = result.getText();
+            const format = result.getBarcodeFormat();
             
-            // Example: Validate EAN-13 length
-            if (barcode.barcodeFormat === 'EAN_13' && value.length !== 13) {
-                return false;
+            // Add format-specific validation
+            switch(format) {
+                case ZXing.BarcodeFormat.EAN_13:
+                    return text.length === 13 && validateChecksum(text);
+                case ZXing.BarcodeFormat.UPC_A:
+                    return text.length === 12 && validateChecksum(text);
+                default:
+                    return true;
             }
-            
-            // Example: Validate UPC-A checksum
-            if (barcode.barcodeFormat === 'UPC_A') {
-                return validateUPCChecksum(value);
-            }
-            
-            return true;
         }
 
-        function validateUPCChecksum(upc) {
-            const digits = upc.split('').map(Number);
-            if (digits.length !== 12) return false;
-            
+        function validateChecksum(code) {
+            const digits = code.split('').map(Number);
+            const checksum = digits.pop();
             let sum = 0;
-            for (let i = 0; i < 12; i++) {
-                sum += digits[i] * (i % 2 === 0 ? 3 : 1);
-            }
-            return sum % 10 === 0;
+            
+            digits.forEach((digit, index) => {
+                sum += digit * (index % 2 === 0 ? 1 : 3);
+            });
+            
+            const calculatedChecksum = (10 - (sum % 10)) % 10;
+            return checksum === calculatedChecksum;
+        }
+
+        function stopScanning() {
+            codeReader.reset();
+            isScanning = false;
+            startButton.textContent = 'Start Scanning';
+            videoElement.srcObject = null;
+        }
+
+        function showError(message) {
+            resultDiv.textContent = message;
+            resultDiv.className = 'error';
         }
 
         function playBeep() {
             const ctx = new AudioContext();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-
+            
             osc.connect(gain);
             gain.connect(ctx.destination);
-
-            osc.type = 'square';
+            
+            osc.type = 'sine';
             osc.frequency.value = 1000;
             gain.gain.setValueAtTime(0.1, ctx.currentTime);
-
+            
             osc.start();
             gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
             osc.stop(ctx.currentTime + 0.2);
