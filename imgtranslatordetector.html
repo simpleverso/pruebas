@@ -104,7 +104,7 @@
     }
 
     .swipe-button.swiped {
-      transform: translateX(calc(100% - 45px)); /* Dynamic positioning */
+      transform: translateX(calc(100% - 45px)); /* Dynamic positioning <button class="citation-flag" data-index="6"> */
     }
 
     /* Sections */
@@ -145,6 +145,10 @@
         height: 30px;
       }
 
+      .swipe-button.swiped {
+        transform: translateX(calc(100% - 35px)); /* Adjust for smaller button size */
+      }
+
       #results {
         font-size: 16px;
       }
@@ -168,6 +172,10 @@
       .swipe-button {
         width: 25px;
         height: 25px;
+      }
+
+      .swipe-button.swiped {
+        transform: translateX(calc(100% - 30px)); /* Adjust for even smaller button size */
       }
 
       #results {
