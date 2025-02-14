@@ -171,6 +171,7 @@
     let videoStream;
     let currentCameraId;
     let isUploadMode = true; // Default mode is "Upload Image"
+    let isCameraRunning = false;
 
     document.getElementById('action-button').addEventListener('click', async () => {
       const button = document.getElementById('action-button');
@@ -264,25 +265,33 @@
       runInference(img);
     });
 
-    document.getElementById('start-camera').addEventListener('click', async () => {
-      const cameraPreview = document.getElementById('camera-preview');
-      const captureButton = document.getElementById('capture-photo');
+    const startCameraButton = document.getElementById('start-camera');
+    const cameraPreview = document.getElementById('camera-preview');
+    const captureButton = document.getElementById('capture-photo');
 
-      try {
-        // Stop any existing video stream
-        if (videoStream) {
-          videoStream.getTracks().forEach(track => track.stop());
+    startCameraButton.addEventListener('click', async () => {
+      if (!isCameraRunning) {
+        try {
+          // Start the selected camera <button class="citation-flag" data-index="5">
+          videoStream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: currentCameraId ? { exact: currentCameraId } : undefined }
+          });
+          cameraPreview.srcObject = videoStream;
+          cameraPreview.classList.remove('hidden');
+          captureButton.disabled = false;
+          startCameraButton.textContent = 'Detener Cámara';
+          isCameraRunning = true;
+        } catch (error) {
+          alert('No se pudo acceder a la cámara.');
         }
-
-        // Start the selected camera <button class="citation-flag" data-index="5">
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: currentCameraId ? { exact: currentCameraId } : undefined }
-        });
-        cameraPreview.srcObject = videoStream;
-        cameraPreview.classList.remove('hidden');
-        captureButton.disabled = false;
-      } catch (error) {
-        alert('No se pudo acceder a la cámara.');
+      } else {
+        // Stop the camera
+        videoStream.getTracks().forEach(track => track.stop());
+        cameraPreview.srcObject = null;
+        cameraPreview.classList.add('hidden');
+        captureButton.disabled = true;
+        startCameraButton.textContent = 'Iniciar Cámara';
+        isCameraRunning = false;
       }
     });
 
@@ -292,7 +301,6 @@
     });
 
     document.getElementById('capture-photo').addEventListener('click', () => {
-      const cameraPreview = document.getElementById('camera-preview');
       const canvas = document.getElementById('captured-image');
       const ctx = canvas.getContext('2d');
 
