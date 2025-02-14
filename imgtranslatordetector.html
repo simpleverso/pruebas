@@ -74,6 +74,33 @@
       display: none;
     }
 
+    /* Swipe Button Styles */
+    .swipe-container {
+      position: relative;
+      width: 200px;
+      height: 50px;
+      margin: 20px auto;
+      background-color: #ddd;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .swipe-button {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 40px;
+      height: 40px;
+      background-color: #007bff;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+
+    .swipe-button.swiped {
+      transform: translateX(150px); /* Move the button to the right <button class="citation-flag" data-index="6"> */
+    }
+
     #upload-section, #camera-section {
       margin-top: 20px;
     }
@@ -105,11 +132,19 @@
         <div id="loading-bar" class="hidden"></div>
       </div>
 
-      <div id="upload-section" class="hidden">
+      <!-- Swipe Button -->
+      <div class="swipe-container" id="swipe-container">
+        <div class="swipe-button" id="swipe-button"></div>
+      </div>
+      <p id="mode-text">Modo Actual: Subir Imagen</p>
+
+      <!-- Upload Section -->
+      <div id="upload-section">
         <input type="file" id="image-upload" accept="image/*">
         <div id="image-preview"></div>
       </div>
 
+      <!-- Camera Section -->
       <div id="camera-section" class="hidden">
         <select id="camera-list"></select>
         <button id="start-camera">Iniciar Cámara</button>
@@ -135,6 +170,7 @@
     let labels;
     let videoStream;
     let currentCameraId;
+    let isUploadMode = true; // Default mode is "Upload Image"
 
     document.getElementById('action-button').addEventListener('click', async () => {
       const button = document.getElementById('action-button');
@@ -160,8 +196,6 @@
         await listCameras();
         loadingBar.classList.add('hidden');
         button.textContent = 'Identificar imagenes!';
-        document.getElementById('upload-section').classList.remove('hidden');
-        document.getElementById('camera-section').classList.remove('hidden');
       }
     });
 
@@ -192,6 +226,27 @@
       // Select the first camera by default
       currentCameraId = videoDevices[0]?.deviceId;
     }
+
+    // Swipe Button Logic
+    const swipeContainer = document.getElementById('swipe-container');
+    const swipeButton = document.getElementById('swipe-button');
+    const modeText = document.getElementById('mode-text');
+    const uploadSection = document.getElementById('upload-section');
+    const cameraSection = document.getElementById('camera-section');
+
+    swipeContainer.addEventListener('click', () => {
+      isUploadMode = !isUploadMode;
+
+      // Toggle swipe button position <button class="citation-flag" data-index="6">
+      swipeButton.classList.toggle('swiped');
+
+      // Update mode text
+      modeText.textContent = isUploadMode ? 'Modo Actual: Subir Imagen' : 'Modo Actual: Usar Cámara';
+
+      // Show/hide sections based on mode
+      uploadSection.classList.toggle('hidden', !isUploadMode);
+      cameraSection.classList.toggle('hidden', isUploadMode);
+    });
 
     document.getElementById('image-upload').addEventListener('change', async (event) => {
       const file = event.target.files[0];
