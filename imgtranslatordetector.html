@@ -132,14 +132,16 @@
         <div id="loading-bar" class="hidden"></div>
       </div>
 
-      <!-- Swipe Button -->
-      <div class="swipe-container" id="swipe-container">
-        <div class="swipe-button" id="swipe-button"></div>
+      <!-- Swipe Button (Hidden by Default) -->
+      <div id="mode-toggle" class="hidden">
+        <div class="swipe-container" id="swipe-container">
+          <div class="swipe-button" id="swipe-button"></div>
+        </div>
+        <p id="mode-text">Modo Actual: Subir Imagen</p>
       </div>
-      <p id="mode-text">Modo Actual: Subir Imagen</p>
 
       <!-- Upload Section -->
-      <div id="upload-section">
+      <div id="upload-section" class="hidden">
         <input type="file" id="image-upload" accept="image/*">
         <div id="image-preview"></div>
       </div>
@@ -192,11 +194,19 @@
           if (progress >= 100) clearInterval(interval);
         }, 200);
 
-        // Load the MobileNet model and labels
-        await Promise.all([loadModel(), loadLabels()]);
-        await listCameras();
-        loadingBar.classList.add('hidden');
-        button.textContent = 'Identificar imagenes!';
+        try {
+          // Load the MobileNet model and labels
+          await Promise.all([loadModel(), loadLabels()]);
+          await listCameras();
+          loadingBar.classList.add('hidden');
+          button.textContent = 'Identificar imagenes!';
+          document.getElementById('upload-section').classList.remove('hidden');
+          document.getElementById('camera-section').classList.remove('hidden');
+          document.getElementById('mode-toggle').classList.remove('hidden'); // Show mode toggle after model loads
+        } catch (error) {
+          alert('Error al cargar el modelo o las etiquetas.');
+          console.error(error);
+        }
       }
     });
 
@@ -318,20 +328,25 @@
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = 'Analizando imagen...';
 
-      const tensor = tf.browser.fromPixels(imageElement)
-        .resizeNearestNeighbor([224, 224])
-        .toFloat()
-        .sub(127.5)
-        .div(127.5)
-        .expandDims();
+      try {
+        const tensor = tf.browser.fromPixels(imageElement)
+          .resizeNearestNeighbor([224, 224])
+          .toFloat()
+          .sub(127.5)
+          .div(127.5)
+          .expandDims();
 
-      const predictions = await model.predict(tensor).data();
-      const top5 = Array.from(predictions)
-        .map((prob, index) => ({ prob, label: labels[index] || "Desconocido" })) // Fallback for undefined labels <button class="citation-flag" data-index="4">
-        .sort((a, b) => b.prob - a.prob)
-        .slice(0, 5);
+        const predictions = await model.predict(tensor).data();
+        const top5 = Array.from(predictions)
+          .map((prob, index) => ({ prob, label: labels[index] || "Desconocido" })) // Fallback for undefined labels <button class="citation-flag" data-index="4">
+          .sort((a, b) => b.prob - a.prob)
+          .slice(0, 5);
 
-      resultsDiv.innerHTML = top5.map(({ label, prob }) => `${label}: ${(prob * 100).toFixed(2)}%`).join('<br>');
+        resultsDiv.innerHTML = top5.map(({ label, prob }) => `${label}: ${(prob * 100).toFixed(2)}%`).join('<br>');
+      } catch (error) {
+        resultsDiv.innerHTML = 'Error al analizar la imagen.';
+        console.error(error);
+      }
     }
   </script>
 </body>
