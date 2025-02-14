@@ -146,7 +146,7 @@
         <div id="image-preview"></div>
       </div>
 
-      <!-- Camera Section -->
+      <!-- Camera Section (Hidden by Default) -->
       <div id="camera-section" class="hidden">
         <select id="camera-list"></select>
         <button id="start-camera">Iniciar Cámara</button>
@@ -200,9 +200,8 @@
           await listCameras();
           loadingBar.classList.add('hidden');
           button.textContent = 'Identificar imagenes!';
-          document.getElementById('upload-section').classList.remove('hidden');
-          document.getElementById('camera-section').classList.remove('hidden');
-          document.getElementById('mode-toggle').classList.remove('hidden'); // Show mode toggle after model loads
+          document.getElementById('upload-section').classList.remove('hidden'); // Show upload section
+          document.getElementById('mode-toggle').classList.remove('hidden'); // Show mode toggle
         } catch (error) {
           alert('Error al cargar el modelo o las etiquetas.');
           console.error(error);
@@ -271,8 +270,8 @@
       imagePreview.innerHTML = '';
       imagePreview.appendChild(img);
 
-      // Run inference on the image
-      runInference(img);
+      // Wait for the image to load before running inference <button class="citation-flag" data-index="1">
+      img.onload = () => runInference(img);
     });
 
     const startCameraButton = document.getElementById('start-camera');
@@ -329,6 +328,11 @@
       resultsDiv.innerHTML = 'Analizando imagen...';
 
       try {
+        // Ensure the image has valid dimensions
+        if (imageElement.width === 0 || imageElement.height === 0) {
+          throw new Error('La imagen no tiene dimensiones válidas.');
+        }
+
         const tensor = tf.browser.fromPixels(imageElement)
           .resizeNearestNeighbor([224, 224])
           .toFloat()
