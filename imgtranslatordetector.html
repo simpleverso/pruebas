@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detección de Objetos con MobileNet</title>
+  <style>
+    /* CSS Styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7)), url('https://via.placeholder.com/1920x1080') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header {
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+    }
+
+    main {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #button-container {
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #loading-bar {
+      width: 100%;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    #loading-bar div {
+      width: 0%;
+      height: 100%;
+      background-color: #007bff;
+      transition: width 0.3s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #camera-section {
+      margin-top: 20px;
+    }
+
+    #camera-preview {
+      margin-top: 20px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    #results {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>Detección de Objetos con MobileNet</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <div id="button-container">
+        <button id="action-button">Iniciar!</button>
+        <div id="loading-bar" class="hidden"></div>
+      </div>
+
+      <div id="camera-section" class="hidden">
+        <select id="camera-list"></select>
+        <button id="start-camera">Iniciar Cámara</button>
+        <button id="capture-photo" disabled>Capturar Foto</button>
+        <video id="camera-preview" autoplay playsinline class="hidden"></video>
+        <canvas id="captured-image" class="hidden"></canvas>
+        <div id="results"></div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2025 Innovación y Tecnología</p>
+    </footer>
+  </div>
+
+  <!-- TensorFlow.js Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script>
+    // JavaScript Logic
+    let model;
+    let labels;
+    let videoStream;
+    let currentCameraId;
+
+    document.getElementById('action-button').addEventListener('click', async () => {
+      const button = document.getElementById('action-button');
+      const loadingBar = document.getElementById('loading-bar');
+      const progressBar = document.createElement('div');
+
+      if (button.textContent === 'Iniciar!') {
+        // Change button text and show loading bar
+        button.textContent = 'Cargando...';
+        loadingBar.classList.remove('hidden');
+        loadingBar.appendChild(progressBar);
+
+        // Simulate loading progress
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 10;
+          progressBar.style.width = `${progress}%`;
+          if (progress >= 100) clearInterval(interval);
+        }, 200);
+
+        // Load the MobileNet model and labels
+        await Promise.all([loadModel(), loadLabels()]);
+        await listCameras();
+        loadingBar.classList.add('hidden');
+        button.textContent = 'Identificar imagenes!';
+        document.getElementById('camera-section').classList.remove('hidden');
+      }
+    });
+
+    async function loadModel() {
+      // Load the MobileNet model from TensorFlow.js hosted models <button class="citation-flag" data-index="6">
+      model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_1.0_224/model.json');
+    }
+
+    async function loadLabels() {
+      // Load the ImageNet class labels from a JSON file <button class="citation-flag" data-index="9">
+      const response = await fetch('https://raw.githubusercontent.com/anishathalye/imagenet-simple-labels/master/imagenet-simple-labels.json');
+      labels = await response.json();
+    }
+
+    async function listCameras() {
+      // List available cameras using MediaDevices API <button class="citation-flag" data-index="5">
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      const cameraList = document.getElementById('camera-list');
+
+      videoDevices.forEach((device, index) => {
+        const option = document.createElement('option');
+        option.value = device.deviceId;
+        option.textContent = device.label || `Cámara ${index + 1}`;
+        cameraList.appendChild(option);
+      });
+
+      // Select the first camera by default
+      currentCameraId = videoDevices[0]?.deviceId;
+    }
+
+    document.getElementById('start-camera').addEventListener('click', async () => {
+      const cameraPreview = document.getElementById('camera-preview');
+      const captureButton = document.getElementById('capture-photo');
+
+      try {
+        // Stop any existing video stream
+        if (videoStream) {
+          videoStream.getTracks().forEach(track => track.stop());
+        }
+
+        // Start the selected camera <button class="citation-flag" data-index="5">
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: currentCameraId ? { exact: currentCameraId } : undefined }
+        });
+        cameraPreview.srcObject = videoStream;
+        cameraPreview.classList.remove('hidden');
+        captureButton.disabled = false;
+      } catch (error) {
+        alert('No se pudo acceder a la cámara.');
+      }
+    });
+
+    document.getElementById('camera-list').addEventListener('change', (event) => {
+      // Update the selected camera ID
+      currentCameraId = event.target.value;
+    });
+
+    document.getElementById('capture-photo').addEventListener('click', () => {
+      const cameraPreview = document.getElementById('camera-preview');
+      const canvas = document.getElementById('captured-image');
+      const ctx = canvas.getContext('2d');
+
+      // Capture the current frame from the video stream <button class="citation-flag" data-index="7">
+      canvas.width = cameraPreview.videoWidth;
+      canvas.height = cameraPreview.videoHeight;
+      ctx.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
+      canvas.classList.remove('hidden');
+
+      // Run inference on the captured image
+      runInference(canvas);
+    });
+
+    async function runInference(imageElement) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = 'Analizando imagen...';
+
+      const tensor = tf.browser.fromPixels(imageElement)
+        .resizeNearestNeighbor([224, 224])
+        .toFloat()
+        .sub(127.5)
+        .div(127.5)
+        .expandDims();
+
+      const predictions = await model.predict(tensor).data();
+      const top5 = Array.from(predictions)
+        .map((prob, index) => ({ prob, label: labels[index] || "Desconocido" })) // Fallback for undefined labels <button class="citation-flag" data-index="4">
+        .sort((a, b) => b.prob - a.prob)
+        .slice(0, 5);
+
+      resultsDiv.innerHTML = top5.map(({ label, prob }) => `${label}: ${(prob * 100).toFixed(2)}%`).join('<br>');
+    }
+  </script>
+</body>
+</html>
