@@ -74,11 +74,11 @@
       display: none;
     }
 
-    #camera-section {
+    #upload-section, #camera-section {
       margin-top: 20px;
     }
 
-    #camera-preview {
+    #image-preview, #camera-preview {
       margin-top: 20px;
       max-width: 100%;
       height: auto;
@@ -105,14 +105,20 @@
         <div id="loading-bar" class="hidden"></div>
       </div>
 
+      <div id="upload-section" class="hidden">
+        <input type="file" id="image-upload" accept="image/*">
+        <div id="image-preview"></div>
+      </div>
+
       <div id="camera-section" class="hidden">
         <select id="camera-list"></select>
         <button id="start-camera">Iniciar Cámara</button>
         <button id="capture-photo" disabled>Capturar Foto</button>
         <video id="camera-preview" autoplay playsinline class="hidden"></video>
         <canvas id="captured-image" class="hidden"></canvas>
-        <div id="results"></div>
       </div>
+
+      <div id="results"></div>
     </main>
 
     <!-- Footer -->
@@ -154,6 +160,7 @@
         await listCameras();
         loadingBar.classList.add('hidden');
         button.textContent = 'Identificar imagenes!';
+        document.getElementById('upload-section').classList.remove('hidden');
         document.getElementById('camera-section').classList.remove('hidden');
       }
     });
@@ -185,6 +192,22 @@
       // Select the first camera by default
       currentCameraId = videoDevices[0]?.deviceId;
     }
+
+    document.getElementById('image-upload').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Display the uploaded image
+      const imagePreview = document.getElementById('image-preview');
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.style.maxWidth = '100%';
+      imagePreview.innerHTML = '';
+      imagePreview.appendChild(img);
+
+      // Run inference on the image
+      runInference(img);
+    });
 
     document.getElementById('start-camera').addEventListener('click', async () => {
       const cameraPreview = document.getElementById('camera-preview');
