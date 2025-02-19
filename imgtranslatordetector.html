@@ -230,7 +230,7 @@
     </footer>
   </div>
 
-  <!-- TensorFlow.js Script -->
+
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script>
     // JavaScript Logic
@@ -276,19 +276,17 @@
     });
 
     async function loadModel() {
-      // Load the MobileNet model from TensorFlow.js hosted models <button class="citation-flag" data-index="6">
       model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_1.0_224/model.json');
     }
 
     async function loadLabels() {
-      // Load the ImageNet class labels from a JSON file <button class="citation-flag" data-index="9">
       //const response = await fetch('https://raw.githubusercontent.com/anishathalye/imagenet-simple-labels/master/imagenet-simple-labels.json');
      const response = await fetch('https://raw.githubusercontent.com/simpleverso/pruebas/refs/heads/master/imagenet-simple-labels.json'); 
       labels = await response.json();
     }
 
-    async function listCameras() {
-      // List available cameras using MediaDevices API <button class="citation-flag" data-index="5">
+    async function listCameras() 
+    {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
       const cameraList = document.getElementById('camera-list');
