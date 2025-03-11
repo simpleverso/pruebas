@@ -1,0 +1,19 @@
+limpiar_texto
+dosporuna:en,serio,enserio
+tresporuna:digo,la,verdad,verdaddigo
+dosporuna:te,llamas,tellamas
+dosporuna:buenas,ganancias,muchas ganancias
+dosporuna:que,sea,quesea
+eliminarParticula:el
+reemplazar_particula_en_palabra_siguiente:a,a2,veces
+estaalinicio:para,para2
+dosporuna:ya,ha,ya
+tresporuna:no2,tengas,miedo,no3 tengasmiedo
+preprocesar_regla:a,2
+reemplazar_particula:el,la
+reemplazar_particula:una,un
+reemplazar_particula_en_palabra_anterior:de,a,vez
+cincoporuna:no,le,tengas,miedo,a,no_tengas_miedo_a
+cuatroporuna:no,le,tengas,miedo,no_tengas_miedo
+reemplazar_frase:el gato es grande,el_gato_es_enorme
+reemplazar_ultimas_n_letras_especif:walked,2,ed,ing
