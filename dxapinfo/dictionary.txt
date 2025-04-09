@@ -234,6 +234,7 @@ tener,Gapa'
 algun,Tuusha'
 vio,Biiya'
 ir,Chee
+podía,ñanda
 cuatro,Tappa
 lado,Ladu
 joven,"Badu nguiiu"
@@ -317,6 +318,7 @@ quería,Gucaladxe'
 segundo,Guiropa
 libro,Gui'chi
 diez,Chii
+ningún,"Nin tobi"
 eres,Lii
 ve,Guyé
 pueblos,"Ca guidxi"
@@ -465,6 +467,7 @@ tras,Déeche
 doce,"Chii ne chuppa"
 mesa,Mexa’
 presidente,"Shaíque guidxhi"
+dieron,Bidiicabe
 viendo,Cayuya
 hare,Zune'
 veinte,Gande
@@ -481,6 +484,7 @@ llamo,Cabi'dxi
 sensación,Hruudu
 pocos,Cadxhi
 entrada,"Jra riucabe"
+iban,Zecabe
 fuerzas,Stipa
 negro,Nayase'
 españoles,"Binni España"
@@ -589,6 +593,7 @@ hambre,Candaana
 vivo,Nabanee'
 azul,azul
 nacion,guidxi
+hacían,bíʼnicabe
 lleva,yené
 noticia,Diidxa
 conocido,"Ni rune bia'"
@@ -616,6 +621,8 @@ puro,Nayaa
 hablado,Huani'
 cayó,"Ma bigá"
 fui,Guyaa
+venían,"beedacabe "
+imaginación,Guendarushuilú
 polvo,"Yu dé"
 jacob,Jacob
 humano,Nguiu'
@@ -663,6 +670,7 @@ oye,Riuudiaga
 ustedes,Laatu
 ah,ah
 fácil,"Cadi nagana"
+pusieron,"guluucabe "
 reposo,"Guenda risila'dxi"
 cuarenta,"Chupa late gande"
 piel,"Guidi ladi"
@@ -687,6 +695,7 @@ sabiduria,Guendabiaani'
 vienen,Zedaca
 mirar,guuya'
 presto,Hixhe
+contradicción,"Diidxa cadxeelasaa'"
 nubes,"Ca zá"
 alas,Xhiaa
 límite,"ra iluxhe"
@@ -711,6 +720,7 @@ centro,Galahui’
 fruto,cuananaxhi
 m,m
 seguir,"Che nanda"
+volvieron,Bibiguetacabe'
 anda,be
 demasiado,Nabee
 expresión,Diidxa
@@ -762,6 +772,7 @@ animales,"Ca maani ca"
 cumplimiento,"guendaruzuhuaa diidxa'"
 nacido,Biule
 llorar,Hruuna'
+tuvieron,Gúpacabe
 amiga,Shamiga'
 trae,"Né be"
 difícil,Nagana
@@ -816,6 +827,7 @@ hago,Cayuune
 café,Biziaandá'
 poderoso,Nandxó'
 esperar,cabeeza'
+parecían,ruluíʼcabe
 altos,Nasoo
 enfermo,Huará
 quinto,Gaayu’
@@ -876,6 +888,7 @@ error,Bichee
 teníamos,Gúpadu
 fortaleza,Nadiipa'
 tomando,Canaye'
+prisión,Lídxiguiiba
 necesita,Riquiiñe
 mirad,"La gu'ya"
 extraño,Hribaana'
@@ -885,6 +898,7 @@ perfección,"Nabé Neeza"
 limpio,nayá
 ganado,Yuze
 maldad,"Enda nadxhaba'"
+traían,Bedanecabe
 mentira,"cadi dxandi'"
 sueños,Guendarinixcaanda
 eterna,"ni qué ziuu dxí guiluxe"
@@ -912,7 +926,6 @@ muchacho,"Badu nguiiu"
 pedir,Zanaba
 apareció,Rindaani
 imperio,Guidxi
-martin,Martin
 sabido,Huayanna
 perdida,Canarenda'
 lenguaje,Diidxa
@@ -1016,6 +1029,7 @@ quedan,Bia'na
 explicar,bisiene
 letra,Die'lana
 dime,"gudxi na"
+serian,ñácacabe
 masa,Cuba
 cena,"Endaró xhi"
 rojo,nashiña'
@@ -1063,6 +1077,9 @@ anita,Anita
 entiendo,Cayene'
 haran,sunicabe
 pálido,Naxhixhí
+porción,"ti nda'"
+sabían,Nanacabe
+salían,Carecabe
 asiento,Asientu
 esten,nutu
 hacerlo,"guninuli "
@@ -1129,9 +1146,10 @@ arena,Yuxi
 necesito,Caquiiñe'
 escribe,Bicáa
 escalera,Escalera
-existen,Jnuu
+existen,Nuu
 tuya,Stiu'
 moneda,bidxichi
+veían,Biiyacabe
 montañas,Daanii
 querida,Nadxhie
 sierra,Dani
@@ -2593,6 +2611,7 @@ niza,agua
 corrí,Guxhoñe'
 empezamos,Bizulunu
 gallegos,"Ca binni de Galicia"
+divisó,Biyabe
 terremotos,Xhu
 dominada,Shaíque
 llores,Guunalu''
@@ -4306,7 +4325,6 @@ guichicovi,Guichicovi
 ¿y,¿y
 mixe,mixe
 chichinahuatl,chichinahuatl
-feateja,feateja
 chaparra,Nachucu
 mildred,Mildred
 buenosdias,buenosdias
@@ -4456,8 +4474,6 @@ algodonado,Nashiaa
 chiquitito,"Nahuiini du'tu"
 :,:
 ;,;
-<,<
->,>
 (,(
 escribeme,"Bicá para na"
 izyalyth,Izyalyth
@@ -4481,22 +4497,15 @@ tarada,Guidxa
 desdunos,Shieeladica'
 desdunas,Shieeladica'
 atrapando,Cananaazeca'
-"style="width:","style="width:"
-"id="gtedit"","id="gtedit""
-"style="display:none"","style="display:none""
 melisa,Melisa
 aprendamos,"Chi iziidinu'"
 evelyn,Evelyn
 aylin,Aylin
 cinthya:,cinthya:
-"cinthya"","cinthya""
-"feita"","feita""
 :(,:(
 interrumpir<br,interrumpir<br
 100%,100%
 día<br,día<br
-"dado"","dado""
-"jugar"","jugar""
 ábrala,"bixheleʼ ni"
 ábralo,"bixheleʼ ni"
 ábralos,"bixheleʼ cani "
@@ -4870,56 +4879,18 @@ holacomo,holacomo
 holabebe,holabebe
 nashialy,Nashialy
 zanatezanate,zanatezanate
-"fldorfcxccfxecd ?z","fldorfcxccfxecd ?z"
-"fldorfcxccfxecd ?zxscwx","fldorfcxccfxecd ?zxscwx"
-//,//
-""se",""se"
 [4],[4]
 [5],[5]
 [6],[6]
-"rt_text"><span","rt_text"><span"
-"title="hello","title="hello"
-"friend"","friend""
-"onmouseover="this","onmouseover="this"
-"backgroundcolor='#ebeff9'"","backgroundcolor='#ebeff9'""
-"onmouseout="this","onmouseout="this"
-"backgroundcolor='#fff'">hola","backgroundcolor='#fff'">hola"
-amigo</span></span>,amigo</span></span>
 a.,a.
 m.lista,m.lista
-""short_text"><span",""short_text"><span"
-"kgroundcolor='#ebeff9'"","kgroundcolor='#ebeff9'""
-"eout="this","eout="this"
-"kgroundcolor='#fff'">hola","kgroundcolor='#fff'">hola"
->hola,>hola
 name=edit-text,name=edit-text
 wrap=soft,wrap=soft
 tabindex=0,tabindex=0
-"spellcheck="false"","spellcheck="false""
-"autocapitalize="off"","autocapitalize="off""
-"autocomplete="off"","autocomplete="off""
-"autocorrect="off"","autocorrect="off""
-></textarea></div></div><div,></textarea></div></div><div
-id=gt-res-tools><div,id=gt-res-tools-l><div
-id=gt-res-tools-l><div,id=gt-res-tools-l><div
-id=gt-pb-star></div></div><div,id=gt-pb-star></div></div><div
-id=gt-res-tools-r><div,id=gt-res-tools-r><div
-id=gt-res-undo></div></div></div></div><div,id=gt-res-undo></div></div></div></div><div
-id=res-translit,id=res-translit
 class=translit,class=translit
 dir=ltr,dir=ltr
-"style="text-align:"></div></div></div></div><","style="text-align:"></div></div></div></div><"
-"id="gt-promo-lr"></div><div","id="gt-promo-lr"></div><div"
-id=gt-lc,id=gt-lc
-"style="display:none"></div></div><div","style="display:none"></div></div><div"
-id=gt-ft><div,id=gt-ft><div
-id=gt-ft-mkt><div,id=gt-ft-mkt><div
 class=gt-ft-promos><span,class=gt-ft-promos><span
 class=gt-ft-text>google,class=gt-ft-text>google
-"#fff'">como","#fff'">como"
-"nmouseover="this","nmouseover="this"
-"backgroundcolor='#fff'">como","backgroundcolor='#fff'">como"
-tortugas????????????,tortugas????????????
 chamaquito,"Badu nguiu huiini'"
 changuita,"Migu Huiini"
 chaparrito,Nachucu
@@ -4927,6 +4898,7 @@ changuito,"Migu Huiini"
 1983,1983
 :3,:3
 1_2_3_4_5_67_8_9_10,tobi_chupa_chonna_tapa_ga'yu_xho'pa_gadxe_xho
+tienes?,"Napalu la?"
 "miedo,",dxiibi
 guajolote43,Tou'43
 hdhtxuyxhhgx,hdhtxuyxhhgx
@@ -4974,3 +4946,7 @@ espaniol,espaniol
 mequería,"gunashibe naa"
 "los alumnos","ca Ba'ducaziidi'"
 búscalo,"Biyubi laabe"
+divisábamos,Biiyanu'
+divertíanse,"La guieche"
+divulgaré,chitidxeʼ
+divulgará,chitidxibe
