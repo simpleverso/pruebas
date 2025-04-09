@@ -1,4 +1,3 @@
-espaniol,zapoteco
 de,Sti
 y,Ne
 qué,Xhi
@@ -30,7 +29,7 @@ me,Naa
 yo,Naa
 esta,Ndi'
 pero,peru
-porque,"Pur ti"
+porque,Pur ti
 había,Biuu'
 todo,Guidubi
 era,Ucabe
@@ -68,7 +67,7 @@ donde,Raa
 señor,Nguiu'
 tierra,Gidxilayú
 aquí,Rarí
-hombre,"Badu nguiu'"
+hombre,Badu nguiu'
 despues,óraque
 aquel,ndica'
 les,Laaca’
@@ -84,7 +83,7 @@ cual,Xhinga
 rey,Shaíque
 estaba,Uyua'
 solo,Stubi
-vida,"Guenda nabani"
+vida,Guenda nabani
 otra,Stobi
 gran,Ro'
 toda,Irá'
@@ -103,48 +102,48 @@ cosas,xiixa'
 aun,Deyanna
 parte,ndaa
 puede,zanda
-siempre,"Guidubi guendanabani"
+siempre,Guidubi guendanabani
 tanto,Stale
-hijos,"Ca shiñe'"
+hijos,Ca shiñe'
 padre,Bishoze
 usted,Lii
 tiene,Napa
-ojos,"Ca guie Lú'"
+ojos,Ca guie Lú'
 pueblo,Guidxi
 tal,Tal
 hacer,Ga'ca
 decir,Gaabe
-hombres,"Ca nguiiu"
+hombres,Ca nguiiu
 vez,Viaje
 han,Ma
 aunque,Neca
 antes,Dxiqué
-cosa,"Xiixa  "
+cosa,Xiixa  
 mucho,Stalee
 mujer,Gunaa'
 mano,Bataná’
 sea,gacani
 ver,Guuya
 ciudad,Guidxi
-será,"Ñe la'"
+será,Ñe la'
 mundo,Gidxilayú
-estos,"Ca ndi’"
+estos,Ca ndi’
 cada,Idubi
-días,"Ca dxhi"
+días,Ca dxhi
 poco,Huaxié’
 dicho,gudxhicabe
-menos,"Huaxié’  "
-hecho,"Bizáʼcabe ni "
+menos,Huaxié’  
+hecho,Bizáʼcabe ni 
 cuanto,Panda
 nosotros,Laanu
 noche,Huaxhinni
 hacia,Ra
 hizo,Bi'nibe
-fin,"Ra iluxhe"
+fin,Ra iluxhe
 tres,Chonna
 amor,Guendanadxí
 tus,Stilu
-mal,"guenda nadxaba'"
+mal,guenda nadxaba'
 verdad,Dxandí'
 habían,Guyuu'
 dice,Hrabibe
@@ -154,24 +153,24 @@ manera,Modo
 alma,Guenda
 veces,Viaje
 corazon,Ladxido'
-delante,"Zá nírú"
-palabras,"Ca Diidxa'  "
-otras,"ca stobi"
+delante,Zá nírú
+palabras,Ca Diidxa'  
+otras,ca stobi
 años,Iza
-misma,"Sica caa"
+misma,Sica caa
 nombre,Lá
 eso,Nga
-muerte,"Guenda guti"
+muerte,Guenda guti
 eran,Gucacabe
 oro,Oro
 hace,Runibe
 muchos,Stale
-manos,"Ca naa'"
+manos,Ca naa'
 ti,Lii
 soy,Naca'
 dio,Gudibee
-mejor,"Jmá Galán"
-idea,"ni ca ique'"
+mejor,Jmá Galán
+idea,ni ca ique'
 algo,Xhixaa
 cabeza,Ique
 general,General
@@ -191,9 +190,9 @@ espiritu,Guenda
 fuerza,Stipa
 vino,beeda
 muchas,Stale
-unos,"Chupa chonna"
+unos,Chupa chonna
 nuestra,Stinu
-aquellos,"Ca ngue"
+aquellos,Ca ngue
 estaban,nucaca'
 decía,Raabe
 hoy,Enadxhi
@@ -203,14 +202,14 @@ haber,Da’
 palabra,Diidxa
 cielo,Guiba'
 pasó,Guuca
-puerta,"rua yoo'"
-nunca,"Qué ziuu dxi"
-algunos,"Chupa chonna"
+puerta,rua yoo'
+nunca,Qué ziuu dxi
+algunos,Chupa chonna
 sol,Gubidxa
 hija,Shiñe'
 madre,Jñaa
 poder,Stipa
-parece,"Rihuinni casi"
+parece,Rihuinni casi
 vuestra,Stiilu'
 estan,Nuutu
 señora,Na
@@ -237,19 +236,19 @@ ir,Chee
 podía,ñanda
 cuatro,Tappa
 lado,Ladu
-joven,"Badu nguiiu"
+joven,Badu nguiiu
 sangre,Riinni
 historia,Diidxa
 va,Rie
 dado,Bidié
-pies,"Ca Jñee'"
-debe,"	
-napa xidé"
+pies,Ca Jñee'
+debe,	
+napa xidé
 cuales,Shinga
 bajo,Guete’
-primera,"Zaa niruu'"
-mujeres,"Ca Gunaa'"
-llego,"Veda ndaa'"
+primera,Zaa niruu'
+mujeres,Ca Gunaa'
+llego,Veda ndaa'
 presente,Yanna
 cierto,Dxandí’
 mañana,Guixí’
@@ -261,51 +260,51 @@ gente,Binni
 ninguna,Abati’
 pie,Batañee
 amigo,Bichi
-guerra,"Guenda ridinde"
-mandó,"Bise'nda be"
+guerra,Guenda ridinde
+mandó,Bise'nda be
 junto,Cue’
 muerto,Gue’tu’
-ideas,"ni ca íque"
+ideas,ni ca íque
 año,Iza
 vista,lua'
 hermano,Biche'
 puso,Gudixhe
-hablar,"Cué didxa"
+hablar,Cué didxa
 da,Rusiga'de'
 cerca,Gaxha
 digo,Raabe'
-uñas,"Bixuga na'"
-ante,"lu sti"
+uñas,Bixuga na'
+ante,lu sti
 estar,Nua
 vi,Biiya'
 casi,Bilá
 ello,laani
 partes,Xcua
 algunas,Caadxi'
-campo,"ra ñaa"
+campo,ra ñaa
 sabe,Naana
 allá,Chericá’
 tarde,Huadxí
 nuevo,Nacubi
-momento,"Ti ratu si"
+momento,Ti ratu si
 forma,Forma
 hora,Hora
 tuvo,Gupabe'
 mio,Stine'
-principio,"Hra hruzuluni'"
+principio,Hra hruzuluni'
 tenían,gúpacabe
 quiere,Gannaxhílu'
 volvió,Biguetabe
 cuenta,Bigaaba
 objeto,xiixa'
 estoy,Nua'
-dioses,"Ca Diuxhi ca"
+dioses,Ca Diuxhi ca
 hubo,Uyuu'
 calle,Bandaa
 siendo,gacalu
 pedro,Pedro
 boca,Hruaa
-amigos,"Ca Xhamigu'"
+amigos,Ca Xhamigu'
 pronto,Guiuba
 real,dxandi'
 vuestro,Stilu'
@@ -313,15 +312,15 @@ llegar,venda'
 hablo,Caniee'
 unidos,Tobisi
 tomó,Gucuaabe
-mexicanos,"Binni México"
+mexicanos,Binni México
 quería,Gucaladxe'
 segundo,Guiropa
 libro,Gui'chi
 diez,Chii
-ningún,"Nin tobi"
+ningún,Nin tobi
 eres,Lii
 ve,Guyé
-pueblos,"Ca guidxi"
+pueblos,Ca guidxi
 salió,Biree
 rostro,Lú
 bueno,Galán
@@ -329,10 +328,10 @@ persona,Binni
 gloria,Guiba'
 san,Bido'
 lejos,Zitu
-parecía,"Ruluíʼ si"
+parecía,Ruluíʼ si
 dinero,Bidxichi
 sabia,Nuuxpiaani'
-fracción,"ti nda"
+fracción,ti nda
 aire,Bi
 personas,Binni
 mía,Stinne'
@@ -343,21 +342,21 @@ cinco,Gaayu’
 río,Guiigu’
 sentido,Guendala'dxi'
 pasar,Cadi'di
-existencia,"Enda nabani"
-armas,"Ca Guiiba"
-conforme,"Casi Naa'"
+existencia,Enda nabani
+armas,Ca Guiiba
+conforme,Casi Naa'
 alguno,Tuuxha
 oído,Diaga
-serán,"chi gaca"
+serán,chi gaca
 cuarto,Guidapa
 necesario,Naquiiñe'
-dijeron,"guniʼcaʼ ."
+dijeron,guniʼcaʼ .
 mucha,Stalee
 ay,Ay
 aquello,Ngué
 color,Color
 caballo,Mani’
-todavía,"Ca’ru lica"
+todavía,Ca’ru lica
 hermanos,Bicheca'
 puedo,Zanda
 alto,Nasoo
@@ -372,7 +371,7 @@ falta,Riaadxa'
 monte,Ui’xhi’
 llama,Bele
 siete,Gadxe
-padres,"Bixhoze ne ñaa"
+padres,Bixhoze ne ñaa
 voy,Chaa'
 siguiente,stobi
 nuestras,Stidu
@@ -381,7 +380,7 @@ comer,Gaua'
 durante,Jra
 triste,Nabaná'
 iv,iv
-jamas,"Qui huayuu dxi"
+jamas,Qui huayuu dxi
 plata,Guibayati
 pasado,Gudi’di’
 frente,Lucuá
@@ -389,18 +388,18 @@ llegado,Bedanda'
 pudo,ñánda'
 fuerte,Nadipa'
 viejo,Yo'xho'
-mexico,"Guidxi México"
-conmigo,"Ne naa"
+mexico,Guidxi México
+conmigo,Ne naa
 dolor,Yuuba'
 cura,Dxe’
-ultima,"Ra riluxhe"
+ultima,Ra riluxhe
 obras,dxiiñaʼ
 nueva,Nacuubi
 vos,Lii
 amo,Nadxie'
-familia,"Binni lidxi"
+familia,Binni lidxi
 ninguno,Guiruti’
-pensamiento,"rini' ique"
+pensamiento,rini' ique
 carne,Beela
 hicieron,bíʼnicabe
 hermosa,Sicaru
@@ -410,7 +409,7 @@ sola,Stubi
 sean,Gacatu
 sueño,Bacaanda’
 apenas,Deru'
-deseo,"Jraca ladxhe'"
+deseo,Jraca ladxhe'
 habrá,Ziu'
 podrá,zanda
 vuestros,Stitu
@@ -420,19 +419,19 @@ lengua,Ludxi
 niño,Ba’du’
 sombra,Baca’nda’
 dicen,Naacabe'
-movimiento,"modo riniibi"
+movimiento,modo riniibi
 león,Bedxe
 pan,Guetastia
 hacen,jrunicabe
 quiso,Gucala'dxi
 presencia,Núlu'
 cielos,iba'
-voces,"Ca diidxa"
-ciudades,"Ca guidxi"
+voces,Ca diidxa
+ciudades,Ca guidxi
 debajo,Xaguete'
 miedo,Guendaridxibi
 esposa,Xheela'
-ira,"Guenda ridxichi"
+ira,Guenda ridxichi
 igual,Zaqueca
 cualquiera,Itiisi
 memoria,guendarietenala'dxi'
@@ -445,7 +444,7 @@ viento,Bi
 semejante,Casi
 gracia,sicarú
 tomar,Rigué
-libre,"Nalate nuulu la"
+libre,Nalate nuulu la
 hector,Hector
 piedra,Guie
 murio,Gutibe
@@ -454,7 +453,7 @@ sacerdote,Gue’
 carta,gui'chi'
 h,h
 llevo,Sinia'
-gracias,"Xquixepe lii"
+gracias,Xquixepe lii
 dije,Gunie'
 lagrimas,Nisaguielú
 vamos,Chuu
@@ -464,9 +463,9 @@ claro,Nayaa
 papel,Gui’chi’
 habla,Guni'
 tras,Déeche
-doce,"Chii ne chuppa"
+doce,Chii ne chuppa
 mesa,Mexa’
-presidente,"Shaíque guidxhi"
+presidente,Shaíque guidxhi
 dieron,Bidiicabe
 viendo,Cayuya
 hare,Zune'
@@ -474,42 +473,42 @@ veinte,Gande
 decían,Rabicabe
 dejar,Risaaná
 varon,Nguiu
-reforma,"guendaruchaa didxa"
+reforma,guendaruchaa didxa
 vive,Nabani
 propia,Stibe
 pueda,ganda
 tienes,Napu'
-señores,"Badungiu ca"
+señores,Badungiu ca
 llamo,Cabi'dxi
 sensación,Hruudu
 pocos,Cadxhi
-entrada,"Jra riucabe"
+entrada,Jra riucabe
 iban,Zecabe
 fuerzas,Stipa
 negro,Nayase'
-españoles,"Binni España"
-puertas,"Ca rua yoo'"
+españoles,Binni España
+puertas,Ca rua yoo'
 pregunto,guinabadiidxa'be
 dulce,Nanashi
 haciendo,Cayuni
-vivir,"Guenda nabani  "
+vivir,Guenda nabani  
 templo,Yu'du
 viaje,saree'
 queda,Bia'na
 silencio,Dxiisí
 instante,nagasi
 vigor,Stipa
-america,"Guidxi America"
-vinieron,"Beeda cave"
+america,Guidxi America
+vinieron,Beeda cave
 menor,Xhuncu
 lanza,Ruzú'nda'
 cualquier,Intissi
 patria,Xquidxe'
-morir,"Enda rati"
-naciones,"Ca guidxi roʼ"
+morir,Enda rati
+naciones,Ca guidxi roʼ
 hablaba,guni'be
 tenemos,Napanu
-inteligencia,"Enda biaani’"
+inteligencia,Enda biaani’
 mes,Beu
 cargo,Ruaya'
 condiciones,Condiciones
@@ -519,18 +518,18 @@ suyo,Stibe
 vuestras,Stiitu
 llevar,Chenee
 entender,Ñene
-muertos,"Ca Gue'tu'"
+muertos,Ca Gue'tu'
 largo,Ziuula'
-alrededor,"Gaxha de racá"
+alrededor,Gaxha de racá
 ambos,Guiropa’
 dicha,Nayeche'
 cuántos,Banda
-labios,"Ca Guidi ruaa"
+labios,Ca Guidi ruaa
 querido,Jnadxii
-gobernador,"Shaíque guidxhi"
+gobernador,Shaíque guidxhi
 alegría,Nayeche'
 mitad,Galaa
-van,"Rie cabe"
+van,Rie cabe
 tio,Ta
 solamente,Stubilúcha
 escrito,Ca
@@ -558,37 +557,37 @@ quieres,Racala'dxhilu'
 maria,Maria
 viva,Nabani'
 ven,Guda'
-flores,"Ca Guie'"
+flores,Ca Guie'
 ama,Nadxibe
 hermana,Bizaana
 hijas,xiiñidxaapaʼ
-diario,"Dxi ne  dxi"
+diario,Dxi ne  dxi
 llena,Dxá
 llega,Reedá
 alta,Nazoo'
-calor,"Enda nandá"
-treinta,"Gande bi chii"
+calor,Enda nandá
+treinta,Gande bi chii
 culpa,Dónda
 echó,Bireenanda
-piedras,"Ca Guiee"
+piedras,Ca Guiee
 secreto,Ga’chi’
-tiempos,"Ca dxi"
+tiempos,Ca dxi
 sabes,Nannu'
 luna,Beeu
 carro,Carro
-niños,"Ca xcuidi"
+niños,Ca xcuidi
 deja,Bisana
-contigo,"Ne lii"
+contigo,Ne lii
 musica,Zaa
 vaya,Cheu'
 virtud,Guenda
-reformado,"ni ma bichacabe"
+reformado,ni ma bichacabe
 reina,Shunaxhi
 toma,Gucuá
 vestido,Xhaba
 malo,Nadxaba
 vuelve,Zeédábí
-terminó,"Ma birá"
+terminó,Ma birá
 hambre,Candaana
 vivo,Nabanee'
 azul,azul
@@ -596,34 +595,34 @@ nacion,guidxi
 hacían,bíʼnicabe
 lleva,yené
 noticia,Diidxa
-conocido,"Ni rune bia'"
+conocido,Ni rune bia'
 vuelta,Bieque
 blanca,Naquichi'
 detrás,Deche
 sigue,Rinandá
 plaza,Luguiaa
 pablo,Pablo
-arboles,"Ca yaaga"
-cien,"Ti gayuaa"
+arboles,Ca yaaga
+cien,Ti gayuaa
 hermoso,Sicaru
-montes,"Ca daani"
+montes,Ca daani
 salieron,Biréecabe
 miró,Biiya'
 encima,Luguiá’
 norte,Guia’
 podido,Huayanda
 maestro,Maestro
-desierto,"Layu nabidxi"
+desierto,Layu nabidxi
 quiera,Ganaxhiie'
 hierro,Guiiba’
-filosofía,"Diidxa sti' guendanabani"
+filosofía,Diidxa sti' guendanabani
 puro,Nayaa
 hablado,Huani'
-cayó,"Ma bigá"
+cayó,Ma bigá
 fui,Guyaa
-venían,"beedacabe "
+venían,beedacabe 
 imaginación,Guendarushuilú
-polvo,"Yu dé"
+polvo,Yu dé
 jacob,Jacob
 humano,Nguiu'
 diaz,Diaz
@@ -634,97 +633,97 @@ ofrenda,Biguié’
 supo,Gunna'
 veo,Ruya'
 saúl,Saúl
-cincuenta,"Chupa late gande chii"
-loco,"Ique ribí"
-soledad,"Guendariuu Xtubi"
+cincuenta,Chupa late gande chii
+loco,Ique ribí
+soledad,Guendariuu Xtubi
 meses,beeu
 pareció,Dedasilú
 medida,Bia’ti’
-cantó,"Ma biinda"
+cantó,Ma biinda
 venga,Guda'
-quisiera,"Ñaca la'dxe'"
-caminos,"Ca Neza  "
+quisiera,Ñaca la'dxe'
+caminos,Ca Neza  
 antonio,Antonio
 diablo,Binidxaba’
 esposo,Xheela'
-medico,"nguiu ni rusianda binni"
-angel,"Binni ni seda de iba'"
+medico,nguiu ni rusianda binni
+angel,Binni ni seda de iba'
 perder,binite'
 mirada,Lúbe'
 carlos,Carlos
-belleza,"Sicaru  "
+belleza,Sicaru  
 somos,nacanu
 matar,Zuute
-ovejas,"Ca dendxu'"
+ovejas,Ca dendxu'
 vieron,biiyacabe
 juntos,Iropa'nu
 x,x
 peso,Bexu
 anciano,Gola
-varones,"Ca Nguiu"
-ojo,"Guie lú"
+varones,Ca Nguiu
+ojo,Guie lú
 hablando,Cananiu
-creer,"Runi cre"
+creer,Runi cre
 cuello,Yanni
 oye,Riuudiaga
 ustedes,Laatu
 ah,ah
-fácil,"Cadi nagana"
-pusieron,"guluucabe "
-reposo,"Guenda risila'dxi"
-cuarenta,"Chupa late gande"
-piel,"Guidi ladi"
+fácil,Cadi nagana
+pusieron,guluucabe 
+reposo,Guenda risila'dxi
+cuarenta,Chupa late gande
+piel,Guidi ladi
 verde,Yaa'
 conoce,Runibia'
 pequeño,Nahuini'
-verás,"Zuuya' lu'"
+verás,Zuuya' lu'
 pensamientos,Guendabiaani'
-sabio,"binni nuu xpiaani"
+sabio,binni nuu xpiaani
 atras,Deche
-dueño,"sti xhuana"
+dueño,sti xhuana
 alegre,Nayeche'
 pasion,Guendaranaxhí'
 acabó,Bisira
 flor,Guie’
 madera,Yaga
-salud,"Guenda nazaaca"
+salud,Guenda nazaaca
 motivo,Xhidé
-querer,"Enda nashii"
+querer,Enda nashii
 vieja,Nayoxho'
 sabiduria,Guendabiaani'
 vienen,Zedaca
 mirar,guuya'
 presto,Hixhe
-contradicción,"Diidxa cadxeelasaa'"
-nubes,"Ca zá"
+contradicción,Diidxa cadxeelasaa'
+nubes,Ca zá
 alas,Xhiaa
-límite,"ra iluxhe"
+límite,ra iluxhe
 niña,Ba’du’
 contar,Xigaaba'
-llegué,"Ma benda'"
+llegué,Ma benda'
 panza,Ndaani'
-desgracia,"Na' ya'"
+desgracia,Na' ya'
 sur,Guete’
 abajo,Guete'
 derecha,derecha
-placer,"Ni hriuladxe'"
+placer,Ni hriuladxe'
 ciento,Gayuua'
 noches,Gueela'
 tercero,Rabionna
 árbol,Yága
 pacto,Biziguenda
 cadáver,Gue’tu’
-oídos,"Ca diaga"
+oídos,Ca diaga
 u,u
 centro,Galahui’
 fruto,cuananaxhi
 m,m
-seguir,"Che nanda"
+seguir,Che nanda
 volvieron,Bibiguetacabe'
 anda,be
 demasiado,Nabee
 expresión,Diidxa
-lucha,"Enda ridinde"
+lucha,Enda ridinde
 tendrá,Zappá
 sentado,Zuba
 tomado,Huaye'
@@ -732,30 +731,30 @@ amante,Jnadxii
 dormir,gaze'
 mató,Biiti
 verá,Zuuya'
-guarda,"Riguu chaahui'"
-"salido  ",Huare
-dare,"chi gudie'"
+guarda,Riguu chaahui'
+salido  ,Huare
+dare,chi gudie'
 contento,Nayeche'
 beber,Rigué
-recuerdo,"Ni hredazilu' lii"
+recuerdo,Ni hredazilu' lii
 estará,Ziuu
-rosa,"Guie' xhiñaa'"
+rosa,Guie' xhiñaa'
 acá,Cherí’
 grito,Ridxi
 estamos,nunu'
 pocas,caadxi
-doncella,"Binni dxaapa’"
-sed,"Guenda rati nisa"
+doncella,Binni dxaapa’
+sed,Guenda rati nisa
 encuentro,ridxhela'
-familias,"Binni lidxitu"
+familias,Binni lidxitu
 nombres,Laacabe
 amistad,Guendabi'chi'
 estudio,Runda'
 cuan,aque
-oriente,"Neza ra rale gubidxa"
-demonio,"binni dxaba'"
-escribir,"Hriguu gui'chi diidxa"
-cruel,"Binni maní"
+oriente,Neza ra rale gubidxa
+demonio,binni dxaba'
+escribir,Hriguu gui'chi diidxa
+cruel,Binni maní
 ropa,Lari
 encuentra,ridxela
 partir,Guindaa
@@ -768,13 +767,13 @@ leer,Riguundá
 podrán,Zanda
 órdenes,Diidxa
 comida,Endaró
-animales,"Ca maani ca"
-cumplimiento,"guendaruzuhuaa diidxa'"
+animales,Ca maani ca
+cumplimiento,guendaruzuhuaa diidxa'
 nacido,Biule
 llorar,Hruuna'
 tuvieron,Gúpacabe
 amiga,Shamiga'
-trae,"Né be"
+trae,Né be
 difícil,Nagana
 discurso,Libana
 ñ,ñ
@@ -783,18 +782,18 @@ malos,nadxaba'
 subir,gudxiibaca'
 engaño,gudxitebe
 mirando,Cayu'yanu'
-quizá,"Paxa ora"
+quizá,Paxa ora
 ventana,Guirubiaani'
-amores,"Enda nashi stine'"
+amores,Enda nashi stine'
 dará,Sudíbe
 ruego,Rinaba'
 tristeza,xilase
 diosa,Shunaxhi
-aurora,"Zeda irá gueela'"
+aurora,Zeda irá gueela'
 tiró,Guluubi
 vendrá,Zeedá
 español,Didxastia
-conozco,"Jrune bia'ya"
+conozco,Jrune bia'ya
 huésped,Biuuza’
 baja,Rindetté
 bella,Sicarú
@@ -803,16 +802,16 @@ profundo,Guete’
 quieren,Hracala'dxica'be
 dices,Naalu'
 pequeña,Huiini
-conocía,"Runi bia'ya"
+conocía,Runi bia'ya
 dedos,bicuini
 amado,Gunaxhiie'
-enfermedad,"Guenda huará"
-sabemos,"naanadu  "
-par,"Chuppa ndaga"
+enfermedad,Guenda huará
+sabemos,naanadu  
+par,Chuppa ndaga
 mancha,Caná'
-crespo,"Ique ribidxu"
+crespo,Ique ribidxu
 nueve,Ga’
-herido,"Uca naa"
+herido,Uca naa
 encontró,Bidxheela
 espalda,Deche
 correr,ruxhoñe'
@@ -820,9 +819,9 @@ toca,Bishidxi
 feliz,Nayeche'
 nuevos,Nacubi
 pregunta,Canabadiidxa'
-dientes,"Ca laya'"
-pensó,"Guni' ique"
-juego,"Enda Gudxíte'"
+dientes,Ca laya'
+pensó,Guni' ique
+juego,Enda Gudxíte'
 hago,Cayuune
 café,Biziaandá'
 poderoso,Nandxó'
@@ -837,41 +836,41 @@ enojo,guendaridxiichi
 golpe,Xcuagu
 beso,Bixidu’
 aconteció,Guzaaca
-jardin,"lee ra nu stale guie'"
-olvido,"Guie’ yaase’"
+jardin,lee ra nu stale guie'
+olvido,Guie’ yaase’
 echar,Retaá
-virgen,"Binni dxaapa’"
+virgen,Binni dxaapa’
 vengo,Zeda
 sepa,Nanna
 region,Guidxi
-estrellas,"Ca beleguí"
-ancianos,"Ca binnigola"
-destino,"Hra ziaa'"
+estrellas,Ca beleguí
+ancianos,Ca binnigola
+destino,Hra ziaa'
 espera,Cabeza
 grupo,Xpinni'
 vale,Risaacca
-fuimos,"Guyuu nu"
+fuimos,Guyuu nu
 hermosas,Sicaru
 s,s
-paredes,"Ca cue' sti yoo'"
+paredes,Ca cue' sti yoo'
 olor,Xho'
 cerebro,Yuba
 sirve,riquiñe'
 damas,Guuna'
 rato,Ratu
 ayer,Neegue'
-cárcel,"Lidxi guiiba’"
+cárcel,Lidxi guiiba’
 ves,Hruu'yu
-ciego,"Lu cheepa’"
+ciego,Lu cheepa’
 ayuda,Ucanee
 animal,Mani'
-humilde,"Binni nayaa"
+humilde,Binni nayaa
 nube,Zaa
 recibir,icóu'
 saben,nanacebe
 vergüenza,Stui
 doy,Hrudiee'
-negros,"Ca nayaase"
+negros,Ca nayaase
 hablé,Guniee
 contó,Bigabá
 miserable,Zi'
@@ -882,7 +881,7 @@ traer,Redané
 siente,Hruudu
 orilla,Uriá
 espero,cabeeza'
-100,"Ti gayua'"
+100,Ti gayua'
 volvía,Hribiguetabe
 error,Bichee
 teníamos,Gúpadu
@@ -890,28 +889,28 @@ fortaleza,Nadiipa'
 tomando,Canaye'
 prisión,Lídxiguiiba
 necesita,Riquiiñe
-mirad,"La gu'ya"
+mirad,La gu'ya
 extraño,Hribaana'
 estrella,Beleguí
-barba,"Guicha xhigui"
-perfección,"Nabé Neeza"
+barba,Guicha xhigui
+perfección,Nabé Neeza
 limpio,nayá
 ganado,Yuze
-maldad,"Enda nadxhaba'"
+maldad,Enda nadxhaba'
 traían,Bedanecabe
-mentira,"cadi dxandi'"
+mentira,cadi dxandi'
 sueños,Guendarinixcaanda
-eterna,"ni qué ziuu dxí guiluxe"
+eterna,ni qué ziuu dxí guiluxe
 aliento,Bi
-matrimonio,"Guenda xheela’"
-lenguas,"Ca Didxa"
-aves,"Ca mani ripapa"
+matrimonio,Guenda xheela’
+lenguas,Ca Didxa
+aves,Ca mani ripapa
 acaba,Rusira
 duro,Bichuga
 verdades,Huandi'
-finalmente,"ma birá biluxhe"
+finalmente,ma birá biluxhe
 iré,Ziaa'
-perros,"Ca Bi'cu"
+perros,Ca Bi'cu
 risa,Hrushiidxe'
 encontraba,Bidxela'ca
 cariño,Guendaranaxhí'
@@ -922,7 +921,7 @@ tome,Gucuá
 obscuro,Nacahuí
 entrego,rudieeʼ
 talento,Guenda
-muchacho,"Badu nguiiu"
+muchacho,Badu nguiiu
 pedir,Zanaba
 apareció,Rindaani
 imperio,Guidxi
@@ -933,27 +932,27 @@ humo,Gu'xhu'
 entrado,Huayuu
 visión,Bixé’
 suave,Chaahui’
-escuela,"Yoo' guendabiaani'"
+escuela,Yoo' guendabiaani'
 tuyo,Stiu'
 paseo,Bieque
 andaba,Canaza
-valientes,"Binni qui ridxibi"
+valientes,Binni qui ridxibi
 tercer,guionna
 completo,Guizá’
-vas,"Rie lu'"
+vas,Rie lu'
 vivos,Nabanidu'
 haz,Bi'ni
 sucedió,Guzaaca
-pared,"Cue' yoo"
+pared,Cue' yoo
 campaña,Guiiba
 cristina,Cristina
 infierno,Gabia'
 entiende,Runa
 querían,hracala'dxicabe
 míos,Stine'
-siento,"rune sentir"
+siento,rune sentir
 seno,Xidxi
-sesenta,"Chonna late gande"
+sesenta,Chonna late gande
 haras,Zúniluʼ
 juntamente,Guiranu
 muera,Gate''
@@ -961,14 +960,14 @@ educacion,guendariziidi'
 pide,Gunaba'
 gozo,guendanayeche'
 invierno,Gusibá
-infeliz,"cadi cayeche'"
-muchacha,"Badu dxaapa’"
+infeliz,cadi cayeche'
+muchacha,Badu dxaapa’
 habitación,Yoo'
 rodrigo,Rodrigo
 vimos,Biiya'nu
 lados,Ladu
 montaña,Daanii
-ora,"guni' ne diuxhi"
+ora,guni' ne diuxhi
 militar,Guachu
 verdes,Yaa'
 diferente,Adxé
@@ -980,46 +979,46 @@ felicidad,Nayeche'
 sonrisa,Guendaruxhiidxi'
 pelear,Ridinde'
 mandamientos,Didxa
-fiera,"Mani Bedxe"
-debida,"ni napa xhide"
+fiera,Mani Bedxe
+debida,ni napa xhide
 licenciado,Licenciadu
-dulces,"dxiña huini'"
+dulces,dxiña huini'
 deidad,Bido'
-plantas,"Yága ca"
+plantas,Yága ca
 trabajar,Dxiña'
 séptimo,gadxe
 lluvia,Nisaguie
 papá,Bixhoze
-sombrero,"Guidi bandá’"
+sombrero,Guidi bandá’
 llorando,Guunalu'
 tuve,Gupa'
 perro,Bi'cu'
 entusiasmo,Nayeche'
-carga,"Ruá' be"
+carga,Ruá' be
 adios,Cadu'yanu'
-sabios,"Binni nuu xpiaani"
+sabios,Binni nuu xpiaani
 lástima,Riá
 vencido,biniti
 aviso,tidxi
-nobles,"Binni nacha'hui"
+nobles,Binni nacha'hui
 breve,Naguenda
 junta,Rutaaguzaa
 vuelva,biqueta'
 sepulcro,Ba’
-bueyes,"Ca Yuuze"
+bueyes,Ca Yuuze
 serás,Sacalu'
 pluma,Duubi’
 primavera,Gusiguié
 pasando,Cadi'di
 extraña,Huada’
-inútil,"Que iquiñe"
+inútil,Que iquiñe
 esperando,cabeeza'
 vemos,cadu'yanu'
-deberán,"napacabe xhide"
+deberán,napacabe xhide
 energía,Stipa
 débil,Nalílí
 pase,Tiidi'
-tocar,"Riguiñe ná'"
+tocar,Riguiñe ná'
 agradable,Nacha'hui'
 momentos,Hora
 nariz,xi'
@@ -1028,12 +1027,12 @@ nace,Riale
 quedan,Bia'na
 explicar,bisiene
 letra,Die'lana
-dime,"gudxi na"
+dime,gudxi na
 serian,ñácacabe
 masa,Cuba
-cena,"Endaró xhi"
+cena,Endaró xhi
 rojo,nashiña'
-testigos,"Ca ni bi'ya"
+testigos,Ca ni bi'ya
 creyó,Bisacca
 espanto,Xhiga
 comprender,Ñene
@@ -1046,20 +1045,20 @@ edificio,Yoo
 aplicacion,Aplicacion
 empresa,Empresa
 ancho,Nalaga
-miseria,"Guenda zi’"
-incienso,"Guxhu bidó’"
+miseria,Guenda zi’
+incienso,Guxhu bidó’
 acabar,iluxhe
 pedazos,Ndaa
 fria,Naga'nda'
 puente,Puente
-vara,"tindaa yaga"
+vara,tindaa yaga
 alguien,Tuuxa
 sal,Zidi
 guardar,gupa
 fray,Fray
 cubierto,Dxi’
-cristianos,"Ca xpinni Cristu"
-importante,"Ni hrisaca"
+cristianos,Ca xpinni Cristu
+importante,Ni hrisaca
 tela,Lari
 contado,Nagabá'
 abierto,Zuxale'
@@ -1077,16 +1076,16 @@ anita,Anita
 entiendo,Cayene'
 haran,sunicabe
 pálido,Naxhixhí
-porción,"ti nda'"
+porción,ti nda'
 sabían,Nanacabe
 salían,Carecabe
 asiento,Asientu
 esten,nutu
-hacerlo,"guninuli "
+hacerlo,guninuli 
 haces,Cayunilu'
 ilusión,Xcaanda
-decirle,"Gaabe laabe"
-miel,"Dxiña yaga"
+decirle,Gaabe laabe
+miel,Dxiña yaga
 daniel,Daniel
 hirió,Bininaa
 amar,Ranaxhi
@@ -1100,12 +1099,12 @@ ladrón,Gubaana’
 50,50
 saca,Ribeé
 alfredo,Alfredo
-inocente,"Qui gapa' donda"
+inocente,Qui gapa' donda
 corazones,Ladxido'no
 vela,Gui’ri’
 verano,Gusiguié
 viven,Nabanicabe'
-verme,"ruuyalu naa"
+verme,ruuyalu naa
 or,Or
 marcela,Marcela
 tengan,Gapatu
@@ -1115,10 +1114,10 @@ reír,Rusixidxí
 aparece,Riale
 acero,guiiba'
 mostró,Bilui'be
-setenta,"Chonna late gande chii"
+setenta,Chonna late gande chii
 escondido,Ga’chi’
 corriendo,Guxooñe'nu
-regalo,"Ni bisiga'de"
+regalo,Ni bisiga'de
 fénix,Fenix
 paula,Paula
 saliendo,ziree'
@@ -1129,19 +1128,19 @@ chico,Nahuiini'
 estrecho,Nabé
 negar,Cadi
 cuerda,Doo
-once,"Chii ne tobi"
+once,Chii ne tobi
 mayo,Mayo
 bello,Sicaru
 completa,Rusaa
-alba,"Zeda irá gueela'"
+alba,Zeda irá gueela'
 garganta,Yanni
 cueva,Lédani
 corta,Bichuugu'
 abrir,Zuxele'
 pesos,beexhu
 guerrero,Guerrero
-jorobado,"Deche tigu"
-semana,"Xhono gubidxa"
+jorobado,Deche tigu
+semana,Xhono gubidxa
 arena,Yuxi
 necesito,Caquiiñe'
 escribe,Bicáa
@@ -1162,13 +1161,13 @@ largos,Siula'
 roberto,Roberto
 saludo,Diuxi
 comprar,Risí
-novedad,"Ni cayeete"
+novedad,Ni cayeete
 hablan,cani'cabe
-velas,"ca vela"
+velas,ca vela
 ingles,Didxhabiona
 rumor,Diidxa
 cobre,Guibayaa
-autoridades,"Ca Shaíque"
+autoridades,Ca Shaíque
 trajeron,yenécabe
 perdon,Siihui'
 quita,Ribeé
@@ -1176,15 +1175,15 @@ llegará,Zeedá
 espejo,espeju
 hablaron,Guini'cabe
 vete,Guye
-músico,"Binni Ni Ruxhidxi zaa'"
+músico,Binni Ni Ruxhidxi zaa'
 cultura,guendabiani'
 llegan,Zedacabe
 llegada,Guedándou'
 maiz,Xuuba'
 come,Gudo
 you,Lii
-peces,"ca benda'"
-falso,"cadi dxandi'"
+peces,ca benda'
+falso,cadi dxandi'
 prosiguió,Guza
 jorge,Jorge
 hermosos,Sicaru
@@ -1193,60 +1192,60 @@ efectivamente,Dxandí’
 mercado,Luguiaa
 algodón,xhiaa
 est,nga
-señorita,"Badu dxaapa’"
+señorita,Badu dxaapa’
 lopez,Lopez
-sobrina,"xhiñi bizaana'"
+sobrina,xhiñi bizaana'
 grueso,Namboolo'
 cal,Guiiu
 cerro,Daani
-cordero,"Dendxu huiini’"
+cordero,Dendxu huiini’
 debido,Purtí'
-leones,"Ca bedxe"
+leones,Ca bedxe
 tomas,Ricou'
 felipe,Felipe
 carnero,Dendxu'
 platica,Diidxa
 distinto,Adxé
 sana,Rianda
-columna,"Dxitta deche"
+columna,Dxitta deche
 busco,Cuyube'
-justos,"Binni xneza"
+justos,Binni xneza
 princesa,Shunaxhi
 nobleza,nobleza
 salga,iré'
 acumulación,Bixhí'
 flecha,Baxa
 golpes,Rigaapa
-criatura,"Badu huiini’"
+criatura,Badu huiini’
 levantado,Zuhuaa
 roja,Nashiña'
 caro,Caru
-techo,"Ique yoo"
+techo,Ique yoo
 escucha,Riuudiaga
-planta,"Yaga guie'"
+planta,Yaga guie'
 volvere,Zeda'
 abrazo,Xiguiidxí
 faltó,Biaadxa'
 cantando,Cayuunda
-loca,"Ique ribí  "
-ilustres,"ca nu xpiani'"
+loca,Ique ribí  
+ilustres,ca nu xpiani'
 sebastián,sebastián
 subieron,udxi'bacabe
 llamas,Laalu'
 bendito,Nandxó'
 desea,Jracaladxibe
-apartó,"Gulee chu"
+apartó,Gulee chu
 banco,Bangu’
-vuelo,"Enda ripappa"
+vuelo,Enda ripappa
 hicimos,Bi'nidu'
 cuesta,Risaacca
 encanto,Shibe'
 vacío,Nadachí
-popular,"Guiraa' binni nanna"
-haced,"la guni"
-casarse,"Richaga ná'"
-ave,"Mani huiini’"
-salimos,"Bire' nu"
+popular,Guiraa' binni nanna
+haced,la guni
+casarse,Richaga ná'
+ave,Mani huiini’
+salimos,Bire' nu
 diras,Zaabilu'
 resplandor,Stuxhu'
 hoja,Bandaga
@@ -1255,16 +1254,16 @@ fatiga,Rusidxaga
 pescador,Guuze’
 varas,Gunixhí'
 ojala,Ñandaca
-leche,"Niidxi yuuse"
+leche,Niidxi yuuse
 tardo,Hrindaa'
 hermanas,Bisanaca'
 águila,Bisiá
 hierba,Guixi
-vayan,"La ché"
+vayan,La ché
 saque,Gulee'
 andan,Cana->
 estaran,Ziucabe
-ochenta,"Tappa  láte gandé"
+ochenta,Tappa  láte gandé
 salí,Biré
 abril,Abril
 rojas,naxhiña'
@@ -1278,10 +1277,10 @@ tumba,Ba'
 piso,Layú
 dejare,Susanaa
 abre,Bixhale'
-catorce,"chii ne tapa"
-verte,"Guuya lii"
+catorce,chii ne tapa
+verte,Guuya lii
 arma,Guiiba’
-doscientos,"Chuupa Gayuua'"
+doscientos,Chuupa Gayuua'
 veremos,Zu'yanu
 dedo,Bicuini
 eco,Bixé’
@@ -1290,13 +1289,13 @@ palo,Yaga
 duerme,Gúsi
 olvidar,Biaanda'
 peru,perú
-pájaros,"Mani Huiini'"
+pájaros,Mani Huiini'
 reconocer,Guendarunibia'
-soberano,"Binni nacha'hui"
+soberano,Binni nacha'hui
 pañuelo,Bayu’
 comido,Huayo
 digas,ga'bu
-aman,"Riulaʼdxi cabe"
+aman,Riulaʼdxi cabe
 diesen,udiicabe
 amada,Shunaxhi
 queremos,racaladxidu
@@ -1304,7 +1303,7 @@ bellas,Sicarú
 morira,Za'ti'
 dame,Dané
 maldito,Di
-cenar,"Ritó xhí"
+cenar,Ritó xhí
 estuve,Huayuaa
 pérez,Pérez
 romper,Guchelaza'
@@ -1313,32 +1312,32 @@ oscuro,Nacahuí
 eduardo,Eduardo
 hacerme,gaca'
 alejandro,Alejandro
-militares,"Ca Guachu"
+militares,Ca Guachu
 explica,Bisiene
 guarde,Gaapa
 mandato,Diidxa
 forastero,Dxu’
-cabello,"Guicha ique"
+cabello,Guicha ique
 nació,Gule
-apoyo,"Ni racanee"
+apoyo,Ni racanee
 caña,Nite
-playa,"Nisa doo'"
+playa,Nisa doo'
 cerrar,Ruseegu'
 gordo,jriro'
 jugar,Riguite
-vienes,"Re' du"
+vienes,Re' du
 volví,bigueta'
 veloz,Naguenda
 comprendio,bienebe
-vendran,"zeeda cabe"
+vendran,zeeda cabe
 problema,Nadiiñe
-mudo,"Tu qui rini'"
+mudo,Tu qui rini'
 estrecha,Riguiidxí
-amanecer,"Siadó' guie' ru'"
+amanecer,Siadó' guie' ru'
 arregló,Biinichaahui'
-"pico ",Xuuga
+pico ,Xuuga
 visitar,Riganná
-sobrino,"xhiñi biche'"
+sobrino,xhiñi biche'
 anduvo,Guza
 pariente,Lisaa
 cerrado,Nuceegu'
@@ -1351,14 +1350,14 @@ agosto,Agosto
 rapidamente,Naguenda
 cojo,Nachaani'
 suponer,Záxaca
-lectura,"Guendariuunda'  "
+lectura,Guendariuunda'  
 hiciste,Bi'nu
 suena,Caxhidxi'
 convertido,Gucani
-becerro,"Yuze huiini'"
-paisano,"Binni xquidxi"
+becerro,Yuze huiini'
+paisano,Binni xquidxi
 leña,Yaga
-perfume,"Nisa rinda' nashi"
+perfume,Nisa rinda' nashi
 pintar,rutiee
 hueso,Dxita
 brillante,Hruzaani'
@@ -1367,7 +1366,7 @@ gusta,Hriula'dxe'
 sentarse,Rití
 parque,Parque
 compra,Uzui'
-niñas,"Ca Ba’du’"
+niñas,Ca Ba’du’
 escritura,Guendarucaa
 eh,Na'
 adentro,Ndaani'
@@ -1375,35 +1374,35 @@ peleó,Gudinde
 hondo,Guete'
 despierta,Ribani
 encontré,bidxheela'
-tradicion,"Sa' stinu"
+tradicion,Sa' stinu
 rubio,Mexu
 supiera,ñanna
-irse,"Ma ze"
+irse,Ma ze
 muchachas,dxaapahuiiniʼ
-darte,"gudie' lii"
+darte,gudie' lii
 diamante,Guieguesabíni
 dichoso,nayeche'
 bola,Bola
-prender,"Ucaa gui"
+prender,Ucaa gui
 alimentó,Gudo
 fresco,Nagá'nda
 durmió,Gúsibe
-gallinas,"Ca Bere"
+gallinas,Ca Bere
 ricardo,Ricardo
 temas,Temas
-cautivo,"Degu yoo'"
+cautivo,Degu yoo'
 amarillo,Naguchi
 plato,Bladu’
-trescientos,"Chonna Gayuua'"
-rama,"Naa yagaa"
+trescientos,Chonna Gayuua'
+rama,Naa yagaa
 camisa,Gamixa’
 ancha,Xhétta
 sucesivamente,Decheca
 viste,Rucua'qui'
 estudiar,Riguundá
-vine,"Ma benda'"
+vine,Ma benda'
 marzo,Marzo
-orejas,"Ca Diaga"
+orejas,Ca Diaga
 veamos,Guidu'yanu
 guardado,guia'pa
 terminar,Biluxhe
@@ -1414,18 +1413,18 @@ rocío,Gupa
 acercarse,Rinú
 metido,Ya'zi'
 nieto,Shiaga
-besos,"Ca bixhidu'"
+besos,Ca bixhidu'
 octavo,xhono
 das,Hrudiilu'
 montón,Bixhí'
-pájaro,"Mani huiini’"
+pájaro,Mani huiini’
 salva,Rula
 52,52
 prado,La'chi'
 gris,Nayuu
-imaginar,"Ruxuí' lú"
-leyó,"Ma biinda"
-saberlo,"Gaanu ni"
+imaginar,Ruxuí' lú
+leyó,Ma biinda
+saberlo,Gaanu ni
 sonrió,Bishiidxi'
 encerrado,Daguyoo
 cocina,Uzina
@@ -1434,7 +1433,7 @@ desnuda,Shieeladi
 castellano,Diidxastiá
 macho,Goola
 suaves,naguudxi
-bebé,"Ba'du huiini'"
+bebé,Ba'du huiini'
 potencia,Stipa
 gato,Mistu'
 oculta,Bicachi'
@@ -1447,25 +1446,25 @@ veracruz,veracruz
 ácido,Naí
 ayudar,Racané
 pedazo,Galaa’
-comen,"Ro cabe"
-codo,"Xacodo na'"
-descendientes,"Ca shiñi shiñi"
+comen,Ro cabe
+codo,Xacodo na'
+descendientes,Ca shiñi shiñi
 digan,gabicabe
 sereno,Gupa
 mover,Guiniibi'
 coger,Ria'pi
 bajar,biete'
 verbo,Diidxa
-noventa,"Tappa láte gandé chíi "
+noventa,Tappa láte gandé chíi 
 cortar,Richuugú'
-caminar,"Chi saa"
+caminar,Chi saa
 poema,Diidxaguié
 deuda,Diiñe’
 subido,Dxi’ba’
 roto,Nareza
-cementerio,"la rica'chicabe binni"
-precioso,"nabé sicarú"
-amigas,"Ca Xhamiga'"
+cementerio,la rica'chicabe binni
+precioso,nabé sicarú
+amigas,Ca Xhamiga'
 borde,Hruaa
 buscan,Cuyubica'
 bañó,Guzebe
@@ -1478,149 +1477,149 @@ encendió,Bicaguiibe'
 dimos,Bidiʼdu
 guardó,upabe
 empezaron,bizulúcabe
-verdaderas,"Dxandi' cani"
-pieles,"Ca ladi"
+verdaderas,Dxandi' cani
+pieles,Ca ladi
 encendida,Cágui
 ala,Xhiaa
 fuiste,Gucalu'
-encendido,"Cá guí"
+encendido,Cá guí
 mono,Migu
 sabré,zaana'
 tengas,Gapu'
 ruben,Ruben
 raiz,Guenda
-cuatrocientos,"Tappa Gayuua'"
-casamiento,"Guenda xheela’"
+cuatrocientos,Tappa Gayuua'
+casamiento,Guenda xheela’
 metal,Guiiba’
 nosotras,Laadu
 muero,Hrate'
-trece,"Chii ne chonna"
-gigante,"nguiu nabe naro'ba"
+trece,Chii ne chonna
+gigante,nguiu nabe naro'ba
 tia,Stia'
 pintado,Die'
 serpiente,Beenda’
 vaca,Yuuse
 benito,Benito
 cantaba,Biindabe
-curioso,"Racala'dxibe gannabe"
+curioso,Racala'dxibe gannabe
 rueda,Huitubi
-seiscientos,"Xho'pa Gayuua'"
+seiscientos,Xho'pa Gayuua'
 decimos,Rabidu
-llamados,"Ca biree lá"
+llamados,Ca biree lá
 obscuras,nacahui
 teme,Bidxibi
-bodas,"Ca guendaxheela'"
-boda,"Guenda xheela'"
+bodas,Ca guendaxheela'
+boda,Guenda xheela'
 espuma,Bupu
 bailar,Rusiaá
 irás,Zieu
 volar,Bipappa
 estaré,Ziuua'
 supe,guuna'
-oraciones,"Ca Guendaruzee hrua"
+oraciones,Ca Guendaruzee hrua
 tranquilidad,Guendariuudxi
 oscura,Nacahui
 contener,Hrucueeza
 lejano,situ
 probable,Zandaca
-atravesó,"Gudiidi laaga"
+atravesó,Gudiidi laaga
 formando,Caya'
 anoche,Nu'chí'
 toro,Yuze
-ajeno,"Cadi Stiilu'"
-sencillo,"Cadi Naganna"
+ajeno,Cadi Stiilu'
+sencillo,Cadi Naganna
 escribia,Cucaabe
-apresuró,"biree guxooñeʼ"
+apresuró,biree guxooñeʼ
 cortado,Birugu
 cubre,Rusiaapá
 novia,Xhaapa'
 privado,De'gu'
-indigena,"binni zaa"
+indigena,binni zaa
 alimentos,endaro
-soñar,"Hriniee' xcaanda'"
+soñar,Hriniee' xcaanda'
 lumbre,Gui
-sacaron,"Gulee ca"
+sacaron,Gulee ca
 gota,Bitii
-actividades,"Ni chiguninu"
-desear,"Jraca ladxhi"
+actividades,Ni chiguninu
+desear,Jraca ladxhi
 aconseja,Rulidxe
 coloco,Gudixhe
 are,Nuu
-besar,"udié ti bixhidu"
+besar,udié ti bixhidu
 conoces,Hrunibia'lu'
-comiendo,"Ca Rahua'"
+comiendo,Ca Rahua'
 bravo,Naduxhu'
 hola,Padiuxi
 ordeña,Ruxhii
 tertulia,tertulia
 empezar,Izulu
 pica,cababa
-sordo,"Diága cuaata"
+sordo,Diága cuaata
 cuero,Guidi
 llamarse,Lá’
-quinientos,"Gaayu gayuaa"
-veinticinco,"Gande nu Gaayu'"
+quinientos,Gaayu gayuaa
+veinticinco,Gande nu Gaayu'
 temblor,Xuu
 detiene,Rinaaze'
 tonto,Bichita
 asamblea,Asamblea
-dile,"gudxi labee"
+dile,gudxi labee
 tardes,Huadxí
 alfonso,Alfonso
-americanos,"Binni America"
+americanos,Binni America
 izquierdo,Biga’
-abuelo,"Bixhoze vida'"
-muda,"Tu qui rini'"
+abuelo,Bixhoze vida'
+muda,Tu qui rini'
 compro,Siee
 oreja,Diaga
 chile,Guiiña’
-veinticuatro,"Gande nu Tappa"
+veinticuatro,Gande nu Tappa
 durmiendo,Nisiási'
-decirte,"Ñabe lii"
+decirte,Ñabe lii
 creí,Bisaccanaa
 imaginó,Bisaccaxa
-señoritas,"Ca Badu dxaapa’"
+señoritas,Ca Badu dxaapa’
 aceptar,Ruziguenda
-comió,"Gudo be"
+comió,Gudo be
 vapor,Gubá
-abuela,"Jñaa vida'"
+abuela,Jñaa vida'
 aparta,Ribeé
 palma,Ziña
 enero,Enero
 veas,Gu'yu
 t,T
-trabaja,"runi dxiiña"
+trabaja,runi dxiiña
 escriba,Gucaa
 hacemos,Runinu
 chispa,Batee
 rubia,Mexa
 pesado,Nanaá
 exceso,Xhaata'
-cejas,"Ca Guicha luu"
-gritando,"Cayuni ridxhe'"
+cejas,Ca Guicha luu
+gritando,Cayuni ridxhe'
 faltan,cayadxa'
 flaco,Nalase'
 temblar,Hracaditi'
 aprender,Iziide'
-toman,"Ricaa cabe"
+toman,Ricaa cabe
 susto,Dxíibi
 novio,Xha'ca'
 enseñado,bisidibe
 universidad,Universidad
 ríendo,caxhidxi
 lodo,Beñe
-nido,"Lidxi mani huiini'"
+nido,Lidxi mani huiini'
 rabia,Yu'ba'
-hielo,"Guie rusiga'nda'"
+hielo,Guie rusiga'nda'
 delicado,Nani'di
 iremos,Siunuu
 lanzó,Guluubi
 reconoce,Runibia'
 figuró,Bisaccanaa
 fruta,Cuananaxhi
-bizco,"Lu changa"
+bizco,Lu changa
 agustín,Agustín
-pense,"Nicádi' ique'"
+pense,Nicádi' ique'
 ríe,cuxhidxi
 creemos,Rabidu
 actualidad,Yanna
@@ -1629,7 +1628,7 @@ despacio,Chaahui’
 feo,Feu
 paloma,Guugu
 reflejo,Stuxhu
-invisible,"Qui rihuinni"
+invisible,Qui rihuinni
 lea,Guunda
 mamá,Jña'
 encargado,Shaíque
@@ -1650,7 +1649,7 @@ corrido,Huaxoñe
 compadre,Mbale
 soltar,rundaacha'
 enojado,cadxichi
-piensas,"Cani' Iquelu'"
+piensas,Cani' Iquelu'
 sergio,Sergio
 esperé,uleeza'
 venimos,Zedanu
@@ -1659,20 +1658,20 @@ cargado,Nuá
 cuchillo,Gudxiu
 comerá,Zo
 lentamente,Chaahui’
-cobrar,"Ritoppá díiñe'"
+cobrar,Ritoppá díiñe'
 adán,Adán
 andas,guzaalu
 zoco,zoco
 robar,Guendariba'na'
-huérfano,"Badu bizabi"
+huérfano,Badu bizabi
 ayuntamiento,ayuntamiento
 hembra,Nagoola
 muslo,Co’re’
 gastado,Nayaabi'
-engaña,"Riguitte ique"
+engaña,Riguitte ique
 tierno,Narí'ni'
-contrato,"Riguu diidxa'"
-acompañar,"Che nanda"
+contrato,Riguu diidxa'
+acompañar,Che nanda
 muchísimo,Stale'
 nacieron,Bialecani
 antaño,Chiqué
@@ -1682,19 +1681,19 @@ cerviz,Xayanni
 contando,Cagaba'
 agujero,Quiide
 respiracion,Xhiee
-puercos,"Ca biui"
+puercos,Ca biui
 senda,Neza
 recorrer,Saalu'
-platos,"ca bladu'"
-ruega,"Rugá be"
+platos,ca bladu'
+ruega,Rugá be
 horno,Zuquii
 diarrea,Gudi'dindaani'
 literaria,Literaria
 ramírez,Ramírez
 sexo,caya'picabe
 comienzo,Bizulú
-labio,"Guidi rua"
-trabajando,"Cayaca dxiña'"
+labio,Guidi rua
+trabajando,Cayaca dxiña'
 zaragoza,Zaragoza
 tira,Bizabi
 90,90
@@ -1704,7 +1703,7 @@ diles,Gudxilácabe
 tigre,Beedxe’
 semilla,Biidxi’
 pinta,Rutie
-zapatos,"Ca Guidi bo’co’"
+zapatos,Ca Guidi bo’co’
 agrada,ruladxhi
 l,l
 acercaron,Bidxiiñacabe
@@ -1715,19 +1714,19 @@ alza,gudxhi'ba'
 sonora,Sonora
 enseñó,Biziidibe
 volvimos,Biguetadu
-prisionero,"Degu yoo'"
+prisionero,Degu yoo'
 bendita,Nandxó'
 blando,Naguudxí
 extendido,Biaa
-costado,"Cue’ ti’xhi’"
+costado,Cue’ ti’xhi’
 tabaco,Gueza
 soñó,Guni'xcaanda'
-morena,"Ladi yaase"
-brisa,"bi nisa"
+morena,Ladi yaase
+brisa,bi nisa
 rompe,Hriguuza
 prestar,rutiñe'
 vayas,Cheelu'
-torpe,"Na huati"
+torpe,Na huati
 amarga,Rusindá
 pez,Benda
 yerno,Bigudxi
@@ -1736,11 +1735,11 @@ acostarse,Rigattá'
 remordimientos,Donda
 estés,Guiuulu'
 manzana,Manzana
-hacerte,"Guune lii"
+hacerte,Guune lii
 avergonzado,bituilú
-aprendido,"Ni biziide'"
+aprendido,Ni biziide'
 pompa,xha'na
-digame,"Gudxhi naa"
+digame,Gudxhi naa
 fantasma,Bixé’
 frecuentemente,Gatigá
 bebido,Huaye'
@@ -1749,7 +1748,7 @@ separa,Ribeé
 vacía,Rundaate'
 unido,Gui'di
 pro,Pro
-necesitan,"riquiiñetu "
+necesitan,riquiiñetu 
 rodilla,xhibi
 azucar,Dxiña
 hueco,Guiiru’
@@ -1757,7 +1756,7 @@ Contará,Zugabá'
 espesa,Rinaná
 sentimental,Nabaná'
 fiero,Naduxhu'
-bebió,"Gue' be"
+bebió,Gue' be
 recogió,gundiza
 eras,Gucalu'
 vinagre,Vinagre
@@ -1771,35 +1770,35 @@ delicada,Nani'di
 sepas,gaanalu'
 enciende,Bicaagui
 acostó,Gudixherilu
-actualmente,"Yanna ri'"
+actualmente,Yanna ri'
 rana,Bidxi'
 compone,Runichaahui'
 lindo,Galán
 llenar,Guchaya'
-matan,"Hru'ti cabe"
+matan,Hru'ti cabe
 himno,Himno
 vocacion,Vocación
 olvide,Guedasilú
 anillo,Aníu
-jabalí,"Bihui gui’xhi’"
+jabalí,Bihui gui’xhi’
 cantaban,Cayu'ndacabe
 sigo,Rinanda
 arrancar,Hriaasha
-defiende,"Ruzuguaa lu xtiidxa'"
+defiende,Ruzuguaa lu xtiidxa'
 delgado,Nalílí
 amargo,Ndá
 asustado,Nadxiíbí
-ayudó,"Gucané be"
+ayudó,Gucané be
 collar,Bigá’
-pasto,"Guixi baata"
+pasto,Guixi baata
 patas,Jñee
 pareja,xhe'la
-alojamiento,"ra guiaana tobi"
+alojamiento,ra guiaana tobi
 incendio,Gui
-72,"Chonna láte gande chíi nú chuppá"
-adulterio,"Cayá'qui ñee"
+72,Chonna láte gande chíi nú chuppá
+adulterio,Cayá'qui ñee
 parecida,Casi
-pasaran,"Zadiidi ca"
+pasaran,Zadiidi ca
 alvarez,Alvarez
 mostrando,Cayuí'cani
 der,Bixhiapa
@@ -1808,10 +1807,10 @@ melancólico,Naxhixhí
 prestado,Riguiiñe
 antepasados,ah
 estabas,Nuulu'
-solitario,"stube sia'"
-antojo,"Cului' ladxhe'"
+solitario,stube sia'
+antojo,Cului' ladxhe'
 llover,Nisaguie
-101,"ti gayua' tobi"
+101,ti gayua' tobi
 ocupan,Riquiiñecani
 lejana,zitu
 ganas,Gana
@@ -1819,16 +1818,16 @@ brilla,Ruzaani'
 ofende,Rugaandá
 habita,Ribezá
 magia,Shibe'
-veníamos,"Ziupa du"
+veníamos,Ziupa du
 romero,Romero
 queso,Queso
 juntar,Bitopa
-poniente,"Neza Hrucachilu' gubidxa"
-tías,"Ca xtiua"
+poniente,Neza Hrucachilu' gubidxa
+tías,Ca xtiua
 artística,Artística
 vamonos,Chuu
 intenso,Stipa
-apresuradamente,"Chixhe chixhe"
+apresuradamente,Chixhe chixhe
 araña,Baquixhaba
 exactamente,Bia’si
 enterado,Huayanna
@@ -1836,24 +1835,24 @@ hablas,Riníu
 mirará,Zuuya'
 regresar,bigueta'
 sepan,Laganna
-dondequiera,"Neza tiisi"
+dondequiera,Neza tiisi
 pólvora,Deguí
-salgan,"la iree"
+salgan,la iree
 gas,Gas
-prevenir,"Guupa lii"
+prevenir,Guupa lii
 bonita,Sicarú
 abraza,Riguiidxí
-apartarse,"Rilaa saa"
+apartarse,Rilaa saa
 arrastra,Rixubiyu
-avisar,"Rusenda tidxi"
+avisar,Rusenda tidxi
 cuerno,Cachu
 camina,Guzá
 sucio,Nabiidi'
 traiga,Danee
-pasear,"Zi zá"
-veintidós,"Gande nu Chuppa"
-sonreir,"Enda rishidxi"
-200,"chuppa gayua'"
+pasear,Zi zá
+veintidós,Gande nu Chuppa
+sonreir,Enda rishidxi
+200,chuppa gayua'
 cómico,Bisishidxi
 arreglar,Binichahui
 brillar,hruzaani
@@ -1861,21 +1860,21 @@ historiador,Binnigui'chi'gula'sa'
 madres,Nñiaanu'
 cultivo,Biní
 alumbra,Ruzaani'
-pesca,"Rie guuze'"
+pesca,Rie guuze'
 sermón,Libana
 parado,Zuguaa
-ilumina,"bidi' stuxu'"
+ilumina,bidi' stuxu'
 puebla,Puebla
 pague,Biquixe
 madrugada,telayuu
 elena,Elena
-tenerla,"gaapa laabe"
+tenerla,gaapa laabe
 diccionario,Didxaneza
 cuidar,Rapa
 olla,Guisu
 húmedo,Naguppa
 rejas,Bindiiguiiba'
-acontecimientos,"ni cayaaca"
+acontecimientos,ni cayaaca
 alegra,Hrusieche
 consume,Rusira
 rienda,Doo
@@ -1883,12 +1882,12 @@ persigue,Riladxí
 quieto,Dxii
 espeso,Naxhiihui'
 agüero,Xhiga
-inteligentes,"Binni nuuxpiaani'"
+inteligentes,Binni nuuxpiaani'
 raquel,Raquel
 vuelvas,Ibiguétu'
 ferrocarril,Ferrocarril
 rodar,rutubi
-seamos,"la gaaca"
+seamos,la gaaca
 vernos,Gu'yanu
 fijas,Guuyu'
 esconde,Bicachi'
@@ -1905,38 +1904,38 @@ dormida,Nisiaasi'hru
 ruiz,Ruiz
 perdiendo,Cunite'
 ocupo,riquiñe'
-disputas,"Enda ridxhichi"
-radio,"guiiba' ruzabi didxha lu bi"
-deseas,"Hracala'dxu' la'"
-torcido,"Cá bieque"
-novecientos,"Ga' Gayuua'"
+disputas,Enda ridxhichi
+radio,guiiba' ruzabi didxha lu bi
+deseas,Hracala'dxu' la'
+torcido,Cá bieque
+novecientos,Ga' Gayuua'
 encogió,Bixhoppa
 recorrido,Bieque
 vuela,Ripappa
 bajando,Cayete
-huevos,"ca dxita"
+huevos,ca dxita
 300,300
 ponte,Gucu
 aser,aser
 pierdo,Hrunite'
-pantalones,"ca pantalon"
+pantalones,ca pantalon
 quieran,gacala'dxitu
 cría,Rusiniisí
 canal,Biasa
 bruja,Bidxaa
-fingir,"Runi imbite"
-injuria,"Ruguna diidxa'"
-respirar,"Ricaa bi"
-ronca,"Rindaabi ique"
+fingir,Runi imbite
+injuria,Ruguna diidxa'
+respirar,Ricaa bi
+ronca,Rindaabi ique
 traes,Néu
 dificiles,Nagana
-dieciocho,"chi ne xhono"
+dieciocho,chi ne xhono
 jugando,caguite
 siéntate,Gurí
 corbata,corbata
 hipócrita,Ludaa
 rodela,Xuubaguidi
-setecientos,"Gadxhe Gayuua'"
+setecientos,Gadxhe Gayuua'
 tabasco,Tabasco
 vázquez,Vázquez
 matas,Biitilu'
@@ -1945,23 +1944,23 @@ lavar,Guia'ri
 amas,Nadxiu
 rápido,Chixhe
 huella,Duuba’
-juega,"Riguitte ique"
+juega,Riguitte ique
 voló,Bipappa
 mejilla,Xhaga
 inclinado,Zabigaa
-encender,"Ucaa gui"
+encender,Ucaa gui
 representante,Shaíque
-atenta,"Bishale diagalu'"
-gatos,"Ca Mixtu'"
+atenta,Bishale diagalu'
+gatos,Ca Mixtu'
 intensa,Stipa
 agita,Runiibidxá'cha
 chocolate,Dxuládi
-hurto,"Guenda riba’na’"
-listo,"Jnu xpiani'"
-moribundo,"ruti nati"
-caminando,"Zeda záanu"
+hurto,Guenda riba’na’
+listo,Jnu xpiani'
+moribundo,ruti nati
+caminando,Zeda záanu
 colgado,Zabigaa
-encarga,"Ni bicaabi"
+encarga,Ni bicaabi
 limpios,naya
 solicitar,Zanaba'
 adorar,Guendanadxi
@@ -1973,17 +1972,17 @@ hoyo,Guiiru’
 amontona,Rutaaguzaa
 cerco,Le’
 llevaré,Cheniaa
-ola,"hru bieque nisado'"
-ochocientos,"Xhono Gayuua'"
-discutir,"Cueenu didxa"
+ola,hru bieque nisado'
+ochocientos,Xhono Gayuua'
+discutir,Cueenu didxa
 secundaria,secundaria
-mataré,"chi guute'"
+mataré,chi guute'
 400,400
 suceda,Ga'cani'
 estiércol,Gui'
-visible,"Ni Rihuinni"
-guardaré,"Chi gapa ni"
-prevención,"Guupa lii"
+visible,Ni Rihuinni
+guardaré,Chi gapa ni
+prevención,Guupa lii
 avanzó,Guza
 cañón,Cañúga
 quemado,Naya'qui'
@@ -1994,48 +1993,48 @@ mete,Riguu
 celebra,cayaca
 terremoto,Xu
 buscaban,cuyubicabe
-venas,"Doo rini"
+venas,Doo rini
 siembra,Biní
 arranca,Biasha
 apretó,Bidie
 aguja,Aguxa’
 compuso,Biinichaahui'
 contaré,Zugabá'
-incondicional,"qui saabibe naa gasti'"
+incondicional,qui saabibe naa gasti'
 q,q
 autos,Autos
 trozos,Xcua
 suenan,Jruxhidxi'
 separar,Guindaa
-conflicto,"guenda ridinde"
+conflicto,guenda ridinde
 alegremente,Nayeche'
 agradar,Riula'dxi'
 cigarro,Gueza
 inquieto,Nasiñe
 idiota,Naguídxa
-juntarse,"Ridopa lú"
-vendió,"Bitoobe Zie'"
+juntarse,Ridopa lú
+vendió,Bitoobe Zie'
 acostado,Neshe'
-amanecio,"Bira gueela'"
+amanecio,Bira gueela'
 can,Zanda
 cine,Cine
 cruzar,tiidilu'
-acuerdas,"Hredasilu lii"
+acuerdas,Hredasilu lii
 pretendo,Hracaladxe'
-pollos,"Ca Buyu'"
-tigres,"Ca Beedxe’"
-discordia,"Enda ridxhichi"
-propongo,"Na' cayabe'"
+pollos,Ca Buyu'
+tigres,Ca Beedxe’
+discordia,Enda ridxhichi
+propongo,Na' cayabe'
 arrebata,Raxha
 espantado,Nadxiíbí
-enterrado,"Xa yu"
-bigote,"Guicha ruaa"
-corteza,"Guidi ladi yaga"
+enterrado,Xa yu
+bigote,Guicha ruaa
+corteza,Guidi ladi yaga
 hubieras,Ñe'
 obedece,Runa
 adornado,Zuchaahui'
 sabrosa,nanixhe'
-pasen,"la guiu'"
+pasen,la guiu'
 pa,pa
 tarda,Hrindaa'
 delgada,nalase'
@@ -2045,10 +2044,10 @@ navarrete,Navarrete
 bate,Ruchaahui'
 perderse,Rinittí
 television,tele
-saliva,"Nisa xhinii"
+saliva,Nisa xhinii
 abren,rudxhalecabe
 preguntando,canabadiidxa
-tíos,"Ca xtiua"
+tíos,Ca xtiua
 queríamos,hracala'dxidu
 perdieron,Biniticabeni
 sacrificado,Bi'ticabe'
@@ -2061,23 +2060,23 @@ llegues,guedandou'
 flaca,Nalase'
 bendiga,Guundaya
 aguado,Nanisa
-separó,"Gulee chu"
+separó,Gulee chu
 contesta,Ricabí
 necesitado,Huaquiñe
-mero,"Má yacca"
+mero,Má yacca
 dure,Guindá
 oigan,Lagucaadiaga
 billete,bidxichi
 intente,Gucaladxe'
 agarró,Gunaaze
 reprende,Rulidxe
-guardará,"Zutoppa lú"
+guardará,Zutoppa lú
 postrado,Zuxibi
 callejón,Bandaa
 infantil,Baba’du’
 concha,Bichuga
 replica,Ricabí
-cenó,"Gudo xhi"
+cenó,Gudo xhi
 flexible,Nalá'sa'
 pegado,Gui’di’
 gemir,Rusiguuna'
@@ -2089,12 +2088,12 @@ electricidad,biaani'
 jiménez,Jiménez
 olvides,Usiandu'
 limpiar,Hrusia
-dorso,"Dxita caniá"
+dorso,Dxita caniá
 grita,Ribidxiaa
 avaro,Guibi’
 imbécil,Guidxa
-vergonzoso,"Natuí lú"
-veintitrés,"Gande nu Chonna"
+vergonzoso,Natuí lú
+veintitrés,Gande nu Chonna
 estarás,Ziuulu'
 caí,Biaba'
 recoge,Rutopa
@@ -2102,10 +2101,10 @@ demasía,Nabee
 atar,Hrundiibi
 500,500
 culturas,Guenda
-aspirar,"Rigu'ba bi"
+aspirar,Rigu'ba bi
 cosquillas,Chinguiili
-muñeca,"Dxita porra ná’"
-poquito,"Tudxi huiini'"
+muñeca,Dxita porra ná’
+poquito,Tudxi huiini'
 cansada,bidxhaga'
 moriran,Zaticabe
 abra,rixele'
@@ -2126,27 +2125,27 @@ complicado,Nagana
 vuelan,Ripappa
 ma,ma
 alfanje,alfanje
-trecientos,"Chonna Gayuua'"
+trecientos,Chonna Gayuua'
 buscamos,Ruyubidu
-entrad,"la guiu'"
+entrad,la guiu'
 melodía,Sa'
 amplio,Nasaa
-asoma,"Cagúu lu"
-besa,"Ro bixidú'"
+asoma,Cagúu lu
+besa,Ro bixidú'
 culebra,Beenda’
-cráneo,"Bichuga ique"
-gavilán,"Bisiá huiini’"
+cráneo,Bichuga ique
+gavilán,Bisiá huiini’
 vómito,Rusidxi'ba'
 colina,Dani
-tuerto,"Lu cheepa’"
+tuerto,Lu cheepa’
 convido,rudí
-traducir,"ucha' didxa"
+traducir,ucha' didxa
 necesite,Biquiiñe'
 molesta,Cuchiichi
-abrazos,"enda riguidxhi"
-mates,"Guutilu laabe"
+abrazos,enda riguidxhi
+mates,Guutilu laabe
 vuelves,Ribiguetalu
-lucero,"Beleguí  "
+lucero,Beleguí  
 estúpido,Guidxa
 facilitar,rutiñe'
 rebeca,Rebeca
@@ -2159,42 +2158,42 @@ domesticó,Bisido'
 aprendió,Biziidi'
 picará,Zo
 provoca,Rugaandá
-brasero,"Lu dé"
+brasero,Lu dé
 doblado,Nuzeechu'
-tomen,"La gué"
-veintiocho,"Gande nu Xhono"
-podrido,"Ma da'"
+tomen,La gué
+veintiocho,Gande nu Xhono
+podrido,Ma da'
 arreglado,Zuchaahui'
 templado,Zutipa
 duermo,Hrase'
 carreta,Carreta
 sopa,Sopa
-hazme,"bi'ni naa"
-caminaba,"Ni Gusaa"
+hazme,bi'ni naa
+caminaba,Ni Gusaa
 repartir,Guindaa
 ayudan,Racanecabe
 picante,Nayaana
-cocinero,"Ni hruni guendaroo"
+cocinero,Ni hruni guendaroo
 pertenecientes,De
 timido,Namuxhe'
-alarma,"Runi yaya"
-tonteria,"Didxa guidxa"
+alarma,Runi yaya
+tonteria,Didxa guidxa
 brotó,Gundani
 pellejo,Guibi
 forastera,Huada’
-chino,"Ique ribidxu"
-padrino,"Bixhoze yu'du'"
-sonríe,"Ruxidxi huíini'"
+chino,Ique ribidxu
+padrino,Bixhoze yu'du'
+sonríe,Ruxidxi huíini'
 descarga,Rundaate'
-veintisiete,"Gande nu Gadxe"
-fijé,"Ma biiya"
+veintisiete,Gande nu Gadxe
+fijé,Ma biiya
 vives,Nabeezalu'
 life,Guendanabani
-alumnos,"Cani caziidi"
-pestañas,"Ca Guicha laga"
-foco,"Ni rudí biaani'"
-bendecido,"nu nda'yabe"
-moriré,"chi gate'"
+alumnos,Cani caziidi
+pestañas,Ca Guicha laga
+foco,Ni rudí biaani'
+bendecido,nu nda'yabe
+moriré,chi gate'
 quitando,Canayashacabe'
 achaque,guendahuará
 llevarás,Chineelu
@@ -2207,19 +2206,19 @@ firmamento,Guiba'
 aprende,Biziidi'
 baña,Raaze
 hiel,Xhcula'
-bendice,"Riguu ndaaya'"
+bendice,Riguu ndaaya'
 baila,Ruyaá
 liebre,Biana
-cortas,"Rugá lu'"
+cortas,Rugá lu'
 oprimido,Gui’chi’
 ahorró,Bidiilisaa
 trapo,Lari
-sábana,"Lari gueela’"
-ideó,"Guni' ique"
+sábana,Lari gueela’
+ideó,Guni' ique
 moviendo,Caniibi
 seguimiento,Cazáabinándá
 sesos,Yuba
-lápiz,"yaaga ni rucaa"
+lápiz,yaaga ni rucaa
 abuelos,Bishozebidanu'
 imparcial,imparcial
 apaga,bisui'
@@ -2238,7 +2237,7 @@ gira,Rieeque'
 apretado,Gui’chi’
 inminente,Nuna
 perra,Bi'cu
-acuesta,"Ra' ta'"
+acuesta,Ra' ta'
 clavado,Nulaadxi'
 casados,Bichaganácabe
 frenesí,Nabee
@@ -2246,11 +2245,11 @@ bonitas,Sicaru
 rancho,Ñaa'
 entendí,ñeene'
 aritmética,Aritmética
-falsedad,"cadi dxandi'"
+falsedad,cadi dxandi'
 porciones,Xcua
 cantemos,Gu'ndanu
 botón,Bitipi
-discernir,"guu ya'"
+discernir,guu ya'
 lloras,Gu'nu
 dejarás,Susaanu'
 callada,Nado'
@@ -2258,11 +2257,11 @@ opaco,Nagu'xhu'
 aprendí,Biziide'
 balsa,Balaaga’
 gallina,Bere
-coman,"La gó"
-atenerse,"Cá lú"
+coman,La gó
+atenerse,Cá lú
 montado,Dxi’ba’
 silvestre,Cuaanayaga
-cutis,"Guidi ladi"
+cutis,Guidi ladi
 langosta,Gusú’
 huele,Canda'
 fijamente,Ruuyadxí
@@ -2272,38 +2271,38 @@ esperare,Zabesa'
 vibora,beenda'
 sufriendo,cayate
 bala,Bidolaguí
-estaca,"Yaga napa ique"
+estaca,Yaga napa ique
 irte,cheelu'
 solitarios,stubisicabe
-tráeme,"bedane naa"
+tráeme,bedane naa
 sopla,Bindubi'
 asiendo,cayune'
 otorgo,Gudicabe
-avisa,"Rusenda tidxi"
+avisa,Rusenda tidxi
 resplandece,Ruzaani'
 caracol,Bichubé
-paisanos,"Binni xquidxinu"
+paisanos,Binni xquidxinu
 hormiga,Birí
 estudia,Ruunda'
 bonito,Sicarú
 cocido,Gu’gui’
-calvo,"Ique raa"
+calvo,Ique raa
 escondite,trbajo
 escapa,Rie
-llegaste,"Ma beedu'"
-sembrar,"Hriguu biní"
+llegaste,Ma beedu'
+sembrar,Hriguu biní
 consentido,Xhuncu
 caldo,Caldo
 eva,Eva
 saciado,Dxaa'
-"subi ",udxiba'
+subi ,udxiba'
 compromiso,Ruziguenda
 compadece,Riá
 cuido,Rappa
 cicatriz,Pesu
-prendido,"Cá guí"
+prendido,Cá guí
 gustar,Naquii
-zapato,"Guidi bo’co’"
+zapato,Guidi bo’co’
 abrazado,Guiidxi
 gata,Mistu’
 silbido,Stiipi
@@ -2319,12 +2318,12 @@ apagado,bisui'
 quisieras,Hracaladxu'
 duran,Rinda'
 saludos,Padiushi
-naranja,"Bolor biguitu"
+naranja,Bolor biguitu
 imaginé,Bisaccanaa
 prestamo,Diiñe’
 nostalgia,xilase
 catarro,Guidxagá
-halcón,"Bisya gue'dxe"
+halcón,Bisya gue'dxe
 pulpa,La’dxi’
 lisa,Mili
 roba,Riba'na'
@@ -2333,47 +2332,47 @@ pescuezo,Yanni
 jaime,Jaime
 detienen,Bicuezacabe
 kilo,Kilu
-cerros,"Ca danni"
+cerros,Ca danni
 buscare,zuyubeʼ
 desee,Gucaladxe'
-bota,"Guidi Bo'co'"
+bota,Guidi Bo'co'
 pepito,Pepito
 fallecido,Gu'ti
-tremenda,"Nabé nadxhiña'"
+tremenda,Nabé nadxhiña'
 pompas,xha'naa
-vena,"Doo rini"
-ahorrar,"Rutopa lú"
+vena,Doo rini
+ahorrar,Rutopa lú
 apretar,Gudieé
-trastorna,"Ruche ique"
+trastorna,Ruche ique
 cantará,Zuunda
 fragante,Xho'naxhi
 saliste,Bireu
 salado,Naxí
 tibio,Nadxaá
-vello,"Guicha ladi"
+vello,Guicha ladi
 majadero,baze'ndu
 bañado,Guzebe
 juarez,Juarez
 olvidando,cusianda'
 ombligo,Xquipi'
-deme,"bidí naa"
-tiranos,"Ca binninadxaba'"
+deme,bidí naa
+tiranos,Ca binninadxaba'
 sufro,Cayate'
 club,Club
 otorga,rudii
 descansando,Hrisi'la'dxibe'
 zapotecas,Binnigula'sa
-colorido,"Stale die'"
+colorido,Stale die'
 necesitas,Caquiñelu'
 encorvado,Napandu
 golpear,Rigapa
 mezquina,Guibi’
-jazmín,"Guie’ xhuuba’"
+jazmín,Guie’ xhuuba’
 molesto,Cuchiichi
 quemará,Zuzaaqui'
-delantera,"Zá nírú"
+delantera,Zá nírú
 viniste,Beedu'
-viga,"Yaga ruaa"
+viga,Yaga ruaa
 pito,xquie
 morado,Guhuí
 refresco,Naga'nda'
@@ -2382,18 +2381,18 @@ damian,Damian
 derivados,derivados
 col,col
 moler,Ruu'tu
-aceptando,"Cuzuuba diidxa"
+aceptando,Cuzuuba diidxa
 nadando,Cuniidxe'
 mienten,Hrusiguiicabe'
 ingenua,Huati
 eje,Guiiba'guipi'
 emilio,Emilio
-llueve,"Cayaba Nizaguie"
+llueve,Cayaba Nizaguie
 pareces,Hrului'lu
 sollozando,Cayuuna
 complicaciones,Nagana
 invitado,Biuuza
-sones,"Ca sa'"
+sones,Ca sa'
 domicilio,Ralidxi
 caricia,Rulaayá
 aclara,Rusiaani'
@@ -2401,9 +2400,9 @@ oprime,Riguie
 puerco,Bihui
 cacao,Biziaa
 crudo,Nayaa
-murmura,"Rini' dxidxigá"
+murmura,Rini' dxidxigá
 comí,Gudahua'
-ceja,"Guicha lú"
+ceja,Guicha lú
 manchado,Nabiidi'
 tosca,Xhétta
 elevó,Bipappa
@@ -2414,11 +2413,11 @@ cerveza,Cerveza
 burra,burra
 cueste,Risaaca
 alegoría,bandá'
-docientos,"Chuupa Gayuua'"
+docientos,Chuupa Gayuua'
 quisiste,Gunaxhilu'
 asustó,Gudxibibe
-miedos,"Ca guendanadxibalú"
-intestinal,"Ndani' doo xqui'"
+miedos,Ca guendanadxibalú
+intestinal,Ndani' doo xqui'
 sabroso,Nanixhe
 comprenderá,Ziene
 lunar,Biuyaa
@@ -2428,7 +2427,7 @@ monstruoso,Naxhamá
 gime,Ruunaguídxa
 cuchara,Gudxara
 mole,Guiñadó’
-zorro,"Mistu’ gui’xhi’"
+zorro,Mistu’ gui’xhi’
 cero,Gasti'
 istmo,Istmo
 compras,zaziu'
@@ -2439,7 +2438,7 @@ espectro,Bandaa'
 regalar,bisiga'de
 teja,Teja
 existo,Nua'
-enseñame,"bisidi naa"
+enseñame,bisidi naa
 preguntan,Canabadiidxa'
 automóvil,Automóvil
 vita,vita
@@ -2450,42 +2449,42 @@ tostado,Bixhuxhudé
 comezón,Baba’
 basura,Guixi
 enredo,Bixhiidi’
-tropieza,"Ruchenda ñée"
+tropieza,Ruchenda ñée
 contiguo,Cue’
 falló,Biaadxa'
-flotar,"Rixuba laahua"
-polvareda,"Guxhu yu"
+flotar,Rixuba laahua
+polvareda,Guxhu yu
 imita,Ruzuiiruáa
 enfurecido,cadxhichi
 fragmento,Ndaá
 duerma,Gasí'
 pases,Tiidu'
 poderse,Zanda
-traductor,"binni ni ruchá dixha"
+traductor,binni ni ruchá dixha
 miento,Cusiguié
 gerardo,Gerardo
 2016,2016
 estaremos,Ziuudu'
-ayudaré,"zacaniáʼ "
+ayudaré,zacaniáʼ 
 adecuado,jneza
-metro,"Guiba' see ndani yuu"
+metro,Guiba' see ndani yuu
 pintando,Cutiee
 aparezca,Hrihuinni
 keila,Keila
 proceda,acani
-probando,"Bini prueba"
+probando,Bini prueba
 gancho,Gandxu
 locución,Diidxa
 hinchado,Nabumbú
 transportado,Daapí
 aproxima,Ruchiña
-avergüenza,"Rusitui lu"
+avergüenza,Rusitui lu
 ratón,Biziña
 comamos,Goono
-cadera,"Dxita xa’na’"
-gratuitamente,"Xindxaá dó'"
+cadera,Dxita xa’na’
+gratuitamente,Xindxaá dó'
 hierve,Rindaabi'
-muerde,"Ro yaa"
+muerde,Ro yaa
 pudre,Rusiu'dxu'
 pollo,Buyu'
 regala,Rusiga'de'
@@ -2496,23 +2495,23 @@ asesinar,Zuute
 informaron,Gudxicabe
 desearia,Hracaladxe'
 zarzuela,zarzuela
-casamientos,"Guenda xheela'"
+casamientos,Guenda xheela'
 querrás,zacala'dxu
 oscar,Oscar
 acrecentamiento,Xidá
 bilis,Xhcula'
 cerdo,Bihui
-golondrina,"Bitindi ruaa yo"
+golondrina,Bitindi ruaa yo
 supuso,Bisacca
 alado,Déchesi
-mecha,"Doo yonde"
+mecha,Doo yonde
 huevo,Dxita
 canasta,Dxumi
 compadeció,Guzaaca
-sarna,"Guidxu beede"
-rizado,"Ique ribidxu"
+sarna,Guidxu beede
+rizado,Ique ribidxu
 escamas,Jlaza
-muela,"Laya beedxe’"
+muela,Laya beedxe’
 maduro,Güi
 pantano,Gue'labéñe
 terco,Naní'di'
@@ -2521,30 +2520,30 @@ descuida,Zaa
 antoja,Guiaa
 enojada,Cadxiichi'
 evaristo,Evaristo
-soñé,"biniee' xcaanda'  "
+soñé,biniee' xcaanda'  
 votar,votar
 haciendolo,Cayune'ni
-desvelo,"Hribee' xcaanda'"
+desvelo,Hribee' xcaanda'
 perecen,Raticabe
-endemoniado,"nuu binni dxaba' laa"
+endemoniado,nuu binni dxaba' laa
 perdimos,Binitidu
-necias,"Qui hruna"
-abatida,"biticabe laabe"
-trenes,"Ca tren"
-guarida,"Hra naga'chi'"
-abortó,"Gudi'di xiiñi'"
+necias,Qui hruna
+abatida,biticabe laabe
+trenes,Ca tren
+guarida,Hra naga'chi'
+abortó,Gudi'di xiiñi'
 arregla,Ruzuchaahui'
 agrio,Naí
-alegrarse,"Riquite la'dxi'"
+alegrarse,Riquite la'dxi'
 holgado,Nasaa
-subsuelo,"Xa yu"
+subsuelo,Xa yu
 borra,Ruxha
-tomate,"Bichooxhe ndaba’"
+tomate,Bichooxhe ndaba’
 sapo,Bidxi’
 pliegue,Bixigui’
 huirá,Zuxooñe'
 deforme,Xhé'mbe'
-panal,"Campana bizu"
+panal,Campana bizu
 bondadoso,Galán
 sauce,Guesa
 originó,Gudixhexti
@@ -2554,45 +2553,45 @@ soba,Rigaabi'
 vibra,Raccaditti
 contratar,Riganná
 estirado,Zutipa
-mujercita,"Ba'dudxapa huiini"
-puta,"ratanebe ne stale nguiu'"
-helados,"nabe naga'da'"
-morder,"Jro yaa"
+mujercita,Ba'dudxapa huiini
+puta,ratanebe ne stale nguiu'
+helados,nabe naga'da'
+morder,Jro yaa
 regrese,bigueta'
 observamos,Cayu'yanu
 regresaba,Ribigueta'
 rabioso,Yu'ba
-relata,"Hrui' diidxa"
+relata,Hrui' diidxa
 trazado,Tié'
-dejalo,"Vidi lugar"
+dejalo,Vidi lugar
 confidencial,Bicachi'
 vocablo,Diidxa
 acaricia,Rulaayá
-convocará,"Zudii diidxa'"
-murcielago,"Biguidi beela"
+convocará,Zudii diidxa'
+murcielago,Biguidi beela
 racimo,be'za
-caminaron,"Guzá tu"
+caminaron,Guzá tu
 chaparro,Nachucu
 calienta,Bisinda'
 lechuza,Dama’
-extrañar,"Guenda ribana"
-tórtola,"Gugu huiini’"
+extrañar,Guenda ribana
+tórtola,Gugu huiini’
 intrincado,Naxhiihui'
 tupido,Naxhiihui'
 correcto,Jneza
-madrina,"Jñaa yu’du’"
+madrina,Jñaa yu’du’
 oaxaca,Lulá’
 descompone,Rusiu'dxu'
 marchita,Riguundu'
-toquen,"La guxhidxi"
+toquen,La guxhidxi
 travieso,Nadxí'ña
-"tuerce ",Runda
+tuerce ,Runda
 aproximarse,Renú
 viviré,Zabane'
 priva,Rida'gu
 aprendan,Laguiziidi'
 martes,Martes
-nena,"badu dxapa huini'"
+nena,badu dxapa huini'
 ña,Rancho
 invade,riube
 my,Stiine'
@@ -2602,15 +2601,15 @@ sollozo,Hruuna'
 velozmente,Naguenda
 acerquen,idxiñacabe
 engordar,caro'
-hazte,"biʼniʼ lii"
+hazte,biʼniʼ lii
 tinaja,izu
 zas,zas
-patos,"Ca Niicu"
+patos,Ca Niicu
 tratamientos,Tratamientos
 niza,agua
 corrí,Guxhoñe'
 empezamos,Bizulunu
-gallegos,"Ca binni de Galicia"
+gallegos,Ca binni de Galicia
 divisó,Biyabe
 terremotos,Xhu
 dominada,Shaíque
@@ -2622,21 +2621,21 @@ arrebatara,Ñáxha
 arrodillado,Zuxibi
 arruga,Rusicuuxhu'
 asqueroso,Nabixhí
-participará,"Zudii diidxa'"
-hadas,"Binni guenda"
+participará,Zudii diidxa'
+hadas,Binni guenda
 cuelga,Rugaandá
 costilla,Cue'
 cuchilla,Cuchiá
-groseria,"Didxa dxaba’"
+groseria,Didxa dxaba’
 vaho,Gubá
-cáscara,"Guidi ladi"
+cáscara,Guidi ladi
 rata,Huaga
-cacería,"Rie guuze'"
-fogón,"Lu dé"
-zorra,"Mistu’ gui’xhi’"
+cacería,Rie guuze'
+fogón,Lu dé
+zorra,Mistu’ gui’xhi’
 nacerá,Zalé
 apretando,Caguiichi'
-veintinueve,"Gande nu Ga'"
+veintinueve,Gande nu Ga'
 bizcocho,bizcocho
 chismes,Rusigui
 giezi,giezi
@@ -2644,18 +2643,18 @@ porto,Porto
 trasero,xha'na
 robando,Caba'nacabe
 pavo,Tou'
-quererte,"Ganaxhie lii"
-bienvenida,"Sicaru beedu'"
+quererte,Ganaxhie lii
+bienvenida,Sicaru beedu'
 andaré,zazaya'
 prende,bicaagui
 terminé,Biluxhe'
 encendiendo,Cacaagui
 perdamos,Initidu
 caeria,Ñaaba
-peruanos,"Binni Perú"
-felicidades,"Ucua ti enda nayeche'"
+peruanos,Binni Perú
+felicidades,Ucua ti enda nayeche'
 vocabulario,Diidxa
-alborota,"Runi yaya"
+alborota,Runi yaya
 arreglada,Namona
 desbarató,Bixha
 peine,Begu
@@ -2665,43 +2664,43 @@ abeja,Bizu
 canario,Ndxii
 choca,Ridxelasaa
 sucediendo,Cayaca
-florece,"Rica guie'"
+florece,Rica guie'
 escoba,Guba’ya’
-hurtar,"Guenda riba’na’"
+hurtar,Guenda riba’na’
 hormigueo,Huiihui’
 tirones,Gudu'bayu
 insecto,Mani’
 naciera,Ñale
 sobresale,Didisú
-sembró,"Guluu bini"
+sembró,Guluu bini
 obstinado,Naní'di'
 dora,Ruquií
-centenares,"Gayuaa de Gayuaa"
-vinimos,"Beeda du"
-veintiséis,"Gande nu Xhoopa'"
+centenares,Gayuaa de Gayuaa
+vinimos,Beeda du
+veintiséis,Gande nu Xhoopa'
 borracha,Xhudxi
 aprehendido,Zabigaa
 latido,Bipapa
 chiquito,Huiini
 comeremos,Zado'no
 chupa,guxupi
-despejado,"gasti zaa iba'"
-lastimado,"Uca naa"
+despejado,gasti zaa iba'
+lastimado,Uca naa
 enojar,rutuxhu
-mirarte,"Guya lii"
+mirarte,Guya lii
 casaron,Bichaganácabe
 ingenuo,Huati
 cisneros,Cisneros
 estuviste,Ñuulu'
 faltriquera,faltriquera
-compraré,"Za ziee'"
+compraré,Za ziee'
 guste,chu'la'dxu'
 protege,Za'pa
 1000,1000
 sacrificando,Cayuticabe
 totem,Guenda
 equivocarse,Bichee
-amarte,"Ganashie lii"
+amarte,Ganashie lii
 aclarará,Zusiaani'
 agría,Rusii
 regocija,Rusieché'
@@ -2709,20 +2708,20 @@ baratijas,Biruuchu'
 derribará,Zuxha
 cocodrilo,Be’ñe’
 retoño,Biitu
-corran,"La guxoñe"
+corran,La guxoñe
 cá,Traer
 copete,Cuixhi’
-tobillo,"Dxita porra ñee"
+tobillo,Dxita porra ñee
 desayuno,Endaré’
 fútil,Gadxegaya'
-garra,"Bixuga Ñee"
+garra,Bixuga Ñee
 grillo,Bigarií
 sudar,Rusunisa
-servilleta,"Lari gueta"
+servilleta,Lari gueta
 pagas,Rigui'xu
 pantorrilla,Bidxiñee
 comprando,Caxuí'
-sitiado,"Naguú lé'"
+sitiado,Naguú lé'
 bebo,Ree
 trabó,Biga'ga'
 tosió,Biru
@@ -2730,36 +2729,36 @@ agarrando,Zinaaze'
 vendo,Rutuaa
 lii,Tu
 ben,Ben
-carretas,"Ca Carreta"
-tortillas,"Ca Gueta"
+carretas,Ca Carreta
+tortillas,Ca Gueta
 ra,ra
-recuerdas,"Hredazilu' lii"
+recuerdas,Hredazilu' lii
 folleto,Gui'chi
 polígono,polígono
 telaraña,Ladedoo
 supieras,Jñanu'
 Armando,Armando
-robaron,"Gula'na cabe"
+robaron,Gula'na cabe
 llevaste,Yeneelu'
 pintarse,cadiebe
 sigues,Rinandalu'
 estúpidos,Guidxaca
 jícara,Xiga
-gustas,"Hracala'dxe lii"
-regada,"Sare' guie'"
+gustas,Hracala'dxe lii
+regada,Sare' guie'
 adobe,Basoo
 compacta,Ruquidxí
 angosta,Rusibé
 borró,Bixha
-clarísimo,"Naya'ni dxindxí"
-calzar,"Cá ñee"
-intestino,"Doo xqui’"
+clarísimo,Naya'ni dxindxí
+calzar,Cá ñee
+intestino,Doo xqui’
 encarcelado,Bidaaguyoo
 adherido,Gui’di’
 molestado,Huaziñe
 organizó,Gudixhexti
-trastornado,"Ique ribí"
-cumpleaños,"Lani xpidó’"
+trastornado,Ique ribí
+cumpleaños,Lani xpidó’
 atrofia,Riu'chi'
 agarrado,Naázé
 coja,Xachaani'
@@ -2767,22 +2766,22 @@ viola,Rilaxóo
 volcó,Bitiixhi
 pedirá,Zanaba
 heredó,Rindeé
-veintiuno,"Gande nu tobi"
-pajaritos,"Ca mani huiini'"
-biblico,"ni bicá diuxi"
-intacto,"ca'ru caanacabe"
+veintiuno,Gande nu tobi
+pajaritos,Ca mani huiini'
+biblico,ni bicá diuxi
+intacto,ca'ru caanacabe
 vagina,nde
 limpiando,cusiabe
-bronca,"Enda ridinde"
-nalgas,"Ca Bela xa’na’"
+bronca,Enda ridinde
+nalgas,Ca Bela xa’na’
 aprendiendo,Caziide'
-ayúdame,"Ucanee Naa"
+ayúdame,Ucanee Naa
 limon,limón
 golosina,Nanashi
-tomates,"Ca Bichooxhe"
+tomates,Ca Bichooxhe
 camilo,Camilo
 dilo,Guni'ni
-fallecimiento,"Enda Gu'ti"
+fallecimiento,Enda Gu'ti
 miliciano,Guachu
 sofía,Sofía
 zocato,zocato
@@ -2790,15 +2789,15 @@ coco,Coco
 transportó,Gudu'ba'
 acorta,Rusichuccu
 adorna,Ruzuchaahui'
-arreglarse,"Raca chaahui'"
+arreglarse,Raca chaahui'
 blanquecino,Nate
 lama,Banduí’
 cereza,Beu’
 tortuga,Bigu
 cargando,Nuá
 arderá,Zo
-canten,"La guunda'"
-enredado,"Cá bixhiidi’"
+canten,La guunda'
+enredado,Cá bixhiidi’
 hálito,Gubá
 calabaza,Guitu
 invadido,Naaze
@@ -2809,7 +2808,7 @@ soltará,Zundaa
 desocupado,Nadachí
 ebria,Xhudxi
 rasguño,Xhuga
-seguirás,"Qui susanalu"
+seguirás,Qui susanalu
 disfruta,Naye'che
 cenando,udoshilu'
 comiste,Gudoolo'
@@ -2819,16 +2818,16 @@ primordial,primordial
 marcelo,Marcelo
 melchor,Melchor
 internet,Ladedoobiaani'
-how,"Xhi modo"
+how,Xhi modo
 crezca,Guinizibe
 soso,soso
-doquier,"Neza tiisi"
-recordaré,"Zedasilú na'"
+doquier,Neza tiisi
+recordaré,Zedasilú na'
 tocamos,Bixhidxinu'
-cuidate,"Guupa lii"
+cuidate,Guupa lii
 estate,Guyuu
 salsa,Guiiña'
-negaras,"Zabilu' qui"
+negaras,Zabilu' qui
 regocijaba,Cayeche
 pato,Niicu
 agota,Rusira
@@ -2846,7 +2845,7 @@ criba,Riguibi
 centavos,Domi’
 falla,Riaadxa'
 felicitó,Guzaaca
-ahorra,"Riguu chaahui'"
+ahorra,Riguu chaahui'
 neblina,Gupa
 inepto,Naguídxa
 introduciendo,Cucháazi'
@@ -2859,10 +2858,10 @@ moja,Radxe
 pintará,Zadiee
 masaje,Retaabí
 alquilar,Riganná
-amanecerá,"Zada irá gueela'"
+amanecerá,Zada irá gueela'
 amontonado,Zuguenda
-nombran,"ribácquicabe laa"
-bienvenido,"Sicaru beedu'"
+nombran,ribácquicabe laa
+bienvenido,Sicaru beedu'
 pinche,Pinche
 adolfo,adolfo
 university,university
@@ -2871,15 +2870,15 @@ preparare,Gaaca
 molestas,Hruchiichu'
 amare,zannaxhieeʼ
 chic,Chic
-enviarte,"Uzenda lii"
+enviarte,Uzenda lii
 inundó,rilahuaa
 llévate,Yené
 arreglan,Runicháhuicabe
-travesuras,"ca Guendanadxíña"
-suban,"La qui'ba"
+travesuras,ca Guendanadxíña
+suban,La qui'ba
 mitla,Mitla
 alegrarás,Zusiechelu'
-platicar,"Gue' didxha"
+platicar,Gue' didxha
 acarreó,Gudu'ba'
 agarrar,Gudapi
 aglomeración,Bixhí'
@@ -2890,13 +2889,13 @@ trueca,Ruchaa
 canasto,Dxumisú
 desviado,Napandu
 seduce,Ruquiindé
-corremos,"Ruxo'ñe du"
+corremos,Ruxo'ñe du
 resguardo,Rappa
 caminé,Guzaya'
 moco,Guudxi’
 fierro,Guiiba’
-insulta,"Ruguna diidxa'"
-rapado,"Ique choore’"
+insulta,Ruguna diidxa'
+rapado,Ique choore’
 párpado,Laga
 celebración,Laní
 molesté,Bichiiche'
@@ -2907,28 +2906,28 @@ pegan,Ridiiñu'
 sonámbulo,Rizáguéela'
 extrae,Rusiacca
 pegajoso,Naroondé
-oscurecer,"Ze canda"
+oscurecer,Ze canda
 anocheciendo,Zicanda
-abrazados,"guidxi ca be"
+abrazados,guidxi ca be
 telefono,Dudu
 comes,Cayoolo'
 mm,mm
 dieguito,Dieguito
 zacatecas,Zacatecas
-volará,"Chi ipapa"
-amontonar,"Rutopa lu"
+volará,Chi ipapa
+amontonar,Rutopa lu
 incauto,Huati
 achacoso,huará
 campeche,Campeche
 zarzaparrilla,zarzaparrilla
-abandonaste,"bizanalu na"
+abandonaste,bizanalu na
 amaste,Gunaxhilu'
 apoye,Acanee
 josefina,Josefina
 style,style
 jimena,Jimena
 nahum,Nahum
-muestrame,"Biluí' na'"
+muestrame,Biluí' na'
 agotó,Bisira
 alumbrará,Zusiaani'
 adopta,Rusiniisí
@@ -2949,21 +2948,21 @@ lagarto,Be’ñe’
 cigarra,Bigarii
 mosquito,Biuxi’
 cose,Rugaagui'
-ceñirse,"Rixii ndaani'"
-chillar,"Runi ridxi"
+ceñirse,Rixii ndaani'
+chillar,Runi ridxi
 oxido,Tini
 higo,Chubí’
-yuca,"Gu yaga"
-acata,"Ruzuuba diidxa'"
+yuca,Gu yaga
+acata,Ruzuuba diidxa'
 cantes,Gu'ndu'
 entorpece,Raccahuattí
 embriaga,Rixudxi
 contrajo,Bixhoppa
 merma,Rixié'
-peina,"Riza begú"
-temblará,"Zacca xu"
+peina,Riza begú
+temblará,Zacca xu
 enajena,Rutoo
-vendremos,"Ziupa du"
+vendremos,Ziupa du
 viscoso,Naroondé
 regresa,Zeédábí
 arbusto,Yaga
@@ -2972,7 +2971,7 @@ envoltorio,Yuxhu'
 puto,Muxhe'
 tropical,tropical
 contrabando,Nucachilú
-amame,"Gunaxhi' na'"
+amame,Gunaxhi' na'
 cenit,Cenit
 hueles,Canda'
 please,please
@@ -2984,21 +2983,21 @@ fallecer,gati'
 voltear,rutiixhi
 mark,mark
 volaría,Chipaapa
-adorarte,"ganaxhiie' lii"
+adorarte,ganaxhiie' lii
 enseñaste,Bisiidu'
-lees,"hruundu' "
+lees,hruundu' 
 secan,Hrucuiidxicabe'
-tenerte,"Gapa lii"
+tenerte,Gapa lii
 edgar,Edgar
-putrefaccion,"Canda' yudxhu'"
-moveré,"Chi guiniibe"
-sembraron,"Chinduuácabe biní"
-érase,"Biu ti dxhi"
+putrefaccion,Canda' yudxhu'
+moveré,Chi guiniibe
+sembraron,Chinduuácabe biní
+érase,Biu ti dxhi
 ablanda,Rusiguudxí
 afilar,Rutuxhu
-albahaca,"Guie' stia"
+albahaca,Guie' stia
 anteanoche,Neeguegueela'
-enloquece,"Ruche ique"
+enloquece,Ruche ique
 reverso,Nezadeche
 lanzará,Zaguubí
 descuelga,Rindetté
@@ -3008,43 +3007,43 @@ quebradizo,Bixhuxhudé
 brincar,Richesa
 tumor,Gui'dxu'
 nalga,xha'na
-padrastro,"Bela bizabi"
-blanquísimo,"Naquichi bé gui'chi'"
+padrastro,Bela bizabi
+blanquísimo,Naquichi bé gui'chi'
 escarabajo,Bidolaguí’
-bisabuelo,"Bixhoze gola"
+bisabuelo,Bixhoze gola
 avispa,Bizu
 leerá,Zuunda
 comprará,Zazi'
 contribuirá,Zuchaagá
 rasga,Ribeebiá'
 cruje,Ra'cheyúuba
-cenará,"Zo xhí"
+cenará,Zo xhí
 certero,Nandí
-amaneciendo,"Casi birá gueela’"
-tapado,"Da'gu lu'"
+amaneciendo,Casi birá gueela’
+tapado,Da'gu lu'
 agresivo,Naduxhú
 bastidor,Dxiba
-clavicula,"Dxita bigá’ yanni"
-descarado,"Gula lu"
-sobornado,"Gudxe na"
+clavicula,Dxita bigá’ yanni
+descarado,Gula lu
+sobornado,Gudxe na
 resistente,Naguidxí
 reuma,Ubá
-salamandra,"Guchachi guixhe"
+salamandra,Guchachi guixhe
 tortilla,Gueta
 excremento,Gui’
 hundiendo,Cucháazi'
 oblicuo,Naxubi
 enmarañado,Naxhiihui'
-olió,"Biuu xii"
+olió,Biuu xii
 ofenderá,Zucheelaní'di'
 molestes,Guchichi
-retoñar,"Riguiche biitu"
+retoñar,Riguiche biitu
 teñirá,Zadiee
 hidrofobia,Yu'ba'
 emanuel,Emanuel
 vero,Vero
 disfrazar,bicha'
-proveniente,"ni zeda de"
+proveniente,ni zeda de
 priscila,Priscila
 nisa,agua
 casate,bichaganaa'
@@ -3071,17 +3070,17 @@ extrañe,Ibaane'
 arreglaron,Binichahuicabe
 elvira,Elvira
 amanerado,Muxhe'
-paralizado,"Qui risaa"
-fíjate,"Biaa naa'"
+paralizado,Qui risaa
+fíjate,Biaa naa'
 pene,Xquiee
 encontrada,Bidxela'ca
 sacrificaria,Nigute
-codorniz,"Bere xhunashi"
+codorniz,Bere xhunashi
 cantas,Cayuundalu'
 sumando,Cadale
 agotará,Zusira
 accede,Rina
-agarran,"Ricaa cabe"
+agarran,Ricaa cabe
 agranda,Rusirooba'
 alacrán,Meuxubi
 tranquiliza,Rusido'
@@ -3092,12 +3091,12 @@ aplastado,Tá'ba'
 instruirá,Ziene
 hincado,Zuxibi
 pliega,Rusicuuxhu'
-avisará,"Zudii diidxa'"
+avisará,Zudii diidxa'
 colabora,Raccané
 bosteza,Ridxagaxcáanda
 bíceps,Bidxiná'
 migaja,Bigú
-anaranjado,"Bolor biguitu"
+anaranjado,Bolor biguitu
 cochino,Bihui
 venado,Bidxiña
 pulga,Biiu
@@ -3105,22 +3104,22 @@ aproximado,Gaxha
 silba,Rutiipí
 apiada,Riá
 correrá,Zuxooñe'
-damelo,"Dané náa"
+damelo,Dané náa
 traelo,Daneni'
 maguey,Duba
 congratuló,Guzaaca
-sinvergüenza,"Gula lu"
-fundará,"Zaguixhe xtí"
+sinvergüenza,Gula lu
+fundará,Zaguixhe xtí
 gemelo,Cuachi
 finado,Gue’tu’
-pestaña,"Guicha laga"
+pestaña,Guicha laga
 resfriado,Idxagá
 divieso,Gui’dxu’
 radica,Ribezá
-maltrata,"Ruguna diidxa'"
-pelón,"Ique choore’"
-tardamos,"Rinda' nu"
-olfateó,"Biuu xii"
+maltrata,Ruguna diidxa'
+pelón,Ique choore’
+tardamos,Rinda' nu
+olfateó,Biuu xii
 mea,Rinesa
 macilento,Naxhixhí
 párate,Bizuhuaa
@@ -3128,36 +3127,36 @@ pequeñísimo,Piizi
 pudrirse,Riu'dxu'
 enfría,Rusigaanda'
 hurta,Riba'na'
-atragantó,"Gu'ga yanni"
+atragantó,Gu'ga yanni
 completará,Zazaa
 suda,Rizunisa
 solloza,Ricaalá'dxi'
 tardas,Rindou
 obtendrá,Zappá
-váyanse,"La ché"
+váyanse,La ché
 barrenar,Quiide
 convivir,Renú
 menton,Xhigui
-pus,"Ma da'"
-candado,"Guiiba nadaapa"
+pus,Ma da'
+candado,Guiiba nadaapa
 dormiré,Zaaze'
 chiquita,nahuinibe
-veterinario,"nguiu ni rusianda mani'"
-abuelita,"Jñaa vida'"
+veterinario,nguiu ni rusianda mani'
+abuelita,Jñaa vida'
 regresan,cabiguetaca'
 christian,Christian
 bañarme,Gaaze'
 bañar,Ugaaze'
-tropecé,"Bireenda ñee'"
+tropecé,Bireenda ñee'
 vie,guendanabani
 monterrey,monterrey
 making,making
-animalitos,"Ca maani huiini'"
+animalitos,Ca maani huiini'
 jira,jira
 950,950
 caramelo,Nanashi
-velare,"Zabee' xcaanda'"
-pastel,"Cuba dxhita"
+velare,Zabee' xcaanda'
+pastel,Cuba dxhita
 incauta,Huati
 clac,Clac
 faldriquera,faldriquera
@@ -3165,64 +3164,64 @@ satélite,Satélite
 zoología,Zoología
 llorarás,zuunalu'
 portan,Naazecabe
-bendigo,"Hrigua' ndaaya"
+bendigo,Hrigua' ndaaya
 compraste,Uziu'
-sembraste,"Rugú biniilu'"
-cocos,"Ca Coco"
-golosa,"Nabé Ro Stale"
+sembraste,Rugú biniilu'
+cocos,Ca Coco
+golosa,Nabé Ro Stale
 duermas,Gaasilu'
-perdióse,"ma binitini"
+perdióse,ma binitini
 mario,Mario
-despliegue,"Chi gata"
+despliegue,Chi gata
 ortiga,Guichibidu'
 suaviza,Rusiguudxí
-aboga,"Ruzuguaa lu xtiidxa'"
+aboga,Ruzuguaa lu xtiidxa'
 acarreado,Daapí
 acarrear,Rigu'ba'
 adelgaza,Rusilase
 agarre,Gucuá
-ahorcarse,"Ruxhii yanni"
-ahorrará,"Zutoppa lú"
+ahorcarse,Ruxhii yanni
+ahorrará,Zutoppa lú
 alargado,Nagaa
 amansó,Bisido'
-"anguila ","Beenda ngallí'"
+anguila ,Beenda ngallí'
 anteayer,Nase
-apesta,"Rinda' yuudxu'"
+apesta,Rinda' yuudxu'
 aprendo,Riziide'
 asustará,Zuchibi
-bautiza,"Riguu nisa"
+bautiza,Riguu nisa
 derrumbó,Bixha
 brotará,Rundaani
 dirigirá,Zuyubí
-tuna,"Biaa gueta"
+tuna,Biaa gueta
 silbará,Zutiipí
 expulsó,Bireenanda
-ruegas,"Rugá lu'"
-compren,"La sí'"
+ruegas,Rugá lu'
+compren,La sí'
 canoso,Natoopé
-tendedero,"Doo randa lari"
-tripa,"Doo xqui’"
-muchachita,"Dxapa huiini’"
-gesticula,"Rixeembe ruaa"
+tendedero,Doo randa lari
+tripa,Doo xqui’
+muchachita,Dxapa huiini’
+gesticula,Rixeembe ruaa
 chilla,Ribidxiaa
 lagartija,Uraagu'
 defecar,Rusixhuuna'
 ebullición,Rindaabi'
-intrigando,"Cagúu xqui'chi"
+intrigando,Cagúu xqui'chi
 correteando,Ladxi
-bisojo,"Lu changa"
+bisojo,Lu changa
 gay,Muxe’
 provocará,Zucheelaní'di'
 polla,Gucuni
 hurtará,Zaba'na'
-recordarse,"Reda si lú"
+recordarse,Reda si lú
 regaré,Zuzee
 apetitoso,Naníxé
 desvela,Ribeexcáanda'
 escasea,Rixié'
 frita,Bidxuuni'
 salar,Rusixi
-acorralado,"Naguú lé'"
+acorralado,Naguú lé'
 ultraja,Rilaxóo
 vomita,Ridxi'ba'
 volteó,Bitiixhi
@@ -3230,13 +3229,13 @@ entremeterse,Richuú
 extraviarse,Rinittí
 aprehender,Zinaaze'
 recargado,Ya'ni'
-calambre,"Yuba yaa"
+calambre,Yuba yaa
 grava,Yuxiguié
 caes,Guiabalu'
-ojitos,"Lú' huiini'"
-quiereme,"Gunaxhi' na'"
-bajen,"La guie'te"
-magestuosa,"Nabe Sicarú"
+ojitos,Lú' huiini'
+quiereme,Gunaxhi' na'
+bajen,La guie'te
+magestuosa,Nabe Sicarú
 ronquillo,ronquillo
 nayeli,Nayeli
 recordemos,guitenala'xhinu
@@ -3246,11 +3245,11 @@ veniste,Beedalu'
 mazorca,Niiza
 alicia,Alicia
 tadeo,Tadeo
-llevenme,"La Yenee Naa"
-marranos,"Ca biui"
-escuchadas,"sucá diagacabe"
+llevenme,La Yenee Naa
+marranos,Ca biui
+escuchadas,sucá diagacabe
 humberto,Humberto
-besarte,"udié ti bixhidu lii"
+besarte,udié ti bixhidu lii
 prepararle,Guune
 2500,2500
 tláloc,Tláloc
@@ -3267,52 +3266,52 @@ falsía,falsía
 hexágono,hexágono
 lila,Guhuí
 zurupeto,Zurupeto
-muele,"Ruu'tu be"
+muele,Ruu'tu be
 sinaloa,Sinaloa
 soñaste,Guni'xcandalu'
 alabastrino,Alabastrino
-ocurriendo,"Ni rizaaca"
+ocurriendo,Ni rizaaca
 pintandose,cadiebe
 apagando,Casui'
-nombrarme,"Guzeetelu' la'ya'"
+nombrarme,Guzeetelu' la'ya'
 consentida,Shunca
 pue,pues
-tragaban,"Hruni dxi'ñacabe'"
+tragaban,Hruni dxi'ñacabe'
 estúpidas,Guidxaca
-volemos,"La ipapa"
+volemos,La ipapa
 intercambio,bichaia'
 perdisteis,Binititu'
 gabriela,Gabriela
-cotidianos,"De irá dxi"
+cotidianos,De irá dxi
 tetas,Shidxi
 mami,Jña'
-prestas,"Zutiiñu na'"
+prestas,Zutiiñu na'
 frijol,Bizaa
 peno,Hrate'
 mixteca,Mixteca
-amanecieron,"Biraatu gueela'"
-aburrir,"Rusixhaca la'dxi'"
+amanecieron,Biraatu gueela'
+aburrir,Rusixhaca la'dxi'
 aplastará,Zutaaba'
 aplastó,Bisitaaba'
-aclimatarse,"Qué gapa xiladxi'"
-adornando,"Cazée lu"
+aclimatarse,Qué gapa xiladxi'
+adornando,Cazée lu
 laxa,Rusicheeche'
 afloja,Rusichaacha'
 perforado,Nadé
 horada,Riguiidé
 taladra,Riguiidé
-almejas,"Bichú' bata huiini"
+almejas,Bichú' bata huiini
 amansa,Rusido'
 reducirá,Zagu'baná
 anudado,Nabi'xhu'
 achatado,Tá'dxi'
 deformado,Paáxhú
-curioseando,"Cagúu lu"
+curioseando,Cagúu lu
 espantará,Zuchibi
 envés,Nezadeche
-augura,"Runi bisi"
+augura,Runi bisi
 avienta,Ruzú'nda'
-expondrá,"Zudii diidxa'"
+expondrá,Zudii diidxa'
 ayuna,Rucuaaná
 bailará,Zuyaá
 arría,Rindetté
@@ -3321,17 +3320,17 @@ ataviado,Zúchaahui'
 desteñido,Nate
 derrumba,Ruxha
 tachó,Bixha
-nene,"Badu huiini’"
-jovencita,"Badu dxaapa’"
+nene,Badu huiini’
+jovencita,Badu dxaapa’
 tarántula,Bacaxaba
 caimán,Be’ñe’
-cicatrización,"Biaxi beela"
+cicatrización,Biaxi beela
 atole,Biazee
 piojo,Biichi
-cascarón,"Bichuga dxita"
-morro,"Bitu xiga"
-larva,"Bizu ri’qui’"
-averiguará,"Zacaá yú"
+cascarón,Bichuga dxita
+morro,Bitu xiga
+larva,Bizu ri’qui’
+averiguará,Zacaá yú
 roerá,Zo
 enumeró,Bigabá
 expulsa,Rireenándá
@@ -3345,31 +3344,31 @@ gangoso,Nacaanga'
 germinó,Gundani
 rechina,Ribidxiaa
 caca,Gui’
-cordoncillo,"Guie’ daana’"
+cordoncillo,Guie’ daana’
 hamaca,Guixhe
-huevera,"Doo dxita"
-husmear,"Riguba xii"
+huevera,Doo dxita
+husmear,Riguba xii
 corcovado,Natigu
-jueguen,"La qui'te"
+jueguen,La qui'te
 encajado,Ladxi
 niñera,Meme’
 comadre,Maale
 enumeraré,Zugabá'
 peludo,Naraxi
-pasaste,"Gudi' du"
+pasaste,Gudi' du
 robará,Zaba'na'
 regará,Zuze
-"ranita ","Benda bidxí'"
+ranita ,Benda bidxí'
 emborracha,Rixudxi
 enrojece,Rixiña
 apoca,Rixié'
 vendible,Ridoo
 sazonado,Gula
-tartamudo,"Napaapa rua"
+tartamudo,Napaapa rua
 tehuantepec,Guizii
-grieta,"Rucaa bi"
-cohibido,"Natuí lú"
-vociferó,"Guni' xhaata'"
+grieta,Rucaa bi
+cohibido,Natuí lú
+vociferó,Guni' xhaata'
 vuelca,Rutiixhí
 volteará,Zutiixhí
 condolerse,Riganná
@@ -3379,7 +3378,7 @@ tenso,Zutipa
 miedoso,Nadxiibi
 juanita,Juanita
 bañarnos,gaazenu
-putos,"Cada muxhe'"
+putos,Cada muxhe'
 roxana,Roxana
 hello,Padiuxhi
 cubeta,cubeta
@@ -3391,32 +3390,32 @@ reyna,Reyna
 fer,Fer
 equis,Equis
 guau,Guau
-apestas,"Canda' yudxhu lu'"
+apestas,Canda' yudxhu lu'
 ñoña,Ñoña
 lorena,Lorena
 milpa,Biní
 sandia,Shandie
-estimular,"Guziroo'ba jma'"
+estimular,Guziroo'ba jma'
 1806,1806
 dis,dis
-cosita,"Xiixa huiini"
+cosita,Xiixa huiini
 davalos,Davalos
 adriana,Adriana
 gilberto,Gilberto
 1527,1527
 1551,1551
 bom,bom
-abuelito,"bixhose vida'"
-pajarito,"mani huini'"
+abuelito,bixhose vida'
+pajarito,mani huini'
 esponjado,Nashiaa
 miedosa,Nadxiibi
-recordarte,"Hredasilú na' lii"
+recordarte,Hredasilú na' lii
 desmorona,Hriruushedú
 apestoso,Hrindá'yuudxu'
 desunir,Guindaa
 tapando,Cutaagu'
 madrugadas,Gueela'
-asfixiar,"ruti xhiee"
+asfixiar,ruti xhiee
 coñac,Coñac
 falencia,falencia
 feliciano,Feliciano
@@ -3433,30 +3432,30 @@ zascandil,zascandil
 ziszás,ziszás
 zubia,Zubia
 zumba,Zumba
-besame,"Bidí ti bixhidu' na"
+besame,Bidí ti bixhidu' na
 hermosillo,Hermosillo
 alejas,Cheelu'
 traviesos,Nadxiñacabe
-bendecida,"Nu nda'yabe"
+bendecida,Nu nda'yabe
 limpiaste,Bisialu'
 llévatelo,Yeneni
 karla,Karla
 otoños,Otoños
-tercas,"Ca Ique chonga"
+tercas,Ca Ique chonga
 lucina,Lucina
 atractiva,Sicarú
 vibras,hracala'dxica'
 harry,Harry
 803,803
 güero,Mexhu
-tokio,"Guidxhi Tokio"
+tokio,Guidxhi Tokio
 cuidandolo,Cayapabe
 pendejo,Guidxa
 fallaron,Bicheecabe'
-cocinar,"A'ca guendaroo"
-distanciamiento,"Enda ridxiichi"
-tamales,"Gueta guu"
-destiempo,"Óra ga"
+cocinar,A'ca guendaroo
+distanciamiento,Enda ridxiichi
+tamales,Gueta guu
+destiempo,Óra ga
 ablandarse,Riguudxi
 aquieta,Rusiganí
 acarreará,Zagu'ba'
@@ -3467,10 +3466,10 @@ aflojado,Nataata'
 aceda,Rusii
 perfora,Riguiidé
 ahorita,Nagasí
-acumulará,"Zutoppa lú"
+acumulará,Zutoppa lú
 acústico,Nalé
 juguetón,Naquiité
-aletea,"Riguibi  xhiaa"
+aletea,Riguibi  xhiaa
 almuerza,Ruxhirini
 lía,Rundiibí
 anuda,Rundiibí
@@ -3479,10 +3478,10 @@ antier,Nase
 recarga,Ruzucá
 comprimió,Bidie
 arenoso,Nayuxi
-aspirará,"Zagu'ba bi"
+aspirará,Zagu'ba bi
 atascado,Nagá'
-presagia,"Runi bisi"
-baboso,"Nachaande ruaa"
+presagia,Runi bisi
+baboso,Nachaande ruaa
 rocía,Rugaze
 demuele,Ruxha
 tala,Ruxha
@@ -3491,7 +3490,7 @@ demolerá,Zuxha
 talará,Zuxha
 flama,Bele
 saltamontes,Bichugaa
-oropéndola,"Biguitu rini"
+oropéndola,Biguitu rini
 salamanquesa,Bilopayoo
 torsión,Bieque
 coyol,Bigaraagu’
@@ -3506,24 +3505,24 @@ chismear,Ruchaagaruáa
 tamiza,Riguibi
 cacaréa,Ruxhexhe
 caminas,Rizóu'
-caminaste,"Guzá lu'"
-oxidado,"Cá tini"
-placenta,"Doo yoo"
-vertebra,"Dxita caniá"
-faltamos,"Ria'dxa du"
+caminaste,Guzá lu'
+oxidado,Cá tini
+placenta,Doo yoo
+vertebra,Dxita caniá
+faltamos,Ria'dxa du
 conduele,Rizaacá
 condolió,Guzaaca
 flotará,Zaxuubalaáhuá
-instituirá,"Zaguixhe xtí"
-inventará,"Zaguixhe xtí"
-zapoteca,"Binni zá"
+instituirá,Zaguixhe xtí
+inventará,Zaguixhe xtí
+zapoteca,Binni zá
 menea,Rieeque'
 gorgojo,Bichucu
 goteará,Zadxuuni'
 coyote,Gueu’
 pinol,Gueeze’
 metate,Guiiche
-nopal,"Guichi biaagueta"
+nopal,Guichi biaagueta
 alferecía,Guidxarabé’
 toserá,Zuru
 viejita,Huela
@@ -3534,13 +3533,13 @@ combado,Natigu
 fleco,Jluxu
 malvavisco,Lasayú
 travesti,Muxe’
-olvidadizo,"Ique yá'nda'"
+olvidadizo,Ique yá'nda'
 exprime,Ruxhii
-orienta,"Riguu neza"
+orienta,Riguu neza
 parirá,Zaxana
 patiabierto,Nandaaga'
-pulverizar,"Runi bigú"
-pulverizarse,"Raca dé"
+pulverizar,Runi bigú
+pulverizarse,Raca dé
 pinza,Biidu'
 penca,Xpata
 incendiará,Zuzaaqui'
@@ -3551,37 +3550,37 @@ resbaloso,Chui'
 repone,Rusibaní
 rajado,Nareza
 robas,Riba'nu'
-sanguijuela,"Beenda nisa"
+sanguijuela,Beenda nisa
 abolla,Ripaaxhú
 bañará,Zaze
-salpica,"Riacha nisa"
-desorientó,"Bidxe lu"
+salpica,Riacha nisa
+desorientó,Bidxe lu
 engordando,Caróo
 nubló,Bichuundu'
 empaño,Bichuundu'
-sonsaca,"Ribee díidxala'dxi'"
+sonsaca,Ribee díidxala'dxi'
 saltador,Bicheesa
 tartamudea,Rini'paapa'
-extiendes,"Ruchiaá lú"
+extiendes,Ruchiaá lú
 enganchado,Naázé
 tuesta,Ruquií
-vituperó,"Gulee ndátte"
-denostó,"Gulee ndátte"
+vituperó,Gulee ndátte
+denostó,Gulee ndátte
 voltea,Rudxiguettá'
 volcará,Zutiixhí
 agujerear,Quiide
 desayunar,Rigué
 atrapar,Zinaaze'
-vendimos,"Bito' do"
+vendimos,Bito' do
 propasado,Xhaata'
 arañazo,Xhuga
 libélula,Xhumpirinisa
-comprometí,"Naa biquiíndé'"
-seduje,"Naa biquiíndé'"
+comprometí,Naa biquiíndé'
+seduje,Naa biquiíndé'
 biodiversidad,Biodiversidad
 coceremos,zuga'guinu
 frijoles,Bizaa
-huerfanito,"Ba'du bizabi huiini'"
+huerfanito,Ba'du bizabi huiini'
 lalo,Lalo
 tablet,Tablet
 doménico,Doménico
@@ -3590,13 +3589,13 @@ rogelio,Rogelio
 cucaracha,Cucaracha
 camiones,Camiones
 espara,espara
-repeat,"Sti viaje"
+repeat,Sti viaje
 soda,Soda
 yolo,Yolo
-quierela,"Gunna shii la be"
+quierela,Gunna shii la be
 bailemos,zuyaanu
-extraterrestre,"binni ni seda de iba'"
-sueñes,"Guni'xcandalu sicarú"
+extraterrestre,binni ni seda de iba'
+sueñes,Guni'xcandalu sicarú
 llanta,Huitubi
 itzel,Itzel
 eu,eu
@@ -3610,7 +3609,7 @@ evocaré,Zuzeete'
 tronchar,Hriguuza
 realizamos,Binidu'
 amarrar,Hrundiibi
-ábranme,"la "
+ábranme,la 
 ábranse,bixheleʼ
 achacar,donda
 baobab,Baobab
@@ -3624,7 +3623,7 @@ fanfarronería,fanfarronería
 fantoche,fantoche
 faralares,faralares
 heptágono,heptágono
-únanse,"la gaca tobisi"
+únanse,la gaca tobisi
 zarzo,zarzo
 zipaquirá,zipaquirá
 zuavo,Zuavo
@@ -3637,12 +3636,12 @@ sombrilla,Baca'nda'
 alexis,Alexis
 ignea,Ignea
 adiestró,Biziidibe
-palomitas,"ca Guugu' huiini'"
-tragaré,"Chi Hraabe'"
+palomitas,ca Guugu' huiini'
+tragaré,Chi Hraabe'
 betabel,betabel
-disfruten,"La Tiidi Endanayeche'"
+disfruten,La Tiidi Endanayeche'
 eduard,Eduard
-tercos,"Ca Ique chonga"
+tercos,Ca Ique chonga
 cogemos,Cayuninuni
 felipa,Felipa
 glúteos,Xaana'
@@ -3655,78 +3654,78 @@ musxhe,Muxhe'
 maricon,Muxhe'
 homosexual,Muxhe'
 película,Pelicula
-ordenadores,"Ca computadora"
-enfrentamientos,"Bidxhela saa'"
+ordenadores,Ca computadora
+enfrentamientos,Bidxhela saa'
 nucano,Nucano
-concentrate,"Bishale diagalu'"
+concentrate,Bishale diagalu'
 sonso,Guidxa
-brindarnos,"Gudi'cabe laanu"
+brindarnos,Gudi'cabe laanu
 verga,Xquiee
 emotivos,Nabana'
 emotiva,Nabana'
-teatralmente,"Hruni imbite"
+teatralmente,Hruni imbite
 cocijoeza,Cocijoeza
 nagual,Guenda
 zapotecos,Binnigula'sa
-enfrentaron,"Cucaalú hridinde"
-mexicas,"Binni mexico"
-cantame,"Biinda naa"
+enfrentaron,Cucaalú hridinde
+mexicas,Binni mexico
+cantame,Biinda naa
 zapoteco,Didxazá
 playera,Gamixá
-"¡a poco!","Laaca xa"
+¡a poco!,Laaca xa
 ¡ándale!,Jora
-"¡apoco es ese","¡Ngá xá ní!"
-"¡apoco es esa","¡Ngá xá ní!"
-"¡apoco es eso","¡Ngá xá ní!"
-"¡aún no!","Cá'ru xa"
-"¡mira qué!","¡Biaahua xi!"
-"¡mira quién!","¡Biaahua tu!"
+¡apoco es ese,¡Ngá xá ní!
+¡apoco es esa,¡Ngá xá ní!
+¡apoco es eso,¡Ngá xá ní!
+¡aún no!,Cá'ru xa
+¡mira qué!,¡Biaahua xi!
+¡mira quién!,¡Biaahua tu!
 ¡muchacha!,Lia
-"¡oigan ustedes!",Oca'
+¡oigan ustedes!,Oca'
 ¡qué!,¡Xí!
 ¡cuál!,¡Xí!
-¡tú!,"¡Lii xa!"
-"¡vete… qué importa!","Guye xa"
-"¿cómo te llamas?","Tu lá lu'"
-"¿cómo se llama?","Tu labee'"
-¿cómo?,"Xi casi"
+¡tú!,¡Lii xa!
+¡vete… qué importa!,Guye xa
+¿cómo te llamas?,Tu lá lu'
+¿cómo se llama?,Tu labee'
+¿cómo?,Xi casi
 ¿cuál?,Uná'
 ¿cuándo?,Padxí
 ¿cuántos?,Panda
-"¿desde dónde?",Padede
-"¿hasta dónde?",Paguidubi
-"¿por qué?",Xiñee
-"¿qué cosa?","Xi laa"
-"¿qué fecha?","Panda xhi beeu"
-"¿se permite?","¿Zaá la?"
-¿permitido?,"¿Zaá la?"
-¿autorizado?,"¿Zaá la?"
-"¿será cierto?",Maná
+¿desde dónde?,Padede
+¿hasta dónde?,Paguidubi
+¿por qué?,Xiñee
+¿qué cosa?,Xi laa
+¿qué fecha?,Panda xhi beeu
+¿se permite?,¿Zaá la?
+¿permitido?,¿Zaá la?
+¿autorizado?,¿Zaá la?
+¿será cierto?,Maná
 ¿sí?,Ñeelá
 ¿verdad?,Ja'
-¿ya?,"Maa lá?"
+¿ya?,Maa lá?
 zaachila,Zaachila
 donaji,Donaji
 atoyac,Atoyac
 alcina,Alcina
 franch,Franch
 juchi,Juchitan
-"estate quieto","Guyuu dxí"
+estate quieto,Guyuu dxí
 estas?,Nuulu'
-amaneciste,"Biralu gueela'"
-",",","
+amaneciste,Biralu gueela'
+,,,
 .,.
 -,-
-juchitan,"Guidxi guie'"
-comunicarte,"Ñabe lii"
-"a donde",Paráa
-"a estas horas","Ora ri'"
-"a poco",Lácaxa
-abomba,"Rusibumbú ruáa"
+juchitan,Guidxi guie'
+comunicarte,Ñabe lii
+a donde,Paráa
+a estas horas,Ora ri'
+a poco,Lácaxa
+abomba,Rusibumbú ruáa
 abombado,Nabumbú
 aborta,Ridi'dixiiñi'
-abotonar,"Riree mudu"
-"abulón ","Bichú' pyónta "
+abotonar,Riree mudu
+abulón ,Bichú' pyónta 
 acalla,Rusiganí
 alaga,Rulaayá
 atraerá,Zagu'ba'
@@ -3746,40 +3745,40 @@ desajusta,Rusichaacha'
 desajustado,Nataata'
 atrapa,Rinaaze'
 agarras,Ricou'
-agrietará,"Zucaa bi"
-"agua al tiempo","Nisa yanda'"
-"agua bendita","Nisa ndaaya'"
-"agua caliente",Nisandá'
+agrietará,Zucaa bi
+agua al tiempo,Nisa yanda'
+agua bendita,Nisa ndaaya'
+agua caliente,Nisandá'
 agujerado,Nadé
 agujerea,Riguiidé
 agujera,Riguiidé
-"ahí nomás",Racácá
-"ahora mismo","Nagasí cá"
-"ahorita mismo",Nagasidú'
-almacenará,"Zutoppa lú"
-ahuecado,"Nuu lé"
-"a los pies de…",Xañee
-"a sus pies",Xañee
-"al pie",Xañee
+ahí nomás,Racácá
+ahora mismo,Nagasí cá
+ahorita mismo,Nagasidú'
+almacenará,Zutoppa lú
+ahuecado,Nuu lé
+a los pies de…,Xañee
+a sus pies,Xañee
+al pie,Xañee
 alargará,Zusigaa
 estirará,Zusigaa
-"algún día","Ñuu dxi"
-"algunas personas","Garonda binni"
-"aligera el peso",Rusisisi
+algún día,Ñuu dxi
+algunas personas,Garonda binni
+aligera el peso,Rusisisi
 alisa,Rusidxiibi'
-"allá mismo",Raquéccá
-almeja,"Bichú' huiini"
+allá mismo,Raquéccá
+almeja,Bichú' huiini
 alocado,Nalugú
 apisona,Ruquidxí
 amamanta,Rugadxi
 amañado,Nañañá'
 aminorará,Zagu'baná
-"anda jugando","Caguite be"
-"anda tomando","Canaye' be"
-"andas hablando",Cananiu
+anda jugando,Caguite be
+anda tomando,Canaye' be
+andas hablando,Cananiu
 anochecerá,Zaxhinni
-"año pasado",Udubiza
-"año viejo","Iza yooxho'"
+año pasado,Udubiza
+año viejo,Iza yooxho'
 apachurra,Rusipaaxhú
 apachurrado,Napaaxhu
 apachurrará,Zusitaacá
@@ -3791,40 +3790,40 @@ prensaste,Biquiichu'
 ajustaste,Biquiichu'
 prensó,Biquiichi'
 estruja,Riguie
-"aquel tiempo",Dxique
-"aquí nomás",Rarica
+aquel tiempo,Dxique
+aquí nomás,Rarica
 prosternado,Zuxibi
-"así mismo",Zacaca
-"así nada más",Sicacasi
-ataranta,"Ruche ique"
+así mismo,Zacaca
+así nada más,Sicacasi
+ataranta,Ruche ique
 atonta,Rusihuattí
 atolondra,Rusihuattí
 atora,Ruga'ga'
 atasca,Ruga'ga'
-atragantado,"Nagá' yanni"
-"atrás de ese cerro","Deche dani ca"
-"atrás de la casa","Deche yoo"
-"atrás de tu casa","Deche li'dxu'"
-"aumenta de altura",Rusisoo
-"más que",Necá
-"aventar con enojo",Ruqueta
+atragantado,Nagá' yanni
+atrás de ese cerro,Deche dani ca
+atrás de la casa,Deche yoo
+atrás de tu casa,Deche li'dxu'
+aumenta de altura,Rusisoo
+más que,Necá
+aventar con enojo,Ruqueta
 aventará,Zaguubí
 aventó,Guluubi
-platicará,"Zudii diidxa'"
+platicará,Zudii diidxa'
 coopera,Raccané
-"acaba de amanecer","Casi birá gueela'"
+acaba de amanecer,Casi birá gueela'
 payasada,Adxagayá
 danzará,Zuyaá
-"bajo la cabeza","Xa ique"
-"debajo de la cabeza","Xa ique"
+bajo la cabeza,Xa ique
+debajo de la cabeza,Xa ique
 empapa,Rugaze
 embadurna,Rugaze
 saquea,Runduuba'
 asea,Runduuba'
 panzón,Mbú'dxi'
-inaugura,"Riguu nisa"
-remoja,"Riguu nisa"
-"bien vestido",Zúchaahui'
+inaugura,Riguu nisa
+remoja,Riguu nisa
+bien vestido,Zúchaahui'
 bofo,Naqueebe'
 boleado,Bidola
 desbarat,Ruxha
@@ -3832,23 +3831,23 @@ tachará,Zuxha
 demolió,Bixha
 taló,Bixha
 esculca,Ruyubí
-"hormiga león",Berendrú’
+hormiga león,Berendrú’
 garrapata,Bataana
-tigrillo,"Bedxe yaga"
-camarón,"Benda buaa"
+tigrillo,Bedxe yaga
+camarón,Benda buaa
 comején,Bandaa
-luciérnaga,"Bacuza gui"
+luciérnaga,Bacuza gui
 batea,Badiá’
 chamaco,Ba’du’
 chamaca,Ba’du’
-"buena gente","Binni nazaaca"
+buena gente,Binni nazaaca
 tijereta,Bacaguela
-blanquisco,"Naquichi bé"
+blanquisco,Naquichi bé
 barda,Lindaa
-bejuquillo,"Beenda luba'"
-vivora,"Beenda gubizi"
-alcaraván,"Bere lele"
-correcaminos,"Bere guidxa"
+bejuquillo,Beenda luba'
+vivora,Beenda gubizi
+alcaraván,Bere lele
+correcaminos,Bere guidxa
 zorrillo,Be’te’
 guanacaste,Bezayaga
 mezquite,Bii
@@ -3856,7 +3855,7 @@ achiote,Bia
 ciruela,Biadxi
 jitomate,Bichooxhe
 memela,Bicuuni
-piojito,"Bichi do’"
+piojito,Bichi do’
 huipil,Bidaani’
 colador,Bidxadxa
 pitahaya,Bidxí
@@ -3884,18 +3883,18 @@ chihuitán,Bixhahui
 pochote,Bioongo’
 huamúchil,Biquiiche
 liendre,Biquié’
-"binni guzana",Barir
-ejote,"Bizaa huiini’"
+binni guzana,Barir
+ejote,Bizaa huiini’
 biza’na’,Bizé
 tlacuache,Bizi
 enagua,Bizuudi’
 guayaba,Bui’
 permuta,Ruchaa
-mundanza,"Ruchaa lidxhi"
+mundanza,Ruchaa lidxhi
 chifla,Rutiipí
 chiflar,rutiipi
 trinará,Zutiipí
-comentará,"Zacaá yú"
+comentará,Zacaá yú
 corroerá,Zo
 mercará,Zazi'
 conteo,Xigaaba'
@@ -3907,42 +3906,42 @@ correteó,Bireenanda
 barbea,Ruga
 cresas,Ste
 inmaduro,Nayaa
-"cualquier cosa",Intiica
+cualquier cosa,Intiica
 cuchichea,Ruchaagaruáa
 chismea,Ruchaagaruáa
 abastece,Rugaandá
 cascarudo,Bichugade
-chamusca,"Rugazegui "
+chamusca,Rugazegui 
 chicloso,Nayaalá
 chintul,Sapandú
 cisticerco,Bidxú
 calientito,Xidxaa
-"caminas tú","Rizá lu'"
+caminas tú,Rizá lu'
 campamocha,Daaya
-"cara chueca","Lu cuanda"
-"noventa y cuatro","Tappa láte gandé chíi  nú tappa"
-"ochenta y cinco","Tappa  láte gandé gáayu'"
-"ochenta y cuatro","Tappa  láte gandé táppa"
-"noventa y nueve","Tappa láte gandé chíi  nú gá'"
-"noventa y ocho","Tappa láte gandé chíi  nú xhónó"
-"noventa y seis","Tappa láte gandé chíi  nú xhóopa'"
-"noventa y siete","Tappa láte gandé chíi  nú gádxé"
-"noventa y dos","Tappa láte gandé chíi  nú chuppá"
-"ochenta y dos","Tappa  láte gandé chúppá"
-"ochenta y nueve","Tappa  láte gandé gá'"
-"ochenta y ocho","Tappa  láte gandé xhónó"
-"noventa y uno","Tappa láte gandé chíi  nú tobi"
-"noventa y cinco","Tappa láte gandé chíi  nú gaayu'"
-"ochenta y seis","Tappa  láte gandé xhóopa'"
-"ochenta y siete","Tappa  láte gandé gádxé"
-"noventa y tres","Tappa láte gandé chíi  nú chónná"
-"ochenta y tres","Tappa  láte gandé chónná"
-"ochenta y uno","Tappa  láte gandé tobi"
-cuatrojo,"Benda lu tapá'"
-culeca,"Bere cooco"
+cara chueca,Lu cuanda
+noventa y cuatro,Tappa láte gandé chíi  nú tappa
+ochenta y cinco,Tappa  láte gandé gáayu'
+ochenta y cuatro,Tappa  láte gandé táppa
+noventa y nueve,Tappa láte gandé chíi  nú gá'
+noventa y ocho,Tappa láte gandé chíi  nú xhónó
+noventa y seis,Tappa láte gandé chíi  nú xhóopa'
+noventa y siete,Tappa láte gandé chíi  nú gádxé
+noventa y dos,Tappa láte gandé chíi  nú chuppá
+ochenta y dos,Tappa  láte gandé chúppá
+ochenta y nueve,Tappa  láte gandé gá'
+ochenta y ocho,Tappa  láte gandé xhónó
+noventa y uno,Tappa láte gandé chíi  nú tobi
+noventa y cinco,Tappa láte gandé chíi  nú gaayu'
+ochenta y seis,Tappa  láte gandé xhóopa'
+ochenta y siete,Tappa  láte gandé gádxé
+noventa y tres,Tappa láte gandé chíi  nú chónná
+ochenta y tres,Tappa  láte gandé chónná
+ochenta y uno,Tappa  láte gandé tobi
+cuatrojo,Benda lu tapá'
+culeca,Bere cooco
 cuate,Cuachi
 cuclillo,checuyu
-"por aquí",Cherí’
+por aquí,Cherí’
 sonaja,Chin
 apúrate,Chixhe
 apúrese,Chixhe
@@ -3956,59 +3955,59 @@ cocoyuche,Diti’
 espezo,Dondo
 enrrollado,Dopá
 pedo,Do'pe
-inchado,"Dxa gui"
-llenisimo,"Dxa tiicu"
+inchado,Dxa gui
+llenisimo,Dxa tiicu
 comal,Dxía
-omóplato,"Dxita paleta"
+omóplato,Dxita paleta
 encajando,Cucháazi'
-huaraches,"Ela guidi"
-"falso coralillo ","Beenda niidxi"
+huaraches,Ela guidi
+falso coralillo ,Beenda niidxi
 congratula,Rizaacá
 felicitar,Rizaca
 felicitará,Zazaacá
 congratulará,Zazaacá
 condolerá,Zazaacá
 desvalijará,Zurooté
-remordió,"Gudo ni láa"
+remordió,Gudo ni láa
 flexión,Xiguudé
 dobladura,Xiguudé
 Cempasúchil,Bigua
 freirá,Zuchuuni'
 fríe,Ruchuuni'
-frijolillo,"Guichi bizaari'"
-fumará,"Zagu'ba gueza"
+frijolillo,Guichi bizaari'
+fumará,Zagu'ba gueza
 chiflido,fluuchi
-"gallina de monte","Bere gui'xhi"
-"gallina del rancho","Bere la'chi"
-"gallina pelona","Bere yanni raa"
-"ganado viejo","Yuze yó'xho"
-gateó,"Guza na"
-"gente de pueblo",Binniguídxi
-"gente mareña",Huavi
+gallina de monte,Bere gui'xhi
+gallina del rancho,Bere la'chi
+gallina pelona,Bere yanni raa
+ganado viejo,Yuze yó'xho
+gateó,Guza na
+gente de pueblo,Binniguídxi
+gente mareña,Huavi
 contonea,Rieeque'
 filtrará,Zadxuuni'
-granadilla,"Pepe gui'xhi'"
-"grande en extensión",Xirooba'
+granadilla,Pepe gui'xhi'
+grande en extensión,Xirooba'
 granoso,Xhaadxi
-almacena,"Riguu chaahui'"
-"mete despacio","Riguu chaahui'"
+almacena,Riguu chaahui'
+mete despacio,Riguu chaahui'
 mapache,Ga’na’
 camote,Gu
 mucosidad,Guudxi’
-mamey,"Guenda xunu"
-totopo,"Gueta biguii"
-tamal,"Gueta guu"
+mamey,Guenda xunu
+totopo,Gueta biguii
+tamal,Gueta guu
 atorado,Gu’ga’
 mierda,Gui’
-cuernecillo,"Guichi bidorre"
-abrojo,"Guichi biruba’"
+cuernecillo,Guichi bidorre
+abrojo,Guichi biruba’
 jilote,Guichu
 gripe,Guidxagá
 furúnculo,Gui’dxu’
-salpullido,"Guidxu gubá"
-cacalosúchil,"Guie’ chaachi"
-ocote,"Guiri bidxi"
-chilacayote,"Guitu xembe’"
+salpullido,Guidxu gubá
+cacalosúchil,Guie’ chaachi
+ocote,Guiri bidxi
+chilacayote,Guitu xembe’
 guiuba,Guiuba
 zacate,Guixi
 varejón,Gunixhi’
@@ -4016,127 +4015,127 @@ chapulín,Uxharu
 ándale,Guzá
 cachado,Huayanda
 huachinango,Behua
-"hubieras visto",Ñuyu'
-"iba saliendo",Ziree
+hubieras visto,Ñuyu'
+iba saliendo,Ziree
 igualito,Bia'do'
 iguana,Gucha'chí
 remeda,Ruzuiiruáa
 rumear,Ruzuiiruáa
-"imitar el modo de hablar","Runi ruaa"
+imitar el modo de hablar,Runi ruaa
 chueco,Naxubi
-infectarse,"Raca xiroo"
-"instala luz eléctrica","Riguu biaani'"
-"interrumpe su trabajo","Rundaate xhiiña'"
-"inventa chisme",Ribeexá'na'
-inyecta,"Rucaa aguxá'"
-inocula,"Rucaa aguxá'"
-acupuntura,"Rucaa aguxá'"
-acupunturista,"Ni Rucaa aguxá'"
-ixhuatán,"Guidxi Yaza"
+infectarse,Raca xiroo
+instala luz eléctrica,Riguu biaani'
+interrumpe su trabajo,Rundaate xhiiña'
+inventa chisme,Ribeexá'na'
+inyecta,Rucaa aguxá'
+inocula,Rucaa aguxá'
+acupuntura,Rucaa aguxá'
+acupunturista,Ni Rucaa aguxá'
+ixhuatán,Guidxi Yaza
 ixtaltepec,Guiaati'
 ixtaltepecano,Guia'ti'
 ixtle,Xluxu
-down,"Ique chonga"
-despeinado,"Ique ribii"
-pelirojo,"Ique rixiñá"
+down,Ique chonga
+despeinado,Ique ribii
+pelirojo,Ique rixiñá
 jala,Ruruuxha'
-"jalapa del Marqués",Yuuxhi
+jalapa del Marqués,Yuuxhi
 jaló,Gudu'bayu
 coladera,Xigabidxádxá
-"jícara de hojalata",Xigaguiiba'
-"jícara ventosera",Xigabiiru'
-jiote,"Guidi gui"
+jícara de hojalata,Xigaguiiba'
+jícara ventosera,Xigabiiru'
+jiote,Guidi gui
 arqueado,Natigu
-"juego de canica",Decu
+juego de canica,Decu
 rejunta,Rutaaguzaa
 rejuntó,Bidiilisaa
 laacani,Lade
 tizne,Lana
 majagua,La’sa’
 fajado,Liibi
-cacarizo,"Lu xhoca"
+cacarizo,Lu xhoca
 bejuco,Lubá’
-"ya mero",Mayaca
+ya mero,Mayaca
 grandote,Mboota
-"de repente",Malasi
+de repente,Malasi
 chango,Migu
 moleré,Gutua'
 nenúfar,Mudubina
-"hubiera nacido",Ñale
-"nació muerto",Gulegútti
+hubiera nacido,Ñale
+nació muerto,Gulegútti
 nalgón,Xataata'
 nalgona,Xataata'
 nance,Nanchi
-"no va a querer","Qué zaná"
+no va a querer,Qué zaná
 equivocamos,Biche'
 enumerará,Zugabá'
-"ojo de pescado","Biza lu benda"
-"ojos saltones","Lu yaande"
-"oler a orines","Rindá' yuu"
-"olla ancha","Guisu laga"
-"otro nada más",Xtobisi
-"otro poco",Stuudxi
+ojo de pescado,Biza lu benda
+ojos saltones,Lu yaande
+oler a orines,Rindá' yuu
+olla ancha,Guisu laga
+otro nada más,Xtobisi
+otro poco,Stuudxi
 orejón,Diagalaga
-"cuando quiera","ora tiisi"
-"en ese momento",óraqueca
+cuando quiera,ora tiisi
+en ese momento,óraqueca
 ciénega,Gue'labéñe
 parpadea,Riguinñelága
 pasadomañana,Huidxe
 patalea,Ruleyu
 pellizca,Riguiru
 colorea,Rutie
-pinolillo,"Bichi dxiña"
-papamoscas,"Bitindi tijera"
+pinolillo,Bichi dxiña
+papamoscas,Bitindi tijera
 percudido,Bichippa
 incinerará,Zuzaaqui'
 fundirá,Zuzaaqui'
 raspado,Naraá
 rasguñado,Naraá
-renacuajo,"Bidxí' huiini"
+renacuajo,Bidxí' huiini
 raspará,Zuraá
 remojará,Zuzaanisa
 revende,Ruriixhí
 revenderá,Zuriixhí
 revendió,Biriixhi
-agriará,"Za í'"
+agriará,Za í'
 atrofió,Biu'chi'
-chapotea,"Riacha nisa"
-"se cumple",Rizaa
-desorienta,"Ridxe lu"
-despeina,"Riracha ique"
+chapotea,Riacha nisa
+se cumple,Rizaa
+desorienta,Ridxe lu
+despeina,Riracha ique
 enchueca,Ricuandá
 enjuaga,Rizanisa
 enjuagó,Guzanisa
-enmohece,"Rica be"
+enmohece,Rica be
 ensordece,Ricuaata'diaga
 entibiará,Zadxaá
-"se está ahogando",Cayáttiguiigu'
+se está ahogando,Cayáttiguiigu'
 irrigando,Cazée
-inflará,"Zadxa bi"
+inflará,Zadxa bi
 machaca,Rigaaché
 serenado,Naguppa
 unta,Rigaabi'
 liberará,Zundaa
 transpira,Rizunisa
-salteadamente,"Rí riccá'"
-sardinitas,"Benda xhquí'"
-compadecieras,"Ña lu'"
-empatía,"Ña lu'"
+salteadamente,Rí riccá'
+sardinitas,Benda xhquí'
+compadecieras,Ña lu'
+empatía,Ña lu'
 equivocaste,Bicheu
 fracasas,Ridiiñu'
 reíste,Bixidxu'
 enojadizo,Naní'di'
-tibiecito,"Nadxaa dúttu"
-tiendes,"Ruchiaá lú"
+tibiecito,Nadxaa dúttu
+tiendes,Ruchiaá lú
 menso,Hua'ti
-torea,"Ribeza yúzé"
+torea,Ribeza yúzé
 tortolito,Gugu
 tortolita,Gugu
 atoró,Biga'ga'
-"treinta y uno","Gande Bichí' nu tobi"
+treinta y uno,Gande Bichí' nu tobi
 triquitraque,Chiquitra'ca'
 nostálgico,Nabaná'
-troje,"Ra ridxá niiza"
+troje,Ra ridxá niiza
 trompudo,Nazuumba'
 tubular,Naqueebe'
 hornea,Ruquií
@@ -4148,8 +4147,8 @@ untará,Zune'
 embarrará,Zune'
 untaste,Bineú
 unté,Binee
-"san vicente",Xabizénde
-"san vicente ferrer",Xabizénde
+san vicente,Xabizénde
+san vicente ferrer,Xabizénde
 seguiendo,Rinandá
 volatiliza,Rie
 otates,Gunixhí'
@@ -4157,58 +4156,58 @@ pencas,Gunixhí'
 enajenó,Bitoo
 glutinoso,Naroondé
 temblorina,Raccaditti
-taquicardia,"Raccaditti Ladxidua’"
+taquicardia,Raccaditti Ladxidua’
 evaporó,Bipappa
-desvelarse,"Rindeé xcáanda"
+desvelarse,Rindeé xcáanda
 pepenar,Ritoppáguídxa
 recargarse,Rigaaní
 lambisquear,Rindagú
 sobar,Ritaabí
-"va caminando",Zizá
-"veinte pesos","Gande bexu"
-"veinte reales","Gande domi'"
-cachetón,"Xhaga puupu'"
+va caminando,Zizá
+veinte pesos,Gande bexu
+veinte reales,Gande domi'
+cachetón,Xhaga puupu'
 cascalote,Xhagalá
 chachalaca,Xhiga
 rascadura,Xhuga
-"ni por","Niru si ngá"
-"aunque fuera","Niru si ngá"
-"¿y tu?","Laga lii ya'"
-"y tú qué","Laga lii ya'"
-"y yo qué","Parane'ti naa la"
-"ya  toma","Ma re'"
-"ya bebe","Ma re'"
-"ya camina","Ma rizá"
-"ya come","Ma ro"
-"ya como","Ma rahua'"
-horcón,"Yaga ñee"
+ni por,Niru si ngá
+aunque fuera,Niru si ngá
+¿y tu?,Laga lii ya'
+y tú qué,Laga lii ya'
+y yo qué,Parane'ti naa la
+ya  toma,Ma re'
+ya bebe,Ma re'
+ya camina,Ma rizá
+ya come,Ma ro
+ya como,Ma rahua'
+horcón,Yaga ñee
 chicle,Yaala
 olote,Yaana'
-"ya está  ","Ma nuu"
-"ya estoy","Ma nua"
-"ya me voy","Ma chaa"
-"se fue","Ma ze"
-"ya se hizo tarde","Ma ribiguí ndi'"
-supura,"Ma da'"
+ya está  ,Ma nuu
+ya estoy,Ma nua
+ya me voy,Ma chaa
+se fue,Ma ze
+ya se hizo tarde,Ma ribiguí ndi'
+supura,Ma da'
 chayote,Yape
 aguacate,Yaxhu
-jacal,"Yoo ziña"
-dolorcito,"Yuba yati"
+jacal,Yoo ziña
+dolorcito,Yuba yati
 tiza,Yuya
-zacatón,"Daaya yaga"
-"zacatón del mar","Guixi donda"
+zacatón,Daaya yaga
+zacatón del mar,Guixi donda
 zanate,Bigoze
 zopilote,So'pe'
-"zopilote rey","Sope huela"
+zopilote rey,Sope huela
 elote,Zee
-"olor agradable",Ziizi
+olor agradable,Ziizi
 entrecerrado,Zucá
 teco,Teco
 mandarina,Mandarina
 istmeña,istmeña
 comitancillo,Comitancillo
 yaly,Yaly
-cielito,"Guiba' huiini"
+cielito,Guiba' huiini
 repartirnos,Guindanuni'
 chingon,chingon
 horales,horales
@@ -4219,13 +4218,13 @@ robaste,Uba'nalu'
 sicaru,Hermoso
 yaa,Verde
 nataly,Nataly
-scarulo,"eres bonit@?"
+scarulo,eres bonit@?
 biccu,Perro
 chuquita,chuquita
 didxazapp,Didxazapp
 pichi,Pichi
-mampos,"ca muxhe'"
-mampito,"muxhe huini'"
+mampos,ca muxhe'
+mampito,muxhe huini'
 mampa,mampa
 tele,tele
 ?,?
@@ -4233,27 +4232,27 @@ agarralo,Unaazeni'
 rulo,Rulo
 bañaste,guuselu'
 sentdo,sentdo*
-reglando,"cuxhibe riini"
+reglando,cuxhibe riini
 guelatao,Guelatao
-pueblito,"guidxi huini'"
+pueblito,guidxi huini'
 roselia,Roselia
-chaca,"binni cadi nu xpiani"
+chaca,binni cadi nu xpiani
 culo,xha'naa
-manita,"naa huini'"
+manita,naa huini'
 draco,Draco
 gaby,Gaby
 texmelucan,Texmelucan
-mensa,"Hua'ti  "
+mensa,Hua'ti  
 chicapa,Chicapa
-briza,"bi nisa"
+briza,bi nisa
 bicitleta,bicitleta???
-huarache,"ela guidi"
+huarache,ela guidi
 dasayunar,bixhirini
 tlayudas,tlayudas
 blaquillos,huevo??--chita
 autobus,Autobus
-chita,"chita?? huevo-"
-pastorcito,"xcuidi ni rapa yuze,denxhu"
+chita,chita?? huevo-
+pastorcito,xcuidi ni rapa yuze,denxhu
 mexcal,mezcal??-Mezcal
 mije,mixe??-Mixe
 huajolote,Tou'
@@ -4261,8 +4260,8 @@ cuche,biuhui
 didxaza,Zapoteco
 karem,Karem
 anfitriones,mayordomos?
-ochosientos,"xhono gayua'"
-diesiocho,"chi ne xhono"
+ochosientos,xhono gayua'
+diesiocho,chi ne xhono
 jajajaja,jajajaja
 ivan,Ivan
 popo,gui'
@@ -4277,10 +4276,10 @@ tii,tii
 vicu,Perro??
 yuuba,dolor
 checando,checando
-honrrado,"Binni Neeza"
+honrrado,Binni Neeza
 huevon,Nacha'ba
-incasable,"qui ridxagabe"
-pedorron,"na be riguinde"
+incasable,qui ridxagabe
+pedorron,na be riguinde
 panocha,nde
 muxe,Afeminado
 shiroo,Shiroo
@@ -4311,7 +4310,7 @@ diidxaza,Diidxaza
 tevquiero,tevquiero
 hols,hols
 chagui,Chagui
-culona,"Xha'na ngoola"
+culona,Xha'na ngoola
 tol,Tol
 lucy,Lucy
 papi,Bixhose'
@@ -4333,18 +4332,18 @@ mayonesa,Mayonesa
 twenthy,twenthy
 daphne,Daphne
 coala,Coala
-busquenlo,"la guyubi laabe"
+busquenlo,la guyubi laabe
 herbalife,herbalife
 sincer,sincer
 naroba,Grande
-alienígena,"Binni ni seda de iba'"
+alienígena,Binni ni seda de iba'
 ¡qué,¡qué
 ¿quien,¿quien
 naxhieli,Naxhieli
 axila,xcunede
 janette,Janette
 :c,:c
-bienvenidos,"sicaru beedatu"
+bienvenidos,sicaru beedatu
 huixtepec,Huixtepec
 konichiwa,Konichiwa
 tuinfinito,tuinfinito
@@ -4385,25 +4384,25 @@ creatividad,Xquendabiaani'
 utilizaron,ucuacabe
 amoo,amoo
 jumil,jumil
-guegüi,"come caca"
+guegüi,come caca
 ahhhh,ahhhh
 megalodon,megalodon
 velozsiraptor,velozsiraptor
 quiechapa,quiechapa
 didxazaap,Didxazaap
-pasame,"Danee naa"
+pasame,Danee naa
 !!,!!
 flojera,Nachaaba
 topec,Topec
 tec,Tec
-paisanita,"Binni xquidxhinuu"
+paisanita,Binni xquidxhinuu
 ¡ayyyy!,¡ayyyy!
 kiara,Kiara
 !,!
 huipill,Bidaani
 suavecito,Chauigaa
-besitos,"bixhidu huini'"
-chamaquita,"Badudxapa huiini'"
+besitos,bixhidu huini'
+chamaquita,Badudxapa huiini'
 superiority,superiority
 naomi,Naomi
 ¿,¿
@@ -4430,15 +4429,15 @@ ayay,ayay
 oliva!,oliva!
 ¡un,¡un
 gra,gra
-cayate,"Me muero"
+cayate,Me muero
 ziuu,Hay
 dxi,Día
 guireeu,Sales
 xiga,Jícara
 dunabe,Demasiado
-nadxiee,"Te amo"
+nadxiee,Te amo
 riniee,Hablo
-runinalu,"Me hasces daño"
+runinalu,Me hasces daño
 ruuna,Lloro
 ganaxhiiu,Ames
 chuaa,Entre
@@ -4456,7 +4455,7 @@ itzayana,Itzayana
 totec,Totec
 yali,Yali
 mezcal,Mezcal
-ladxidua,"Mi corazón"
+ladxidua,Mi corazón
 esra,esra
 unfeo,unfeo
 ooo,ooo
@@ -4464,27 +4463,27 @@ bailaremos,Suyaa'nu
 pri,pri
 prd,prd
 tiboot,tiboot
-extraterrestres,"Ca Binni ni seda de iba'"
-alienigenas,"Ca binni ni seda de iba'"
-aliens,"Ca binni ni seda de iba'"
-alien,"Binni ni seda de iba'"
+extraterrestres,Ca Binni ni seda de iba'
+alienigenas,Ca binni ni seda de iba'
+aliens,Ca binni ni seda de iba'
+alien,Binni ni seda de iba'
 sismo,Xu
 buceando,Cuniidxe'
 algodonado,Nashiaa
-chiquitito,"Nahuiini du'tu"
+chiquitito,Nahuiini du'tu
 :,:
 ;,;
 (,(
-escribeme,"Bicá para na"
+escribeme,Bicá para na
 izyalyth,Izyalyth
 carla,Carla
-xquidxinu,"Nuestro pueblo"
+xquidxinu,Nuestro pueblo
 diushi,Dios
 neeza,Camino
 nu'nu,Estamos
 sollozará,Zacaala'dxi'
-rememoraré,"Zedasilú na'"
-desvelaré,"Zabee' xcaanda'"
+rememoraré,Zedasilú na'
+desvelaré,Zabee' xcaanda'
 desmoronas,Hriruushedú
 persina,Hruzeelú'
 cooperamos,Bichaagadu'
@@ -4498,7 +4497,7 @@ desdunos,Shieeladica'
 desdunas,Shieeladica'
 atrapando,Cananaazeca'
 melisa,Melisa
-aprendamos,"Chi iziidinu'"
+aprendamos,Chi iziidinu'
 evelyn,Evelyn
 aylin,Aylin
 cinthya:,cinthya:
@@ -4506,20 +4505,20 @@ cinthya:,cinthya:
 interrumpir<br,interrumpir<br
 100%,100%
 día<br,día<br
-ábrala,"bixheleʼ ni"
-ábralo,"bixheleʼ ni"
-ábralos,"bixheleʼ cani "
-ábrame,"bixheleʼ naa"
-ábranlo,"la bixheleʼ ni"
-ábranlos,"la bixheleʼ cani ."
-ábrannos,"la bixheleʼ laadu"
-ábranos,"bixheleʼ laadu"
+ábrala,bixheleʼ ni
+ábralo,bixheleʼ ni
+ábralos,bixheleʼ cani 
+ábrame,bixheleʼ naa
+ábranlo,la bixheleʼ ni
+ábranlos,la bixheleʼ cani .
+ábrannos,la bixheleʼ laadu
+ábranos,bixheleʼ laadu
 abridlo,bixheleʼ
-abridlos,"bixheleʼ cani "
+abridlos,bixheleʼ cani 
 alfandoque,alfandoque
 alfaneque,alfaneque
 alfanumérico,alfanumérico
-aterrizar,"guiete'  "
+aterrizar,guiete'  
 biberón,Xhiganunu
 bistec,Bistec
 bloc,Bloc
@@ -4596,7 +4595,7 @@ zigoto,zigoto
 zigzagueante,zigzagueante
 zigzaguear,zigzaguear
 zigzagues,zigzagues
-zimbabwe,"Guidxhi zimbabwe"
+zimbabwe,Guidxhi zimbabwe
 zipacón,zipacón
 zipizape,zipizape
 zocas,zocas
@@ -4643,7 +4642,7 @@ zorzaleño,zorzaleño
 zóster,zóster
 zuda,Zuda
 zudáñez,Zudáñez
-zuiza,"Guidxhi Zuiza"
+zuiza,Guidxhi Zuiza
 zulacar,Zulacar
 zulaque,Zulaque
 zulaquear,Zulaquear
@@ -4656,17 +4655,17 @@ zurcidor,zurcidor
 zurcidura,zurcidura
 zuzar,Zuzar
 silicon,Silicon
-viendonos,"Cayu'yanu iranu"
-dientesitos,"laya' huini'"
+viendonos,Cayu'yanu iranu
+dientesitos,laya' huini'
 amaca,guishe
-culiacan,"Guidxi Culiacan"
+culiacan,Guidxi Culiacan
 dsr,Dsr
 disfrutamos,Jriula'dxhidu
 entediste,Bie'nu
-endemoniando,"Cayu' binni dxaba' laa"
+endemoniando,Cayu' binni dxaba' laa
 tlayuda,Tlayuda
 blanquillo,Dxita
-blanquillos,"Ca dxita"
+blanquillos,Ca dxita
 silvar,Rutiipi
 paperas,Sambo'co'
 cuatete,Zumbidxi
@@ -4692,64 +4691,64 @@ la2,Laabe
 tu2,Stiilu'
 me2,Naa
 como2,Casi
-cantarte,"Guunda lii"
-"mi vida se escapaba","Guenda nabani Stine' Nanna' escapaba  "
+cantarte,Guunda lii
+mi vida se escapaba,Guenda nabani Stine' Nanna' escapaba  
 martiniana,Martiniana
 zandunga,Zandunga
-dialogas,"Riníu  "
+dialogas,Riníu  
 porque2,xhiñe'
 a2,Nu
 denoche,Huaxinni
-ellatiene,"Laabe napabe"
-otroaño,"sti iza"
-comiendote,"cayagahua lii"
-boletito,"Boletu Huini'"
+ellatiene,Laabe napabe
+otroaño,sti iza
+comiendote,cayagahua lii
+boletito,Boletu Huini'
 cervesa,Cervesa
-pervertida,"Nahuati ique"
+pervertida,Nahuati ique
 facebook,Facebook
 wifi,Wifi
 muerdo,rahuaya'
-pedazoz,"Ca ndaa'"
+pedazoz,Ca ndaa'
 cagó,uxhunabe
-cagado,"Ma uxhunabe"
-cagada,"Ma uxhunabe"
+cagado,Ma uxhunabe
+cagada,Ma uxhunabe
 cagaste,Uxhunalu'
 usaste,Riquiñeluni
 odiaste,Ucanaladxhe'
 gritaste,Bicáridxilu'
-mentiste,"Bisigui lu'"
+mentiste,Bisigui lu'
 fingiste,Gudxitelu'
-todalanoche,"Irá gueela'"
-andajugando,"Caguite be"
-añoro,"Rica ladxhe'"
+todalanoche,Irá gueela'
+andajugando,Caguite be
+añoro,Rica ladxhe'
 recolectó,Bitopa
 cableado,Ladedoo
 entrelazos,Ladedoo
 tellamas,Laalu'
 jicaco,pe'pe
-tengosueño,"Da' Bacaanda Lua'"
+tengosueño,Da' Bacaanda Lua'
 sebaña,Raazebe
 otro2,Sti
 hombligo,Xqui'pi'
-cempasuchitl,"guie' bigua"
-apagate,"bisui' lii"
-apagalo,"bisui' ni"
+cempasuchitl,guie' bigua
+apagate,bisui' lii
+apagalo,bisui' ni
 cocacola,Cocacola
 noely,Noely
-inundaste,"bilahua lu'"
+inundaste,bilahua lu'
 mireya,Mireya
 ilhuicamina,ilhuicamina
 fuistes,gucalu'
 moy,Moy
-tusojos,"Lú lu'"
+tusojos,Lú lu'
 micasa,Lidxe'
 tucasa,Lidxilu'
-tuobligación,"napu xhidé"
+tuobligación,napu xhidé
 noes,Cadi
 teríes,Ruxhidxu'
 cociera,Ga'guini
 sevea,iguinini
-tellamé,"Gunie' nia lii"
+tellamé,Gunie' nia lii
 acomprar,Ziee'
 unpoco,Caadxií
 micorazón,Ladxidua'
@@ -4758,15 +4757,15 @@ sellama,Laabe
 estás2,Guinidiou'
 estabas2,Guinu'
 estubiste,Ñuulu'
-tengoque,"Napa xhide"
-"me vendió","Bitoobe Zie'  "
+tengoque,Napa xhide
+me vendió,Bitoobe Zie'  
 contemples,Gu'yu
-soñarme,"Runixcaandalu naa"
+soñarme,Runixcaandalu naa
 tengasmiedo,Guidxibu
 de2,De
 ir2,Cheelu'
-tamalito,"Gueta guu huini'"
-"te estoy viendo","Nua' Lii Cayuya  "
+tamalito,Gueta guu huini'
+te estoy viendo,Nua' Lii Cayuya  
 amigos2,Xhamigu'
 eres2,Nga
 que2,Ni
@@ -4778,13 +4777,13 @@ pesto,Pesto
 yesenia,Yesenia
 dalton,Dalton
 fuiste2,Uyeelu'
-teacuerdas,"Riete Naladxu"
-quisisteser,"Naalu Ñaacalu'"
+teacuerdas,Riete Naladxu
+quisisteser,Naalu Ñaacalu'
 mimano,Naya'
 tumano,Nalu'
 tufrente,Lucualu'
 mifrente,Lucuaya'
-yosoy,"Naa nga"
+yosoy,Naa nga
 soy2,Nga
 bien2,Neeza
 más2,Stale
@@ -4793,49 +4792,49 @@ que3,que
 da2,rudi'
 hijos2,xhiñibe
 progenitora,Jña'
-será2,"Chi gaca"
-"sus hijos","Ca Ca shiñe'"
-"no te entendí","Qui ñeene' Lii"
-barbita,"Guicha shigui huiini'"
+será2,Chi gaca
+sus hijos,Ca Ca shiñe'
+no te entendí,Qui ñeene' Lii
+barbita,Guicha shigui huiini'
 todo2,Irani
 rentó,Rentó
 compró2,Guzi'be
 nadia,Nadia
 danilo,Danilo
-"me enseñaste2",Bisidilu'
+me enseñaste2,Bisidilu'
 enseñaste2,Bisidilu
 que4,Xhide
-mamamelo,"Gushupi naa ngue'"
-chupamelo,"Gushupi naa ngue'"
+mamamelo,Gushupi naa ngue'
+chupamelo,Gushupi naa ngue'
 terminaste,Biluxhelu'
 vendelas,bitócanii
-amorcito,"Guendanadxí Huiini"
+amorcito,Guendanadxí Huiini
 lupiyo,Lupiyo
 tonatiu,Tonatiu
 joshua,Joshua
 nulu,estás
 jim,Jim
-agarraria,"Chi Gunaaze"
-mentirme,"bisiguiibe naa"
+agarraria,Chi Gunaaze
+mentirme,bisiguiibe naa
 tusonrisa,Ruxhidxu'
 decía2,Cayabe
 detrás2,Rinandá
-esas2,"Ca nga'"
+esas2,Ca nga'
 mira2,bia'
 mipie,Ñee'
 mibrazo,Xhi'que'
 micabeza,Ique'
-misojos,"Ca guie lua'"
-miojo,"guie lua'"
+misojos,Ca guie lua'
+miojo,guie lua'
 minariz,Xhie'
-mispestañas,"Ca Guicha laga'"
+mispestañas,Ca Guicha laga'
 está2,Jnu
 mirodilla,Xhibe'
 mioreja,Diaga'
 mioido,Diaga'
-misoreja,"Ca Diaga'"
-misorejas,"Ca Diaga'"
-misoidos,"Ca diaga'"
+misoreja,Ca Diaga'
+misorejas,Ca Diaga'
+misoidos,Ca diaga'
 yalja,Yalja
 ingresa,Biuu
 mariel,Mariel
@@ -4844,8 +4843,8 @@ pandilleros,pandilleros
 ecocidio,ecocidio
 liliana,Liliana
 renata,Renata
-chupame,"Gushupi naa"
-besarnos,"Gudiinu bixhidu'"
+chupame,Gushupi naa
+besarnos,Gudiinu bixhidu'
 nizaguie,Lluvia
 transexual,Muxhe'
 irma,Irma
@@ -4869,10 +4868,10 @@ mayra,Mayra
 potter,Potter
 mirandadero,mirandadero
 Markz,Markz
-quierelo,"Gunaxhii laabe"
+quierelo,Gunaxhii laabe
 quiereloz,quiereloz
 faceid,faceid
-xhandu,"dia de muertos?"
+xhandu,dia de muertos?
 ararbol,ararbol
 ararbolarbol,ararbolarbol
 holacomo,holacomo
@@ -4891,15 +4890,15 @@ class=translit,class=translit
 dir=ltr,dir=ltr
 class=gt-ft-promos><span,class=gt-ft-promos><span
 class=gt-ft-text>google,class=gt-ft-text>google
-chamaquito,"Badu nguiu huiini'"
-changuita,"Migu Huiini"
+chamaquito,Badu nguiu huiini'
+changuita,Migu Huiini
 chaparrito,Nachucu
-changuito,"Migu Huiini"
+changuito,Migu Huiini
 1983,1983
 :3,:3
 1_2_3_4_5_67_8_9_10,tobi_chupa_chonna_tapa_ga'yu_xho'pa_gadxe_xho
-tienes?,"Napalu la?"
-"miedo,",dxiibi
+tienes?,Napalu la?
+miedo,,dxiibi
 guajolote43,Tou'43
 hdhtxuyxhhgx,hdhtxuyxhhgx
 binizza,Zapotecos
@@ -4908,7 +4907,7 @@ bonuto,bonuto
 nuutu,Están
 menxd,menxd
 fensas,fensas
-bixhozelu,"tu papá"
+bixhozelu,tu papá
 regresaste,biguetalu'
 sapoteca,sapoteca
 yonathan,Yonathan
@@ -4924,15 +4923,15 @@ perisur,perisur
 psp,psp
 tigoamor,tigoamor
 stiu,tuyo
-"vi ",biiyaʼ
+vi ,biiyaʼ
 diademuertos,Xandu'
-vaahacer,"chi guuni"
+vaahacer,chi guuni
 estahaciendo,Cayaca
 frio2,Nanda
 tiene2,Cayaca
 calor2,Nanda'
 vi2,Biiyani
-abrazados2,"guidxi du"
+abrazados2,guidxi du
 medarisa,Hrushiidxe'
 tehubierasreido,Nushidxu'
 sihubieras,Palí
@@ -4943,10 +4942,10 @@ seco2,bidxi
 fresco2,Nanda
 fresco3,Yaa'
 espaniol,espaniol
-mequería,"gunashibe naa"
-"los alumnos","ca Ba'ducaziidi'"
-búscalo,"Biyubi laabe"
+mequería,gunashibe naa
+los alumnos,ca Ba'ducaziidi'
+búscalo,Biyubi laabe
 divisábamos,Biiyanu'
-divertíanse,"La guieche"
+divertíanse,La guieche
 divulgaré,chitidxeʼ
 divulgará,chitidxibe
