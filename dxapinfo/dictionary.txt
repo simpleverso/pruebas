@@ -1,23 +1,4976 @@
-estaxxx,lala
-està,Nu
-está,Nu
-temas,Idxibilu'
-asi2,Sacaa
-culmina,Biluxhe
-panorama,Ni Cayuuya'
-pensar,Guní'xpiaane'
-ayudame,Gucanee na'
-¡apoco es eso,¡Ngá xá ní!
-¡tú!,¡Lii xa!
+espaniol,zapoteco
+de,Sti
+y,Ne
+qué,Xhi
+la,Laa
+el,Labee
+a,Ra
+en,Lu
+los,Ca
+se,Nanna'
+no,Co'
+las,Ca
+por,pur
+con,Ne
+del,Sti
+su,Stibe
+un,Ti
+lo,Laa
+al,Ra
+es,Nacani
+cómo,Xhimodo
+una,Ti
+para,Ra
+le,Laa
+mas,Jma
+si,Saa'
+sus,Ca
+mi,Stine'
+me,Naa
+yo,Naa
+esta,Ndi'
+pero,peru
+porque,"Pur ti"
+había,Biuu'
+todo,Guidubi
+era,Ucabe
+tu,Lii
+sin,Xie
+cuando,Ora
+pues,pue
+ni,Nin
+este,Ndi'
+todos,Guiraa'
+sobre,Lu
+ya,Ma’
+dijo,Gudxibe
+asi,Sicarí'
+ser,Ñaca'
+dios,Diuxi
+te,Lii
+don,Ta
+dos,Chuppa
+entre,Lade
+muy,Dunabé
+quien,Tuu
+tan,Casi
+bien,Huazaaca
+hasta,Dedepe'
+ella,Laabe
+fué,Gucabe
+esto,Ndí'
+nos,Nu
+casa,Lidxi
+son,Sa'
+tambien,Laaca
+hay,Nuu
+donde,Raa
+señor,Nguiu'
+tierra,Gidxilayú
+aquí,Rarí
+hombre,"Badu nguiu'"
+despues,óraque
+aquel,ndica'
+les,Laaca’
+mismo,Gueca
+entonces,óraque
+ellos,Laaca’be
+otro,Stobi
+hijo,Shiñe'
+tiempo,Dxi
+día,Dxi
+todas,Guiraa'
+cual,Xhinga
+rey,Shaíque
+estaba,Uyua'
+solo,Stubi
+vida,"Guenda nabani"
+otra,Stobi
+gran,Ro'
+toda,Irá'
+aquella,Ngué
+mis,Stinne'
+luego,óraque
+uno,Tobi
+allí,cherica'
+desde,de
+os,lii
+nada,Gasti’
+estas,Nuulu'
+ahora,Yanna
+tenia,Gupabe
+cosas,xiixa'
+aun,Deyanna
+parte,ndaa
+puede,zanda
+siempre,"Guidubi guendanabani"
+tanto,Stale
+hijos,"Ca shiñe'"
+padre,Bishoze
+usted,Lii
+tiene,Napa
+ojos,"Ca guie Lú'"
+pueblo,Guidxi
+tal,Tal
+hacer,Ga'ca
+decir,Gaabe
+hombres,"Ca nguiiu"
+vez,Viaje
+han,Ma
+aunque,Neca
+antes,Dxiqué
+cosa,"Xiixa  "
+mucho,Stalee
+mujer,Gunaa'
+mano,Bataná’
+sea,gacani
+ver,Guuya
+ciudad,Guidxi
+será,"Ñe la'"
+mundo,Gidxilayú
+estos,"Ca ndi’"
+cada,Idubi
+días,"Ca dxhi"
+poco,Huaxié’
+dicho,gudxhicabe
+menos,"Huaxié’  "
+hecho,"Bizáʼcabe ni "
+cuanto,Panda
+nosotros,Laanu
+noche,Huaxhinni
+hacia,Ra
+hizo,Bi'nibe
+fin,"Ra iluxhe"
+tres,Chonna
+amor,Guendanadxí
+tus,Stilu
+mal,"guenda nadxaba'"
+verdad,Dxandí'
+habían,Guyuu'
+dice,Hrabibe
+nuestro,Stinu
+medio,Aronda’
+manera,Modo
+alma,Guenda
+veces,Viaje
+corazon,Ladxido'
+delante,"Zá nírú"
+palabras,"Ca Diidxa'  "
+otras,"ca stobi"
+años,Iza
+misma,"Sica caa"
+nombre,Lá
+eso,Nga
+muerte,"Guenda guti"
+eran,Gucacabe
+oro,Oro
+hace,Runibe
+muchos,Stale
+manos,"Ca naa'"
+ti,Lii
+soy,Naca'
+dio,Gudibee
+mejor,"Jmá Galán"
+idea,"ni ca ique'"
+algo,Xhixaa
+cabeza,Ique
+general,General
+trabajo,Dxiña
+fueron,Guyecabe
+luz,Biani'
+diciendo,caniʼbe
+voz,Diidxa
+mil,Guixhiapa
+vosotros,Laatu
+dar,gudíu'
+camino,Neza
+ese,Ca
+cuerpo,Ladi
+respondió,bicabibe
+espiritu,Guenda
+fuerza,Stipa
+vino,beeda
+muchas,Stale
+unos,"Chupa chonna"
+nuestra,Stinu
+aquellos,"Ca ngue"
+estaban,nucaca'
+decía,Raabe
+hoy,Enadxhi
+tengo,Napa'
+buen,Neeza
+haber,Da’
+palabra,Diidxa
+cielo,Guiba'
+pasó,Guuca
+puerta,"rua yoo'"
+nunca,"Qué ziuu dxi"
+algunos,"Chupa chonna"
+sol,Gubidxa
+hija,Shiñe'
+madre,Jñaa
+poder,Stipa
+parece,"Rihuinni casi"
+vuestra,Stiilu'
+estan,Nuutu
+señora,Na
+esa,Ca
+visto,Viiya'tu
+saber,Guendariene
+mientras,Laga
+grande,Naro'ba
+estado,Guidxhi
+dentro,Ndaani'
+iba,zia'
+nadie,Iruti’
+razón,Xpiaani'
+mar,Nisado'
+agua,Nisa
+nuestros,Stiinu
+puesto,Nacu
+buena,Neeza
+ellas,Laaca’be
+tener,Gapa'
+algun,Tuusha'
+vio,Biiya'
+ir,Chee
+cuatro,Tappa
+lado,Ladu
+joven,"Badu nguiiu"
+sangre,Riinni
+historia,Diidxa
+va,Rie
+dado,Bidié
+pies,"Ca Jñee'"
+debe,"	
+napa xidé"
+cuales,Shinga
+bajo,Guete’
+primera,"Zaa niruu'"
+mujeres,"Ca Gunaa'"
+llego,"Veda ndaa'"
+presente,Yanna
+cierto,Dxandí’
+mañana,Guixí’
+quiero,Hracaladxe'
+tienen,Napacabe'
+doña,Na
+fuego,Gui
+gente,Binni
+ninguna,Abati’
+pie,Batañee
+amigo,Bichi
+guerra,"Guenda ridinde"
+mandó,"Bise'nda be"
+junto,Cue’
+muerto,Gue’tu’
+ideas,"ni ca íque"
+año,Iza
+vista,lua'
+hermano,Biche'
+puso,Gudixhe
+hablar,"Cué didxa"
+da,Rusiga'de'
+cerca,Gaxha
+digo,Raabe'
+uñas,"Bixuga na'"
+ante,"lu sti"
+estar,Nua
+vi,Biiya'
+casi,Bilá
+ello,laani
+partes,Xcua
+algunas,Caadxi'
+campo,"ra ñaa"
+sabe,Naana
+allá,Chericá’
+tarde,Huadxí
+nuevo,Nacubi
+momento,"Ti ratu si"
+forma,Forma
+hora,Hora
+tuvo,Gupabe'
+mio,Stine'
+principio,"Hra hruzuluni'"
+tenían,gúpacabe
+quiere,Gannaxhílu'
+volvió,Biguetabe
+cuenta,Bigaaba
+objeto,xiixa'
+estoy,Nua'
+dioses,"Ca Diuxhi ca"
+hubo,Uyuu'
+calle,Bandaa
+siendo,gacalu
+pedro,Pedro
+boca,Hruaa
+amigos,"Ca Xhamigu'"
+pronto,Guiuba
+real,dxandi'
+vuestro,Stilu'
+llegar,venda'
+hablo,Caniee'
+unidos,Tobisi
+tomó,Gucuaabe
+mexicanos,"Binni México"
+quería,Gucaladxe'
+segundo,Guiropa
+libro,Gui'chi
+diez,Chii
+eres,Lii
+ve,Guyé
+pueblos,"Ca guidxi"
+salió,Biree
+rostro,Lú
+bueno,Galán
+persona,Binni
+gloria,Guiba'
+san,Bido'
+lejos,Zitu
+parecía,"Ruluíʼ si"
+dinero,Bidxichi
+sabia,Nuuxpiaani'
+fracción,"ti nda"
+aire,Bi
+personas,Binni
+mía,Stinne'
+volver,Bigueta'
+quedó,biaana
+adelante,niruu
+cinco,Gaayu’
+río,Guiigu’
+sentido,Guendala'dxi'
+pasar,Cadi'di
+existencia,"Enda nabani"
+armas,"Ca Guiiba"
+conforme,"Casi Naa'"
+alguno,Tuuxha
+oído,Diaga
+serán,"chi gaca"
+cuarto,Guidapa
+necesario,Naquiiñe'
+dijeron,"guniʼcaʼ ."
+mucha,Stalee
+ay,Ay
+aquello,Ngué
+color,Color
+caballo,Mani’
+todavía,"Ca’ru lica"
+hermanos,Bicheca'
+puedo,Zanda
+alto,Nasoo
+pesar,Guendananá
+viene,Zeda'
+espacio,Guiba'
+dejó,Bisaanabe
+santo,Bidó’
+suelo,Layú
+marido,Sheela'
+falta,Riaadxa'
+monte,Ui’xhi’
+llama,Bele
+siete,Gadxe
+padres,"Bixhoze ne ñaa"
+voy,Chaa'
+siguiente,stobi
+nuestras,Stidu
+iii,iii
+comer,Gaua'
+durante,Jra
+triste,Nabaná'
+iv,iv
+jamas,"Qui huayuu dxi"
+plata,Guibayati
+pasado,Gudi’di’
+frente,Lucuá
+llegado,Bedanda'
+pudo,ñánda'
+fuerte,Nadipa'
+viejo,Yo'xho'
+mexico,"Guidxi México"
+conmigo,"Ne naa"
+dolor,Yuuba'
+cura,Dxe’
+ultima,"Ra riluxhe"
+obras,dxiiñaʼ
+nueva,Nacuubi
+vos,Lii
+amo,Nadxie'
+familia,"Binni lidxi"
+ninguno,Guiruti’
+pensamiento,"rini' ique"
+carne,Beela
+hicieron,bíʼnicabe
+hermosa,Sicaru
+esos,Ca
+cara,Lú
+sola,Stubi
+sean,Gacatu
+sueño,Bacaanda’
+apenas,Deru'
+deseo,"Jraca ladxhe'"
+habrá,Ziu'
+podrá,zanda
+vuestros,Stitu
+derecho,Jneza
+seis,Xho'pa'
+lengua,Ludxi
+niño,Ba’du’
+sombra,Baca’nda’
+dicen,Naacabe'
+movimiento,"modo riniibi"
+león,Bedxe
+pan,Guetastia
+hacen,jrunicabe
+quiso,Gucala'dxi
+presencia,Núlu'
+cielos,iba'
+voces,"Ca diidxa"
+ciudades,"Ca guidxi"
+debajo,Xaguete'
+miedo,Guendaridxibi
+esposa,Xheela'
+ira,"Guenda ridxichi"
+igual,Zaqueca
+cualquiera,Itiisi
+memoria,guendarietenala'dxi'
+mira,biiya'
+buenos,Sicaru
+media,gala'
+peña,Guie
+santa,Shunaxhi
+viento,Bi
+semejante,Casi
+gracia,sicarú
+tomar,Rigué
+libre,"Nalate nuulu la"
+hector,Hector
+piedra,Guie
+murio,Gutibe
+iglesia,Yu'du'
+sacerdote,Gue’
+carta,gui'chi'
+h,h
+llevo,Sinia'
+gracias,"Xquixepe lii"
+dije,Gunie'
+lagrimas,Nisaguielú
+vamos,Chuu
+esas,Laacani
+lleno,Dxá
+claro,Nayaa
+papel,Gui’chi’
+habla,Guni'
+tras,Déeche
+doce,"Chii ne chuppa"
+mesa,Mexa’
+presidente,"Shaíque guidxhi"
+viendo,Cayuya
+hare,Zune'
+veinte,Gande
+decían,Rabicabe
+dejar,Risaaná
+varon,Nguiu
+reforma,"guendaruchaa didxa"
+vive,Nabani
+propia,Stibe
+pueda,ganda
+tienes,Napu'
+señores,"Badungiu ca"
+llamo,Cabi'dxi
+sensación,Hruudu
+pocos,Cadxhi
+entrada,"Jra riucabe"
+fuerzas,Stipa
+negro,Nayase'
+españoles,"Binni España"
+puertas,"Ca rua yoo'"
+pregunto,guinabadiidxa'be
+dulce,Nanashi
+haciendo,Cayuni
+vivir,"Guenda nabani  "
+templo,Yu'du
+viaje,saree'
+queda,Bia'na
+silencio,Dxiisí
+instante,nagasi
+vigor,Stipa
+america,"Guidxi America"
+vinieron,"Beeda cave"
+menor,Xhuncu
+lanza,Ruzú'nda'
+cualquier,Intissi
+patria,Xquidxe'
+morir,"Enda rati"
+naciones,"Ca guidxi roʼ"
+hablaba,guni'be
+tenemos,Napanu
+inteligencia,"Enda biaani’"
+mes,Beu
+cargo,Ruaya'
+condiciones,Condiciones
+buscar,Hruyube'
+veía,biiya'
+suyo,Stibe
+vuestras,Stiitu
+llevar,Chenee
+entender,Ñene
+muertos,"Ca Gue'tu'"
+largo,Ziuula'
+alrededor,"Gaxha de racá"
+ambos,Guiropa’
+dicha,Nayeche'
+cuántos,Banda
+labios,"Ca Guidi ruaa"
+querido,Jnadxii
+gobernador,"Shaíque guidxhi"
+alegría,Nayeche'
+mitad,Galaa
+van,"Rie cabe"
+tio,Ta
+solamente,Stubilúcha
+escrito,Ca
+verdadero,Dxandi'
+corte,Chuugu'
+soldado,guachu
+brazo,Xhi'que
+frio,Naga'nda'
+cambio,Bueltu
+cristo,Cristo
+buenas,Sicaru
+común,saquesi
+pasa,cayaca
+ocho,Xhono
+di,Gudxi
+ahí,racá
+bastante,Stale
+esperanza,Xcaanda
+c,c
+arriba,Luguiá’
+blanco,Naquichi'
+estando,nucaca'
+acerca,Ruchiña
+quieres,Racala'dxhilu'
+maria,Maria
+viva,Nabani'
+ven,Guda'
+flores,"Ca Guie'"
+ama,Nadxibe
+hermana,Bizaana
+hijas,xiiñidxaapaʼ
+diario,"Dxi ne  dxi"
+llena,Dxá
+llega,Reedá
+alta,Nazoo'
+calor,"Enda nandá"
+treinta,"Gande bi chii"
+culpa,Dónda
+echó,Bireenanda
+piedras,"Ca Guiee"
+secreto,Ga’chi’
+tiempos,"Ca dxi"
+sabes,Nannu'
+luna,Beeu
+carro,Carro
+niños,"Ca xcuidi"
+deja,Bisana
+contigo,"Ne lii"
+musica,Zaa
+vaya,Cheu'
+virtud,Guenda
+reformado,"ni ma bichacabe"
+reina,Shunaxhi
+toma,Gucuá
+vestido,Xhaba
+malo,Nadxaba
+vuelve,Zeédábí
+terminó,"Ma birá"
+hambre,Candaana
+vivo,Nabanee'
+azul,azul
+nacion,guidxi
+lleva,yené
+noticia,Diidxa
+conocido,"Ni rune bia'"
+vuelta,Bieque
+blanca,Naquichi'
+detrás,Deche
+sigue,Rinandá
+plaza,Luguiaa
+pablo,Pablo
+arboles,"Ca yaaga"
+cien,"Ti gayuaa"
+hermoso,Sicaru
+montes,"Ca daani"
+salieron,Biréecabe
+miró,Biiya'
+encima,Luguiá’
+norte,Guia’
+podido,Huayanda
+maestro,Maestro
+desierto,"Layu nabidxi"
+quiera,Ganaxhiie'
+hierro,Guiiba’
+filosofía,"Diidxa sti' guendanabani"
+puro,Nayaa
+hablado,Huani'
+cayó,"Ma bigá"
+fui,Guyaa
+polvo,"Yu dé"
+jacob,Jacob
+humano,Nguiu'
+diaz,Diaz
+rico,Naníxé
+busca,Ruyubí
+pone,Hribaqui
+ofrenda,Biguié’
+supo,Gunna'
+veo,Ruya'
+saúl,Saúl
+cincuenta,"Chupa late gande chii"
+loco,"Ique ribí"
+soledad,"Guendariuu Xtubi"
+meses,beeu
+pareció,Dedasilú
+medida,Bia’ti’
+cantó,"Ma biinda"
+venga,Guda'
+quisiera,"Ñaca la'dxe'"
+caminos,"Ca Neza  "
+antonio,Antonio
+diablo,Binidxaba’
+esposo,Xheela'
+medico,"nguiu ni rusianda binni"
+angel,"Binni ni seda de iba'"
+perder,binite'
+mirada,Lúbe'
+carlos,Carlos
+belleza,"Sicaru  "
+somos,nacanu
+matar,Zuute
+ovejas,"Ca dendxu'"
+vieron,biiyacabe
+juntos,Iropa'nu
+x,x
+peso,Bexu
+anciano,Gola
+varones,"Ca Nguiu"
+ojo,"Guie lú"
+hablando,Cananiu
+creer,"Runi cre"
+cuello,Yanni
+oye,Riuudiaga
+ustedes,Laatu
+ah,ah
+fácil,"Cadi nagana"
+reposo,"Guenda risila'dxi"
+cuarenta,"Chupa late gande"
+piel,"Guidi ladi"
+verde,Yaa'
+conoce,Runibia'
+pequeño,Nahuini'
+verás,"Zuuya' lu'"
+pensamientos,Guendabiaani'
+sabio,"binni nuu xpiaani"
+atras,Deche
+dueño,"sti xhuana"
+alegre,Nayeche'
+pasion,Guendaranaxhí'
+acabó,Bisira
+flor,Guie’
+madera,Yaga
+salud,"Guenda nazaaca"
+motivo,Xhidé
+querer,"Enda nashii"
+vieja,Nayoxho'
+sabiduria,Guendabiaani'
+vienen,Zedaca
+mirar,guuya'
+presto,Hixhe
+nubes,"Ca zá"
+alas,Xhiaa
+límite,"ra iluxhe"
+niña,Ba’du’
+contar,Xigaaba'
+llegué,"Ma benda'"
+panza,Ndaani'
+desgracia,"Na' ya'"
+sur,Guete’
+abajo,Guete'
+derecha,derecha
+placer,"Ni hriuladxe'"
+ciento,Gayuua'
+noches,Gueela'
+tercero,Rabionna
+árbol,Yága
+pacto,Biziguenda
+cadáver,Gue’tu’
+oídos,"Ca diaga"
+u,u
+centro,Galahui’
+fruto,cuananaxhi
+m,m
+seguir,"Che nanda"
+anda,be
+demasiado,Nabee
+expresión,Diidxa
+lucha,"Enda ridinde"
+tendrá,Zappá
+sentado,Zuba
+tomado,Huaye'
+amante,Jnadxii
+dormir,gaze'
+mató,Biiti
+verá,Zuuya'
+guarda,"Riguu chaahui'"
+"salido  ",Huare
+dare,"chi gudie'"
+contento,Nayeche'
+beber,Rigué
+recuerdo,"Ni hredazilu' lii"
+estará,Ziuu
+rosa,"Guie' xhiñaa'"
+acá,Cherí’
+grito,Ridxi
+estamos,nunu'
+pocas,caadxi
+doncella,"Binni dxaapa’"
+sed,"Guenda rati nisa"
+encuentro,ridxhela'
+familias,"Binni lidxitu"
+nombres,Laacabe
+amistad,Guendabi'chi'
+estudio,Runda'
+cuan,aque
+oriente,"Neza ra rale gubidxa"
+demonio,"binni dxaba'"
+escribir,"Hriguu gui'chi diidxa"
+cruel,"Binni maní"
+ropa,Lari
+encuentra,ridxela
+partir,Guindaa
+hice,Biine'
+tinieblas,guelacahui
+fiesta,Saa'
+compañero,Bichi
+abrió,Bixhalebe
+leer,Riguundá
+podrán,Zanda
+órdenes,Diidxa
+comida,Endaró
+animales,"Ca maani ca"
+cumplimiento,"guendaruzuhuaa diidxa'"
+nacido,Biule
+llorar,Hruuna'
+amiga,Shamiga'
+trae,"Né be"
+difícil,Nagana
+discurso,Libana
+ñ,ñ
+encontrar,Zadxela
+malos,nadxaba'
+subir,gudxiibaca'
+engaño,gudxitebe
+mirando,Cayu'yanu'
+quizá,"Paxa ora"
+ventana,Guirubiaani'
+amores,"Enda nashi stine'"
+dará,Sudíbe
+ruego,Rinaba'
+tristeza,xilase
+diosa,Shunaxhi
+aurora,"Zeda irá gueela'"
+tiró,Guluubi
+vendrá,Zeedá
+español,Didxastia
+conozco,"Jrune bia'ya"
+huésped,Biuuza’
+baja,Rindetté
+bella,Sicarú
+silla,Bangu'
+profundo,Guete’
+quieren,Hracala'dxica'be
+dices,Naalu'
+pequeña,Huiini
+conocía,"Runi bia'ya"
+dedos,bicuini
+amado,Gunaxhiie'
+enfermedad,"Guenda huará"
+sabemos,"naanadu  "
+par,"Chuppa ndaga"
+mancha,Caná'
+crespo,"Ique ribidxu"
+nueve,Ga’
+herido,"Uca naa"
+encontró,Bidxheela
+espalda,Deche
+correr,ruxhoñe'
+toca,Bishidxi
+feliz,Nayeche'
+nuevos,Nacubi
+pregunta,Canabadiidxa'
+dientes,"Ca laya'"
+pensó,"Guni' ique"
+juego,"Enda Gudxíte'"
+hago,Cayuune
+café,Biziaandá'
+poderoso,Nandxó'
+esperar,cabeeza'
+altos,Nasoo
+enfermo,Huará
+quinto,Gaayu’
+enteró,Gunna
+jesucristo,Jesucristo
+enojo,guendaridxiichi
+golpe,Xcuagu
+beso,Bixidu’
+aconteció,Guzaaca
+jardin,"lee ra nu stale guie'"
+olvido,"Guie’ yaase’"
+echar,Retaá
+virgen,"Binni dxaapa’"
+vengo,Zeda
+sepa,Nanna
+region,Guidxi
+estrellas,"Ca beleguí"
+ancianos,"Ca binnigola"
+destino,"Hra ziaa'"
+espera,Cabeza
+grupo,Xpinni'
+vale,Risaacca
+fuimos,"Guyuu nu"
+hermosas,Sicaru
+s,s
+paredes,"Ca cue' sti yoo'"
+olor,Xho'
+cerebro,Yuba
+sirve,riquiñe'
+damas,Guuna'
+rato,Ratu
+ayer,Neegue'
+cárcel,"Lidxi guiiba’"
+ves,Hruu'yu
+ciego,"Lu cheepa’"
+ayuda,Ucanee
+animal,Mani'
+humilde,"Binni nayaa"
+nube,Zaa
+recibir,icóu'
+saben,nanacebe
+vergüenza,Stui
+doy,Hrudiee'
+negros,"Ca nayaase"
+hablé,Guniee
+contó,Bigabá
+miserable,Zi'
+universo,Guiba'
+puedes,Zanda
+rayo,Guíguibá'
+traer,Redané
+siente,Hruudu
+orilla,Uriá
+espero,cabeeza'
+100,"Ti gayua'"
+volvía,Hribiguetabe
+error,Bichee
+teníamos,Gúpadu
+fortaleza,Nadiipa'
+tomando,Canaye'
+necesita,Riquiiñe
+mirad,"La gu'ya"
+extraño,Hribaana'
+estrella,Beleguí
+barba,"Guicha xhigui"
+perfección,"Nabé Neeza"
+limpio,nayá
+ganado,Yuze
+maldad,"Enda nadxhaba'"
+mentira,"cadi dxandi'"
+sueños,Guendarinixcaanda
+eterna,"ni qué ziuu dxí guiluxe"
+aliento,Bi
+matrimonio,"Guenda xheela’"
+lenguas,"Ca Didxa"
+aves,"Ca mani ripapa"
+acaba,Rusira
+duro,Bichuga
+verdades,Huandi'
+finalmente,"ma birá biluxhe"
+iré,Ziaa'
+perros,"Ca Bi'cu"
+risa,Hrushiidxe'
+encontraba,Bidxela'ca
+cariño,Guendaranaxhí'
+solos,Stubidu
+seré,Saaca'
+entrará,Ziube
+tome,Gucuá
+obscuro,Nacahuí
+entrego,rudieeʼ
+talento,Guenda
+muchacho,"Badu nguiiu"
+pedir,Zanaba
+apareció,Rindaani
+imperio,Guidxi
+martin,Martin
+sabido,Huayanna
+perdida,Canarenda'
+lenguaje,Diidxa
+humo,Gu'xhu'
+entrado,Huayuu
+visión,Bixé’
+suave,Chaahui’
+escuela,"Yoo' guendabiaani'"
+tuyo,Stiu'
+paseo,Bieque
+andaba,Canaza
+valientes,"Binni qui ridxibi"
+tercer,guionna
+completo,Guizá’
+vas,"Rie lu'"
+vivos,Nabanidu'
+haz,Bi'ni
+sucedió,Guzaaca
+pared,"Cue' yoo"
+campaña,Guiiba
+cristina,Cristina
+infierno,Gabia'
+entiende,Runa
+querían,hracala'dxicabe
+míos,Stine'
+siento,"rune sentir"
+seno,Xidxi
+sesenta,"Chonna late gande"
+haras,Zúniluʼ
+juntamente,Guiranu
+muera,Gate''
+educacion,guendariziidi'
+pide,Gunaba'
+gozo,guendanayeche'
+invierno,Gusibá
+infeliz,"cadi cayeche'"
+muchacha,"Badu dxaapa’"
+habitación,Yoo'
+rodrigo,Rodrigo
+vimos,Biiya'nu
+lados,Ladu
+montaña,Daanii
+ora,"guni' ne diuxhi"
+militar,Guachu
+verdes,Yaa'
+diferente,Adxé
+muerta,Gutibe
+misa,mixa'
+tesoro,Bidxichi
+cantar,Riguundá
+felicidad,Nayeche'
+sonrisa,Guendaruxhiidxi'
+pelear,Ridinde'
+mandamientos,Didxa
+fiera,"Mani Bedxe"
+debida,"ni napa xhide"
+licenciado,Licenciadu
+dulces,"dxiña huini'"
+deidad,Bido'
+plantas,"Yága ca"
+trabajar,Dxiña'
+séptimo,gadxe
+lluvia,Nisaguie
+papá,Bixhoze
+sombrero,"Guidi bandá’"
+llorando,Guunalu'
+tuve,Gupa'
+perro,Bi'cu'
+entusiasmo,Nayeche'
+carga,"Ruá' be"
+adios,Cadu'yanu'
+sabios,"Binni nuu xpiaani"
+lástima,Riá
+vencido,biniti
+aviso,tidxi
+nobles,"Binni nacha'hui"
+breve,Naguenda
+junta,Rutaaguzaa
+vuelva,biqueta'
+sepulcro,Ba’
+bueyes,"Ca Yuuze"
+serás,Sacalu'
+pluma,Duubi’
+primavera,Gusiguié
+pasando,Cadi'di
+extraña,Huada’
+inútil,"Que iquiñe"
+esperando,cabeeza'
+vemos,cadu'yanu'
+deberán,"napacabe xhide"
+energía,Stipa
+débil,Nalílí
+pase,Tiidi'
+tocar,"Riguiñe ná'"
+agradable,Nacha'hui'
+momentos,Hora
+nariz,xi'
+dura,Hrindaa
+nace,Riale
+quedan,Bia'na
+explicar,bisiene
+letra,Die'lana
+dime,"gudxi na"
+masa,Cuba
+cena,"Endaró xhi"
+rojo,nashiña'
+testigos,"Ca ni bi'ya"
+creyó,Bisacca
+espanto,Xhiga
+comprender,Ñene
+altas,Nasoo
+recuerdos,Hredazilu'
+fiestas,Zaa'
+terreno,Layú
+podré,zanda
+edificio,Yoo
+aplicacion,Aplicacion
+empresa,Empresa
+ancho,Nalaga
+miseria,"Guenda zi’"
+incienso,"Guxhu bidó’"
+acabar,iluxhe
+pedazos,Ndaa
+fria,Naga'nda'
+puente,Puente
+vara,"tindaa yaga"
+alguien,Tuuxa
+sal,Zidi
+guardar,gupa
+fray,Fray
+cubierto,Dxi’
+cristianos,"Ca xpinni Cristu"
+importante,"Ni hrisaca"
+tela,Lari
+contado,Nagabá'
+abierto,Zuxale'
+muestra,Biluí'
+gonzález,González
+gonzalo,Gonzalo
+quise,Gucala'dxe'
+pelea,Ridiinde
+parecido,Casi
+pelo,Guicha
+buscando,Canayube'
+canta,Biinda
+hogar,Lidxi
+anita,Anita
+entiendo,Cayene'
+haran,sunicabe
+pálido,Naxhixhí
+asiento,Asientu
+esten,nutu
+hacerlo,"guninuli "
+haces,Cayunilu'
+ilusión,Xcaanda
+decirle,"Gaabe laabe"
+miel,"Dxiña yaga"
+daniel,Daniel
+hirió,Bininaa
+amar,Ranaxhi
+cortó,Bichugu
+sube,Udxhi'ba
+siguiendo,Rinandá
+lloro,Hruuna'
+contiene,Neni
+buey,Yuze
+ladrón,Gubaana’
+50,50
+saca,Ribeé
+alfredo,Alfredo
+inocente,"Qui gapa' donda"
+corazones,Ladxido'no
+vela,Gui’ri’
+verano,Gusiguié
+viven,Nabanicabe'
+verme,"ruuyalu naa"
+or,Or
+marcela,Marcela
+tengan,Gapatu
+frase,Diidxa
+abundante,Xtalé
+reír,Rusixidxí
+aparece,Riale
+acero,guiiba'
+mostró,Bilui'be
+setenta,"Chonna late gande chii"
+escondido,Ga’chi’
+corriendo,Guxooñe'nu
+regalo,"Ni bisiga'de"
+fénix,Fenix
+paula,Paula
+saliendo,ziree'
+bestias,Mani'
+estomago,Ndáne'
+alegres,Naye'che
+chico,Nahuiini'
+estrecho,Nabé
+negar,Cadi
+cuerda,Doo
+once,"Chii ne tobi"
+mayo,Mayo
+bello,Sicaru
+completa,Rusaa
+alba,"Zeda irá gueela'"
+garganta,Yanni
+cueva,Lédani
+corta,Bichuugu'
+abrir,Zuxele'
+pesos,beexhu
+guerrero,Guerrero
+jorobado,"Deche tigu"
+semana,"Xhono gubidxa"
+arena,Yuxi
+necesito,Caquiiñe'
+escribe,Bicáa
+escalera,Escalera
+existen,Jnuu
+tuya,Stiu'
+moneda,bidxichi
+montañas,Daanii
+querida,Nadxhie
+sierra,Dani
+consuelo,Gusiganu'
+corre,Bixooñe’
+inmensa,Nandxho'
+carbón,Buu
+debemos,Napanu
+largos,Siula'
+roberto,Roberto
+saludo,Diuxi
+comprar,Risí
+novedad,"Ni cayeete"
+hablan,cani'cabe
+velas,"ca vela"
+ingles,Didxhabiona
+rumor,Diidxa
+cobre,Guibayaa
+autoridades,"Ca Shaíque"
+trajeron,yenécabe
+perdon,Siihui'
+quita,Ribeé
+llegará,Zeedá
+espejo,espeju
+hablaron,Guini'cabe
+vete,Guye
+músico,"Binni Ni Ruxhidxi zaa'"
+cultura,guendabiani'
+llegan,Zedacabe
+llegada,Guedándou'
+maiz,Xuuba'
+come,Gudo
+you,Lii
+peces,"ca benda'"
+falso,"cadi dxandi'"
+prosiguió,Guza
+jorge,Jorge
+hermosos,Sicaru
+julio,Julio
+efectivamente,Dxandí’
+mercado,Luguiaa
+algodón,xhiaa
+est,nga
+señorita,"Badu dxaapa’"
+lopez,Lopez
+sobrina,"xhiñi bizaana'"
+grueso,Namboolo'
+cal,Guiiu
+cerro,Daani
+cordero,"Dendxu huiini’"
+debido,Purtí'
+leones,"Ca bedxe"
+tomas,Ricou'
+felipe,Felipe
+carnero,Dendxu'
+platica,Diidxa
+distinto,Adxé
+sana,Rianda
+columna,"Dxitta deche"
+busco,Cuyube'
+justos,"Binni xneza"
+princesa,Shunaxhi
+nobleza,nobleza
+salga,iré'
+acumulación,Bixhí'
+flecha,Baxa
+golpes,Rigaapa
+criatura,"Badu huiini’"
+levantado,Zuhuaa
+roja,Nashiña'
+caro,Caru
+techo,"Ique yoo"
+escucha,Riuudiaga
+planta,"Yaga guie'"
+volvere,Zeda'
+abrazo,Xiguiidxí
+faltó,Biaadxa'
+cantando,Cayuunda
+loca,"Ique ribí  "
+ilustres,"ca nu xpiani'"
+sebastián,sebastián
+subieron,udxi'bacabe
+llamas,Laalu'
+bendito,Nandxó'
+desea,Jracaladxibe
+apartó,"Gulee chu"
+banco,Bangu’
+vuelo,"Enda ripappa"
+hicimos,Bi'nidu'
+cuesta,Risaacca
+encanto,Shibe'
+vacío,Nadachí
+popular,"Guiraa' binni nanna"
+haced,"la guni"
+casarse,"Richaga ná'"
+ave,"Mani huiini’"
+salimos,"Bire' nu"
+diras,Zaabilu'
+resplandor,Stuxhu'
+hoja,Bandaga
+barro,Bexa
+fatiga,Rusidxaga
+pescador,Guuze’
+varas,Gunixhí'
+ojala,Ñandaca
+leche,"Niidxi yuuse"
+tardo,Hrindaa'
+hermanas,Bisanaca'
+águila,Bisiá
+hierba,Guixi
+vayan,"La ché"
+saque,Gulee'
+andan,Cana->
+estaran,Ziucabe
+ochenta,"Tappa  láte gandé"
+salí,Biré
+abril,Abril
+rojas,naxhiña'
+mueve,Rieeque'
+permite,Jáana
+adelantado,Diidí
+responde,Ricabí
+alcanza,Rugaandá
+red,Guixhe
+tumba,Ba'
+piso,Layú
+dejare,Susanaa
+abre,Bixhale'
+catorce,"chii ne tapa"
+verte,"Guuya lii"
+arma,Guiiba’
+doscientos,"Chuupa Gayuua'"
+veremos,Zu'yanu
+dedo,Bicuini
+eco,Bixé’
+traigo,Redaniaa
+palo,Yaga
+duerme,Gúsi
+olvidar,Biaanda'
+peru,perú
+pájaros,"Mani Huiini'"
+reconocer,Guendarunibia'
+soberano,"Binni nacha'hui"
+pañuelo,Bayu’
+comido,Huayo
+digas,ga'bu
+aman,"Riulaʼdxi cabe"
+diesen,udiicabe
+amada,Shunaxhi
+queremos,racaladxidu
+bellas,Sicarú
+morira,Za'ti'
+dame,Dané
+maldito,Di
+cenar,"Ritó xhí"
+estuve,Huayuaa
+pérez,Pérez
+romper,Guchelaza'
+limosna,Guna
+oscuro,Nacahuí
+eduardo,Eduardo
+hacerme,gaca'
+alejandro,Alejandro
+militares,"Ca Guachu"
+explica,Bisiene
+guarde,Gaapa
+mandato,Diidxa
+forastero,Dxu’
+cabello,"Guicha ique"
+nació,Gule
+apoyo,"Ni racanee"
+caña,Nite
+playa,"Nisa doo'"
+cerrar,Ruseegu'
+gordo,jriro'
+jugar,Riguite
+vienes,"Re' du"
+volví,bigueta'
+veloz,Naguenda
+comprendio,bienebe
+vendran,"zeeda cabe"
+problema,Nadiiñe
+mudo,"Tu qui rini'"
+estrecha,Riguiidxí
+amanecer,"Siadó' guie' ru'"
+arregló,Biinichaahui'
+"pico ",Xuuga
+visitar,Riganná
+sobrino,"xhiñi biche'"
+anduvo,Guza
+pariente,Lisaa
+cerrado,Nuceegu'
+ricas,Nanishe
+empieza,Ruzulu
+escuchar,Ucaadiaga
+vivió,Vivani
+caliente,Nanda'
+agosto,Agosto
+rapidamente,Naguenda
+cojo,Nachaani'
+suponer,Záxaca
+lectura,"Guendariuunda'  "
+hiciste,Bi'nu
+suena,Caxhidxi'
+convertido,Gucani
+becerro,"Yuze huiini'"
+paisano,"Binni xquidxi"
+leña,Yaga
+perfume,"Nisa rinda' nashi"
+pintar,rutiee
+hueso,Dxita
+brillante,Hruzaani'
+vender,rutoo'
+gusta,Hriula'dxe'
+sentarse,Rití
+parque,Parque
+compra,Uzui'
+niñas,"Ca Ba’du’"
+escritura,Guendarucaa
+eh,Na'
+adentro,Ndaani'
+peleó,Gudinde
+hondo,Guete'
+despierta,Ribani
+encontré,bidxheela'
+tradicion,"Sa' stinu"
+rubio,Mexu
+supiera,ñanna
+irse,"Ma ze"
+muchachas,dxaapahuiiniʼ
+darte,"gudie' lii"
+diamante,Guieguesabíni
+dichoso,nayeche'
+bola,Bola
+prender,"Ucaa gui"
+alimentó,Gudo
+fresco,Nagá'nda
+durmió,Gúsibe
+gallinas,"Ca Bere"
+ricardo,Ricardo
+temas,Temas
+cautivo,"Degu yoo'"
+amarillo,Naguchi
+plato,Bladu’
+trescientos,"Chonna Gayuua'"
+rama,"Naa yagaa"
+camisa,Gamixa’
+ancha,Xhétta
+sucesivamente,Decheca
+viste,Rucua'qui'
+estudiar,Riguundá
+vine,"Ma benda'"
+marzo,Marzo
+orejas,"Ca Diaga"
+veamos,Guidu'yanu
+guardado,guia'pa
+terminar,Biluxhe
+paraiso,Guiba'
+grano,Bexa
+lee,Ruunda'
+rocío,Gupa
+acercarse,Rinú
+metido,Ya'zi'
+nieto,Shiaga
+besos,"Ca bixhidu'"
+octavo,xhono
+das,Hrudiilu'
+montón,Bixhí'
+pájaro,"Mani huiini’"
+salva,Rula
+52,52
+prado,La'chi'
+gris,Nayuu
+imaginar,"Ruxuí' lú"
+leyó,"Ma biinda"
+saberlo,"Gaanu ni"
+sonrió,Bishiidxi'
+encerrado,Daguyoo
+cocina,Uzina
+cola,Xhana'
+desnuda,Shieeladi
+castellano,Diidxastiá
+macho,Goola
+suaves,naguudxi
+bebé,"Ba'du huiini'"
+potencia,Stipa
+gato,Mistu'
+oculta,Bicachi'
+ceniza,De
+robado,Huaba'na'
+tocado,Huaxhidxi
+recoger,Rutopa
+despertar,Ibaane'
+veracruz,veracruz
+ácido,Naí
+ayudar,Racané
+pedazo,Galaa’
+comen,"Ro cabe"
+codo,"Xacodo na'"
+descendientes,"Ca shiñi shiñi"
+digan,gabicabe
+sereno,Gupa
+mover,Guiniibi'
+coger,Ria'pi
+bajar,biete'
+verbo,Diidxa
+noventa,"Tappa láte gandé chíi "
+cortar,Richuugú'
+caminar,"Chi saa"
+poema,Diidxaguié
+deuda,Diiñe’
+subido,Dxi’ba’
+roto,Nareza
+cementerio,"la rica'chicabe binni"
+precioso,"nabé sicarú"
+amigas,"Ca Xhamiga'"
+borde,Hruaa
+buscan,Cuyubica'
+bañó,Guzebe
+moreno,Nayase'
+maldicion,Di
+mora,Ribezá
+rapidez,Chixhe
+descansar,guiziiláʼdxibe
+encendió,Bicaguiibe'
+dimos,Bidiʼdu
+guardó,upabe
+empezaron,bizulúcabe
+verdaderas,"Dxandi' cani"
+pieles,"Ca ladi"
+encendida,Cágui
+ala,Xhiaa
+fuiste,Gucalu'
+encendido,"Cá guí"
+mono,Migu
+sabré,zaana'
+tengas,Gapu'
+ruben,Ruben
+raiz,Guenda
+cuatrocientos,"Tappa Gayuua'"
+casamiento,"Guenda xheela’"
+metal,Guiiba’
+nosotras,Laadu
+muero,Hrate'
+trece,"Chii ne chonna"
+gigante,"nguiu nabe naro'ba"
+tia,Stia'
+pintado,Die'
+serpiente,Beenda’
+vaca,Yuuse
+benito,Benito
+cantaba,Biindabe
+curioso,"Racala'dxibe gannabe"
+rueda,Huitubi
+seiscientos,"Xho'pa Gayuua'"
+decimos,Rabidu
+llamados,"Ca biree lá"
+obscuras,nacahui
+teme,Bidxibi
+bodas,"Ca guendaxheela'"
+boda,"Guenda xheela'"
+espuma,Bupu
+bailar,Rusiaá
+irás,Zieu
+volar,Bipappa
+estaré,Ziuua'
+supe,guuna'
+oraciones,"Ca Guendaruzee hrua"
+tranquilidad,Guendariuudxi
+oscura,Nacahui
+contener,Hrucueeza
+lejano,situ
+probable,Zandaca
+atravesó,"Gudiidi laaga"
+formando,Caya'
+anoche,Nu'chí'
+toro,Yuze
+ajeno,"Cadi Stiilu'"
+sencillo,"Cadi Naganna"
+escribia,Cucaabe
+apresuró,"biree guxooñeʼ"
+cortado,Birugu
+cubre,Rusiaapá
+novia,Xhaapa'
+privado,De'gu'
+indigena,"binni zaa"
+alimentos,endaro
+soñar,"Hriniee' xcaanda'"
+lumbre,Gui
+sacaron,"Gulee ca"
+gota,Bitii
+actividades,"Ni chiguninu"
+desear,"Jraca ladxhi"
+aconseja,Rulidxe
+coloco,Gudixhe
+are,Nuu
+besar,"udié ti bixhidu"
+conoces,Hrunibia'lu'
+comiendo,"Ca Rahua'"
+bravo,Naduxhu'
+hola,Padiuxi
+ordeña,Ruxhii
+tertulia,tertulia
+empezar,Izulu
+pica,cababa
+sordo,"Diága cuaata"
+cuero,Guidi
+llamarse,Lá’
+quinientos,"Gaayu gayuaa"
+veinticinco,"Gande nu Gaayu'"
+temblor,Xuu
+detiene,Rinaaze'
+tonto,Bichita
+asamblea,Asamblea
+dile,"gudxi labee"
+tardes,Huadxí
+alfonso,Alfonso
+americanos,"Binni America"
+izquierdo,Biga’
+abuelo,"Bixhoze vida'"
+muda,"Tu qui rini'"
+compro,Siee
+oreja,Diaga
+chile,Guiiña’
+veinticuatro,"Gande nu Tappa"
+durmiendo,Nisiási'
+decirte,"Ñabe lii"
+creí,Bisaccanaa
+imaginó,Bisaccaxa
+señoritas,"Ca Badu dxaapa’"
+aceptar,Ruziguenda
+comió,"Gudo be"
+vapor,Gubá
+abuela,"Jñaa vida'"
+aparta,Ribeé
+palma,Ziña
+enero,Enero
+veas,Gu'yu
+t,T
+trabaja,"runi dxiiña"
+escriba,Gucaa
+hacemos,Runinu
+chispa,Batee
+rubia,Mexa
+pesado,Nanaá
+exceso,Xhaata'
+cejas,"Ca Guicha luu"
+gritando,"Cayuni ridxhe'"
+faltan,cayadxa'
+flaco,Nalase'
+temblar,Hracaditi'
+aprender,Iziide'
+toman,"Ricaa cabe"
+susto,Dxíibi
+novio,Xha'ca'
+enseñado,bisidibe
+universidad,Universidad
+ríendo,caxhidxi
+lodo,Beñe
+nido,"Lidxi mani huiini'"
+rabia,Yu'ba'
+hielo,"Guie rusiga'nda'"
+delicado,Nani'di
+iremos,Siunuu
+lanzó,Guluubi
+reconoce,Runibia'
+figuró,Bisaccanaa
+fruta,Cuananaxhi
+bizco,"Lu changa"
+agustín,Agustín
+pense,"Nicádi' ique'"
+ríe,cuxhidxi
+creemos,Rabidu
+actualidad,Yanna
+borracho,Naxudxí
+despacio,Chaahui’
+feo,Feu
+paloma,Guugu
+reflejo,Stuxhu
+invisible,"Qui rihuinni"
+lea,Guunda
+mamá,Jña'
+encargado,Shaíque
+preciosa,Shunaxhi
+adoro,Nadxie
+asa,Rugaagui'
+faltas,Riaadxu'
+vende,Rutoo
+vistió,Bigaccu
+viviendo,Cabane'
+hablamos,Gunidu'
+brillo,Biaani'
+linda,Sicarú
+flora,Guie'
+carece,Riaadxa'
+honda,Bixeenda’
+corrido,Huaxoñe
+compadre,Mbale
+soltar,rundaacha'
+enojado,cadxichi
+piensas,"Cani' Iquelu'"
+sergio,Sergio
+esperé,uleeza'
+venimos,Zedanu
+vivirá,Zabani
+cargado,Nuá
+cuchillo,Gudxiu
+comerá,Zo
+lentamente,Chaahui’
+cobrar,"Ritoppá díiñe'"
+adán,Adán
+andas,guzaalu
+zoco,zoco
+robar,Guendariba'na'
+huérfano,"Badu bizabi"
+ayuntamiento,ayuntamiento
+hembra,Nagoola
+muslo,Co’re’
+gastado,Nayaabi'
+engaña,"Riguitte ique"
+tierno,Narí'ni'
+contrato,"Riguu diidxa'"
+acompañar,"Che nanda"
+muchísimo,Stale'
+nacieron,Bialecani
+antaño,Chiqué
+mosca,Bia'lazi
+crece,Riniisí
+cerviz,Xayanni
+contando,Cagaba'
+agujero,Quiide
+respiracion,Xhiee
+puercos,"Ca biui"
+senda,Neza
+recorrer,Saalu'
+platos,"ca bladu'"
+ruega,"Rugá be"
+horno,Zuquii
+diarrea,Gudi'dindaani'
+literaria,Literaria
+ramírez,Ramírez
+sexo,caya'picabe
+comienzo,Bizulú
+labio,"Guidi rua"
+trabajando,"Cayaca dxiña'"
+zaragoza,Zaragoza
+tira,Bizabi
+90,90
+contentos,Nayecheca'
+conozca,Gunibia'be
+diles,Gudxilácabe
+tigre,Beedxe’
+semilla,Biidxi’
+pinta,Rutie
+zapatos,"Ca Guidi bo’co’"
+agrada,ruladxhi
+l,l
+acercaron,Bidxiiñacabe
+idioma,Diidxa
+pescado,Benda
+humedad,Gupa
+alza,gudxhi'ba'
+sonora,Sonora
+enseñó,Biziidibe
+volvimos,Biguetadu
+prisionero,"Degu yoo'"
+bendita,Nandxó'
+blando,Naguudxí
+extendido,Biaa
+costado,"Cue’ ti’xhi’"
+tabaco,Gueza
+soñó,Guni'xcaanda'
+morena,"Ladi yaase"
+brisa,"bi nisa"
+rompe,Hriguuza
+prestar,rutiñe'
+vayas,Cheelu'
+torpe,"Na huati"
+amarga,Rusindá
+pez,Benda
+yerno,Bigudxi
+cambia,Ruchaa
+acostarse,Rigattá'
+remordimientos,Donda
+estés,Guiuulu'
+manzana,Manzana
+hacerte,"Guune lii"
+avergonzado,bituilú
+aprendido,"Ni biziide'"
+pompa,xha'na
+digame,"Gudxhi naa"
+fantasma,Bixé’
+frecuentemente,Gatigá
+bebido,Huaye'
+diente,Laya
+separa,Ribeé
+vacía,Rundaate'
+unido,Gui'di
+pro,Pro
+necesitan,"riquiiñetu "
+rodilla,xhibi
+azucar,Dxiña
+hueco,Guiiru’
+Contará,Zugabá'
+espesa,Rinaná
+sentimental,Nabaná'
+fiero,Naduxhu'
+bebió,"Gue' be"
+recogió,gundiza
+eras,Gucalu'
+vinagre,Vinagre
+comprado,Huazi'
+hígado,La’dxi’
+justas,Bia'sipe
+soñando,Caniee'xcaanda'
+termina,Hriluxhe
+mientes,Hrusiguiilu'
+delicada,Nani'di
+sepas,gaanalu'
+enciende,Bicaagui
+acostó,Gudixherilu
+actualmente,"Yanna ri'"
+rana,Bidxi'
+compone,Runichaahui'
+lindo,Galán
+llenar,Guchaya'
+matan,"Hru'ti cabe"
+himno,Himno
+vocacion,Vocación
+olvide,Guedasilú
+anillo,Aníu
+jabalí,"Bihui gui’xhi’"
+cantaban,Cayu'ndacabe
+sigo,Rinanda
+arrancar,Hriaasha
+defiende,"Ruzuguaa lu xtiidxa'"
+delgado,Nalílí
+amargo,Ndá
+asustado,Nadxiíbí
+ayudó,"Gucané be"
+collar,Bigá’
+pasto,"Guixi baata"
+patas,Jñee
+pareja,xhe'la
+alojamiento,"ra guiaana tobi"
+incendio,Gui
+72,"Chonna láte gande chíi nú chuppá"
+adulterio,"Cayá'qui ñee"
+parecida,Casi
+pasaran,"Zadiidi ca"
+alvarez,Alvarez
+mostrando,Cayuí'cani
+der,Bixhiapa
+olvida,Rusiaanda'
+melancólico,Naxhixhí
+prestado,Riguiiñe
+antepasados,ah
+estabas,Nuulu'
+solitario,"stube sia'"
+antojo,"Cului' ladxhe'"
+llover,Nisaguie
+101,"ti gayua' tobi"
+ocupan,Riquiiñecani
+lejana,zitu
+ganas,Gana
+brilla,Ruzaani'
+ofende,Rugaandá
+habita,Ribezá
+magia,Shibe'
+veníamos,"Ziupa du"
+romero,Romero
+queso,Queso
+juntar,Bitopa
+poniente,"Neza Hrucachilu' gubidxa"
+tías,"Ca xtiua"
+artística,Artística
+vamonos,Chuu
+intenso,Stipa
+apresuradamente,"Chixhe chixhe"
+araña,Baquixhaba
+exactamente,Bia’si
+enterado,Huayanna
+hablas,Riníu
+mirará,Zuuya'
+regresar,bigueta'
+sepan,Laganna
+dondequiera,"Neza tiisi"
+pólvora,Deguí
+salgan,"la iree"
+gas,Gas
+prevenir,"Guupa lii"
+bonita,Sicarú
+abraza,Riguiidxí
+apartarse,"Rilaa saa"
+arrastra,Rixubiyu
+avisar,"Rusenda tidxi"
+cuerno,Cachu
+camina,Guzá
+sucio,Nabiidi'
+traiga,Danee
+pasear,"Zi zá"
+veintidós,"Gande nu Chuppa"
+sonreir,"Enda rishidxi"
+200,"chuppa gayua'"
+cómico,Bisishidxi
+arreglar,Binichahui
+brillar,hruzaani
+historiador,Binnigui'chi'gula'sa'
+madres,Nñiaanu'
+cultivo,Biní
+alumbra,Ruzaani'
+pesca,"Rie guuze'"
+sermón,Libana
+parado,Zuguaa
+ilumina,"bidi' stuxu'"
+puebla,Puebla
+pague,Biquixe
+madrugada,telayuu
+elena,Elena
+tenerla,"gaapa laabe"
+diccionario,Didxaneza
+cuidar,Rapa
+olla,Guisu
+húmedo,Naguppa
+rejas,Bindiiguiiba'
+acontecimientos,"ni cayaaca"
+alegra,Hrusieche
+consume,Rusira
+rienda,Doo
+persigue,Riladxí
+quieto,Dxii
+espeso,Naxhiihui'
+agüero,Xhiga
+inteligentes,"Binni nuuxpiaani'"
+raquel,Raquel
+vuelvas,Ibiguétu'
+ferrocarril,Ferrocarril
+rodar,rutubi
+seamos,"la gaaca"
+vernos,Gu'yanu
+fijas,Guuyu'
+esconde,Bicachi'
+acabará,Zusira
+coge,Rinaaze'
+solitaria,Biduyu
+custodio,Rappa
+confiesa,Ruxhuubadonda
+inicio,Bizulú
+apasionado,Nabaná'
+comerás,Zou'
+morirse,Rigattí
+dormida,Nisiaasi'hru
+ruiz,Ruiz
+perdiendo,Cunite'
+ocupo,riquiñe'
+disputas,"Enda ridxhichi"
+radio,"guiiba' ruzabi didxha lu bi"
+deseas,"Hracala'dxu' la'"
+torcido,"Cá bieque"
+novecientos,"Ga' Gayuua'"
+encogió,Bixhoppa
+recorrido,Bieque
+vuela,Ripappa
+bajando,Cayete
+huevos,"ca dxita"
+300,300
+ponte,Gucu
+aser,aser
+pierdo,Hrunite'
+pantalones,"ca pantalon"
+quieran,gacala'dxitu
+cría,Rusiniisí
+canal,Biasa
+bruja,Bidxaa
+fingir,"Runi imbite"
+injuria,"Ruguna diidxa'"
+respirar,"Ricaa bi"
+ronca,"Rindaabi ique"
+traes,Néu
+dificiles,Nagana
+dieciocho,"chi ne xhono"
+jugando,caguite
+siéntate,Gurí
+corbata,corbata
+hipócrita,Ludaa
+rodela,Xuubaguidi
+setecientos,"Gadxhe Gayuua'"
+tabasco,Tabasco
+vázquez,Vázquez
+matas,Biitilu'
+escuché,ucádiaga'
+lavar,Guia'ri
+amas,Nadxiu
+rápido,Chixhe
+huella,Duuba’
+juega,"Riguitte ique"
+voló,Bipappa
+mejilla,Xhaga
+inclinado,Zabigaa
+encender,"Ucaa gui"
+representante,Shaíque
+atenta,"Bishale diagalu'"
+gatos,"Ca Mixtu'"
+intensa,Stipa
+agita,Runiibidxá'cha
+chocolate,Dxuládi
+hurto,"Guenda riba’na’"
+listo,"Jnu xpiani'"
+moribundo,"ruti nati"
+caminando,"Zeda záanu"
+colgado,Zabigaa
+encarga,"Ni bicaabi"
+limpios,naya
+solicitar,Zanaba'
+adorar,Guendanadxi
+brotar,Rundaani
+dale,Bidi'
+cuervo,Bigose
+sacude,Riguibi
+hoyo,Guiiru’
+amontona,Rutaaguzaa
+cerco,Le’
+llevaré,Cheniaa
+ola,"hru bieque nisado'"
+ochocientos,"Xhono Gayuua'"
+discutir,"Cueenu didxa"
+secundaria,secundaria
+mataré,"chi guute'"
+400,400
+suceda,Ga'cani'
+estiércol,Gui'
+visible,"Ni Rihuinni"
+guardaré,"Chi gapa ni"
+prevención,"Guupa lii"
+avanzó,Guza
+cañón,Cañúga
+quemado,Naya'qui'
+vendré,Zenda'
+rinde,Rudí
+guapa,Sicaruu
+mete,Riguu
+celebra,cayaca
+terremoto,Xu
+buscaban,cuyubicabe
+venas,"Doo rini"
+siembra,Biní
+arranca,Biasha
+apretó,Bidie
+aguja,Aguxa’
+compuso,Biinichaahui'
+contaré,Zugabá'
+incondicional,"qui saabibe naa gasti'"
+q,q
+autos,Autos
+trozos,Xcua
+suenan,Jruxhidxi'
+separar,Guindaa
+conflicto,"guenda ridinde"
+alegremente,Nayeche'
+agradar,Riula'dxi'
+cigarro,Gueza
+inquieto,Nasiñe
+idiota,Naguídxa
+juntarse,"Ridopa lú"
+vendió,"Bitoobe Zie'"
+acostado,Neshe'
+amanecio,"Bira gueela'"
+can,Zanda
+cine,Cine
+cruzar,tiidilu'
+acuerdas,"Hredasilu lii"
+pretendo,Hracaladxe'
+pollos,"Ca Buyu'"
+tigres,"Ca Beedxe’"
+discordia,"Enda ridxhichi"
+propongo,"Na' cayabe'"
+arrebata,Raxha
+espantado,Nadxiíbí
+enterrado,"Xa yu"
+bigote,"Guicha ruaa"
+corteza,"Guidi ladi yaga"
+hubieras,Ñe'
+obedece,Runa
+adornado,Zuchaahui'
+sabrosa,nanixhe'
+pasen,"la guiu'"
+pa,pa
+tarda,Hrindaa'
+delgada,nalase'
+perderá,Zunitibeni
+acepta,Jáana
+navarrete,Navarrete
+bate,Ruchaahui'
+perderse,Rinittí
+television,tele
+saliva,"Nisa xhinii"
+abren,rudxhalecabe
+preguntando,canabadiidxa
+tíos,"Ca xtiua"
+queríamos,hracala'dxidu
+perdieron,Biniticabeni
+sacrificado,Bi'ticabe'
+numeroso,Xtalé
+cercado,Nuceegu'
+gorda,jriro'
+compré,guziee'
+produzca,Gudii
+llegues,guedandou'
+flaca,Nalase'
+bendiga,Guundaya
+aguado,Nanisa
+separó,"Gulee chu"
+contesta,Ricabí
+necesitado,Huaquiñe
+mero,"Má yacca"
+dure,Guindá
+oigan,Lagucaadiaga
+billete,bidxichi
+intente,Gucaladxe'
+agarró,Gunaaze
+reprende,Rulidxe
+guardará,"Zutoppa lú"
+postrado,Zuxibi
+callejón,Bandaa
+infantil,Baba’du’
+concha,Bichuga
+replica,Ricabí
+cenó,"Gudo xhi"
+flexible,Nalá'sa'
+pegado,Gui’di’
+gemir,Rusiguuna'
+fundó,Gudixhexti
+nudo,Porra
+fueras,Gacalu'
+manteca,Za
+electricidad,biaani'
+jiménez,Jiménez
+olvides,Usiandu'
+limpiar,Hrusia
+dorso,"Dxita caniá"
+grita,Ribidxiaa
+avaro,Guibi’
+imbécil,Guidxa
+vergonzoso,"Natuí lú"
+veintitrés,"Gande nu Chonna"
+estarás,Ziuulu'
+caí,Biaba'
+recoge,Rutopa
+demasía,Nabee
+atar,Hrundiibi
+500,500
+culturas,Guenda
+aspirar,"Rigu'ba bi"
+cosquillas,Chinguiili
+muñeca,"Dxita porra ná’"
+poquito,"Tudxi huiini'"
+cansada,bidxhaga'
+moriran,Zaticabe
+abra,rixele'
+esmeralda,Guieguesa
+taza,Riga
+alegrará,Ziechebe
+timida,Namuxhe'
+acercará,Zuchinña
+duele,Rusiuuba'
+cariñoso,Nayeché'
+vicioso,Nañañá'
+buscará,Zuyubí
+mariposa,Biguidi’
+tapa,Rusiaapá
+espina,Guichi
+orina,Rinesa
+complicado,Nagana
+vuelan,Ripappa
+ma,ma
+alfanje,alfanje
+trecientos,"Chonna Gayuua'"
+buscamos,Ruyubidu
+entrad,"la guiu'"
+melodía,Sa'
+amplio,Nasaa
+asoma,"Cagúu lu"
+besa,"Ro bixidú'"
+culebra,Beenda’
+cráneo,"Bichuga ique"
+gavilán,"Bisiá huiini’"
+vómito,Rusidxi'ba'
+colina,Dani
+tuerto,"Lu cheepa’"
+convido,rudí
+traducir,"ucha' didxa"
+necesite,Biquiiñe'
+molesta,Cuchiichi
+abrazos,"enda riguidxhi"
+mates,"Guutilu laabe"
+vuelves,Ribiguetalu
+lucero,"Beleguí  "
+estúpido,Guidxa
+facilitar,rutiñe'
+rebeca,Rebeca
+ta,Ta
+pusiste,Gudixhelu'
+tonta,Guidxa
+diciéndome,Cayuí'be
+consumió,Bisidubi
+domesticó,Bisido'
+aprendió,Biziidi'
+picará,Zo
+provoca,Rugaandá
+brasero,"Lu dé"
+doblado,Nuzeechu'
+tomen,"La gué"
+veintiocho,"Gande nu Xhono"
+podrido,"Ma da'"
+arreglado,Zuchaahui'
+templado,Zutipa
+duermo,Hrase'
+carreta,Carreta
+sopa,Sopa
+hazme,"bi'ni naa"
+caminaba,"Ni Gusaa"
+repartir,Guindaa
+ayudan,Racanecabe
+picante,Nayaana
+cocinero,"Ni hruni guendaroo"
+pertenecientes,De
+timido,Namuxhe'
+alarma,"Runi yaya"
+tonteria,"Didxa guidxa"
+brotó,Gundani
+pellejo,Guibi
+forastera,Huada’
+chino,"Ique ribidxu"
+padrino,"Bixhoze yu'du'"
+sonríe,"Ruxidxi huíini'"
+descarga,Rundaate'
+veintisiete,"Gande nu Gadxe"
+fijé,"Ma biiya"
+vives,Nabeezalu'
+life,Guendanabani
+alumnos,"Cani caziidi"
+pestañas,"Ca Guicha laga"
+foco,"Ni rudí biaani'"
+bendecido,"nu nda'yabe"
+moriré,"chi gate'"
+quitando,Canayashacabe'
+achaque,guendahuará
+llevarás,Chineelu
+pedí,Gunaba'
+espante,idxibe'
+ingeniero,Ingenieru
+malvado,Nadxaba
+res,Yuuze
+firmamento,Guiba'
+aprende,Biziidi'
+baña,Raaze
+hiel,Xhcula'
+bendice,"Riguu ndaaya'"
+baila,Ruyaá
+liebre,Biana
+cortas,"Rugá lu'"
+oprimido,Gui’chi’
+ahorró,Bidiilisaa
+trapo,Lari
+sábana,"Lari gueela’"
+ideó,"Guni' ique"
+moviendo,Caniibi
+seguimiento,Cazáabinándá
+sesos,Yuba
+lápiz,"yaaga ni rucaa"
+abuelos,Bishozebidanu'
+imparcial,imparcial
+apaga,bisui'
+beben,Caye'ca
+volaba,Ripapa
+volveras,Zabiguetalu'
+lava,Gudibi'
+estimar,Guendanadxi
+ata,Rundiibí
+apagar,Rusuí'
+aprieta,Riguie
+deshace,Ruxhia
+gusano,Bicuti’
+repara,Runichaahui'
+gira,Rieeque'
+apretado,Gui’chi’
+inminente,Nuna
+perra,Bi'cu
+acuesta,"Ra' ta'"
+clavado,Nulaadxi'
+casados,Bichaganácabe
+frenesí,Nabee
+bonitas,Sicaru
+rancho,Ñaa'
+entendí,ñeene'
+aritmética,Aritmética
+falsedad,"cadi dxandi'"
+porciones,Xcua
+cantemos,Gu'ndanu
+botón,Bitipi
+discernir,"guu ya'"
+lloras,Gu'nu
+dejarás,Susaanu'
+callada,Nado'
+opaco,Nagu'xhu'
+aprendí,Biziide'
+balsa,Balaaga’
+gallina,Bere
+coman,"La gó"
+atenerse,"Cá lú"
+montado,Dxi’ba’
+silvestre,Cuaanayaga
+cutis,"Guidi ladi"
+langosta,Gusú’
+huele,Canda'
+fijamente,Ruuyadxí
+vestirse,Racu
+giro,Xieque
+esperare,Zabesa'
+vibora,beenda'
+sufriendo,cayate
+bala,Bidolaguí
+estaca,"Yaga napa ique"
+irte,cheelu'
+solitarios,stubisicabe
+tráeme,"bedane naa"
+sopla,Bindubi'
+asiendo,cayune'
+otorgo,Gudicabe
+avisa,"Rusenda tidxi"
+resplandece,Ruzaani'
+caracol,Bichubé
+paisanos,"Binni xquidxinu"
+hormiga,Birí
+estudia,Ruunda'
+bonito,Sicarú
+cocido,Gu’gui’
+calvo,"Ique raa"
+escondite,trbajo
+escapa,Rie
+llegaste,"Ma beedu'"
+sembrar,"Hriguu biní"
+consentido,Xhuncu
+caldo,Caldo
+eva,Eva
+saciado,Dxaa'
+"subi ",udxiba'
+compromiso,Ruziguenda
+compadece,Riá
+cuido,Rappa
+cicatriz,Pesu
+prendido,"Cá guí"
+gustar,Naquii
+zapato,"Guidi bo’co’"
+abrazado,Guiidxi
+gata,Mistu’
+silbido,Stiipi
+jabón,Xhabú
+vente,Udá
+nuera,Xuaalidxi
+chiste,charada
+Parecería,Hrului'nga
+estúpida,Guidxa
+miramos,biiya'nu
+escriben,Cucaaca'
+apagado,bisui'
+quisieras,Hracaladxu'
+duran,Rinda'
+saludos,Padiushi
+naranja,"Bolor biguitu"
+imaginé,Bisaccanaa
+prestamo,Diiñe’
+nostalgia,xilase
+catarro,Guidxagá
+halcón,"Bisya gue'dxe"
+pulpa,La’dxi’
+lisa,Mili
+roba,Riba'na'
+suspira,Ricaalá'dxi'
+pescuezo,Yanni
+jaime,Jaime
+detienen,Bicuezacabe
+kilo,Kilu
+cerros,"Ca danni"
+buscare,zuyubeʼ
+desee,Gucaladxe'
+bota,"Guidi Bo'co'"
+pepito,Pepito
+fallecido,Gu'ti
+tremenda,"Nabé nadxhiña'"
+pompas,xha'naa
+vena,"Doo rini"
+ahorrar,"Rutopa lú"
+apretar,Gudieé
+trastorna,"Ruche ique"
+cantará,Zuunda
+fragante,Xho'naxhi
+saliste,Bireu
+salado,Naxí
+tibio,Nadxaá
+vello,"Guicha ladi"
+majadero,baze'ndu
+bañado,Guzebe
+juarez,Juarez
+olvidando,cusianda'
+ombligo,Xquipi'
+deme,"bidí naa"
+tiranos,"Ca binninadxaba'"
+sufro,Cayate'
+club,Club
+otorga,rudii
+descansando,Hrisi'la'dxibe'
+zapotecas,Binnigula'sa
+colorido,"Stale die'"
+necesitas,Caquiñelu'
+encorvado,Napandu
+golpear,Rigapa
+mezquina,Guibi’
+jazmín,"Guie’ xhuuba’"
+molesto,Cuchiichi
+quemará,Zuzaaqui'
+delantera,"Zá nírú"
+viniste,Beedu'
+viga,"Yaga ruaa"
+pito,xquie
+morado,Guhuí
+refresco,Naga'nda'
+its,Ndi'
+damian,Damian
+derivados,derivados
+col,col
+moler,Ruu'tu
+aceptando,"Cuzuuba diidxa"
+nadando,Cuniidxe'
+mienten,Hrusiguiicabe'
+ingenua,Huati
+eje,Guiiba'guipi'
+emilio,Emilio
+llueve,"Cayaba Nizaguie"
+pareces,Hrului'lu
+sollozando,Cayuuna
+complicaciones,Nagana
+invitado,Biuuza
+sones,"Ca sa'"
+domicilio,Ralidxi
+caricia,Rulaayá
+aclara,Rusiaani'
+oprime,Riguie
+puerco,Bihui
+cacao,Biziaa
+crudo,Nayaa
+murmura,"Rini' dxidxigá"
+comí,Gudahua'
+ceja,"Guicha lú"
+manchado,Nabiidi'
+tosca,Xhétta
+elevó,Bipappa
+comeré,Zahua'
+guadalupe,Guadalupe
+cortando,Cuchuugu'
+cerveza,Cerveza
+burra,burra
+cueste,Risaaca
+alegoría,bandá'
+docientos,"Chuupa Gayuua'"
+quisiste,Gunaxhilu'
+asustó,Gudxibibe
+miedos,"Ca guendanadxibalú"
+intestinal,"Ndani' doo xqui'"
+sabroso,Nanixhe
+comprenderá,Ziene
+lunar,Biuyaa
+cansa,Rusidxaga
+cuidará,Zapa
+monstruoso,Naxhamá
+gime,Ruunaguídxa
+cuchara,Gudxara
+mole,Guiñadó’
+zorro,"Mistu’ gui’xhi’"
+cero,Gasti'
+istmo,Istmo
+compras,zaziu'
+matias,Matías
+comas,Goolo'
+fusil,Guiba'
+espectro,Bandaa'
+regalar,bisiga'de
+teja,Teja
+existo,Nua'
+enseñame,"bisidi naa"
+preguntan,Canabadiidxa'
+automóvil,Automóvil
+vita,vita
+molestar,Zuchiiña
+angosto,Nabé
+arrugado,Nacuuxhu'
+tostado,Bixhuxhudé
+comezón,Baba’
+basura,Guixi
+enredo,Bixhiidi’
+tropieza,"Ruchenda ñée"
+contiguo,Cue’
+falló,Biaadxa'
+flotar,"Rixuba laahua"
+polvareda,"Guxhu yu"
+imita,Ruzuiiruáa
+enfurecido,cadxhichi
+fragmento,Ndaá
+duerma,Gasí'
+pases,Tiidu'
+poderse,Zanda
+traductor,"binni ni ruchá dixha"
+miento,Cusiguié
+gerardo,Gerardo
+2016,2016
+estaremos,Ziuudu'
+ayudaré,"zacaniáʼ "
+adecuado,jneza
+metro,"Guiba' see ndani yuu"
+pintando,Cutiee
+aparezca,Hrihuinni
+keila,Keila
+proceda,acani
+probando,"Bini prueba"
+gancho,Gandxu
+locución,Diidxa
+hinchado,Nabumbú
+transportado,Daapí
+aproxima,Ruchiña
+avergüenza,"Rusitui lu"
+ratón,Biziña
+comamos,Goono
+cadera,"Dxita xa’na’"
+gratuitamente,"Xindxaá dó'"
+hierve,Rindaabi'
+muerde,"Ro yaa"
+pudre,Rusiu'dxu'
+pollo,Buyu'
+regala,Rusiga'de'
+devuelve,Rudxiguettá'
+ebrio,Xhudxi
+celular,Celular
+asesinar,Zuute
+informaron,Gudxicabe
+desearia,Hracaladxe'
+zarzuela,zarzuela
+casamientos,"Guenda xheela'"
+querrás,zacala'dxu
+oscar,Oscar
+acrecentamiento,Xidá
+bilis,Xhcula'
+cerdo,Bihui
+golondrina,"Bitindi ruaa yo"
+supuso,Bisacca
+alado,Déchesi
+mecha,"Doo yonde"
+huevo,Dxita
+canasta,Dxumi
+compadeció,Guzaaca
+sarna,"Guidxu beede"
+rizado,"Ique ribidxu"
+escamas,Jlaza
+muela,"Laya beedxe’"
+maduro,Güi
+pantano,Gue'labéñe
+terco,Naní'di'
+enaguas,Bízuudi'
+descuida,Zaa
+antoja,Guiaa
+enojada,Cadxiichi'
+evaristo,Evaristo
+soñé,"biniee' xcaanda'  "
+votar,votar
+haciendolo,Cayune'ni
+desvelo,"Hribee' xcaanda'"
+perecen,Raticabe
+endemoniado,"nuu binni dxaba' laa"
+perdimos,Binitidu
+necias,"Qui hruna"
+abatida,"biticabe laabe"
+trenes,"Ca tren"
+guarida,"Hra naga'chi'"
+abortó,"Gudi'di xiiñi'"
+arregla,Ruzuchaahui'
+agrio,Naí
+alegrarse,"Riquite la'dxi'"
+holgado,Nasaa
+subsuelo,"Xa yu"
+borra,Ruxha
+tomate,"Bichooxhe ndaba’"
+sapo,Bidxi’
+pliegue,Bixigui’
+huirá,Zuxooñe'
+deforme,Xhé'mbe'
+panal,"Campana bizu"
+bondadoso,Galán
+sauce,Guesa
+originó,Gudixhexti
+conejo,Leeshu
+debilita,Rilase
+soba,Rigaabi'
+vibra,Raccaditti
+contratar,Riganná
+estirado,Zutipa
+mujercita,"Ba'dudxapa huiini"
+puta,"ratanebe ne stale nguiu'"
+helados,"nabe naga'da'"
+morder,"Jro yaa"
+regrese,bigueta'
+observamos,Cayu'yanu
+regresaba,Ribigueta'
+rabioso,Yu'ba
+relata,"Hrui' diidxa"
+trazado,Tié'
+dejalo,"Vidi lugar"
+confidencial,Bicachi'
+vocablo,Diidxa
+acaricia,Rulaayá
+convocará,"Zudii diidxa'"
+murcielago,"Biguidi beela"
+racimo,be'za
+caminaron,"Guzá tu"
+chaparro,Nachucu
+calienta,Bisinda'
+lechuza,Dama’
+extrañar,"Guenda ribana"
+tórtola,"Gugu huiini’"
+intrincado,Naxhiihui'
+tupido,Naxhiihui'
+correcto,Jneza
+madrina,"Jñaa yu’du’"
+oaxaca,Lulá’
+descompone,Rusiu'dxu'
+marchita,Riguundu'
+toquen,"La guxhidxi"
+travieso,Nadxí'ña
+"tuerce ",Runda
+aproximarse,Renú
+viviré,Zabane'
+priva,Rida'gu
+aprendan,Laguiziidi'
+martes,Martes
+nena,"badu dxapa huini'"
+ña,Rancho
+invade,riube
+my,Stiine'
+platicando,Cayui'didxa
+casarte,Ichaganalu
+sollozo,Hruuna'
+velozmente,Naguenda
+acerquen,idxiñacabe
+engordar,caro'
+hazte,"biʼniʼ lii"
+tinaja,izu
+zas,zas
+patos,"Ca Niicu"
+tratamientos,Tratamientos
+niza,agua
+corrí,Guxhoñe'
+empezamos,Bizulunu
+gallegos,"Ca binni de Galicia"
+terremotos,Xhu
+dominada,Shaíque
+llores,Guunalu''
+abultado,Nanduni
+acostumbra,Rusiaa
+adormece,Rusisiaasi'
+arrebatara,Ñáxha
+arrodillado,Zuxibi
+arruga,Rusicuuxhu'
+asqueroso,Nabixhí
+participará,"Zudii diidxa'"
+hadas,"Binni guenda"
+cuelga,Rugaandá
+costilla,Cue'
+cuchilla,Cuchiá
+groseria,"Didxa dxaba’"
+vaho,Gubá
+cáscara,"Guidi ladi"
+rata,Huaga
+cacería,"Rie guuze'"
+fogón,"Lu dé"
+zorra,"Mistu’ gui’xhi’"
+nacerá,Zalé
+apretando,Caguiichi'
+veintinueve,"Gande nu Ga'"
+bizcocho,bizcocho
+chismes,Rusigui
+giezi,giezi
+porto,Porto
+trasero,xha'na
+robando,Caba'nacabe
+pavo,Tou'
+quererte,"Ganaxhie lii"
+bienvenida,"Sicaru beedu'"
+andaré,zazaya'
+prende,bicaagui
+terminé,Biluxhe'
+encendiendo,Cacaagui
+perdamos,Initidu
+caeria,Ñaaba
+peruanos,"Binni Perú"
+felicidades,"Ucua ti enda nayeche'"
+vocabulario,Diidxa
+alborota,"Runi yaya"
+arreglada,Namona
+desbarató,Bixha
+peine,Begu
+baúl,Guiña
+plátano,Biduaa
+abeja,Bizu
+canario,Ndxii
+choca,Ridxelasaa
+sucediendo,Cayaca
+florece,"Rica guie'"
+escoba,Guba’ya’
+hurtar,"Guenda riba’na’"
+hormigueo,Huiihui’
+tirones,Gudu'bayu
+insecto,Mani’
+naciera,Ñale
+sobresale,Didisú
+sembró,"Guluu bini"
+obstinado,Naní'di'
+dora,Ruquií
+centenares,"Gayuaa de Gayuaa"
+vinimos,"Beeda du"
+veintiséis,"Gande nu Xhoopa'"
+borracha,Xhudxi
+aprehendido,Zabigaa
+latido,Bipapa
+chiquito,Huiini
+comeremos,Zado'no
+chupa,guxupi
+despejado,"gasti zaa iba'"
+lastimado,"Uca naa"
+enojar,rutuxhu
+mirarte,"Guya lii"
+casaron,Bichaganácabe
+ingenuo,Huati
+cisneros,Cisneros
+estuviste,Ñuulu'
+faltriquera,faltriquera
+compraré,"Za ziee'"
+guste,chu'la'dxu'
+protege,Za'pa
+1000,1000
+sacrificando,Cayuticabe
+totem,Guenda
+equivocarse,Bichee
+amarte,"Ganashie lii"
+aclarará,Zusiaani'
+agría,Rusii
+regocija,Rusieché'
+baratijas,Biruuchu'
+derribará,Zuxha
+cocodrilo,Be’ñe’
+retoño,Biitu
+corran,"La guxoñe"
+cá,Traer
+copete,Cuixhi’
+tobillo,"Dxita porra ñee"
+desayuno,Endaré’
+fútil,Gadxegaya'
+garra,"Bixuga Ñee"
+grillo,Bigarií
+sudar,Rusunisa
+servilleta,"Lari gueta"
+pagas,Rigui'xu
+pantorrilla,Bidxiñee
+comprando,Caxuí'
+sitiado,"Naguú lé'"
+bebo,Ree
+trabó,Biga'ga'
+tosió,Biru
+agarrando,Zinaaze'
+vendo,Rutuaa
+lii,Tu
+ben,Ben
+carretas,"Ca Carreta"
+tortillas,"Ca Gueta"
+ra,ra
+recuerdas,"Hredazilu' lii"
+folleto,Gui'chi
+polígono,polígono
+telaraña,Ladedoo
+supieras,Jñanu'
+Armando,Armando
+robaron,"Gula'na cabe"
+llevaste,Yeneelu'
+pintarse,cadiebe
+sigues,Rinandalu'
+estúpidos,Guidxaca
+jícara,Xiga
+gustas,"Hracala'dxe lii"
+regada,"Sare' guie'"
+adobe,Basoo
+compacta,Ruquidxí
+angosta,Rusibé
+borró,Bixha
+clarísimo,"Naya'ni dxindxí"
+calzar,"Cá ñee"
+intestino,"Doo xqui’"
+encarcelado,Bidaaguyoo
+adherido,Gui’di’
+molestado,Huaziñe
+organizó,Gudixhexti
+trastornado,"Ique ribí"
+cumpleaños,"Lani xpidó’"
+atrofia,Riu'chi'
+agarrado,Naázé
+coja,Xachaani'
+viola,Rilaxóo
+volcó,Bitiixhi
+pedirá,Zanaba
+heredó,Rindeé
+veintiuno,"Gande nu tobi"
+pajaritos,"Ca mani huiini'"
+biblico,"ni bicá diuxi"
+intacto,"ca'ru caanacabe"
+vagina,nde
+limpiando,cusiabe
+bronca,"Enda ridinde"
+nalgas,"Ca Bela xa’na’"
+aprendiendo,Caziide'
+ayúdame,"Ucanee Naa"
+limon,limón
+golosina,Nanashi
+tomates,"Ca Bichooxhe"
+camilo,Camilo
+dilo,Guni'ni
+fallecimiento,"Enda Gu'ti"
+miliciano,Guachu
+sofía,Sofía
+zocato,zocato
+coco,Coco
+transportó,Gudu'ba'
+acorta,Rusichuccu
+adorna,Ruzuchaahui'
+arreglarse,"Raca chaahui'"
+blanquecino,Nate
+lama,Banduí’
+cereza,Beu’
+tortuga,Bigu
+cargando,Nuá
+arderá,Zo
+canten,"La guunda'"
+enredado,"Cá bixhiidi’"
+hálito,Gubá
+calabaza,Guitu
+invadido,Naaze
+aniversario,Laní
+resucita,Rusibaní
+venderá,Zadoo
+soltará,Zundaa
+desocupado,Nadachí
+ebria,Xhudxi
+rasguño,Xhuga
+seguirás,"Qui susanalu"
+disfruta,Naye'che
+cenando,udoshilu'
+comiste,Gudoolo'
+argelia,Argelia
+robert,Robert
+primordial,primordial
+marcelo,Marcelo
+melchor,Melchor
+internet,Ladedoobiaani'
+how,"Xhi modo"
+crezca,Guinizibe
+soso,soso
+doquier,"Neza tiisi"
+recordaré,"Zedasilú na'"
+tocamos,Bixhidxinu'
+cuidate,"Guupa lii"
+estate,Guyuu
+salsa,Guiiña'
+negaras,"Zabilu' qui"
+regocijaba,Cayeche
+pato,Niicu
+agota,Rusira
+diabólicas,Guendabazeendu'
+depresion,Xilase
+flojo,Nataata'
+agarra,Gucuá
+arrancara,Ñáxha
+dilató,Guzaaguii
+barre,Runduuba'
+borrará,Zuxha
+desperdicio,Biruuchu
+compromete,Ruquiindé
+criba,Riguibi
+centavos,Domi’
+falla,Riaadxa'
+felicitó,Guzaaca
+ahorra,"Riguu chaahui'"
+neblina,Gupa
+inepto,Naguídxa
+introduciendo,Cucháazi'
+afeminado,Muxe’
+enumera,Rigabá'
+regando,Cazée
+frito,Bidxuuni'
+machuca,Rigaaché
+moja,Radxe
+pintará,Zadiee
+masaje,Retaabí
+alquilar,Riganná
+amanecerá,"Zada irá gueela'"
+amontonado,Zuguenda
+nombran,"ribácquicabe laa"
+bienvenido,"Sicaru beedu'"
+pinche,Pinche
+adolfo,adolfo
+university,university
+unce,unce
+preparare,Gaaca
+molestas,Hruchiichu'
+amare,zannaxhieeʼ
+chic,Chic
+enviarte,"Uzenda lii"
+inundó,rilahuaa
+llévate,Yené
+arreglan,Runicháhuicabe
+travesuras,"ca Guendanadxíña"
+suban,"La qui'ba"
+mitla,Mitla
+alegrarás,Zusiechelu'
+platicar,"Gue' didxha"
+acarreó,Gudu'ba'
+agarrar,Gudapi
+aglomeración,Bixhí'
+prensado,Nagá'
+esférico,Bidola
+moho,Bé
+trueca,Ruchaa
+canasto,Dxumisú
+desviado,Napandu
+seduce,Ruquiindé
+corremos,"Ruxo'ñe du"
+resguardo,Rappa
+caminé,Guzaya'
+moco,Guudxi’
+fierro,Guiiba’
+insulta,"Ruguna diidxa'"
+rapado,"Ique choore’"
+párpado,Laga
+celebración,Laní
+molesté,Bichiiche'
+lodazal,Gue'labéñe
+refresca,Rusigaanda'
+obsequia,Rusiga'de'
+pegan,Ridiiñu'
+sonámbulo,Rizáguéela'
+extrae,Rusiacca
+pegajoso,Naroondé
+oscurecer,"Ze canda"
+anocheciendo,Zicanda
+abrazados,"guidxi ca be"
+telefono,Dudu
+comes,Cayoolo'
+mm,mm
+dieguito,Dieguito
+zacatecas,Zacatecas
+volará,"Chi ipapa"
+amontonar,"Rutopa lu"
+incauto,Huati
+achacoso,huará
+campeche,Campeche
+zarzaparrilla,zarzaparrilla
+abandonaste,"bizanalu na"
+amaste,Gunaxhilu'
+apoye,Acanee
+josefina,Josefina
+style,style
+jimena,Jimena
+nahum,Nahum
+muestrame,"Biluí' na'"
+agotó,Bisira
+alumbrará,Zusiaani'
+adopta,Rusiniisí
+adolece,Rusiuuba'
+afluencia,Xidá
+ahumado,Nagu'xhu'
+doma,Rusido'
+apacigua,Rusido'
+amarrado,Liibi
+cazando,Cananaaze'
+anochece,Rixhinni
+instruye,Riziidi'
+aprenderá,Ziene
+ajustó,Biquiichi'
+tumbó,Bixha
+borrego,Dendxu'
+lagarto,Be’ñe’
+cigarra,Bigarii
+mosquito,Biuxi’
+cose,Rugaagui'
+ceñirse,"Rixii ndaani'"
+chillar,"Runi ridxi"
+oxido,Tini
+higo,Chubí’
+yuca,"Gu yaga"
+acata,"Ruzuuba diidxa'"
+cantes,Gu'ndu'
+entorpece,Raccahuattí
+embriaga,Rixudxi
+contrajo,Bixhoppa
+merma,Rixié'
+peina,"Riza begú"
+temblará,"Zacca xu"
+enajena,Rutoo
+vendremos,"Ziupa du"
+viscoso,Naroondé
+regresa,Zeédábí
+arbusto,Yaga
+prieto,Ya'se'
+envoltorio,Yuxhu'
+puto,Muxhe'
+tropical,tropical
+contrabando,Nucachilú
+amame,"Gunaxhi' na'"
+cenit,Cenit
+hueles,Canda'
+please,please
+0,0
+regina,regina
+berenice,Berenice
+emilia,Emilia
+fallecer,gati'
+voltear,rutiixhi
+mark,mark
+volaría,Chipaapa
+adorarte,"ganaxhiie' lii"
+enseñaste,Bisiidu'
+lees,"hruundu' "
+secan,Hrucuiidxicabe'
+tenerte,"Gapa lii"
+edgar,Edgar
+putrefaccion,"Canda' yudxhu'"
+moveré,"Chi guiniibe"
+sembraron,"Chinduuácabe biní"
+érase,"Biu ti dxhi"
+ablanda,Rusiguudxí
+afilar,Rutuxhu
+albahaca,"Guie' stia"
+anteanoche,Neeguegueela'
+enloquece,"Ruche ique"
+reverso,Nezadeche
+lanzará,Zaguubí
+descuelga,Rindetté
+chucherías,Biruuchu'
+batió,Bichaahui'
+quebradizo,Bixhuxhudé
+brincar,Richesa
+tumor,Gui'dxu'
+nalga,xha'na
+padrastro,"Bela bizabi"
+blanquísimo,"Naquichi bé gui'chi'"
+escarabajo,Bidolaguí’
+bisabuelo,"Bixhoze gola"
+avispa,Bizu
+leerá,Zuunda
+comprará,Zazi'
+contribuirá,Zuchaagá
+rasga,Ribeebiá'
+cruje,Ra'cheyúuba
+cenará,"Zo xhí"
+certero,Nandí
+amaneciendo,"Casi birá gueela’"
+tapado,"Da'gu lu'"
+agresivo,Naduxhú
+bastidor,Dxiba
+clavicula,"Dxita bigá’ yanni"
+descarado,"Gula lu"
+sobornado,"Gudxe na"
+resistente,Naguidxí
+reuma,Ubá
+salamandra,"Guchachi guixhe"
+tortilla,Gueta
+excremento,Gui’
+hundiendo,Cucháazi'
+oblicuo,Naxubi
+enmarañado,Naxhiihui'
+olió,"Biuu xii"
+ofenderá,Zucheelaní'di'
+molestes,Guchichi
+retoñar,"Riguiche biitu"
+teñirá,Zadiee
+hidrofobia,Yu'ba'
+emanuel,Emanuel
+vero,Vero
+disfrazar,bicha'
+proveniente,"ni zeda de"
+priscila,Priscila
+nisa,agua
+casate,bichaganaa'
+belle,Sicarú
+uriel,Uriel
+atardecer,Huadxi
+despertarme,Ribaane'
+lulu,Lulu
+pur,por
+dané,Dame
+perdiste,Binitiluʼ
+1521,1521
+diabetes,Dxiña
+estudien,Laguiziidi'
+abonar,riguixe
+cinc,Cinc
+embriago,Ruxudxe'
+faldellín,faldellín
+mir,Mir
+zigzag,zigzag
+mirábamos,cayu'yanu
+mintió,Gudxitebe
+extrañe,Ibaane'
+arreglaron,Binichahuicabe
+elvira,Elvira
+amanerado,Muxhe'
+paralizado,"Qui risaa"
+fíjate,"Biaa naa'"
+pene,Xquiee
+encontrada,Bidxela'ca
+sacrificaria,Nigute
+codorniz,"Bere xhunashi"
+cantas,Cayuundalu'
+sumando,Cadale
+agotará,Zusira
+accede,Rina
+agarran,"Ricaa cabe"
+agranda,Rusirooba'
+alacrán,Meuxubi
+tranquiliza,Rusido'
+amarillea,Rusiguchi
+amarra,Bindiibi
+aplasta,Rixaata
+aplastado,Tá'ba'
+instruirá,Ziene
+hincado,Zuxibi
+pliega,Rusicuuxhu'
+avisará,"Zudii diidxa'"
+colabora,Raccané
+bosteza,Ridxagaxcáanda
+bíceps,Bidxiná'
+migaja,Bigú
+anaranjado,"Bolor biguitu"
+cochino,Bihui
+venado,Bidxiña
+pulga,Biiu
+aproximado,Gaxha
+silba,Rutiipí
+apiada,Riá
+correrá,Zuxooñe'
+damelo,"Dané náa"
+traelo,Daneni'
+maguey,Duba
+congratuló,Guzaaca
+sinvergüenza,"Gula lu"
+fundará,"Zaguixhe xtí"
+gemelo,Cuachi
+finado,Gue’tu’
+pestaña,"Guicha laga"
+resfriado,Idxagá
+divieso,Gui’dxu’
+radica,Ribezá
+maltrata,"Ruguna diidxa'"
+pelón,"Ique choore’"
+tardamos,"Rinda' nu"
+olfateó,"Biuu xii"
+mea,Rinesa
+macilento,Naxhixhí
+párate,Bizuhuaa
+pequeñísimo,Piizi
+pudrirse,Riu'dxu'
+enfría,Rusigaanda'
+hurta,Riba'na'
+atragantó,"Gu'ga yanni"
+completará,Zazaa
+suda,Rizunisa
+solloza,Ricaalá'dxi'
+tardas,Rindou
+obtendrá,Zappá
+váyanse,"La ché"
+barrenar,Quiide
+convivir,Renú
+menton,Xhigui
+pus,"Ma da'"
+candado,"Guiiba nadaapa"
+dormiré,Zaaze'
+chiquita,nahuinibe
+veterinario,"nguiu ni rusianda mani'"
+abuelita,"Jñaa vida'"
+regresan,cabiguetaca'
+christian,Christian
+bañarme,Gaaze'
+bañar,Ugaaze'
+tropecé,"Bireenda ñee'"
+vie,guendanabani
+monterrey,monterrey
+making,making
+animalitos,"Ca maani huiini'"
+jira,jira
+950,950
+caramelo,Nanashi
+velare,"Zabee' xcaanda'"
+pastel,"Cuba dxhita"
+incauta,Huati
+clac,Clac
+faldriquera,faldriquera
+satélite,Satélite
+zoología,Zoología
+llorarás,zuunalu'
+portan,Naazecabe
+bendigo,"Hrigua' ndaaya"
+compraste,Uziu'
+sembraste,"Rugú biniilu'"
+cocos,"Ca Coco"
+golosa,"Nabé Ro Stale"
+duermas,Gaasilu'
+perdióse,"ma binitini"
+mario,Mario
+despliegue,"Chi gata"
+ortiga,Guichibidu'
+suaviza,Rusiguudxí
+aboga,"Ruzuguaa lu xtiidxa'"
+acarreado,Daapí
+acarrear,Rigu'ba'
+adelgaza,Rusilase
+agarre,Gucuá
+ahorcarse,"Ruxhii yanni"
+ahorrará,"Zutoppa lú"
+alargado,Nagaa
+amansó,Bisido'
+"anguila ","Beenda ngallí'"
+anteayer,Nase
+apesta,"Rinda' yuudxu'"
+aprendo,Riziide'
+asustará,Zuchibi
+bautiza,"Riguu nisa"
+derrumbó,Bixha
+brotará,Rundaani
+dirigirá,Zuyubí
+tuna,"Biaa gueta"
+silbará,Zutiipí
+expulsó,Bireenanda
+ruegas,"Rugá lu'"
+compren,"La sí'"
+canoso,Natoopé
+tendedero,"Doo randa lari"
+tripa,"Doo xqui’"
+muchachita,"Dxapa huiini’"
+gesticula,"Rixeembe ruaa"
+chilla,Ribidxiaa
+lagartija,Uraagu'
+defecar,Rusixhuuna'
+ebullición,Rindaabi'
+intrigando,"Cagúu xqui'chi"
+correteando,Ladxi
+bisojo,"Lu changa"
+gay,Muxe’
+provocará,Zucheelaní'di'
+polla,Gucuni
+hurtará,Zaba'na'
+recordarse,"Reda si lú"
+regaré,Zuzee
+apetitoso,Naníxé
+desvela,Ribeexcáanda'
+escasea,Rixié'
+frita,Bidxuuni'
+salar,Rusixi
+acorralado,"Naguú lé'"
+ultraja,Rilaxóo
+vomita,Ridxi'ba'
+volteó,Bitiixhi
+entremeterse,Richuú
+extraviarse,Rinittí
+aprehender,Zinaaze'
+recargado,Ya'ni'
+calambre,"Yuba yaa"
+grava,Yuxiguié
+caes,Guiabalu'
+ojitos,"Lú' huiini'"
+quiereme,"Gunaxhi' na'"
+bajen,"La guie'te"
+magestuosa,"Nabe Sicarú"
+ronquillo,ronquillo
+nayeli,Nayeli
+recordemos,guitenala'xhinu
+cabron,Cabron
+muerete,Guti
+veniste,Beedalu'
+mazorca,Niiza
+alicia,Alicia
+tadeo,Tadeo
+llevenme,"La Yenee Naa"
+marranos,"Ca biui"
+escuchadas,"sucá diagacabe"
+humberto,Humberto
+besarte,"udié ti bixhidu lii"
+prepararle,Guune
+2500,2500
+tláloc,Tláloc
+000,000
+incendiando,Ca'ca'gui
+mencionaré,Zuzeete'
+regresamos,Hribiguetadu'
+fritas,Bidxu'ni
+adrián,Adrián
+crac,Crac
+despedazar,Ruxuuxe
+fajardo,fajardo
+falsía,falsía
+hexágono,hexágono
+lila,Guhuí
+zurupeto,Zurupeto
+muele,"Ruu'tu be"
+sinaloa,Sinaloa
+soñaste,Guni'xcandalu'
+alabastrino,Alabastrino
+ocurriendo,"Ni rizaaca"
+pintandose,cadiebe
+apagando,Casui'
+nombrarme,"Guzeetelu' la'ya'"
+consentida,Shunca
+pue,pues
+tragaban,"Hruni dxi'ñacabe'"
+estúpidas,Guidxaca
+volemos,"La ipapa"
+intercambio,bichaia'
+perdisteis,Binititu'
+gabriela,Gabriela
+cotidianos,"De irá dxi"
+tetas,Shidxi
+mami,Jña'
+prestas,"Zutiiñu na'"
+frijol,Bizaa
+peno,Hrate'
+mixteca,Mixteca
+amanecieron,"Biraatu gueela'"
+aburrir,"Rusixhaca la'dxi'"
+aplastará,Zutaaba'
+aplastó,Bisitaaba'
+aclimatarse,"Qué gapa xiladxi'"
+adornando,"Cazée lu"
+laxa,Rusicheeche'
+afloja,Rusichaacha'
+perforado,Nadé
+horada,Riguiidé
+taladra,Riguiidé
+almejas,"Bichú' bata huiini"
+amansa,Rusido'
+reducirá,Zagu'baná
+anudado,Nabi'xhu'
+achatado,Tá'dxi'
+deformado,Paáxhú
+curioseando,"Cagúu lu"
+espantará,Zuchibi
+envés,Nezadeche
+augura,"Runi bisi"
+avienta,Ruzú'nda'
+expondrá,"Zudii diidxa'"
+ayuna,Rucuaaná
+bailará,Zuyaá
+arría,Rindetté
+barrigón,Mbú'dxi'
+ataviado,Zúchaahui'
+desteñido,Nate
+derrumba,Ruxha
+tachó,Bixha
+nene,"Badu huiini’"
+jovencita,"Badu dxaapa’"
+tarántula,Bacaxaba
+caimán,Be’ñe’
+cicatrización,"Biaxi beela"
+atole,Biazee
+piojo,Biichi
+cascarón,"Bichuga dxita"
+morro,"Bitu xiga"
+larva,"Bizu ri’qui’"
+averiguará,"Zacaá yú"
+roerá,Zo
+enumeró,Bigabá
+expulsa,Rireenándá
+cuela,Riguibi
+ahorca,Rugaandá
+carrizo,Ubaguí
+ardilla,Chisa
+petate,Dá´
+felicita,Rizaacá
+gangoso,Nacaanga'
+germinó,Gundani
+rechina,Ribidxiaa
+caca,Gui’
+cordoncillo,"Guie’ daana’"
+hamaca,Guixhe
+huevera,"Doo dxita"
+husmear,"Riguba xii"
+corcovado,Natigu
+jueguen,"La qui'te"
+encajado,Ladxi
+niñera,Meme’
+comadre,Maale
+enumeraré,Zugabá'
+peludo,Naraxi
+pasaste,"Gudi' du"
+robará,Zaba'na'
+regará,Zuze
+"ranita ","Benda bidxí'"
+emborracha,Rixudxi
+enrojece,Rixiña
+apoca,Rixié'
+vendible,Ridoo
+sazonado,Gula
+tartamudo,"Napaapa rua"
+tehuantepec,Guizii
+grieta,"Rucaa bi"
+cohibido,"Natuí lú"
+vociferó,"Guni' xhaata'"
+vuelca,Rutiixhí
+volteará,Zutiixhí
+condolerse,Riganná
+cachete,Xhaga
+consuegro,Xhuze
+tenso,Zutipa
+miedoso,Nadxiibi
+juanita,Juanita
+bañarnos,gaazenu
+putos,"Cada muxhe'"
+roxana,Roxana
+hello,Padiuxhi
+cubeta,cubeta
+pinches,Pinches
+emiliano,Emiliano
+zonzo,Huati
+bicicleta,Huitubichupa
+reyna,Reyna
+fer,Fer
+equis,Equis
+guau,Guau
+apestas,"Canda' yudxhu lu'"
+ñoña,Ñoña
+lorena,Lorena
+milpa,Biní
+sandia,Shandie
+estimular,"Guziroo'ba jma'"
+1806,1806
+dis,dis
+cosita,"Xiixa huiini"
+davalos,Davalos
+adriana,Adriana
+gilberto,Gilberto
+1527,1527
+1551,1551
+bom,bom
+abuelito,"bixhose vida'"
+pajarito,"mani huini'"
+esponjado,Nashiaa
+miedosa,Nadxiibi
+recordarte,"Hredasilú na' lii"
+desmorona,Hriruushedú
+apestoso,Hrindá'yuudxu'
+desunir,Guindaa
+tapando,Cutaagu'
+madrugadas,Gueela'
+asfixiar,"ruti xhiee"
+coñac,Coñac
+falencia,falencia
+feliciano,Feliciano
+nabab,Nabab
+naranjo,Yagalanna'
+octágono,octágono
+querub,Querub
+rascar,ribaba
+raspar,biraa'
+revolcar,rutubi
+señalamiento,Señalamiento
+web,Web
+zascandil,zascandil
+ziszás,ziszás
+zubia,Zubia
+zumba,Zumba
+besame,"Bidí ti bixhidu' na"
+hermosillo,Hermosillo
+alejas,Cheelu'
+traviesos,Nadxiñacabe
+bendecida,"Nu nda'yabe"
+limpiaste,Bisialu'
+llévatelo,Yeneni
+karla,Karla
+otoños,Otoños
+tercas,"Ca Ique chonga"
+lucina,Lucina
+atractiva,Sicarú
+vibras,hracala'dxica'
+harry,Harry
+803,803
+güero,Mexhu
+tokio,"Guidxhi Tokio"
+cuidandolo,Cayapabe
+pendejo,Guidxa
+fallaron,Bicheecabe'
+cocinar,"A'ca guendaroo"
+distanciamiento,"Enda ridxiichi"
+tamales,"Gueta guu"
+destiempo,"Óra ga"
+ablandarse,Riguudxi
+aquieta,Rusiganí
+acarreará,Zagu'ba'
+aproximará,Zuchinña
+abolló,Bisitaaba'
+afilará,Zutuxhu
+aflojado,Nataata'
+aceda,Rusii
+perfora,Riguiidé
+ahorita,Nagasí
+acumulará,"Zutoppa lú"
+acústico,Nalé
+juguetón,Naquiité
+aletea,"Riguibi  xhiaa"
+almuerza,Ruxhirini
+lía,Rundiibí
+anuda,Rundiibí
+aniñado,Naba'du'
+antier,Nase
+recarga,Ruzucá
+comprimió,Bidie
+arenoso,Nayuxi
+aspirará,"Zagu'ba bi"
+atascado,Nagá'
+presagia,"Runi bisi"
+baboso,"Nachaande ruaa"
+rocía,Rugaze
+demuele,Ruxha
+tala,Ruxha
+derrumbará,Zuxha
+demolerá,Zuxha
+talará,Zuxha
+flama,Bele
+saltamontes,Bichugaa
+oropéndola,"Biguitu rini"
+salamanquesa,Bilopayoo
+torsión,Bieque
+coyol,Bigaraagu’
+gajo,Biní
+tejón,Bixiidxu’
+chiflará,Zutiipí
+carcomerá,Zo
+troza,Ruga
+rasura,Ruga
+ondulado,Nabídxú
+chismear,Ruchaagaruáa
+tamiza,Riguibi
+cacaréa,Ruxhexhe
+caminas,Rizóu'
+caminaste,"Guzá lu'"
+oxidado,"Cá tini"
+placenta,"Doo yoo"
+vertebra,"Dxita caniá"
+faltamos,"Ria'dxa du"
+conduele,Rizaacá
+condolió,Guzaaca
+flotará,Zaxuubalaáhuá
+instituirá,"Zaguixhe xtí"
+inventará,"Zaguixhe xtí"
+zapoteca,"Binni zá"
+menea,Rieeque'
+gorgojo,Bichucu
+goteará,Zadxuuni'
+coyote,Gueu’
+pinol,Gueeze’
+metate,Guiiche
+nopal,"Guichi biaagueta"
+alferecía,Guidxarabé’
+toserá,Zuru
+viejita,Huela
+violador,Tagá'na'
+infectado,Dá
+engancha,Ruruuxha'
+combado,Natigu
+fleco,Jluxu
+malvavisco,Lasayú
+travesti,Muxe’
+olvidadizo,"Ique yá'nda'"
+exprime,Ruxhii
+orienta,"Riguu neza"
+parirá,Zaxana
+patiabierto,Nandaaga'
+pulverizar,"Runi bigú"
+pulverizarse,"Raca dé"
+pinza,Biidu'
+penca,Xpata
+incendiará,Zuzaaqui'
+rasca,Riguuñé
+rasguña,Riguuñé
+raspó,Biraa
+resbaloso,Chui'
+repone,Rusibaní
+rajado,Nareza
+robas,Riba'nu'
+sanguijuela,"Beenda nisa"
+abolla,Ripaaxhú
+bañará,Zaze
+salpica,"Riacha nisa"
+desorientó,"Bidxe lu"
+engordando,Caróo
+nubló,Bichuundu'
+empaño,Bichuundu'
+sonsaca,"Ribee díidxala'dxi'"
+saltador,Bicheesa
+tartamudea,Rini'paapa'
+extiendes,"Ruchiaá lú"
+enganchado,Naázé
+tuesta,Ruquií
+vituperó,"Gulee ndátte"
+denostó,"Gulee ndátte"
+voltea,Rudxiguettá'
+volcará,Zutiixhí
+agujerear,Quiide
+desayunar,Rigué
+atrapar,Zinaaze'
+vendimos,"Bito' do"
+propasado,Xhaata'
+arañazo,Xhuga
+libélula,Xhumpirinisa
+comprometí,"Naa biquiíndé'"
+seduje,"Naa biquiíndé'"
+biodiversidad,Biodiversidad
+coceremos,zuga'guinu
+frijoles,Bizaa
+huerfanito,"Ba'du bizabi huiini'"
+lalo,Lalo
+tablet,Tablet
+doménico,Doménico
+terminamos,Biluxhenu
+rogelio,Rogelio
+cucaracha,Cucaracha
+camiones,Camiones
+espara,espara
+repeat,"Sti viaje"
+soda,Soda
+yolo,Yolo
+quierela,"Gunna shii la be"
+bailemos,zuyaanu
+extraterrestre,"binni ni seda de iba'"
+sueñes,"Guni'xcandalu sicarú"
+llanta,Huitubi
+itzel,Itzel
+eu,eu
+offer,offer
+nancy,Nancy
+endulzado,Nanashi
+zapotec,Didxaza
+suspirará,Zacaala'dxi'
+gemirá,Zacaala'dxi'
+evocaré,Zuzeete'
+tronchar,Hriguuza
+realizamos,Binidu'
+amarrar,Hrundiibi
+ábranme,"la "
+ábranse,bixheleʼ
+achacar,donda
+baobab,Baobab
+chistoso,Nayaahui
+cómic,Cómic
+entrelazado,Ladedoo
+falconete,falconete
+faldillas,faldillas
+falerno,falerno
+fanfarronería,fanfarronería
+fantoche,fantoche
+faralares,faralares
+heptágono,heptágono
+únanse,"la gaca tobisi"
+zarzo,zarzo
+zipaquirá,zipaquirá
+zuavo,Zuavo
+zurcido,zurcido
+garnachas,Garnachas
+observas,Cayuyalu'
+martini,Martini
+asando,Cudxhu'ni
+sombrilla,Baca'nda'
+alexis,Alexis
+ignea,Ignea
+adiestró,Biziidibe
+palomitas,"ca Guugu' huiini'"
+tragaré,"Chi Hraabe'"
+betabel,betabel
+disfruten,"La Tiidi Endanayeche'"
+eduard,Eduard
+tercos,"Ca Ique chonga"
+cogemos,Cayuninuni
+felipa,Felipa
+glúteos,Xaana'
+güera,Mexhu
+camisón,Gamisha'
+pendeja,Guidxa
+daniela,Daniela
+mampo,Muxhe'
+musxhe,Muxhe'
+maricon,Muxhe'
+homosexual,Muxhe'
+película,Pelicula
+ordenadores,"Ca computadora"
+enfrentamientos,"Bidxhela saa'"
+nucano,Nucano
+concentrate,"Bishale diagalu'"
+sonso,Guidxa
+brindarnos,"Gudi'cabe laanu"
+verga,Xquiee
+emotivos,Nabana'
+emotiva,Nabana'
+teatralmente,"Hruni imbite"
+cocijoeza,Cocijoeza
+nagual,Guenda
+zapotecos,Binnigula'sa
+enfrentaron,"Cucaalú hridinde"
+mexicas,"Binni mexico"
+cantame,"Biinda naa"
+zapoteco,Didxazá
+playera,Gamixá
+"¡a poco!","Laaca xa"
+¡ándale!,Jora
+"¡apoco es ese","¡Ngá xá ní!"
+"¡apoco es esa","¡Ngá xá ní!"
+"¡apoco es eso","¡Ngá xá ní!"
+"¡aún no!","Cá'ru xa"
+"¡mira qué!","¡Biaahua xi!"
+"¡mira quién!","¡Biaahua tu!"
+¡muchacha!,Lia
+"¡oigan ustedes!",Oca'
+¡qué!,¡Xí!
+¡cuál!,¡Xí!
+¡tú!,"¡Lii xa!"
+"¡vete… qué importa!","Guye xa"
+"¿cómo te llamas?","Tu lá lu'"
+"¿cómo se llama?","Tu labee'"
+¿cómo?,"Xi casi"
+¿cuál?,Uná'
+¿cuándo?,Padxí
+¿cuántos?,Panda
+"¿desde dónde?",Padede
+"¿hasta dónde?",Paguidubi
+"¿por qué?",Xiñee
+"¿qué cosa?","Xi laa"
+"¿qué fecha?","Panda xhi beeu"
+"¿se permite?","¿Zaá la?"
+¿permitido?,"¿Zaá la?"
+¿autorizado?,"¿Zaá la?"
+"¿será cierto?",Maná
+¿sí?,Ñeelá
+¿verdad?,Ja'
+¿ya?,"Maa lá?"
+zaachila,Zaachila
+donaji,Donaji
+atoyac,Atoyac
+alcina,Alcina
+franch,Franch
+juchi,Juchitan
+"estate quieto","Guyuu dxí"
+estas?,Nuulu'
+amaneciste,"Biralu gueela'"
+",",","
+.,.
 -,-
-cangrejo, 
-amargas, 
-tellamas,lii laalu'
-no,co'
-se,se
-a,a
-el,le
-la,alx
-le,le
-encuentran,encuentran
-le,le
+juchitan,"Guidxi guie'"
+comunicarte,"Ñabe lii"
+"a donde",Paráa
+"a estas horas","Ora ri'"
+"a poco",Lácaxa
+abomba,"Rusibumbú ruáa"
+abombado,Nabumbú
+aborta,Ridi'dixiiñi'
+abotonar,"Riree mudu"
+"abulón ","Bichú' pyónta "
+acalla,Rusiganí
+alaga,Rulaayá
+atraerá,Zagu'ba'
+endemoniadas,Guendabazeendu'
+achatará,Zutaaba'
+acható,Bisitaaba'
+recorta,Rusichuccu
+trunca,Ruchuccu
+acortará,Zuchuccu
+abreviará,Zuchuccu
+habitúa,Rusiaa
+hipnotiza,Rusisiaasi'
+afila,Rutuxhu
+laxante,Rusicheeche'
+desaprieta,Rusichaacha'
+desajusta,Rusichaacha'
+desajustado,Nataata'
+atrapa,Rinaaze'
+agarras,Ricou'
+agrietará,"Zucaa bi"
+"agua al tiempo","Nisa yanda'"
+"agua bendita","Nisa ndaaya'"
+"agua caliente",Nisandá'
+agujerado,Nadé
+agujerea,Riguiidé
+agujera,Riguiidé
+"ahí nomás",Racácá
+"ahora mismo","Nagasí cá"
+"ahorita mismo",Nagasidú'
+almacenará,"Zutoppa lú"
+ahuecado,"Nuu lé"
+"a los pies de…",Xañee
+"a sus pies",Xañee
+"al pie",Xañee
+alargará,Zusigaa
+estirará,Zusigaa
+"algún día","Ñuu dxi"
+"algunas personas","Garonda binni"
+"aligera el peso",Rusisisi
+alisa,Rusidxiibi'
+"allá mismo",Raquéccá
+almeja,"Bichú' huiini"
+alocado,Nalugú
+apisona,Ruquidxí
+amamanta,Rugadxi
+amañado,Nañañá'
+aminorará,Zagu'baná
+"anda jugando","Caguite be"
+"anda tomando","Canaye' be"
+"andas hablando",Cananiu
+anochecerá,Zaxhinni
+"año pasado",Udubiza
+"año viejo","Iza yooxho'"
+apachurra,Rusipaaxhú
+apachurrado,Napaaxhu
+apachurrará,Zusitaacá
+capacitará,Ziene
+apretará,Zaguie
+estrujará,Zaguie
+apretaste,Biquiichu'
+prensaste,Biquiichu'
+ajustaste,Biquiichu'
+prensó,Biquiichi'
+estruja,Riguie
+"aquel tiempo",Dxique
+"aquí nomás",Rarica
+prosternado,Zuxibi
+"así mismo",Zacaca
+"así nada más",Sicacasi
+ataranta,"Ruche ique"
+atonta,Rusihuattí
+atolondra,Rusihuattí
+atora,Ruga'ga'
+atasca,Ruga'ga'
+atragantado,"Nagá' yanni"
+"atrás de ese cerro","Deche dani ca"
+"atrás de la casa","Deche yoo"
+"atrás de tu casa","Deche li'dxu'"
+"aumenta de altura",Rusisoo
+"más que",Necá
+"aventar con enojo",Ruqueta
+aventará,Zaguubí
+aventó,Guluubi
+platicará,"Zudii diidxa'"
+coopera,Raccané
+"acaba de amanecer","Casi birá gueela'"
+payasada,Adxagayá
+danzará,Zuyaá
+"bajo la cabeza","Xa ique"
+"debajo de la cabeza","Xa ique"
+empapa,Rugaze
+embadurna,Rugaze
+saquea,Runduuba'
+asea,Runduuba'
+panzón,Mbú'dxi'
+inaugura,"Riguu nisa"
+remoja,"Riguu nisa"
+"bien vestido",Zúchaahui'
+bofo,Naqueebe'
+boleado,Bidola
+desbarat,Ruxha
+tachará,Zuxha
+demolió,Bixha
+taló,Bixha
+esculca,Ruyubí
+"hormiga león",Berendrú’
+garrapata,Bataana
+tigrillo,"Bedxe yaga"
+camarón,"Benda buaa"
+comején,Bandaa
+luciérnaga,"Bacuza gui"
+batea,Badiá’
+chamaco,Ba’du’
+chamaca,Ba’du’
+"buena gente","Binni nazaaca"
+tijereta,Bacaguela
+blanquisco,"Naquichi bé"
+barda,Lindaa
+bejuquillo,"Beenda luba'"
+vivora,"Beenda gubizi"
+alcaraván,"Bere lele"
+correcaminos,"Bere guidxa"
+zorrillo,Be’te’
+guanacaste,Bezayaga
+mezquite,Bii
+achiote,Bia
+ciruela,Biadxi
+jitomate,Bichooxhe
+memela,Bicuuni
+piojito,"Bichi do’"
+huipil,Bidaani’
+colador,Bidxadxa
+pitahaya,Bidxí
+marrano,Bihui
+tejamanil,Bilihuana’
+cachimbo,Bilumbu’
+chamiza,Bidxumi
+torcedura,Bieque
+chicharra,Bigarii
+muérdago,Biniidxi
+viejito,Gola
+orzuelo,Biriipi
+tulipán,Gui’ña’
+tepalcate,Bisi’ña’
+bisi’ña’,Bitii
+epazote,Bitiaa
+chuparrosa,Biulú
+chupamirto,Biulú
+colibrí,Biulú
+jején,Biuxi’
+zancudo,Biuxi’
+otate,Bixiá
+yagual,Bixooñe’
+chihuitán,Bixhahui
+pochote,Bioongo’
+huamúchil,Biquiiche
+liendre,Biquié’
+"binni guzana",Barir
+ejote,"Bizaa huiini’"
+biza’na’,Bizé
+tlacuache,Bizi
+enagua,Bizuudi’
+guayaba,Bui’
+permuta,Ruchaa
+mundanza,"Ruchaa lidxhi"
+chifla,Rutiipí
+chiflar,rutiipi
+trinará,Zutiipí
+comentará,"Zacaá yú"
+corroerá,Zo
+mercará,Zazi'
+conteo,Xigaaba'
+cooperará,Zuchaagá
+fugará,Zuxooñe'
+desertará,Zuxooñe'
+corretea,Riladxí
+correteó,Bireenanda
+barbea,Ruga
+cresas,Ste
+inmaduro,Nayaa
+"cualquier cosa",Intiica
+cuchichea,Ruchaagaruáa
+chismea,Ruchaagaruáa
+abastece,Rugaandá
+cascarudo,Bichugade
+chamusca,"Rugazegui "
+chicloso,Nayaalá
+chintul,Sapandú
+cisticerco,Bidxú
+calientito,Xidxaa
+"caminas tú","Rizá lu'"
+campamocha,Daaya
+"cara chueca","Lu cuanda"
+"noventa y cuatro","Tappa láte gandé chíi  nú tappa"
+"ochenta y cinco","Tappa  láte gandé gáayu'"
+"ochenta y cuatro","Tappa  láte gandé táppa"
+"noventa y nueve","Tappa láte gandé chíi  nú gá'"
+"noventa y ocho","Tappa láte gandé chíi  nú xhónó"
+"noventa y seis","Tappa láte gandé chíi  nú xhóopa'"
+"noventa y siete","Tappa láte gandé chíi  nú gádxé"
+"noventa y dos","Tappa láte gandé chíi  nú chuppá"
+"ochenta y dos","Tappa  láte gandé chúppá"
+"ochenta y nueve","Tappa  láte gandé gá'"
+"ochenta y ocho","Tappa  láte gandé xhónó"
+"noventa y uno","Tappa láte gandé chíi  nú tobi"
+"noventa y cinco","Tappa láte gandé chíi  nú gaayu'"
+"ochenta y seis","Tappa  láte gandé xhóopa'"
+"ochenta y siete","Tappa  láte gandé gádxé"
+"noventa y tres","Tappa láte gandé chíi  nú chónná"
+"ochenta y tres","Tappa  láte gandé chónná"
+"ochenta y uno","Tappa  láte gandé tobi"
+cuatrojo,"Benda lu tapá'"
+culeca,"Bere cooco"
+cuate,Cuachi
+cuclillo,checuyu
+"por aquí",Cherí’
+sonaja,Chin
+apúrate,Chixhe
+apúrese,Chixhe
+represa,Daahui
+mantis,Daaya
+tecolote,Dama’
+corage,Shianá
+panadizo,Di’
+coruco,Diti’
+cocoyuche,Diti’
+espezo,Dondo
+enrrollado,Dopá
+pedo,Do'pe
+inchado,"Dxa gui"
+llenisimo,"Dxa tiicu"
+comal,Dxía
+omóplato,"Dxita paleta"
+encajando,Cucháazi'
+huaraches,"Ela guidi"
+"falso coralillo ","Beenda niidxi"
+congratula,Rizaacá
+felicitar,Rizaca
+felicitará,Zazaacá
+congratulará,Zazaacá
+condolerá,Zazaacá
+desvalijará,Zurooté
+remordió,"Gudo ni láa"
+flexión,Xiguudé
+dobladura,Xiguudé
+Cempasúchil,Bigua
+freirá,Zuchuuni'
+fríe,Ruchuuni'
+frijolillo,"Guichi bizaari'"
+fumará,"Zagu'ba gueza"
+chiflido,fluuchi
+"gallina de monte","Bere gui'xhi"
+"gallina del rancho","Bere la'chi"
+"gallina pelona","Bere yanni raa"
+"ganado viejo","Yuze yó'xho"
+gateó,"Guza na"
+"gente de pueblo",Binniguídxi
+"gente mareña",Huavi
+contonea,Rieeque'
+filtrará,Zadxuuni'
+granadilla,"Pepe gui'xhi'"
+"grande en extensión",Xirooba'
+granoso,Xhaadxi
+almacena,"Riguu chaahui'"
+"mete despacio","Riguu chaahui'"
+mapache,Ga’na’
+camote,Gu
+mucosidad,Guudxi’
+mamey,"Guenda xunu"
+totopo,"Gueta biguii"
+tamal,"Gueta guu"
+atorado,Gu’ga’
+mierda,Gui’
+cuernecillo,"Guichi bidorre"
+abrojo,"Guichi biruba’"
+jilote,Guichu
+gripe,Guidxagá
+furúnculo,Gui’dxu’
+salpullido,"Guidxu gubá"
+cacalosúchil,"Guie’ chaachi"
+ocote,"Guiri bidxi"
+chilacayote,"Guitu xembe’"
+guiuba,Guiuba
+zacate,Guixi
+varejón,Gunixhi’
+chapulín,Uxharu
+ándale,Guzá
+cachado,Huayanda
+huachinango,Behua
+"hubieras visto",Ñuyu'
+"iba saliendo",Ziree
+igualito,Bia'do'
+iguana,Gucha'chí
+remeda,Ruzuiiruáa
+rumear,Ruzuiiruáa
+"imitar el modo de hablar","Runi ruaa"
+chueco,Naxubi
+infectarse,"Raca xiroo"
+"instala luz eléctrica","Riguu biaani'"
+"interrumpe su trabajo","Rundaate xhiiña'"
+"inventa chisme",Ribeexá'na'
+inyecta,"Rucaa aguxá'"
+inocula,"Rucaa aguxá'"
+acupuntura,"Rucaa aguxá'"
+acupunturista,"Ni Rucaa aguxá'"
+ixhuatán,"Guidxi Yaza"
+ixtaltepec,Guiaati'
+ixtaltepecano,Guia'ti'
+ixtle,Xluxu
+down,"Ique chonga"
+despeinado,"Ique ribii"
+pelirojo,"Ique rixiñá"
+jala,Ruruuxha'
+"jalapa del Marqués",Yuuxhi
+jaló,Gudu'bayu
+coladera,Xigabidxádxá
+"jícara de hojalata",Xigaguiiba'
+"jícara ventosera",Xigabiiru'
+jiote,"Guidi gui"
+arqueado,Natigu
+"juego de canica",Decu
+rejunta,Rutaaguzaa
+rejuntó,Bidiilisaa
+laacani,Lade
+tizne,Lana
+majagua,La’sa’
+fajado,Liibi
+cacarizo,"Lu xhoca"
+bejuco,Lubá’
+"ya mero",Mayaca
+grandote,Mboota
+"de repente",Malasi
+chango,Migu
+moleré,Gutua'
+nenúfar,Mudubina
+"hubiera nacido",Ñale
+"nació muerto",Gulegútti
+nalgón,Xataata'
+nalgona,Xataata'
+nance,Nanchi
+"no va a querer","Qué zaná"
+equivocamos,Biche'
+enumerará,Zugabá'
+"ojo de pescado","Biza lu benda"
+"ojos saltones","Lu yaande"
+"oler a orines","Rindá' yuu"
+"olla ancha","Guisu laga"
+"otro nada más",Xtobisi
+"otro poco",Stuudxi
+orejón,Diagalaga
+"cuando quiera","ora tiisi"
+"en ese momento",óraqueca
+ciénega,Gue'labéñe
+parpadea,Riguinñelága
+pasadomañana,Huidxe
+patalea,Ruleyu
+pellizca,Riguiru
+colorea,Rutie
+pinolillo,"Bichi dxiña"
+papamoscas,"Bitindi tijera"
+percudido,Bichippa
+incinerará,Zuzaaqui'
+fundirá,Zuzaaqui'
+raspado,Naraá
+rasguñado,Naraá
+renacuajo,"Bidxí' huiini"
+raspará,Zuraá
+remojará,Zuzaanisa
+revende,Ruriixhí
+revenderá,Zuriixhí
+revendió,Biriixhi
+agriará,"Za í'"
+atrofió,Biu'chi'
+chapotea,"Riacha nisa"
+"se cumple",Rizaa
+desorienta,"Ridxe lu"
+despeina,"Riracha ique"
+enchueca,Ricuandá
+enjuaga,Rizanisa
+enjuagó,Guzanisa
+enmohece,"Rica be"
+ensordece,Ricuaata'diaga
+entibiará,Zadxaá
+"se está ahogando",Cayáttiguiigu'
+irrigando,Cazée
+inflará,"Zadxa bi"
+machaca,Rigaaché
+serenado,Naguppa
+unta,Rigaabi'
+liberará,Zundaa
+transpira,Rizunisa
+salteadamente,"Rí riccá'"
+sardinitas,"Benda xhquí'"
+compadecieras,"Ña lu'"
+empatía,"Ña lu'"
+equivocaste,Bicheu
+fracasas,Ridiiñu'
+reíste,Bixidxu'
+enojadizo,Naní'di'
+tibiecito,"Nadxaa dúttu"
+tiendes,"Ruchiaá lú"
+menso,Hua'ti
+torea,"Ribeza yúzé"
+tortolito,Gugu
+tortolita,Gugu
+atoró,Biga'ga'
+"treinta y uno","Gande Bichí' nu tobi"
+triquitraque,Chiquitra'ca'
+nostálgico,Nabaná'
+troje,"Ra ridxá niiza"
+trompudo,Nazuumba'
+tubular,Naqueebe'
+hornea,Ruquií
+tostarse,Riguii
+totomostle,Bacuela
+odos,Irá'
+tequisistlán,Madu
+untará,Zune'
+embarrará,Zune'
+untaste,Bineú
+unté,Binee
+"san vicente",Xabizénde
+"san vicente ferrer",Xabizénde
+seguiendo,Rinandá
+volatiliza,Rie
+otates,Gunixhí'
+pencas,Gunixhí'
+enajenó,Bitoo
+glutinoso,Naroondé
+temblorina,Raccaditti
+taquicardia,"Raccaditti Ladxidua’"
+evaporó,Bipappa
+desvelarse,"Rindeé xcáanda"
+pepenar,Ritoppáguídxa
+recargarse,Rigaaní
+lambisquear,Rindagú
+sobar,Ritaabí
+"va caminando",Zizá
+"veinte pesos","Gande bexu"
+"veinte reales","Gande domi'"
+cachetón,"Xhaga puupu'"
+cascalote,Xhagalá
+chachalaca,Xhiga
+rascadura,Xhuga
+"ni por","Niru si ngá"
+"aunque fuera","Niru si ngá"
+"¿y tu?","Laga lii ya'"
+"y tú qué","Laga lii ya'"
+"y yo qué","Parane'ti naa la"
+"ya  toma","Ma re'"
+"ya bebe","Ma re'"
+"ya camina","Ma rizá"
+"ya come","Ma ro"
+"ya como","Ma rahua'"
+horcón,"Yaga ñee"
+chicle,Yaala
+olote,Yaana'
+"ya está  ","Ma nuu"
+"ya estoy","Ma nua"
+"ya me voy","Ma chaa"
+"se fue","Ma ze"
+"ya se hizo tarde","Ma ribiguí ndi'"
+supura,"Ma da'"
+chayote,Yape
+aguacate,Yaxhu
+jacal,"Yoo ziña"
+dolorcito,"Yuba yati"
+tiza,Yuya
+zacatón,"Daaya yaga"
+"zacatón del mar","Guixi donda"
+zanate,Bigoze
+zopilote,So'pe'
+"zopilote rey","Sope huela"
+elote,Zee
+"olor agradable",Ziizi
+entrecerrado,Zucá
+teco,Teco
+mandarina,Mandarina
+istmeña,istmeña
+comitancillo,Comitancillo
+yaly,Yaly
+cielito,"Guiba' huiini"
+repartirnos,Guindanuni'
+chingon,chingon
+horales,horales
+horale,horale
+estupidin,Guidxa
+programador,Programador
+robaste,Uba'nalu'
+sicaru,Hermoso
+yaa,Verde
+nataly,Nataly
+scarulo,"eres bonit@?"
+biccu,Perro
+chuquita,chuquita
+didxazapp,Didxazapp
+pichi,Pichi
+mampos,"ca muxhe'"
+mampito,"muxhe huini'"
+mampa,mampa
+tele,tele
+?,?
+agarralo,Unaazeni'
+rulo,Rulo
+bañaste,guuselu'
+sentdo,sentdo*
+reglando,"cuxhibe riini"
+guelatao,Guelatao
+pueblito,"guidxi huini'"
+roselia,Roselia
+chaca,"binni cadi nu xpiani"
+culo,xha'naa
+manita,"naa huini'"
+draco,Draco
+gaby,Gaby
+texmelucan,Texmelucan
+mensa,"Hua'ti  "
+chicapa,Chicapa
+briza,"bi nisa"
+bicitleta,bicitleta???
+huarache,"ela guidi"
+dasayunar,bixhirini
+tlayudas,tlayudas
+blaquillos,huevo??--chita
+autobus,Autobus
+chita,"chita?? huevo-"
+pastorcito,"xcuidi ni rapa yuze,denxhu"
+mexcal,mezcal??-Mezcal
+mije,mixe??-Mixe
+huajolote,Tou'
+cuche,biuhui
+didxaza,Zapoteco
+karem,Karem
+anfitriones,mayordomos?
+ochosientos,"xhono gayua'"
+diesiocho,"chi ne xhono"
+jajajaja,jajajaja
+ivan,Ivan
+popo,gui'
+love,Endanadxí
+bicu,perro
+karen,Karen
+chingada,Gabiaa
+bamos,bamos*
+guajolote,Tou'
+hoa,hoa
+tii,tii
+vicu,Perro??
+yuuba,dolor
+checando,checando
+honrrado,"Binni Neeza"
+huevon,Nacha'ba
+incasable,"qui ridxagabe"
+pedorron,"na be riguinde"
+panocha,nde
+muxe,Afeminado
+shiroo,Shiroo
+xhunca,Consentida
+iendome,iendome
+multicultural,multicultural
+cuasa,cuasa
+ixtepec,Ixtepec
+venistr,Venistr
+nageenda,Rápido
+aye,Aye
+jaja,Jaja
+meche,Meche
+cajeta,Cajeta
+sirrunti,sirrunti
+futbol,Tutbol
+didxaz,Didxaz
+eric,Eric
+hernosa,hernosa
+gupani,tuvo
+naa,yo
+llamaa,llamaa
+jicalpestle,jicalpestle
+sabelotodo,Nuxpiani'
+duermete,Gúsi
+naruto,Naruto
+diidxaza,Diidxaza
+tevquiero,tevquiero
+hols,hols
+chagui,Chagui
+culona,"Xha'na ngoola"
+tol,Tol
+lucy,Lucy
+papi,Bixhose'
+prodre,Prodre
+chamo,Chamo
+amante,Nadxii
+xd,XD
+lacañaba,lacañaba
+orejó,Orejó
+guichicovi,Guichicovi
+¿y,¿y
+mixe,mixe
+chichinahuatl,chichinahuatl
+feateja,feateja
+chaparra,Nachucu
+mildred,Mildred
+buenosdias,buenosdias
+sienpre,sienpre
+mayonesa,Mayonesa
+twenthy,twenthy
+daphne,Daphne
+coala,Coala
+busquenlo,"la guyubi laabe"
+herbalife,herbalife
+sincer,sincer
+naroba,Grande
+alienígena,"Binni ni seda de iba'"
+¡qué,¡qué
+¿quien,¿quien
+naxhieli,Naxhieli
+axila,xcunede
+janette,Janette
+:c,:c
+bienvenidos,"sicaru beedatu"
+huixtepec,Huixtepec
+konichiwa,Konichiwa
+tuinfinito,tuinfinito
+birthey,birthey
+¿quieres,¿quieres
+¿porque,¿porque
+xhi,xhi
+xha,xha
+amber,amber
+shana,shana
+canesú,canesú
+fucking,fucking
+shit,shit
+stop,stop
+crap,crap
+--,--
+marquesote,Marquesote
+sandra,Sandra
+chinanteco,Chinanteco
+danith,Danith
+:v,:v
+joto,Muxhe'
+thu,thu
+soun,soun
+tamarindo,tamma
+goku,goku
+xanet,Xanet
+gadiushi,gadiushi
+xcaanda,Sueño
+hmama,hmama
+amig,amig
+erick,Erick
+comer?,comer?
+pedaxo,pedaxo
+chaparrita,Nachucu
+creatividad,Xquendabiaani'
+),)
+utilizaron,ucuacabe
+amoo,amoo
+jumil,jumil
+guegüi,"come caca"
+ahhhh,ahhhh
+megalodon,megalodon
+velozsiraptor,velozsiraptor
+quiechapa,quiechapa
+didxazaap,Didxazaap
+pasame,"Danee naa"
+!!,!!
+flojera,Nachaaba
+topec,Topec
+tec,Tec
+paisanita,"Binni xquidxhinuu"
+¡ayyyy!,¡ayyyy!
+kiara,Kiara
+!,!
+huipill,Bidaani
+suavecito,Chauigaa
+besitos,"bixhidu huini'"
+chamaquita,"Badudxapa huiini'"
+superiority,superiority
+naomi,Naomi
+¿,¿
+elizabeth,Elizabeth
+3er,3er
+buenisi,buenisi
+tejocote,Manzanita
+lipia,lipia
+buelta,buelta
+holi,holi
+voyva,voyva
+mamita,Jña'
+itayetzy,Itayetzy
+itan,Itan
+hranashi,Amar
+nanna,saber
+sonic,Sonic
+amy,Amy
+yaoi,Yaoi
+ayay,ayay
+¡oh,¡oh
+¡patria!,¡patria!
+¡para,¡para
+oliva!,oliva!
+¡un,¡un
+gra,gra
+cayate,"Me muero"
+ziuu,Hay
+dxi,Día
+guireeu,Sales
+xiga,Jícara
+dunabe,Demasiado
+nadxiee,"Te amo"
+riniee,Hablo
+runinalu,"Me hasces daño"
+ruuna,Lloro
+ganaxhiiu,Ames
+chuaa,Entre
+rate,Muera
+bidxichi,dinero??
+dixazapp,Dixazapp
+valentina,valentina
+lety,lety
+felis,felis
+chocolo,chocolo
+junnah,Mujer???
+dixhaza,Dixhaza
+cuetzalan,Cuetzalan
+itzayana,Itzayana
+totec,Totec
+yali,Yali
+mezcal,Mezcal
+ladxidua,"Mi corazón"
+esra,esra
+unfeo,unfeo
+ooo,ooo
+bailaremos,Suyaa'nu
+pri,pri
+prd,prd
+tiboot,tiboot
+extraterrestres,"Ca Binni ni seda de iba'"
+alienigenas,"Ca binni ni seda de iba'"
+aliens,"Ca binni ni seda de iba'"
+alien,"Binni ni seda de iba'"
+sismo,Xu
+buceando,Cuniidxe'
+algodonado,Nashiaa
+chiquitito,"Nahuiini du'tu"
+:,:
+;,;
+<,<
+>,>
+(,(
+escribeme,"Bicá para na"
+izyalyth,Izyalyth
+carla,Carla
+xquidxinu,"Nuestro pueblo"
+diushi,Dios
+neeza,Camino
+nu'nu,Estamos
+sollozará,Zacaala'dxi'
+rememoraré,"Zedasilú na'"
+desvelaré,"Zabee' xcaanda'"
+desmoronas,Hriruushedú
+persina,Hruzeelú'
+cooperamos,Bichaagadu'
+contribuimos,Bichaagadu'
+contaminamos,Biniyu'dxunu
+fraccionar,Guindaa
+zonza,Huati
+tarado,Guidxa
+tarada,Guidxa
+desdunos,Shieeladica'
+desdunas,Shieeladica'
+atrapando,Cananaazeca'
+"style="width:","style="width:"
+"id="gtedit"","id="gtedit""
+"style="display:none"","style="display:none""
+melisa,Melisa
+aprendamos,"Chi iziidinu'"
+evelyn,Evelyn
+aylin,Aylin
+cinthya:,cinthya:
+"cinthya"","cinthya""
+"feita"","feita""
+:(,:(
+interrumpir<br,interrumpir<br
+100%,100%
+día<br,día<br
+"dado"","dado""
+"jugar"","jugar""
+ábrala,"bixheleʼ ni"
+ábralo,"bixheleʼ ni"
+ábralos,"bixheleʼ cani "
+ábrame,"bixheleʼ naa"
+ábranlo,"la bixheleʼ ni"
+ábranlos,"la bixheleʼ cani ."
+ábrannos,"la bixheleʼ laadu"
+ábranos,"bixheleʼ laadu"
+abridlo,bixheleʼ
+abridlos,"bixheleʼ cani "
+alfandoque,alfandoque
+alfaneque,alfaneque
+alfanumérico,alfanumérico
+aterrizar,"guiete'  "
+biberón,Xhiganunu
+bistec,Bistec
+bloc,Bloc
+bolígrafo,Duubi'lana
+cafetería,Lidxibiziaanda'
+calambac,Calambac
+clic,Clic
+cloc,Cloc
+coulomb,Coulomb
+fajamiento,fajamiento
+fajeado,fajeado
+fajero,fajero
+falagar,falagar
+falciforme,falciforme
+falcirrostro,falcirrostro
+faldeta,faldeta
+faldicorto,faldicorto
+faldinegro,faldinegro
+faldistorio,faldistorio
+faldulario,faldulario
+falena,falena
+falisco,falisco
+falsabraga,falsabraga
+falsarregla,falsarregla
+falsopeto,falsopeto
+faltrero,faltrero
+faluca,faluca
+famaillá,famaillá
+famélico,famélico
+fanegada,fanegada
+faneguero,faneguero
+fanerógama,fanerógama
+fanerógamo,fanerógamo
+fanfarronesca,fanfarronesca
+fantochada,fantochada
+farabustear,farabustear
+faralá,faralá
+faralaes,faralaes
+glúteo,xha'na
+gonzales,Gonzales
+heptagonal,heptagonal
+hexagonal,hexagonal
+jatib,Jatib
+líder,Shaíque
+macetero,Guisuguie'
+mihrab,Mihrab
+nonágono,nonágono
+octagonal,octagonal
+octogonal,octogonal
+octógono,octógono
+ortogonal,ortogonal
+poligonal,poligonal
+rascuñar,ribaba
+regaño,Gudindenebe
+rob,Rob
+sylvina,Sylvina
+televisor,Tele
+torniquete,bieque
+trigonométrico,trigonométrico
+videoclub,Videoclub
+zarzaganillo,zarzaganillo
+zarzaparrillar,zarzaparrillar
+zarzoso,zarzoso
+zarzuelero,zarzuelero
+zarzuelista,zarzuelista
+zascandilear,zascandilear
+zata,zata
+zatara,zatara
+zatico,zatico
+zetaquira,zetaquira
+zeugma,zeugma
+zigomorfo,zigomorfo
+zigoto,zigoto
+zigzagueante,zigzagueante
+zigzaguear,zigzaguear
+zigzagues,zigzagues
+zimbabwe,"Guidxhi zimbabwe"
+zipacón,zipacón
+zipizape,zipizape
+zocas,zocas
+zocatear,zocatear
+zoizo,zoizo
+zollipar,zollipar
+zolocho,zolocho
+zoma,zoma
+zompo,zompo
+zompopo,zompopo
+zonote,zonote
+zoo,zoo
+zooftirio,zooftirio
+zoografía,Zoografía
+zoológico,Zoológico
+zoomorfo,Zoomorfo
+zoonosis,Zoonosis
+zooplancton,Zooplancton
+zoospora,Zoospora
+zootecnia,Zootecnia
+zopas,Zopas
+zopenco,Guidxa
+zopetero,Zopetero
+zopisa,Zopisa
+zopitas,Zopitas
+zopo,Zopo
+zoquete,Guidxa
+zoquetear,Zoquetear
+zoquetero,Zoquetero
+zoquetudo,Zoquetudo
+zorcico,Zorcico
+zorito,Zorito
+zoroástrico,Zoroástrico
+zoroastrismo,Zoroastrismo
+zorollo,Zorollo
+zorongo,Zorongo
+zorrear,Zorrear
+zorrera,Zorrera
+zorrero,Zorrero
+zorrocloco,Zorricloco
+zorruno,Zorruno
+zorzal,zorzal
+zorzaleño,zorzaleño
+zóster,zóster
+zuda,Zuda
+zudáñez,Zudáñez
+zuiza,"Guidxhi Zuiza"
+zulacar,Zulacar
+zulaque,Zulaque
+zulaquear,Zulaquear
+zulia,Zulia
+zunchar,zunchar
+zuncho,zuncho
+zuñir,zuñir
+zurano,zurano
+zurcidor,zurcidor
+zurcidura,zurcidura
+zuzar,Zuzar
+silicon,Silicon
+viendonos,"Cayu'yanu iranu"
+dientesitos,"laya' huini'"
+amaca,guishe
+culiacan,"Guidxi Culiacan"
+dsr,Dsr
+disfrutamos,Jriula'dxhidu
+entediste,Bie'nu
+endemoniando,"Cayu' binni dxaba' laa"
+tlayuda,Tlayuda
+blanquillo,Dxita
+blanquillos,"Ca dxita"
+silvar,Rutiipi
+paperas,Sambo'co'
+cuatete,Zumbidxi
+no2,Qui
+correle,uxhoñe'
+regresate,Bigueta'
+Zumpango,Zumpango
+Tecámac,Tecámac
+garrafón,Garrafón
+texcoco,Texcoco
+mariela,Mariela
+xóchitl,Xóchitl
+annel,Annel
+mepomuceno,Mepomuceno
+miahuatlán,Miahuatlán
+quexquémitl,Quexquémitl
+come2,Güe'
+quisiera2,Ñacaladxhibe
+no3,Cadi
+mi2,Naa
+para2,Para
+la2,Laabe
+tu2,Stiilu'
+me2,Naa
+como2,Casi
+cantarte,"Guunda lii"
+"mi vida se escapaba","Guenda nabani Stine' Nanna' escapaba  "
+martiniana,Martiniana
+zandunga,Zandunga
+dialogas,"Riníu  "
+porque2,xhiñe'
+a2,Nu
+denoche,Huaxinni
+ellatiene,"Laabe napabe"
+otroaño,"sti iza"
+comiendote,"cayagahua lii"
+boletito,"Boletu Huini'"
+cervesa,Cervesa
+pervertida,"Nahuati ique"
+facebook,Facebook
+wifi,Wifi
+muerdo,rahuaya'
+pedazoz,"Ca ndaa'"
+cagó,uxhunabe
+cagado,"Ma uxhunabe"
+cagada,"Ma uxhunabe"
+cagaste,Uxhunalu'
+usaste,Riquiñeluni
+odiaste,Ucanaladxhe'
+gritaste,Bicáridxilu'
+mentiste,"Bisigui lu'"
+fingiste,Gudxitelu'
+todalanoche,"Irá gueela'"
+andajugando,"Caguite be"
+añoro,"Rica ladxhe'"
+recolectó,Bitopa
+cableado,Ladedoo
+entrelazos,Ladedoo
+tellamas,Laalu'
+jicaco,pe'pe
+tengosueño,"Da' Bacaanda Lua'"
+sebaña,Raazebe
+otro2,Sti
+hombligo,Xqui'pi'
+cempasuchitl,"guie' bigua"
+apagate,"bisui' lii"
+apagalo,"bisui' ni"
+cocacola,Cocacola
+noely,Noely
+inundaste,"bilahua lu'"
+mireya,Mireya
+ilhuicamina,ilhuicamina
+fuistes,gucalu'
+moy,Moy
+tusojos,"Lú lu'"
+micasa,Lidxe'
+tucasa,Lidxilu'
+tuobligación,"napu xhidé"
+noes,Cadi
+teríes,Ruxhidxu'
+cociera,Ga'guini
+sevea,iguinini
+tellamé,"Gunie' nia lii"
+acomprar,Ziee'
+unpoco,Caadxií
+micorazón,Ladxidua'
+tienen2,Napatu
+sellama,Laabe
+estás2,Guinidiou'
+estabas2,Guinu'
+estubiste,Ñuulu'
+tengoque,"Napa xhide"
+"me vendió","Bitoobe Zie'  "
+contemples,Gu'yu
+soñarme,"Runixcaandalu naa"
+tengasmiedo,Guidxibu
+de2,De
+ir2,Cheelu'
+tamalito,"Gueta guu huini'"
+"te estoy viendo","Nua' Lii Cayuya  "
+amigos2,Xhamigu'
+eres2,Nga
+que2,Ni
+nohay,Gasti'
+ir3,Chaa'
+supercalifragilisticospialidoso,supercalifragilisticospialidoso
+yaliz,Yaliz
+pesto,Pesto
+yesenia,Yesenia
+dalton,Dalton
+fuiste2,Uyeelu'
+teacuerdas,"Riete Naladxu"
+quisisteser,"Naalu Ñaacalu'"
+mimano,Naya'
+tumano,Nalu'
+tufrente,Lucualu'
+mifrente,Lucuaya'
+yosoy,"Naa nga"
+soy2,Nga
+bien2,Neeza
+más2,Stale
+buenos2,nacha'hui'
+que3,que
+da2,rudi'
+hijos2,xhiñibe
+progenitora,Jña'
+será2,"Chi gaca"
+"sus hijos","Ca Ca shiñe'"
+"no te entendí","Qui ñeene' Lii"
+barbita,"Guicha shigui huiini'"
+todo2,Irani
+rentó,Rentó
+compró2,Guzi'be
+nadia,Nadia
+danilo,Danilo
+"me enseñaste2",Bisidilu'
+enseñaste2,Bisidilu
+que4,Xhide
+mamamelo,"Gushupi naa ngue'"
+chupamelo,"Gushupi naa ngue'"
+terminaste,Biluxhelu'
+vendelas,bitócanii
+amorcito,"Guendanadxí Huiini"
+lupiyo,Lupiyo
+tonatiu,Tonatiu
+joshua,Joshua
+nulu,estás
+jim,Jim
+agarraria,"Chi Gunaaze"
+mentirme,"bisiguiibe naa"
+tusonrisa,Ruxhidxu'
+decía2,Cayabe
+detrás2,Rinandá
+esas2,"Ca nga'"
+mira2,bia'
+mipie,Ñee'
+mibrazo,Xhi'que'
+micabeza,Ique'
+misojos,"Ca guie lua'"
+miojo,"guie lua'"
+minariz,Xhie'
+mispestañas,"Ca Guicha laga'"
+está2,Jnu
+mirodilla,Xhibe'
+mioreja,Diaga'
+mioido,Diaga'
+misoreja,"Ca Diaga'"
+misorejas,"Ca Diaga'"
+misoidos,"Ca diaga'"
+yalja,Yalja
+ingresa,Biuu
+mariel,Mariel
+flaquita,Nalasehuini'
+pandilleros,pandilleros
+ecocidio,ecocidio
+liliana,Liliana
+renata,Renata
+chupame,"Gushupi naa"
+besarnos,"Gudiinu bixhidu'"
+nizaguie,Lluvia
+transexual,Muxhe'
+irma,Irma
+miryam,Miryam
+maritza,Maritza
+guey,Guey
+empezemos,Izulunu
+rápido2,Naguenda
+es2,Nga
+moriré2,Saate'
+vivo2,Nabanii
+hizo2,Bi'ni
+buscando2,Cuyubi
+estamosviendo,Cayu'yanu
+sicaruu,Hermoso
+mapache2,Ngudxi
+tengo2,Gapa
+vemgo,vemgo
+ahreh,ahreh
+mayra,Mayra
+potter,Potter
+mirandadero,mirandadero
+Markz,Markz
+quierelo,"Gunaxhii laabe"
+quiereloz,quiereloz
+faceid,faceid
+xhandu,"dia de muertos?"
+ararbol,ararbol
+ararbolarbol,ararbolarbol
+holacomo,holacomo
+holabebe,holabebe
+nashialy,Nashialy
+zanatezanate,zanatezanate
+"fldorfcxccfxecd ?z","fldorfcxccfxecd ?z"
+"fldorfcxccfxecd ?zxscwx","fldorfcxccfxecd ?zxscwx"
+//,//
+""se",""se"
+[4],[4]
+[5],[5]
+[6],[6]
+"rt_text"><span","rt_text"><span"
+"title="hello","title="hello"
+"friend"","friend""
+"onmouseover="this","onmouseover="this"
+"backgroundcolor='#ebeff9'"","backgroundcolor='#ebeff9'""
+"onmouseout="this","onmouseout="this"
+"backgroundcolor='#fff'">hola","backgroundcolor='#fff'">hola"
+amigo</span></span>,amigo</span></span>
+a.,a.
+m.lista,m.lista
+""short_text"><span",""short_text"><span"
+"kgroundcolor='#ebeff9'"","kgroundcolor='#ebeff9'""
+"eout="this","eout="this"
+"kgroundcolor='#fff'">hola","kgroundcolor='#fff'">hola"
+>hola,>hola
+name=edit-text,name=edit-text
+wrap=soft,wrap=soft
+tabindex=0,tabindex=0
+"spellcheck="false"","spellcheck="false""
+"autocapitalize="off"","autocapitalize="off""
+"autocomplete="off"","autocomplete="off""
+"autocorrect="off"","autocorrect="off""
+></textarea></div></div><div,></textarea></div></div><div
+id=gt-res-tools><div,id=gt-res-tools-l><div
+id=gt-res-tools-l><div,id=gt-res-tools-l><div
+id=gt-pb-star></div></div><div,id=gt-pb-star></div></div><div
+id=gt-res-tools-r><div,id=gt-res-tools-r><div
+id=gt-res-undo></div></div></div></div><div,id=gt-res-undo></div></div></div></div><div
+id=res-translit,id=res-translit
+class=translit,class=translit
+dir=ltr,dir=ltr
+"style="text-align:"></div></div></div></div><","style="text-align:"></div></div></div></div><"
+"id="gt-promo-lr"></div><div","id="gt-promo-lr"></div><div"
+id=gt-lc,id=gt-lc
+"style="display:none"></div></div><div","style="display:none"></div></div><div"
+id=gt-ft><div,id=gt-ft><div
+id=gt-ft-mkt><div,id=gt-ft-mkt><div
+class=gt-ft-promos><span,class=gt-ft-promos><span
+class=gt-ft-text>google,class=gt-ft-text>google
+"#fff'">como","#fff'">como"
+"nmouseover="this","nmouseover="this"
+"backgroundcolor='#fff'">como","backgroundcolor='#fff'">como"
+tortugas????????????,tortugas????????????
+chamaquito,"Badu nguiu huiini'"
+changuita,"Migu Huiini"
+chaparrito,Nachucu
+changuito,"Migu Huiini"
+1983,1983
+:3,:3
+1_2_3_4_5_67_8_9_10,tobi_chupa_chonna_tapa_ga'yu_xho'pa_gadxe_xho
+"miedo,",dxiibi
+guajolote43,Tou'43
+hdhtxuyxhhgx,hdhtxuyxhhgx
+binizza,Zapotecos
+penji,penji
+bonuto,bonuto
+nuutu,Están
+menxd,menxd
+fensas,fensas
+bixhozelu,"tu papá"
+regresaste,biguetalu'
+sapoteca,sapoteca
+yonathan,Yonathan
+jerson,Jerson
+trajistes,Bedaneu'
+att:,att:
+bbf,bbf
+enternesiendose,enternesiendose
+escon,escon
+piernajugando,piernajugando
+perisur,perisur
+4d,4d
+psp,psp
+tigoamor,tigoamor
+stiu,tuyo
+"vi ",biiyaʼ
+diademuertos,Xandu'
+vaahacer,"chi guuni"
+estahaciendo,Cayaca
+frio2,Nanda
+tiene2,Cayaca
+calor2,Nanda'
+vi2,Biiyani
+abrazados2,"guidxi du"
+medarisa,Hrushiidxe'
+tehubierasreido,Nushidxu'
+sihubieras,Palí
+visto2,Ñuu'yu'
+noimporta,Saa'
+olvida2,Bisiaanda'
+seco2,bidxi
+fresco2,Nanda
+fresco3,Yaa'
+espaniol,espaniol
+mequería,"gunashibe naa"
+"los alumnos","ca Ba'ducaziidi'"
+búscalo,"Biyubi laabe"
