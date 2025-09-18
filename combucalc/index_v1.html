@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Combucalc-online</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <style>
+.form-control:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #EA6936;
+    outline: 0;
+    box-shadow: 0 0 0 .2rem rgba(233,106,54,.25);
+	}
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i">
+</head>
+
+	
+<!--<body >-->
+<body style="background-color:#343A40;">
+<nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-dark navbar-custom">
+    <div class="container"><a class="navbar-brand" href="#" style="color:#E96A36;">Combucalc</a>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="nav-item" role="presentation"></li>
+                <li class="nav-item" role="presentation"></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+	
+<!--<header class="masthead text-center text-white">
+    <div class="masthead-content">
+        <div class="container">
+            <h2 class="masthead-subheading mb-0">Calculadora de combustible</h2>
+        </div>
+    </div>
+    <div class="bg-circle-1 bg-circle"></div>
+    <div class="bg-circle-2 bg-circle"></div>
+    <div class="bg-circle-3 bg-circle"></div>
+    <div class="bg-circle-4 bg-circle"></div>
+</header>-->
+
+	<!--------imagen-------->
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="carousel slide" id="carousel-418443">
+				<ol class="carousel-indicators">
+					<li data-slide-to="2" data-target="#carousel-418443" class="active">
+					</li>
+				</ol>
+				<div class="carousel-inner">
+					<div class="carousel-item active">
+						<img class="d-block w-100" alt="Carousel Bootstrap First" src="assets/img/transportes_mil2.png" />
+						<div class="carousel-caption">
+							<h2 style="color:#E96A36;">
+								CALCULADORA DE COMBUSTIBLE
+							</h2>
+							<p style="color:#E96A36;">
+								TRANSPORTES MILITARES
+							</p>
+						</div>
+					</div>
+				</div> 
+				<!--<a class="carousel-control-prev" href="#carousel-418443" data-slide="prev"><span class="carousel-control-prev-icon"></span> <span class="sr-only">Anterior</span></a> <a class="carousel-control-next" href="#carousel-418443" data-slide="next"><span class="carousel-control-next-icon"></span> <span class="sr-only">Siguiente</span></a>-->
+			</div>
+		</div>
+	</div>
+</div>
+	<!--------imagen-------->
+	
+	
+<section>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-xl-9 order-lg-1">
+                <div class="p-5">
+			
+                    <h5 class="display-4" style="font-size: 31px; color:#EA6936;">Ingresa la siguiente información</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-xl-12 order-lg-1"><div class="p-5"><center><form class="text-center" id="my-form">
+                <p style="color:#C1C6CB;">Odometro de salida</p>
+                <div class="form-group">
+                    <label class="sr-only" for="firstname">Odometro de salida</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_odometro_salida" required="" placeholder="Ingresa odometro de salida" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true">
+                </div>
+                <p style="color:#C1C6CB;">Odometro llegada</p>
+                <div class="form-group">
+                    <label class="sr-only" for="firstname">Odometro de llegada</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_odometro_llegada" required="" placeholder="Ingresa odometro de llegada" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true">
+                </div>
+               <p style="color:#C1C6CB;">Kilometros recorridos</p>
+                <div class="form-group">
+                    <label class="sr-only" for="lastname">Kilometros recorridos</label>
+                    <textarea class="form-control aos-init aos-animate" data-aos="fade" id="txt_kilometros_recorridos" name="messages" readonly="" required="" placeholder="Kilometros Recorridos" rows="1"></textarea>
+                </div>
+                <p style="color:#C1C6CB;">Costo por litro de combustible</p>
+                <div class="form-group">
+                    <label class="sr-only" for="firstname">Costo por litro de combustible</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_costo_litro" required="" placeholder="Ingrese Costo por litro de combustible" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true" value="23.69" >
+                </div>
+                <p style="color:#C1C6CB;">Factor de consumo</p>
+                <div class="form-group">
+                    <label class="sr-only" for="firstname">Factor de consumo</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_factor_consumo" required="" placeholder="Ingrese Factor de consumo" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true" value="5">
+                </div>
+                <p style="color:#C1C6CB;">Total de litros en el tanque</p>
+                <div class="form-group">
+                    <label class="sr-only" for="firstname">Total de litros en el tanque</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_total_litros_tanque" required="" placeholder="Ingrese total de litros en el tanque" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true" value="80">
+                </div>
+
+                <p style="color:#C1C6CB;">Litros consumidos</p>
+                <div class="form-group">
+                    <label class="sr-only" for="phonenumber">Litros consumidos</label>
+                    <textarea class="form-control aos-init aos-animate" data-aos="fade" id="txt_litros_consumidos" name="messages" readonly="" required="" placeholder="Litros consumidos" rows="1"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="email">Email Address</label>
+                </div>
+                <p style="color:#C1C6CB;">Litros restantes</p>
+                <div class="form-group">
+                    <label class="sr-only" for="messages">Litros restantes</label>
+                    <textarea class="form-control aos-init aos-animate" data-aos="fade" id="txt_litros_restantes" style="height: 43px;" name="messages" readonly="" required="" placeholder="Litros restantes" rows="1"></textarea>
+                </div>
+                <p style="color:#C1C6CB;">Costo total del combustible utilizado</p>
+                <div class="form-group">
+                    <label class="sr-only" for="messages">Costo total</label>
+                    <textarea class="form-control aos-init aos-animate" data-aos="fade" id="txt_costo_total" style="height: 43px;" name="messages" readonly="" required="" placeholder="Costo total" rows="1"></textarea>
+                </div>
+                <!--<button id="btn_calcularConsumo" name="btn_traducir" style="color:#E96A36;" onclick="consumo()" class="btn btn-primary" type="button"> Calcular Consumo </button><br><br>-->
+		    <button id="btn_calcularConsumo" name="btn_traducir" style="color:#E96A36;" onclick="consumo()" type="button"> Calcular Consumo </button><br><br>
+               <!-- Velocidad aproximada en km por hora
+
+                    <label class="sr-only" for="firstname">Velocidad aproximada en Km por hora</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_velocidad_kilometrosporhora" required="" placeholder="Ingrese Velocidad en Km/H" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true" value="80">
+                </div>
+                Distancia en Kilometros
+                <div class="form-group">
+                    <label class="sr-only" for="firstname">Distancia en Km</label>
+                    <input class="form-control aos-init aos-animate" type="number" data-aos="fade" id="txt_distancia_kilometros" required="" placeholder="Ingrese Distancia en KM" minlength="1" autofocus="" spellcheck="false" data-ms-editor="true" value="200">
+                </div>
+                Tiempo estimado en horas
+                <div class="form-group">
+                    <label class="sr-only" for="messages">Tiempo estimado</label>
+                    <textarea class="form-control aos-init aos-animate" data-aos="fade" id="txt_tiempo_estimado" style="height: 43px;" name="messages" readonly="" required="" placeholder="Tiempo Estimado" rows="1"></textarea>
+                </div>
+                <button id="btn_calcularTiempo" name="btn_traducir" onclick="tiempo()" class="btn btn-primary" type="button">Calcular Tiempo Estimado</button>-->
+
+            </form></center></div></div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-xl-11 order-lg-1"></div>
+        </div>
+    </div>
+</section>
+<footer class="py-5 bg-black">
+    <div class="container">
+        <p class="text-center text-white m-0 small">Combucalc © 2025</p>
+    </div>
+</footer>
+<script>
+function consumo()
+{
+//txt_kilometrosrecorridos.Text = (Convert.ToDouble(txt_odometrollegada.Text) - Convert.ToDouble(txt_odometrosalida.Text)).ToString();
+
+
+    var odollegada = txt_odometro_llegada.value;
+    var odosalida = txt_odometro_salida.value;
+	txt_kilometros_recorridos.value = odollegada - odosalida;
+
+//txt_costototal.Text = ((Convert.ToDouble(txt_kilometrosrecorridos.Text) / Convert.ToDouble(txt_factordeconsumo.Text)) * Convert.ToDouble(txt_costoporlitro.Text)).ToString();
+
+    var kilometrosRecorridos = txt_kilometros_recorridos.value;
+    var factorDeConsumo = txt_factor_consumo.value;
+    var costoLitro = txt_costo_litro.value;
+
+	var costototal = (kilometrosRecorridos / factorDeConsumo) * costoLitro;
+	txt_costo_total.value = costototal;
+
+
+//txt_totaldelistosrestantes.Text = (Convert.ToDouble(txt_totaldelitrosdeltanque.Text) - (Convert.ToDouble(txt_kilometrosrecorridos.Text) / Convert.ToDouble(txt_factordeconsumo.Text))).ToString();
+
+var totalLitrosTanque = txt_total_litros_tanque.value;
+
+var litrosRestantes = totalLitrosTanque - kilometrosRecorridos / factorDeConsumo;
+txt_litros_restantes.value = litrosRestantes;
+
+//txt_litrosconsumidos.Text = (Convert.ToDouble(txt_totaldelitrosdeltanque.Text) - Convert.ToDouble(txt_totaldelistosrestantes.Text)).ToString();
+
+var litrosConsumidos = totalLitrosTanque - litrosRestantes;
+txt_litros_consumidos.value = litrosConsumidos;
+
+}
+
+function tiempo()
+{
+    var velocidad =  txt_velocidad_kilometrosporhora.value;
+	var distancia = txt_distancia_kilometros.value;
+    var tiempo = distancia / velocidad;
+    txt_tiempo_estimado.value = tiempo;
+}
+
+    </script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

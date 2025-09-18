@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Combucalc-online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <style>
+        :root {
+            --color-primary: #EA6936;
+            --color-dark: #343A40;
+            --color-light: #C1C6CB;
+        }
+        
+        body {
+            background-color: var(--color-dark);
+            font-family: 'Lato', sans-serif;
+        }
+        
+        .navbar-custom {
+            background-color: #212529 !important;
+        }
+        
+        .form-control:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: var(--color-primary);
+            outline: 0;
+            box-shadow: 0 0 0 .2rem rgba(233, 106, 54, .25);
+        }
+        
+        .carousel-caption h2 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            font-weight: 700;
+        }
+        
+        .carousel-caption p {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            font-size: 1.5rem;
+        }
+        
+        .input-group-text {
+            background-color: #495057;
+            color: var(--color-light);
+            border: 1px solid #6c757d;
+        }
+        
+        .btn-custom {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-custom:hover {
+            background-color: #d45a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-custom:active {
+            transform: translateY(0);
+        }
+        
+        .result-box {
+            background-color: #495057;
+            border-radius: 5px;
+            padding: 10px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .info-icon {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+        
+        .alert-box {
+            display: none;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .section-title {
+            border-left: 4px solid var(--color-primary);
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: #495057;
+            border: 1px solid #5a6268;
+            color: white;
+        }
+        
+        .card-header {
+            background-color: #5a6268;
+            border-bottom: 1px solid #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-caption h2 {
+                font-size: 1.5rem;
+            }
+            .carousel-caption p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-dark navbar-custom">
+        <div class="container"><a class="navbar-brand" href="#" style="color:#E96A36;">Combucalc</a>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"></li>
+                    <li class="nav-item" role="presentation"></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- <div class="container-fluid mt-5 pt-4">
+        <div class="row">
+            <div class="col-md-12 p-0">
+                <div class="carousel slide" id="carousel-418443">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img class="d-block w-100" alt="Transportes Militares" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2100&q=80" />
+                            <div class="carousel-caption">
+                                <h2>
+                                    CALCULADORA DE COMBUSTIBLE
+                                </h2>
+                                <p>
+                                    TRANSPORTES MILITARES
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    
+	<!--------imagen-------->
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="carousel slide" id="carousel-418443">
+				<ol class="carousel-indicators">
+					<li data-slide-to="2" data-target="#carousel-418443" class="active">
+					</li>
+				</ol>
+				<div class="carousel-inner">
+					<div class="carousel-item active">
+						<img class="d-block w-100" alt="Carousel Bootstrap First" src="assets/img/transportes_mil2.png" />
+						<div class="carousel-caption">
+							<h2 style="color:#E96A36;">
+								CALCULADORA DE COMBUSTIBLE
+							</h2>
+							<p style="color:#E96A36;">
+								TRANSPORTES MILITARES
+							</p>
+						</div>
+					</div>
+				</div> 
+				<!--<a class="carousel-control-prev" href="#carousel-418443" data-slide="prev"><span class="carousel-control-prev-icon"></span> <span class="sr-only">Anterior</span></a> <a class="carousel-control-next" href="#carousel-418443" data-slide="next"><span class="carousel-control-next-icon"></span> <span class="sr-only">Siguiente</span></a>-->
+			</div>
+		</div>
+	</div>
+</div>
+	<!--------imagen-------->
+
+    <section class="my-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h4 class="section-title" style="color:#EA6936;">Ingresa la siguiente información</h4>
+                    
+                    <div id="alertError" class="alert-box alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> <span id="errorText"></span>
+                    </div>
+                    
+                    <div id="alertSuccess" class="alert-box alert-success">
+                        <i class="fas fa-check-circle"></i> Cálculo realizado correctamente
+                    </div>
+                    
+                    <form id="fuelForm">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Datos del Viaje</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="txt_odometro_salida" style="color:#C1C6CB;">
+                                        <i class="fas fa-road me-2"></i>Odómetro de salida (km)
+                                        <i class="fas fa-info-circle info-icon" title="Número de kilómetros al inicio del viaje"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="number" id="txt_odometro_salida" required placeholder="Ingresa odómetro de salida" min="0" step="0.1">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">km</span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Kilometraje al inicio del viaje</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="txt_odometro_llegada" style="color:#C1C6CB;">
+                                        <i class="fas fa-flag-checkered me-2"></i>Odómetro de llegada (km)
+                                        <i class="fas fa-info-circle info-icon" title="Número de kilómetros al final del viaje"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="number" id="txt_odometro_llegada" required placeholder="Ingresa odómetro de llegada" min="0" step="0.1">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">km</span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Kilometraje al final del viaje</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label style="color:#C1C6CB;">Kilómetros recorridos</label>
+                                    <div class="result-box" id="txt_kilometros_recorridos">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Datos de Combustible</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="txt_costo_litro" style="color:#C1C6CB;">
+                                        <i class="fas fa-gas-pump me-2"></i>Costo por litro de combustible ($)
+                                        <i class="fas fa-info-circle info-icon" title="Precio actual del combustible por litro"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">$</span>
+                                        </div>
+                                        <input class="form-control" type="number" id="txt_costo_litro" required placeholder="Ingrese costo por litro" min="0" step="0.01" value="23.69">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="txt_factor_consumo" style="color:#C1C6CB;">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Factor de consumo (km/l)
+                                        <i class="fas fa-info-circle info-icon" title="Rendimiento del vehículo en kilómetros por litro"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="number" id="txt_factor_consumo" required placeholder="Ingrese factor de consumo" min="0.1" step="0.1" value="5">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">km/l</span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Rendimiento de combustible del vehículo</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="txt_total_litros_tanque" style="color:#C1C6CB;">
+                                        <i class="fas fa-oil-can me-2"></i>Total de litros en el tanque
+                                        <i class="fas fa-info-circle info-icon" title="Capacidad total del tanque de combustible"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="number" id="txt_total_litros_tanque" required placeholder="Ingrese total de litros en el tanque" min="1" step="0.1" value="80">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">l</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Resultados del Cálculo</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label style="color:#C1C6CB;">
+                                        <i class="fas fa-fire me-2"></i>Litros consumidos
+                                    </label>
+                                    <div class="result-box" id="txt_litros_consumidos">0</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label style="color:#C1C6CB;">
+                                        <i class="fas fa-tint me-2"></i>Litros restantes
+                                    </label>
+                                    <div class="result-box" id="txt_litros_restantes">0</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label style="color:#C1C6CB;">
+                                        <i class="fas fa-dollar-sign me-2"></i>Costo total del combustible utilizado
+                                    </label>
+                                    <div class="result-box" id="txt_costo_total">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button id="btn_calcularConsumo" type="button" class="btn btn-custom btn-lg">
+                                <i class="fas fa-calculator me-2"></i> Calcular Consumo
+                            </button>
+                            <button type="reset" class="btn btn-secondary btn-lg ml-2">
+                                <i class="fas fa-redo me-2"></i> Limpiar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-5 bg-black">
+        <div class="container">
+            <p class="text-center text-white m-0 small">Combucalc © 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Función para mostrar errores
+        function mostrarError(mensaje) {
+            $('#errorText').text(mensaje);
+            $('#alertError').fadeIn();
+            setTimeout(() => {
+                $('#alertError').fadeOut();
+            }, 5000);
+        }
+        
+        // Función para mostrar éxito
+        function mostrarExito() {
+            $('#alertSuccess').fadeIn();
+            setTimeout(() => {
+                $('#alertSuccess').fadeOut();
+            }, 3000);
+        }
+        
+        // Función para validar los campos
+        function validarCampos() {
+            // Ocultar alertas previas
+            $('#alertError').hide();
+            $('#alertSuccess').hide();
+            
+            // Obtener valores
+            const odoSalida = parseFloat($('#txt_odometro_salida').val());
+            const odoLlegada = parseFloat($('#txt_odometro_llegada').val());
+            const costoLitro = parseFloat($('#txt_costo_litro').val());
+            const factorConsumo = parseFloat($('#txt_factor_consumo').val());
+            const totalLitros = parseFloat($('#txt_total_litros_tanque').val());
+            
+            // Validar que todos los campos tengan valores
+            if (isNaN(odoSalida) || isNaN(odoLlegada) || isNaN(costoLitro) || 
+                isNaN(factorConsumo) || isNaN(totalLitros)) {
+                mostrarError("Todos los campos son obligatorios. Por favor, complete todos los campos.");
+                return false;
+            }
+            
+            // Validar que el odómetro de llegada sea mayor que el de salida
+            if (odoLlegada <= odoSalida) {
+                mostrarError("El odómetro de llegada debe ser mayor que el odómetro de salida.");
+                return false;
+            }
+            
+            // Validar valores positivos
+            if (odoSalida < 0 || odoLlegada < 0 || costoLitro <= 0 || 
+                factorConsumo <= 0 || totalLitros <= 0) {
+                mostrarError("Todos los valores deben ser números positivos.");
+                return false;
+            }
+            
+            // Validar factor de consumo razonable
+            if (factorConsumo < 2 || factorConsumo > 30) {
+                mostrarError("El factor de consumo debe estar entre 2 y 30 km/l. Verifique el valor.");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Función principal de cálculo
+        function consumo() {
+            // Validar campos primero
+            if (!validarCampos()) {
+                return;
+            }
+            
+            try {
+                // Obtener valores
+                const odoSalida = parseFloat($('#txt_odometro_salida').val());
+                const odoLlegada = parseFloat($('#txt_odometro_llegada').val());
+                const costoLitro = parseFloat($('#txt_costo_litro').val());
+                const factorConsumo = parseFloat($('#txt_factor_consumo').val());
+                const totalLitros = parseFloat($('#txt_total_litros_tanque').val());
+                
+                // Calcular kilometros recorridos
+                const kilometrosRecorridos = odoLlegada - odoSalida;
+                $('#txt_kilometros_recorridos').text(kilometrosRecorridos.toFixed(1) + ' km');
+                
+                // Calcular litros consumidos
+                const litrosConsumidos = kilometrosRecorridos / factorConsumo;
+                $('#txt_litros_consumidos').text(litrosConsumidos.toFixed(2) + ' l');
+                
+                // Calcular litros restantes
+                const litrosRestantes = totalLitros - litrosConsumidos;
+                
+                // Verificar si hay suficiente combustible
+                if (litrosRestantes < 0) {
+                    $('#txt_litros_restantes').html('<span class="text-danger">' + litrosRestantes.toFixed(2) + ' l (Combustible insuficiente)</span>');
+                } else {
+                    $('#txt_litros_restantes').text(litrosRestantes.toFixed(2) + ' l');
+                }
+                
+                // Calcular costo total
+                const costoTotal = litrosConsumidos * costoLitro;
+                $('#txt_costo_total').text('$' + costoTotal.toFixed(2));
+                
+                // Mostrar mensaje de éxito
+                mostrarExito();
+                
+            } catch (error) {
+                mostrarError("Ocurrió un error inesperado durante el cálculo: " + error.message);
+            }
+        }
+        
+        // Configurar eventos cuando el documento está listo
+        $(document).ready(function() {
+            // Asignar evento al botón de calcular
+            $('#btn_calcularConsumo').click(consumo);
+            
+            // Asignar evento para calcular automáticamente al cambiar valores
+            $('input').on('input', function() {
+                // Si todos los campos tienen valores, calcular automáticamente
+                const odoSalida = $('#txt_odometro_salida').val();
+                const odoLlegada = $('#txt_odometro_llegada').val();
+                const costoLitro = $('#txt_costo_litro').val();
+                const factorConsumo = $('#txt_factor_consumo').val();
+                const totalLitros = $('#txt_total_litros_tanque').val();
+                
+                if (odoSalida && odoLlegada && costoLitro && factorConsumo && totalLitros) {
+                    consumo();
+                }
+            });
+            
+            // Asignar evento al botón de limpiar
+            $('button[type="reset"]').click(function() {
+                $('#txt_kilometros_recorridos, #txt_litros_consumidos, #txt_litros_restantes, #txt_costo_total').text('0');
+                $('#alertError, #alertSuccess').hide();
+            });
+            
+            // Tooltips para los iconos de información
+            $('.info-icon').tooltip({
+                placement: 'top',
+                trigger: 'hover'
+            });
+        });
+    </script>
+</body>
+
+</html>
