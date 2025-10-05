@@ -541,7 +541,11 @@
                 case 'courses': populateSchoolSelect('course-school-select', renderCourses); break;
                 case 'tasks': populateSchoolSelect('task-school-select', () => populateCourseSelect('task-course-select', 'task-school-select', renderTasks)); break;
                 case 'students': renderStudents(); break;
-                case 'print-qrs': populateSchoolSelect('print-school-select', () => populateCourseSelect('print-course-select', 'print-school-select', renderPrintableQRs)); break;
+                case 'print-qrs':
+                    populateSchoolSelect('print-school-select');
+                    document.getElementById('print-course-select').innerHTML = '<option value="">-- Select a Course --</option>';
+                    renderPrintableQRs();
+                    break;
             }
         }
         
@@ -1435,4 +1439,3 @@
     </script>
 </body>
 </html>
-
