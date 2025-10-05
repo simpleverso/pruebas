@@ -105,13 +105,13 @@
 
         <!-- Section 1: Management Dashboard -->
         <div id="management-dashboard-section" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-y-4 mb-4">
                 <h1 class="text-2xl font-bold text-white">Management Dashboard</h1>
-                 <div class="flex items-center gap-2">
+                 <div class="w-full sm:w-auto flex items-center flex-wrap gap-2 justify-end">
                     <button id="import-data-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg text-sm">Import</button>
                     <button id="export-data-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg text-sm">Export</button>
                     <button id="clear-data-btn" class="bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-3 rounded-lg text-sm">Clear Data</button>
-                    <button class="back-btn text-gray-400 hover:text-white">&larr; Back</button>
+                    <button class="back-btn text-gray-300 hover:text-white bg-gray-700 py-2 px-3 rounded-lg text-sm">&larr; Back</button>
                 </div>
             </div>
             <input type="file" id="import-file-input" class="hidden" accept="application/json">
@@ -1364,6 +1364,51 @@
                 }
             }
         });
+
+        // --- Print QRs Logic ---
+        const printSchoolSelect = document.getElementById('print-school-select');
+        const printCourseSelect = document.getElementById('print-course-select');
+        
+        printSchoolSelect.addEventListener('change', () => {
+            populateCourseSelect('print-course-select', 'print-school-select', renderPrintableQRs);
+        });
+        printCourseSelect.addEventListener('change', renderPrintableQRs);
+        document.getElementById('print-qrs-btn').addEventListener('click', () => window.print());
+
+        function renderPrintableQRs() {
+            const courseId = printCourseSelect.value;
+            const printArea = document.getElementById('qr-print-area');
+            printArea.innerHTML = '';
+
+            if (!courseId) {
+                printArea.innerHTML = '<p class="text-gray-500 text-center col-span-full">Select a course to see student QR codes.</p>';
+                return;
+            }
+
+            const data = DB.getData();
+            const enrolledStudents = Object.values(data.students).filter(s => s.courseIds.includes(courseId));
+
+            if (enrolledStudents.length === 0) {
+                printArea.innerHTML = '<p class="text-gray-500 text-center col-span-full">No students enrolled in this course.</p>';
+                return;
+            }
+
+            enrolledStudents.forEach(student => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'qr-item flex flex-col items-center p-2 bg-gray-700 rounded-lg';
+                
+                const qrHolder = document.createElement('div');
+                new QRCode(qrHolder, { text: student.id, width: 128, height: 128, colorDark: "#000000", colorLight: "#ffffff" });
+                
+                const nameP = document.createElement('p');
+                nameP.className = 'text-sm font-semibold text-center mt-2';
+                nameP.textContent = student.name;
+                
+                itemDiv.appendChild(qrHolder);
+                itemDiv.appendChild(nameP);
+                printArea.appendChild(itemDiv);
+            });
+        }
 
 
         // --- App Initialization ---
