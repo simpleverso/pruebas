@@ -87,6 +87,7 @@
                  <div class="flex items-center gap-2">
                     <button id="import-data-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg text-sm">Import</button>
                     <button id="export-data-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg text-sm">Export</button>
+                    <button id="clear-data-btn" class="bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-3 rounded-lg text-sm">Clear Data</button>
                     <button class="back-btn text-gray-400 hover:text-white">&larr; Back</button>
                 </div>
             </div>
@@ -404,6 +405,9 @@
             },
             saveData: (data) => {
                 localStorage.setItem(DB_KEY, JSON.stringify(data));
+            },
+            clearData: () => {
+                localStorage.removeItem(DB_KEY);
             }
         };
 
@@ -1242,7 +1246,7 @@
             reportCardView.innerHTML = html;
         }
 
-        // --- Data Import/Export Logic ---
+        // --- Data Import/Export/Clear Logic ---
         document.getElementById('export-data-btn').addEventListener('click', () => {
             const data = DB.getData();
             const dataStr = JSON.stringify(data, null, 2);
@@ -1290,6 +1294,20 @@
                 }
             };
             reader.readAsText(file);
+        });
+        
+        document.getElementById('clear-data-btn').addEventListener('click', () => {
+            if (confirm('Are you absolutely sure you want to delete all data? This action cannot be undone. (1/3)')) {
+                if (confirm('This will delete all schools, courses, tasks, students, and grades permanently. Are you certain? (2/3)')) {
+                    if (confirm('FINAL CONFIRMATION: Delete all data now? (3/3)')) {
+                        DB.clearData();
+                        showMessage('All data has been cleared.', true);
+                        // Refresh the current view
+                        const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'schools';
+                        switchTab(activeTab);
+                    }
+                }
+            }
         });
 
 
