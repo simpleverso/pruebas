@@ -73,6 +73,29 @@
         .grades-table .missing-grade {
             color: #f87171; /* red-400 */
         }
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #qr-print-area, #qr-print-area * {
+                visibility: visible;
+            }
+            #qr-print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .qr-item {
+                page-break-inside: avoid;
+                background-color: white !important;
+                border: 1px solid #ccc;
+            }
+            .qr-item p {
+                color: black !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
@@ -94,11 +117,12 @@
             <input type="file" id="import-file-input" class="hidden" accept="application/json">
             
             <!-- Tab Navigation -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 bg-gray-900 p-1 rounded-lg">
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-2 bg-gray-900 p-1 rounded-lg">
                 <button class="tab-btn p-2 rounded-md text-sm md:text-base font-semibold" data-tab="schools">Schools</button>
                 <button class="tab-btn p-2 rounded-md text-sm md:text-base font-semibold" data-tab="courses">Courses</button>
                 <button class="tab-btn p-2 rounded-md text-sm md:text-base font-semibold" data-tab="tasks">Tasks</button>
                 <button class="tab-btn p-2 rounded-md text-sm md:text-base font-semibold" data-tab="students">Students</button>
+                <button class="tab-btn p-2 rounded-md text-sm md:text-base font-semibold" data-tab="print-qrs">Print QRs</button>
             </div>
 
             <!-- Tab Content -->
@@ -157,6 +181,25 @@
                     <h2 class="text-xl font-semibold text-white">Manage Students</h2>
                     <button id="show-add-student-modal-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-4 rounded-lg">Add New Student</button>
                     <div id="students-list" class="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2"></div>
+                </div>
+
+                <!-- Print QRs View -->
+                <div id="print-qrs-view" class="tab-pane hidden space-y-4">
+                    <h2 class="text-xl font-semibold text-white">Print Student QR Codes</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                           <label for="print-school-select" class="block text-sm font-medium text-gray-300 mb-2">School</label>
+                           <select id="print-school-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3"></select>
+                        </div>
+                        <div>
+                           <label for="print-course-select" class="block text-sm font-medium text-gray-300 mb-2">Course</label>
+                           <select id="print-course-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3"></select>
+                        </div>
+                    </div>
+                    <button id="print-qrs-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg">Print This View</button>
+                    <div id="qr-print-area" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-4">
+                        <!-- QR Codes will be generated here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -498,6 +541,7 @@
                 case 'courses': populateSchoolSelect('course-school-select', renderCourses); break;
                 case 'tasks': populateSchoolSelect('task-school-select', () => populateCourseSelect('task-course-select', 'task-school-select', renderTasks)); break;
                 case 'students': renderStudents(); break;
+                case 'print-qrs': populateSchoolSelect('print-school-select', () => populateCourseSelect('print-course-select', 'print-school-select', renderPrintableQRs)); break;
             }
         }
         
