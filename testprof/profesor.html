@@ -200,7 +200,7 @@
         <!-- Section 2: QR Reader to Set Grade -->
         <div id="qr-reader-section" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
              <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-white">Scan Student QR <span class="text-sm font-normal text-gray-500 align-middle">v3.0</span></h1>
+                <h1 class="text-2xl font-bold text-white">Scan Student QR <span class="text-sm font-normal text-gray-500 align-middle">v3.1</span></h1>
                 <button class="back-btn text-gray-400 hover:text-white">&larr; Back</button>
             </div>
             <div id="reader" class="bg-gray-900 rounded-xl aspect-square w-full">
@@ -242,7 +242,7 @@
         <!-- Section 4: Student Report Section -->
         <div id="student-report-section" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-white">View Student Report <span class="text-sm font-normal text-gray-500 align-middle">Scanner v3.0</span></h1>
+                <h1 class="text-2xl font-bold text-white">View Student Report <span class="text-sm font-normal text-gray-500 align-middle">Scanner v3.1</span></h1>
                 <button class="back-btn text-gray-400 hover:text-white">&larr; Back</button>
             </div>
             <div id="report-scanner-view">
@@ -973,8 +973,11 @@
                 });
 
                 if (code) {
+                    const callback = activeScanner.successCallback;
                     stopScanner();
-                    activeScanner.successCallback(code.data);
+                    if(callback && typeof callback === 'function') {
+                        callback(code.data);
+                    }
                     return;
                 }
             }
@@ -993,7 +996,13 @@
                 activeScanner.stream = null;
             }
              if (activeScanner.status) activeScanner.status.textContent = "Scanner is off.";
-             if(activeScanner.button) activeScanner.button.textContent = "Start Scan";
+             if(activeScanner.button) {
+                if (activeScanner.button.id === 'start-scan-btn') {
+                    activeScanner.button.textContent = 'Start Scan';
+                } else if (activeScanner.button.id === 'start-report-scan-btn') {
+                    activeScanner.button.textContent = 'Scan Student QR for Report';
+                }
+             }
 
             activeScanner = {}; // Reset
         }
