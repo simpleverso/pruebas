@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v4.0</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v4.1</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -212,6 +212,7 @@
             if (studentResult && studentResult.answers && studentResult.transformMatrix) {
                 const studentAnswers = studentResult.answers;
                 let score = 0;
+                let missingAnswers = 0;
                 
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
@@ -226,23 +227,49 @@
                 for (let i = 0; i < numQuestions; i++) {
                     const studentChoiceIndex = studentAnswers[i].choice;
                     const correctChoiceIndex = answerKey[i].choice;
-                    for (let j = 0; j < studentAnswers[i].group.length; j++) {
-                        const circle = studentAnswers[i].group[j];
 
-                        let srcVec = cv.matFromArray(1, 1, cv.CV_32FC2, [circle.x, circle.y]);
-                        let dstVec = new cv.Mat(1, 1, cv.CV_32FC2);
-                        cv.perspectiveTransform(srcVec, dstVec, inverseM);
-                        const originalCircle = { x: dstVec.data32F[0], y: dstVec.data32F[1], radius: circle.radius * scaleFactor };
-                        srcVec.delete();
-                        dstVec.delete();
+                    if (studentChoiceIndex === -1) {
+                        missingAnswers++;
+                        const firstBubble = studentAnswers[i].group[0];
+                        const lastBubble = studentAnswers[i].group[studentAnswers[i].group.length - 1];
+                        
+                        let startVec = cv.matFromArray(1, 1, cv.CV_32FC2, [firstBubble.x, firstBubble.y]);
+                        let endVec = cv.matFromArray(1, 1, cv.CV_32FC2, [lastBubble.x, lastBubble.y]);
+                        let startDstVec = new cv.Mat(1, 1, cv.CV_32FC2);
+                        let endDstVec = new cv.Mat(1, 1, cv.CV_32FC2);
 
-                        if (j === correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(0, 255, 0, 0.7)');
-                        if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(255, 0, 0, 0.7)');
+                        cv.perspectiveTransform(startVec, startDstVec, inverseM);
+                        cv.perspectiveTransform(endVec, endDstVec, inverseM);
+
+                        const startPoint = { x: startDstVec.data32F[0], y: startDstVec.data32F[1] };
+                        const endPoint = { x: endDstVec.data32F[0], y: endDstVec.data32F[1] };
+                        
+                        drawLine(tempCtx, startPoint, endPoint, 'rgba(255, 165, 0, 0.8)');
+
+                        startVec.delete(); endVec.delete(); startDstVec.delete(); endDstVec.delete();
+                    } else {
+                        if (studentChoiceIndex === correctChoiceIndex) {
+                            score++;
+                        }
+                        for (let j = 0; j < studentAnswers[i].group.length; j++) {
+                            const circle = studentAnswers[i].group[j];
+                            let srcVec = cv.matFromArray(1, 1, cv.CV_32FC2, [circle.x, circle.y]);
+                            let dstVec = new cv.Mat(1, 1, cv.CV_32FC2);
+                            cv.perspectiveTransform(srcVec, dstVec, inverseM);
+                            const originalCircle = { x: dstVec.data32F[0], y: dstVec.data32F[1], radius: circle.radius * scaleFactor };
+                            srcVec.delete(); dstVec.delete();
+                            if (j === correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(0, 255, 0, 0.7)');
+                            if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(255, 0, 0, 0.7)');
+                        }
                     }
-                    if (studentChoiceIndex === correctChoiceIndex && studentChoiceIndex !== -1) score++;
                 }
                 statusEl.textContent = 'Grading complete.';
-                resultEl.textContent = `Score: ${score} / ${answerKey.length}`;
+                let resultText = `Score: ${score} / ${answerKey.length}`;
+                if (missingAnswers > 0) {
+                    resultText += ` and ${missingAnswers} missing response${missingAnswers > 1 ? 's' : ''}`;
+                }
+                resultEl.textContent = resultText;
+                
                 comparisonContainer.classList.remove('hidden');
                 comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
                 
@@ -272,6 +299,15 @@
             context.beginPath();
             context.arc(circle.x, circle.y, circle.radius + 6, 0, 2 * Math.PI, false);
             context.lineWidth = 4;
+            context.strokeStyle = color;
+            context.stroke();
+        }
+        
+        function drawLine(context, start, end, color) {
+            context.beginPath();
+            context.moveTo(start.x, start.y);
+            context.lineTo(end.x, end.y);
+            context.lineWidth = 5;
             context.strokeStyle = color;
             context.stroke();
         }
