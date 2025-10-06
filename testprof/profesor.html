@@ -487,6 +487,18 @@
             stopScanner();
         }
         
+        function generateUniqueId(existingIds) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let id;
+            do {
+                id = '';
+                for (let i = 0; i < 6; i++) {
+                    id += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+            } while (existingIds.includes(id));
+            return id;
+        }
+
         // --- Authentication Logic ---
         function checkAuth() {
             const loginTimestamp = localStorage.getItem('login_timestamp');
@@ -838,9 +850,9 @@
             if (!name || !schoolId || courseIds.length === 0) return showMessage('Name, school, and at least one course are required.', true);
             
             let data = DB.getData();
-            const id = isEditing ? studentId : `student_${Date.now()}`;
+            const id = isEditing ? studentId : generateUniqueId(Object.keys(data.students));
             
-            data.students[id] = { id, name, schoolId, courseIds, grades: isEditing ? data.students[id].grades : [] };
+            data.students[id] = { id, name, schoolId, courseIds, grades: isEditing ? (data.students[id]?.grades || []) : [] };
             DB.saveData(data);
             showMessage(`Student ${isEditing ? 'updated' : 'created'} successfully!`);
             studentModal.classList.add('hidden');
