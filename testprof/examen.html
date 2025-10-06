@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.0</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.1</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -376,17 +376,44 @@
                 return;
             }
             sheetContent.innerHTML = '';
+            
+            // **FIX: Re-structured header for correct marker alignment**
             const header = document.createElement('div');
             header.id = 'sheet-header';
-            header.className = 'flex items-center justify-between space-x-10 text-base p-3 mb-2';
+            header.className = 'flex items-center justify-center space-x-10 text-base p-3 mb-2';
+
             const numberPlaceholder = document.createElement('div');
             numberPlaceholder.className = 'w-12';
             header.appendChild(numberPlaceholder);
+
             const markersContainer = document.createElement('div');
-            markersContainer.className = 'flex-1 flex items-center justify-between';
+            markersContainer.className = 'flex items-center space-x-10';
             header.appendChild(markersContainer);
+
+            // Marker wrapper for column 'A' (The Square)
+            const squareWrapper = document.createElement('div');
+            squareWrapper.className = 'flex items-center space-x-2';
+            const ghostLetterA = document.createElement('span');
+            ghostLetterA.textContent = 'A';
+            ghostLetterA.className = 'font-semibold text-transparent pointer-events-none';
             const square = document.createElement('div');
             square.className = 'w-6 h-6 bg-black';
+            squareWrapper.appendChild(ghostLetterA);
+            squareWrapper.appendChild(square);
+            markersContainer.appendChild(squareWrapper);
+
+            // Marker wrapper for column 'B' (Invisible Placeholder for spacing)
+            const bPlaceholder = document.createElement('div');
+            bPlaceholder.className = 'flex items-center space-x-2';
+            bPlaceholder.innerHTML = `<span class="font-semibold text-transparent pointer-events-none">B</span><div class="w-6 h-6 border-2 border-transparent rounded-full"></div>`;
+            markersContainer.appendChild(bPlaceholder);
+
+            // Marker wrapper for column 'C' (The Triangle)
+            const triangleWrapper = document.createElement('div');
+            triangleWrapper.className = 'flex items-center space-x-2';
+            const ghostLetterC = document.createElement('span');
+            ghostLetterC.textContent = 'C';
+            ghostLetterC.className = 'font-semibold text-transparent pointer-events-none';
             const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             triangle.setAttribute('width', '24');
             triangle.setAttribute('height', '24');
@@ -395,9 +422,12 @@
             polygon.setAttribute('points', '50,0 100,100 0,100');
             polygon.setAttribute('fill', 'black');
             triangle.appendChild(polygon);
-            markersContainer.appendChild(square);
-            markersContainer.appendChild(triangle);
+            triangleWrapper.appendChild(ghostLetterC);
+            triangleWrapper.appendChild(triangle);
+            markersContainer.appendChild(triangleWrapper);
+            
             sheetContent.appendChild(header);
+
             const grid = document.createElement('div');
             grid.id = 'sheet-grid';
             grid.className = 'grid grid-cols-1';
