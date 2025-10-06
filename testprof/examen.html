@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.2</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.3</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -201,7 +201,7 @@
             processingLoop();
         });
 
-        gradeStudentBtn.addEventListener('click', () => {
+        gradeStudentBtn.addEventListener('click', async () => {
             if (!answerKey) return;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             scanResultEl.textContent = '';
@@ -212,8 +212,8 @@
                 let score = 0;
                 let missingAnswers = 0;
                 
-                // **FIX: Use the returned image data for the overlay**
-                ctx.putImageData(studentResult.originalImageData, 0, 0);
+                const bmp = await createImageBitmap(studentResult.originalFrame);
+                ctx.drawImage(bmp, 0, 0);
                 
                 const inverseM = new cv.Mat();
                 cv.invert(studentResult.transformMatrix, inverseM);
@@ -301,14 +301,14 @@
         function processImage(isFinalScan) {
             if (!window.cv || video.readyState < 3) return null;
             const mats = [];
-            let src, gray, binary, warpedGray, cleanBinary, M, originalImageData;
+            let src, gray, binary, warpedGray, cleanBinary, M, originalFrame;
             try {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-                originalImageData = tempCtx.getImageData(0, 0, video.videoWidth, video.videoHeight);
-                src = cv.matFromImageData(originalImageData);
+                if (isFinalScan) originalFrame = tempCanvas; // **FIX: Pass canvas reference**
+                src = cv.matFromImageData(tempCtx.getImageData(0, 0, video.videoWidth, video.videoHeight));
                 mats.push(src);
                 gray = new cv.Mat(); mats.push(gray);
                 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
@@ -333,7 +333,7 @@
                 }
                 if (!square || !triangle) {
                     if (isFinalScan) statusEl.textContent = 'Markers not found.';
-                    return { answers: [], binaryImage: binary.clone(), transformMatrix: null, originalImageData: isFinalScan ? originalImageData : null };
+                    return { answers: [], binaryImage: binary.clone(), transformMatrix: null, originalFrame: isFinalScan ? originalFrame : null };
                 }
                 if(!isFinalScan) statusEl.textContent = 'Markers found! Ready to scan.';
                 const [tl, tr, bl, br] = [new cv.Point(square.x, square.y), new cv.Point(triangle.x + triangle.width, square.y), new cv.Point(square.x, triangle.y + triangle.height), new cv.Point(triangle.x + triangle.width, triangle.y + triangle.height)];
@@ -368,7 +368,7 @@
                 cleanBinary = cv.Mat.zeros(warpedGray.rows, warpedGray.cols, cv.CV_8UC1);
                 cv.drawContours(cleanBinary, validContours, -1, new cv.Scalar(255), cv.FILLED);
                 validContours.delete();
-                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width, originalImageData: isFinalScan ? originalImageData : null };
+                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width, originalFrame: isFinalScan ? originalFrame : null };
                 circles.sort((a, b) => (Math.abs(a.y - b.y) > 20) ? a.y - b.y : a.x - b.x);
                 const questions = [];
                 let currentQuestion = [circles[0]];
@@ -391,7 +391,7 @@
                     }
                     answers.push({ group, choice: minIntensity < 145 ? darkestCircleIndex : -1 });
                 }
-                return { answers, binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width, originalImageData: isFinalScan ? originalImageData : null };
+                return { answers, binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width, originalFrame: isFinalScan ? originalFrame : null };
             } catch (error) {
                 console.error("Error during image processing:", error);
                 if(cleanBinary && !cleanBinary.isDeleted()) cleanBinary.delete();
