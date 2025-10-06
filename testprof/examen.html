@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.9</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v4.0</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -78,15 +78,9 @@
 
             <div id="comparisonContainer" class="mt-6 hidden">
                 <h3 class="text-xl font-bold text-gray-700 text-center mb-4">Grading Result</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
-                        <canvas id="comparisonOriginal" class="w-full rounded-lg border border-gray-300"></canvas>
-                    </div>
-                    <div>
-                        <h4 class="text-center font-semibold text-gray-600 mb-2">Processed Snapshot</h4>
-                        <canvas id="comparisonProcessed" class="w-full rounded-lg border border-gray-300"></canvas>
-                    </div>
+                <div>
+                    <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
+                    <canvas id="comparisonOriginal" class="w-full rounded-lg border border-gray-300"></canvas>
                 </div>
                 <div id="result" class="mt-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
             </div>
@@ -154,7 +148,6 @@
         const outputCanvas = document.getElementById('outputCanvas');
         const comparisonContainer = document.getElementById('comparisonContainer');
         const comparisonOriginalCanvas = document.getElementById('comparisonOriginal');
-        const comparisonProcessedCanvas = document.getElementById('comparisonProcessed');
 
         let stream = null;
         let answerKey = null;
@@ -175,7 +168,7 @@
                 video.srcObject = stream;
                 await video.play();
                 const { videoWidth, videoHeight } = video;
-                [outputCanvas, comparisonOriginalCanvas, comparisonProcessedCanvas].forEach(c => { c.width = videoWidth; c.height = videoHeight; });
+                [outputCanvas, comparisonOriginalCanvas].forEach(c => { c.width = videoWidth; c.height = videoHeight; });
                 startBtn.textContent = 'Restart Camera';
                 scanKeyBtn.disabled = false;
                 gradeStudentBtn.disabled = true;
@@ -252,7 +245,6 @@
                 resultEl.textContent = `Score: ${score} / ${answerKey.length}`;
                 comparisonContainer.classList.remove('hidden');
                 comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
-                cv.imshow('comparisonProcessed', studentResult.binaryImage);
                 
                 inverseM.delete();
                 studentResult.binaryImage.delete();
