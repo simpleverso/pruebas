@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.5</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.6</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -201,7 +201,7 @@
             processingLoop();
         });
 
-        gradeStudentBtn.addEventListener('click', () => {
+        gradeStudentBtn.addEventListener('click', async () => {
             if (!answerKey) return;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             scanResultEl.textContent = '';
@@ -212,7 +212,9 @@
                 let score = 0;
                 let missingAnswers = 0;
                 
-                ctx.drawImage(studentResult.originalFrame, 0, 0, outputCanvas.width, outputCanvas.height);
+                // **FIX: Use the returned image data for the overlay**
+                const bmp = await createImageBitmap(studentResult.originalFrame);
+                ctx.drawImage(bmp, 0, 0, outputCanvas.width, outputCanvas.height);
                 
                 const inverseM = new cv.Mat();
                 cv.invert(studentResult.transformMatrix, inverseM);
