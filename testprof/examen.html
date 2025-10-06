@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.8</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.9</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -72,7 +72,8 @@
                 <button id="gradeStudentBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400" disabled>2. Grade Student Sheet</button>
             </div>
 
-            <div id="status" class="mt-4 text-center text-gray-500 font-medium">Loading OpenCV... Press Start when ready.</div>
+            <div id="scan-result" class="mt-4 text-center text-2xl font-bold text-blue-600 h-8"></div>
+            <div id="status" class="mt-2 text-center text-gray-500 font-medium">Loading OpenCV... Press Start when ready.</div>
             <button id="startBtn" class="w-full mt-4 bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition-all duration-200">Start Camera</button>
 
             <div id="comparisonContainer" class="mt-6 hidden">
@@ -149,6 +150,7 @@
         const gradeStudentBtn = document.getElementById('gradeStudentBtn');
         const statusEl = document.getElementById('status');
         const resultEl = document.getElementById('result');
+        const scanResultEl = document.getElementById('scan-result');
         const outputCanvas = document.getElementById('outputCanvas');
         const comparisonContainer = document.getElementById('comparisonContainer');
         const comparisonOriginalCanvas = document.getElementById('comparisonOriginal');
@@ -179,7 +181,7 @@
                 gradeStudentBtn.disabled = true;
                 answerKey = null;
                 statusEl.textContent = 'Camera started. Looking for markers...';
-                resultEl.innerHTML = '';
+                scanResultEl.innerHTML = '';
                 comparisonContainer.classList.add('hidden');
                 processingLoop();
             } catch (err) {
@@ -195,12 +197,13 @@
             const result = processImage(true); 
             if (result && result.answers && result.answers.length > 0) {
                 answerKey = JSON.parse(JSON.stringify(result.answers));
-                statusEl.textContent = `Key scanned with ${result.answers.length} questions. Ready to grade.`;
-                resultEl.textContent = '';
+                scanResultEl.textContent = `${result.answers.length} questions detected.`;
+                statusEl.textContent = 'Answer key scanned. Ready to grade student sheets.';
                 gradeStudentBtn.disabled = false;
                 comparisonContainer.classList.add('hidden');
             } else {
                  statusEl.textContent = 'Could not detect a valid answer key. Try again.';
+                 scanResultEl.textContent = '';
             }
             if (result && result.binaryImage) result.binaryImage.delete();
             if (result && result.transformMatrix) result.transformMatrix.delete();
@@ -210,6 +213,7 @@
         gradeStudentBtn.addEventListener('click', () => {
             if (!answerKey) return;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            scanResultEl.textContent = '';
 
             const studentResult = processImage(true); 
             if (studentResult && studentResult.answers && studentResult.transformMatrix) {
