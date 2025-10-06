@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Grader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        button:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8 m-4">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
+            <p class="text-gray-600 mt-2">The camera shows the live processed image. Scan the key, then a student sheet.</p>
+        </div>
+        
+        <div class="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
+            <!-- Video is hidden but used as the source -->
+            <video id="video" class="absolute w-full h-full object-cover" style="opacity: 0; pointer-events: none;" playsinline autoplay muted></video>
+            <!-- Output canvas is now the main view for the live processed stream -->
+            <canvas id="outputCanvas" class="w-full h-full"></canvas>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button id="scanKeyBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400" disabled>
+                1. Scan Answer Key
+            </button>
+            <button id="gradeStudentBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400" disabled>
+                2. Grade Student Sheet
+            </button>
+        </div>
+
+        <div id="status" class="mt-4 text-center text-gray-500 font-medium">Loading OpenCV... Press Start when ready.</div>
+        <button id="startBtn" class="w-full mt-4 bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition-all duration-200">
+            Start Camera
+        </button>
+
+        <!-- Comparison View Section -->
+        <div id="comparisonContainer" class="mt-6 hidden">
+            <h3 class="text-xl font-bold text-gray-700 text-center mb-2">Grading Result</h3>
+            <div id="result" class="mt-2 mb-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
+                    <canvas id="comparisonOriginal" class="w-full rounded-lg border border-gray-300"></canvas>
+                </div>
+                <div>
+                    <h4 class="text-center font-semibold text-gray-600 mb-2">Processed Snapshot</h4>
+                    <canvas id="comparisonProcessed" class="w-full rounded-lg border border-gray-300"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvReady();"></script>
+    <script>
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('startBtn');
+        const scanKeyBtn = document.getElementById('scanKeyBtn');
+        const gradeStudentBtn = document.getElementById('gradeStudentBtn');
+        const statusEl = document.getElementById('status');
+        const resultEl = document.getElementById('result');
+        const outputCanvas = document.getElementById('outputCanvas');
+        const comparisonContainer = document.getElementById('comparisonContainer');
+        const comparisonOriginalCanvas = document.getElementById('comparisonOriginal');
+        const comparisonProcessedCanvas = document.getElementById('comparisonProcessed');
+
+        let stream = null;
+        let answerKey = null;
+        let latestProcessedResult = null;
+        let animationFrameId;
+
+        function onOpenCvReady() {
+            statusEl.textContent = 'OpenCV is ready.';
+            startBtn.disabled = false;
+        }
+
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            statusEl.textContent = 'Starting camera...';
+            try {
+                if (stream) stream.getTracks().forEach(track => track.stop());
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
+                video.srcObject = stream;
+                await video.play();
+
+                const { videoWidth, videoHeight } = video;
+                [outputCanvas, comparisonOriginalCanvas, comparisonProcessedCanvas].forEach(c => {
+                    c.width = videoWidth;
+                    c.height = videoHeight;
+                });
+
+                startBtn.textContent = 'Restart Camera';
+                scanKeyBtn.disabled = false;
+                gradeStudentBtn.disabled = true;
+                answerKey = null;
+                statusEl.textContent = 'Camera started. Position the answer key and scan.';
+                resultEl.innerHTML = '';
+                comparisonContainer.classList.add('hidden');
+                
+                processingLoop(); // Start the live processing loop
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                statusEl.textContent = 'Error: Could not access camera.';
+            } finally {
+                startBtn.disabled = false;
+            }
+        });
+
+        scanKeyBtn.addEventListener('click', () => {
+            if (latestProcessedResult && latestProcessedResult.answers.length > 0) {
+                answerKey = latestProcessedResult.answers;
+                statusEl.textContent = `Key scanned with ${answerKey.length} questions. Ready to grade.`;
+                resultEl.textContent = '';
+                gradeStudentBtn.disabled = false;
+                comparisonContainer.classList.add('hidden');
+            } else {
+                 statusEl.textContent = 'Could not detect a valid answer key. Try again.';
+            }
+        });
+        
+        gradeStudentBtn.addEventListener('click', () => {
+            if (!answerKey || !latestProcessedResult) return;
+
+            const studentResult = latestProcessedResult;
+            const studentAnswers = studentResult.answers;
+            
+            let score = 0;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = video.videoWidth;
+            tempCanvas.height = video.videoHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            
+            const numQuestions = Math.min(answerKey.length, studentAnswers.length);
+
+            for (let i = 0; i < numQuestions; i++) {
+                const studentChoiceIndex = studentAnswers[i].choice;
+                const correctChoiceIndex = answerKey[i].choice;
+                for (let j = 0; j < studentAnswers[i].group.length; j++) {
+                    const circle = studentAnswers[i].group[j];
+                    if (j === correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(0, 255, 0, 0.7)');
+                    if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(255, 0, 0, 0.7)');
+                }
+                if (studentChoiceIndex === correctChoiceIndex && studentChoiceIndex !== -1) score++;
+            }
+            
+            statusEl.textContent = 'Grading complete.';
+            resultEl.textContent = `Score: ${score} / ${answerKey.length}`;
+            
+            comparisonContainer.classList.remove('hidden');
+            comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
+            cv.imshow('comparisonProcessed', studentResult.binaryImage);
+        });
+
+        function processingLoop() {
+            if (!video.srcObject || video.paused || video.ended) return;
+
+            const result = processImage();
+            if (result && result.binaryImage) {
+                cv.imshow('outputCanvas', result.binaryImage);
+                // Clean up the old result before assigning the new one
+                if (latestProcessedResult && latestProcessedResult.binaryImage) {
+                    latestProcessedResult.binaryImage.delete();
+                }
+                latestProcessedResult = result;
+            }
+            animationFrameId = requestAnimationFrame(processingLoop);
+        }
+
+        function drawCircle(context, circle, color) {
+            context.beginPath();
+            context.arc(circle.x, circle.y, circle.radius + 6, 0, 2 * Math.PI, false);
+            context.lineWidth = 4;
+            context.strokeStyle = color;
+            context.stroke();
+        }
+
+        function processImage() {
+            if (!window.cv || video.readyState < 3) return null;
+
+            let src, gray, binary, cleanBinary;
+            const mats = [];
+
+            try {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = video.videoWidth;
+                tempCanvas.height = video.videoHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                src = cv.matFromImageData(tempCtx.getImageData(0, 0, video.videoWidth, video.videoHeight));
+                mats.push(src);
+
+                gray = new cv.Mat(); mats.push(gray);
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                
+                binary = new cv.Mat(); mats.push(binary);
+                cv.adaptiveThreshold(gray, binary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 5);
+
+                // Vertical and Horizontal Line Removal
+                let verticalKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(1, 40)); mats.push(verticalKernel);
+                let vertical_lines = new cv.Mat(); mats.push(vertical_lines);
+                cv.erode(binary, vertical_lines, verticalKernel);
+                cv.dilate(vertical_lines, vertical_lines, verticalKernel);
+
+                let horizontalKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(40, 1)); mats.push(horizontalKernel);
+                let horizontal_lines = new cv.Mat(); mats.push(horizontal_lines);
+                cv.erode(binary, horizontal_lines, horizontalKernel);
+                cv.dilate(horizontal_lines, horizontal_lines, horizontalKernel);
+
+                let line_mask = new cv.Mat(); mats.push(line_mask);
+                cv.add(vertical_lines, horizontal_lines, line_mask);
+                cv.subtract(binary, line_mask, binary);
+
+                // Noise Removal using Morphological Opening
+                let kernel = cv.Mat.ones(3, 3, cv.CV_8U); mats.push(kernel);
+                cv.morphologyEx(binary, binary, cv.MORPH_OPEN, kernel);
+
+                let contoursMat = binary; // Use the cleaned binary image for contour finding
+                let contours = new cv.MatVector(); mats.push(contours);
+                let hierarchy = new cv.Mat(); mats.push(hierarchy);
+                cv.findContours(contoursMat, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                let circles = [];
+                let validContours = new cv.MatVector();
+                
+                for (let i = 0; i < contours.size(); ++i) {
+                    let cnt = contours.get(i);
+                    let area = cv.contourArea(cnt);
+                    if (area < 150 || area > 5000) { cnt.delete(); continue; }
+                    let perimeter = cv.arcLength(cnt, true);
+                    let circularity = (4 * Math.PI * area) / (perimeter * perimeter);
+                    if (circularity > 0.7) {
+                        let circle = cv.minEnclosingCircle(cnt);
+                        circles.push({ x: circle.center.x, y: circle.center.y, radius: circle.radius });
+                        validContours.push_back(cnt);
+                    }
+                    cnt.delete();
+                }
+
+                // **NEW: Create a clean binary image with filled circles**
+                cleanBinary = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC1);
+                cv.drawContours(cleanBinary, validContours, -1, new cv.Scalar(255), cv.FILLED);
+                validContours.delete();
+
+
+                if (circles.length === 0) {
+                     return { answers: [], binaryImage: cleanBinary };
+                }
+
+                circles.sort((a, b) => (Math.abs(a.y - b.y) > 25) ? a.y - b.y : a.x - b.x);
+                
+                const questions = [];
+                let currentQuestion = [circles[0]];
+                for (let i = 1; i < circles.length; i++) {
+                    if (Math.abs(circles[i].y - currentQuestion[0].y) < 25) currentQuestion.push(circles[i]);
+                    else { questions.push(currentQuestion); currentQuestion = [circles[i]]; }
+                }
+                questions.push(currentQuestion);
+
+                const answers = [];
+                for (const group of questions) {
+                    let darkestCircleIndex = -1, minIntensity = 255;
+                    for (let i = 0; i < group.length; i++) {
+                        const circle = group[i];
+                        const rect = new cv.Rect(Math.max(0, circle.x - circle.radius), Math.max(0, circle.y - circle.radius), circle.radius * 2, circle.radius * 2);
+                        if (rect.x + rect.width > gray.cols || rect.y + rect.height > gray.rows) continue;
+                        let roi = gray.roi(rect);
+                        let mean = cv.mean(roi)[0];
+                        if (mean < minIntensity) { minIntensity = mean; darkestCircleIndex = i; }
+                        roi.delete();
+                    }
+                    answers.push({ group, choice: minIntensity < 120 ? darkestCircleIndex : -1 });
+                }
+                
+                return { answers, binaryImage: cleanBinary };
+
+            } catch (error) {
+                console.error("Error during image processing:", error);
+                if(cleanBinary && !cleanBinary.isDeleted()) cleanBinary.delete();
+                return null;
+            } finally {
+                mats.forEach(mat => { if(mat && !mat.isDeleted()) mat.delete();});
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        });
+    </script>
+</body>
+</html>
+
