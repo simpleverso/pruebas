@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.3</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.5</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -377,77 +377,94 @@
             }
             sheetContent.innerHTML = '';
             
-            // **FIX: Marker Placement Logic v3.3**
-            const createMarkerRow = (markerType) => {
-                const markerRow = document.createElement('div');
-                markerRow.className = 'flex items-center justify-center space-x-10 text-base py-1 px-3';
-                const numberPlaceholder = document.createElement('div');
-                numberPlaceholder.className = 'font-bold w-12 text-right';
-                markerRow.appendChild(numberPlaceholder);
-                
-                const options = document.createElement('div');
-                options.className = 'flex items-center space-x-10';
-                
-                const optionA = document.createElement('div');
-                optionA.className = 'flex items-center space-x-2';
-                optionA.innerHTML = `<span class="font-semibold text-transparent">A</span>` + (markerType === 'square' ? `<div class="w-6 h-6 bg-black"></div>` : `<div class="w-6 h-6"></div>`);
-                
-                const optionB = document.createElement('div');
-                optionB.className = 'flex items-center space-x-2';
-                optionB.innerHTML = `<span class="font-semibold text-transparent">B</span><div class="w-6 h-6"></div>`;
-
-                const optionC = document.createElement('div');
-                optionC.className = 'flex items-center space-x-2';
-                optionC.innerHTML = `<span class="font-semibold text-transparent">C</span>` + (markerType === 'triangle' ? `<svg width="24" height="24" viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" fill="black"></polygon></svg>` : `<div class="w-6 h-6"></div>`);
-
-                options.appendChild(optionA);
-                options.appendChild(optionB);
-                options.appendChild(optionC);
-                markerRow.appendChild(options);
-                return markerRow;
+            // **FIX: Marker Placement Logic v3.5**
+            const createRow = () => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-center space-x-10 text-base py-1 px-3';
+                const numberCol = document.createElement('div');
+                numberCol.className = 'font-bold w-12 text-right';
+                const optionsCol = document.createElement('div');
+                optionsCol.className = 'flex items-center space-x-10';
+                row.appendChild(numberCol);
+                row.appendChild(optionsCol);
+                return { row, numberCol, optionsCol };
             };
 
-            sheetContent.appendChild(createMarkerRow('square'));
+            const header = createRow();
+            ['A', 'B', 'C'].forEach(letter => {
+                const optionWrapper = document.createElement('div');
+                optionWrapper.className = 'flex items-center justify-center w-12';
+                const letterSpan = document.createElement('span');
+                letterSpan.className = 'font-semibold text-gray-800';
+                letterSpan.textContent = letter;
+                optionWrapper.appendChild(letterSpan);
+                header.optionsCol.appendChild(optionWrapper);
+            });
+            sheetContent.appendChild(header.row);
 
+            const topMarker = createRow();
+            const squareWrapper = document.createElement('div');
+            squareWrapper.className = 'flex items-center justify-center w-12 h-6';
+            const square = document.createElement('div');
+            square.className = 'w-6 h-6 bg-black';
+            squareWrapper.appendChild(square);
+            const placeholderB1 = document.createElement('div'); placeholderB1.className = 'w-12 h-6';
+            const placeholderC1 = document.createElement('div'); placeholderC1.className = 'w-12 h-6';
+            topMarker.optionsCol.appendChild(squareWrapper);
+            topMarker.optionsCol.appendChild(placeholderB1);
+            topMarker.optionsCol.appendChild(placeholderC1);
+            sheetContent.appendChild(topMarker.row);
+            
             const grid = document.createElement('div');
             grid.id = 'sheet-grid';
-            grid.className = 'grid grid-cols-1';
             for (let i = 1; i <= count; i++) {
-                const questionItem = document.createElement('div');
-                questionItem.className = 'flex items-center justify-center space-x-10 text-base py-1 px-3 border-b border-gray-200';
-                const number = document.createElement('span');
-                number.className = 'font-bold w-12 text-right';
-                number.textContent = `${i}.`;
-                const options = document.createElement('div');
-                options.className = 'flex items-center space-x-10';
-                ['A', 'B', 'C'].forEach(letter => {
+                const item = createRow();
+                item.row.classList.remove('py-1');
+                item.row.classList.add('py-2');
+                item.numberCol.textContent = `${i}.`;
+
+                ['A', 'B', 'C'].forEach(() => {
                     const optionWrapper = document.createElement('div');
-                    optionWrapper.className = 'flex items-center space-x-2 cursor-pointer';
-                    const letterSpan = document.createElement('span');
-                    letterSpan.textContent = letter;
-                    letterSpan.className = 'font-semibold text-gray-700';
+                    optionWrapper.className = 'flex items-center justify-center w-12 cursor-pointer';
                     const circle = document.createElement('div');
                     circle.className = 'w-6 h-6 border-2 border-gray-500 rounded-full';
-                    optionWrapper.appendChild(letterSpan);
                     optionWrapper.appendChild(circle);
-                    options.appendChild(optionWrapper);
+                    item.optionsCol.appendChild(optionWrapper);
+
                     optionWrapper.addEventListener('click', () => {
-                        const currentCircle = optionWrapper.querySelector('div.rounded-full');
-                        const isSelected = currentCircle.classList.contains('bg-black');
-                        options.querySelectorAll('div.rounded-full').forEach(circ => circ.classList.remove('bg-black'));
-                        if (!isSelected) currentCircle.classList.add('bg-black');
+                        const isSelected = circle.classList.contains('bg-black');
+                        item.optionsCol.querySelectorAll('div.rounded-full').forEach(circ => circ.classList.remove('bg-black'));
+                        if (!isSelected) circle.classList.add('bg-black');
                     });
                 });
-                questionItem.appendChild(number);
-                questionItem.appendChild(options);
-                grid.appendChild(questionItem);
+                grid.appendChild(item.row);
             }
             sheetContent.appendChild(grid);
             
-            sheetContent.appendChild(createMarkerRow('triangle'));
+            const bottomMarker = createRow();
+            const placeholderA2 = document.createElement('div'); placeholderA2.className = 'w-12 h-6';
+            const placeholderB2 = document.createElement('div'); placeholderB2.className = 'w-12 h-6';
+            
+            const triangleWrapper = document.createElement('div');
+            triangleWrapper.className = 'flex items-center justify-center w-12 h-6';
+            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            triangle.setAttribute('width', '24');
+            triangle.setAttribute('height', '24');
+            triangle.setAttribute('viewBox', '0 0 100 100');
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '50,0 100,100 0,100');
+            polygon.setAttribute('fill', 'black');
+            triangle.appendChild(polygon);
+triangleWrapper.appendChild(triangle);
+            
+            bottomMarker.optionsCol.appendChild(placeholderA2);
+            bottomMarker.optionsCol.appendChild(placeholderB2);
+            bottomMarker.optionsCol.appendChild(triangleWrapper);
+            sheetContent.appendChild(bottomMarker.row);
 
             printBtn.style.display = 'inline-block';
         };
+
         const printSheet = () => { window.print(); };
         generateBtn.addEventListener('click', generateSheet);
         printBtn.addEventListener('click', printSheet);
