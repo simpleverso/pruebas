@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.6</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.8</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -76,8 +76,7 @@
             <button id="startBtn" class="w-full mt-4 bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition-all duration-200">Start Camera</button>
 
             <div id="comparisonContainer" class="mt-6 hidden">
-                <h3 class="text-xl font-bold text-gray-700 text-center mb-2">Grading Result</h3>
-                <div id="result" class="mt-2 mb-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
+                <h3 class="text-xl font-bold text-gray-700 text-center mb-4">Grading Result</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
@@ -88,6 +87,7 @@
                         <canvas id="comparisonProcessed" class="w-full rounded-lg border border-gray-300"></canvas>
                     </div>
                 </div>
+                <div id="result" class="mt-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
             </div>
         </div>
         
@@ -190,12 +190,11 @@
             }
         });
         
-        // **FIX: Active scanning logic for reliability**
         scanKeyBtn.addEventListener('click', () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            const result = processImage(true); // Process a single, stable frame
+            const result = processImage(true); 
             if (result && result.answers && result.answers.length > 0) {
-                answerKey = JSON.parse(JSON.stringify(result.answers)); // Deep copy
+                answerKey = JSON.parse(JSON.stringify(result.answers));
                 statusEl.textContent = `Key scanned with ${result.answers.length} questions. Ready to grade.`;
                 resultEl.textContent = '';
                 gradeStudentBtn.disabled = false;
@@ -204,29 +203,44 @@
                  statusEl.textContent = 'Could not detect a valid answer key. Try again.';
             }
             if (result && result.binaryImage) result.binaryImage.delete();
-            processingLoop(); // Restart live view
+            if (result && result.transformMatrix) result.transformMatrix.delete();
+            processingLoop();
         });
 
         gradeStudentBtn.addEventListener('click', () => {
             if (!answerKey) return;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-            const studentResult = processImage(true); // Process a single, stable frame
-            if (studentResult && studentResult.answers) {
+            const studentResult = processImage(true); 
+            if (studentResult && studentResult.answers && studentResult.transformMatrix) {
                 const studentAnswers = studentResult.answers;
                 let score = 0;
+                
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                
+                const inverseM = new cv.Mat();
+                cv.invert(studentResult.transformMatrix, inverseM);
+                const scaleFactor = video.videoWidth / studentResult.warpedWidth;
+
                 const numQuestions = Math.min(answerKey.length, studentAnswers.length);
                 for (let i = 0; i < numQuestions; i++) {
                     const studentChoiceIndex = studentAnswers[i].choice;
                     const correctChoiceIndex = answerKey[i].choice;
                     for (let j = 0; j < studentAnswers[i].group.length; j++) {
                         const circle = studentAnswers[i].group[j];
-                        if (j === correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(0, 255, 0, 0.7)');
-                        if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(255, 0, 0, 0.7)');
+
+                        let srcVec = cv.matFromArray(1, 1, cv.CV_32FC2, [circle.x, circle.y]);
+                        let dstVec = new cv.Mat(1, 1, cv.CV_32FC2);
+                        cv.perspectiveTransform(srcVec, dstVec, inverseM);
+                        const originalCircle = { x: dstVec.data32F[0], y: dstVec.data32F[1], radius: circle.radius * scaleFactor };
+                        srcVec.delete();
+                        dstVec.delete();
+
+                        if (j === correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(0, 255, 0, 0.7)');
+                        if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(255, 0, 0, 0.7)');
                     }
                     if (studentChoiceIndex === correctChoiceIndex && studentChoiceIndex !== -1) score++;
                 }
@@ -235,19 +249,25 @@
                 comparisonContainer.classList.remove('hidden');
                 comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
                 cv.imshow('comparisonProcessed', studentResult.binaryImage);
+                
+                inverseM.delete();
                 studentResult.binaryImage.delete();
+                studentResult.transformMatrix.delete();
             } else {
                  statusEl.textContent = 'Could not read student sheet. Please try again.';
+                 if (studentResult && studentResult.binaryImage) studentResult.binaryImage.delete();
+                 if (studentResult && studentResult.transformMatrix) studentResult.transformMatrix.delete();
             }
-            processingLoop(); // Restart live view
+            processingLoop();
         });
         
         function processingLoop() {
             if (!video.srcObject || video.paused || video.ended) return;
-            const result = processImage(false); // 'false' for live view processing
+            const result = processImage(false);
             if (result && result.binaryImage) {
                 cv.imshow('outputCanvas', result.binaryImage);
                 result.binaryImage.delete();
+                if (result.transformMatrix) result.transformMatrix.delete();
             }
             animationFrameId = requestAnimationFrame(processingLoop);
         }
@@ -263,7 +283,7 @@
         function processImage(isFinalScan) {
             if (!window.cv || video.readyState < 3) return null;
             const mats = [];
-            let src, gray, binary, warpedGray, cleanBinary;
+            let src, gray, binary, warpedGray, cleanBinary, M;
             try {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
@@ -294,7 +314,7 @@
                 }
                 if (!square || !triangle) {
                     if (isFinalScan) statusEl.textContent = 'Markers not found.';
-                    return { answers: [], binaryImage: binary.clone() };
+                    return { answers: [], binaryImage: binary.clone(), transformMatrix: null };
                 }
                 if(!isFinalScan) statusEl.textContent = 'Markers found! Ready to scan.';
                 const [tl, tr, bl, br] = [new cv.Point(square.x, square.y), new cv.Point(triangle.x + triangle.width, square.y), new cv.Point(square.x, triangle.y + triangle.height), new cv.Point(triangle.x + triangle.width, triangle.y + triangle.height)];
@@ -303,7 +323,7 @@
                 const srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y]);
                 const dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, width, 0, width, height, 0, height]);
                 mats.push(srcTri); mats.push(dstTri);
-                const M = cv.getPerspectiveTransform(srcTri, dstTri); mats.push(M);
+                M = cv.getPerspectiveTransform(srcTri, dstTri);
                 warpedGray = new cv.Mat(); mats.push(warpedGray);
                 cv.warpPerspective(gray, warpedGray, M, new cv.Size(width, height));
                 let warpedBinary = new cv.Mat(); mats.push(warpedBinary);
@@ -329,7 +349,7 @@
                 cleanBinary = cv.Mat.zeros(warpedGray.rows, warpedGray.cols, cv.CV_8UC1);
                 cv.drawContours(cleanBinary, validContours, -1, new cv.Scalar(255), cv.FILLED);
                 validContours.delete();
-                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary };
+                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width };
                 circles.sort((a, b) => (Math.abs(a.y - b.y) > 20) ? a.y - b.y : a.x - b.x);
                 const questions = [];
                 let currentQuestion = [circles[0]];
@@ -352,12 +372,13 @@
                     }
                     answers.push({ group, choice: minIntensity < 145 ? darkestCircleIndex : -1 });
                 }
-                return { answers, binaryImage: cleanBinary };
+                return { answers, binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width };
             } catch (error) {
                 console.error("Error during image processing:", error);
                 if(cleanBinary && !cleanBinary.isDeleted()) cleanBinary.delete();
                 return null;
             } finally {
+                if (M && !M.isDeleted()) M.delete();
                 mats.forEach(mat => { if(mat && !mat.isDeleted()) mat.delete();});
             }
         }
@@ -382,8 +403,7 @@
             }
             sheetContent.innerHTML = '';
             
-            // **FIX: Marker Placement Logic v3.6**
-             const mainContainer = document.createElement('div');
+            const mainContainer = document.createElement('div');
             mainContainer.className = "flex justify-center";
 
             const gridWrapper = document.createElement('div');
@@ -391,7 +411,7 @@
 
             const createRow = () => {
                 const row = document.createElement('div');
-                row.className = 'flex items-stretch'; // Use stretch for equal height
+                row.className = 'flex items-stretch'; 
                 const numberCol = document.createElement('div');
                 numberCol.className = 'w-12 text-right font-bold flex items-center justify-end pr-4';
                 const optionsCol = document.createElement('div');
