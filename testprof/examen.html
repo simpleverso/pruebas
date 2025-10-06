@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.9</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.8</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -201,14 +201,9 @@
             processingLoop();
         });
 
-        gradeStudentBtn.addEventListener('click', async () => {
+        gradeStudentBtn.addEventListener('click', async () => { // **FIX: Make async to await bitmap creation**
             if (!answerKey) return;
-            // **FIX: Stop stream and animation loop definitively**
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
             scanResultEl.textContent = '';
 
             const studentResult = processImage(true); 
@@ -217,6 +212,7 @@
                 let score = 0;
                 let missingAnswers = 0;
                 
+                // **FIX: Create a bitmap to ensure the image is fully rendered before drawing on it**
                 const bmp = await createImageBitmap(studentResult.originalFrame);
                 ctx.drawImage(bmp, 0, 0, outputCanvas.width, outputCanvas.height);
                 
@@ -257,7 +253,7 @@
                         }
                     }
                 }
-                statusEl.textContent = 'Grading complete. Press "Start Camera" to continue.';
+                statusEl.textContent = 'Grading complete. Press "Restart Camera" to continue.';
                 let resultText = `Score: ${score} / ${answerKey.length}`;
                 if (missingAnswers > 0) resultText += ` and ${missingAnswers} missing response${missingAnswers > 1 ? 's' : ''}`;
                 scanResultEl.textContent = resultText;
