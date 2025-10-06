@@ -919,37 +919,61 @@
         const startScanBtn = document.getElementById('start-scan-btn');
         const scanStatus = document.getElementById('scan-status');
 
-        function onScanSuccess(decodedText) {
-            stopScan();
-            const student = DB.getData().students[decodedText];
-            if (student) handleValidStudent(student);
-            else showMessage("Unrecognized QR code.", true, 4000);
-        }
-        function onScanFailure(error) { /* Ignore */ }
-
-        function startScan() {
+        async function startScan() {
             if (html5QrCode && html5QrCode.isScanning) return;
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            
+            html5QrCode = new Html5Qrcode("reader");
             
             startScanBtn.textContent = 'Starting...'; startScanBtn.disabled = true;
             scanStatus.textContent = "Requesting Camera...";
             
-            const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
-            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
-                .then(() => {
-                    startScanBtn.textContent = 'Stop Scan'; startScanBtn.disabled = false;
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            try {
+                const cameras = await Html5Qrcode.getCameras();
+                if (cameras && cameras.length) {
+                    let cameraId = cameras[0].id;
+                    // Look for the back camera
+                    const rearCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('environment'));
+                    if (rearCamera) {
+                        cameraId = rearCamera.id;
+                    }
+                    
+                    await html5QrCode.start(
+                        cameraId, 
+                        config,
+                        (decodedText, decodedResult) => { // Success callback
+                            stopScan();
+                            const student = DB.getData().students[decodedText];
+                            if (student) handleValidStudent(student);
+                            else showMessage("Unrecognized QR code.", true, 4000);
+                        },
+                        (errorMessage) => { // Error callback (ignore)
+                        }
+                    );
+                    startScanBtn.textContent = 'Stop Scan'; 
+                    startScanBtn.disabled = false;
                     scanStatus.textContent = "Scanning...";
-                })
-                .catch(err => {
-                    scanStatus.textContent = "Camera Error";
-                    showMessage(`Camera Error: ${err}`, true, 5000);
-                    startScanBtn.textContent = 'Start Scan'; startScanBtn.disabled = false;
-                });
+                } else {
+                    throw new Error("No cameras found.");
+                }
+            } catch (err) {
+                scanStatus.textContent = "Camera Error";
+                showMessage(`Camera Error: ${err}`, true, 5000);
+                startScanBtn.textContent = 'Start Scan'; 
+                startScanBtn.disabled = false;
+                if(html5QrCode.isScanning) html5QrCode.stop();
+            }
         }
 
         function stopScan() {
-            if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop().catch(err => {});
-            startScanBtn.textContent = 'Start Scan'; startScanBtn.disabled = false;
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(err => {
+                    // Ignore errors if stopping a non-running scanner
+                });
+            }
+            startScanBtn.textContent = 'Start Scan'; 
+            startScanBtn.disabled = false;
             scanStatus.textContent = "Scanner is off.";
         }
         
@@ -1227,39 +1251,60 @@
         const startReportScanBtn = document.getElementById('start-report-scan-btn');
         const reportScanStatus = document.getElementById('report-scan-status');
 
-        function onReportScanSuccess(decodedText) {
-            stopReportScan();
-            const student = DB.getData().students[decodedText];
-            if (student) {
-                renderStudentReport(student.id);
-            } else {
-                showMessage("Unrecognized QR code.", true, 4000);
-            }
-        }
-
-        function startReportScan() {
+        async function startReportScan() {
             if (reportHtml5QrCode && reportHtml5QrCode.isScanning) return;
-            if (!reportHtml5QrCode) reportHtml5QrCode = new Html5Qrcode("report-reader");
+            
+            reportHtml5QrCode = new Html5Qrcode("report-reader");
             
             startReportScanBtn.textContent = 'Starting...'; startReportScanBtn.disabled = true;
             reportScanStatus.textContent = "Requesting Camera...";
             
-            const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
-            reportHtml5QrCode.start({ facingMode: "environment" }, config, onReportScanSuccess, (err) => {})
-                .then(() => {
-                    startReportScanBtn.textContent = 'Stop Scan'; startReportScanBtn.disabled = false;
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            try {
+                const cameras = await Html5Qrcode.getCameras();
+                if (cameras && cameras.length) {
+                    let cameraId = cameras[0].id;
+                    const rearCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('environment'));
+                    if (rearCamera) {
+                        cameraId = rearCamera.id;
+                    }
+                    
+                    await reportHtml5QrCode.start(
+                        cameraId, 
+                        config,
+                        (decodedText, decodedResult) => { // Success callback
+                            stopReportScan();
+                            const student = DB.getData().students[decodedText];
+                            if (student) {
+                                renderStudentReport(student.id);
+                            } else {
+                                showMessage("Unrecognized QR code.", true, 4000);
+                            }
+                        },
+                        (errorMessage) => { // Error callback (ignore)
+                        }
+                    );
+                    startReportScanBtn.textContent = 'Stop Scan'; 
+                    startReportScanBtn.disabled = false;
                     reportScanStatus.textContent = "Scanning...";
-                })
-                .catch(err => {
-                    reportScanStatus.textContent = "Camera Error";
-                    showMessage(`Camera Error: ${err}`, true, 5000);
-                    startReportScanBtn.textContent = 'Scan Student QR for Report'; startReportScanBtn.disabled = false;
-                });
+                } else {
+                    throw new Error("No cameras found.");
+                }
+            } catch (err) {
+                reportScanStatus.textContent = "Camera Error";
+                showMessage(`Camera Error: ${err}`, true, 5000);
+                startReportScanBtn.textContent = 'Scan Student QR for Report'; 
+                startReportScanBtn.disabled = false;
+                if(reportHtml5QrCode.isScanning) reportHtml5QrCode.stop();
+            }
         }
+
 
         function stopReportScan() {
             if (reportHtml5QrCode && reportHtml5QrCode.isScanning) reportHtml5QrCode.stop().catch(err => {});
-            startReportScanBtn.textContent = 'Scan Student QR for Report'; startReportScanBtn.disabled = false;
+            startReportScanBtn.textContent = 'Scan Student QR for Report'; 
+            startReportScanBtn.disabled = false;
             reportScanStatus.textContent = "Scanner is off.";
         }
         
