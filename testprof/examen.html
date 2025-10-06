@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Grader</title>
+    <title>Exam Grader & Sheet Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -14,57 +14,138 @@
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
         }
+        /* Print-specific styles for the generator */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #sheet-container, #sheet-container * {
+                visibility: visible;
+            }
+            #sheet-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 1rem;
+                border: none;
+                box-shadow: none;
+            }
+             body {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-8 px-4">
 
     <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8 m-4">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-            <p class="text-gray-600 mt-2">The camera shows the live processed image. Scan the key, then a student sheet.</p>
-        </div>
         
-        <div class="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
-            <!-- Video is hidden but used as the source -->
-            <video id="video" class="absolute w-full h-full object-cover" style="opacity: 0; pointer-events: none;" playsinline autoplay muted></video>
-            <!-- Output canvas is now the main view for the live processed stream -->
-            <canvas id="outputCanvas" class="w-full h-full"></canvas>
+        <!-- Tab Navigation -->
+        <div class="border-b border-gray-200 mb-6 no-print">
+            <ul class="flex -mb-px" id="tab-nav">
+                <li><a href="#grader" class="tab-link border-b-2 border-indigo-600 text-indigo-600 inline-block py-4 px-4 text-sm font-medium text-center">Grader</a></li>
+                <li><a href="#generator" class="tab-link border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-block py-4 px-4 text-sm font-medium text-center">Generator</a></li>
+            </ul>
         </div>
 
-        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button id="scanKeyBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400" disabled>
-                1. Scan Answer Key
-            </button>
-            <button id="gradeStudentBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400" disabled>
-                2. Grade Student Sheet
-            </button>
-        </div>
+        <!-- Grader Tab Content -->
+        <div id="grader" class="tab-content">
+            <div class="relative text-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.0</p>
+                <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
+            </div>
+            
+            <div class="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
+                <video id="video" class="absolute w-full h-full object-cover" style="opacity: 0; pointer-events: none;" playsinline autoplay muted></video>
+                <canvas id="outputCanvas" class="w-full h-full"></canvas>
+            </div>
 
-        <div id="status" class="mt-4 text-center text-gray-500 font-medium">Loading OpenCV... Press Start when ready.</div>
-        <button id="startBtn" class="w-full mt-4 bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition-all duration-200">
-            Start Camera
-        </button>
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button id="scanKeyBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400" disabled>1. Scan Answer Key</button>
+                <button id="gradeStudentBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400" disabled>2. Grade Student Sheet</button>
+            </div>
 
-        <!-- Comparison View Section -->
-        <div id="comparisonContainer" class="mt-6 hidden">
-            <h3 class="text-xl font-bold text-gray-700 text-center mb-2">Grading Result</h3>
-            <div id="result" class="mt-2 mb-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
-                    <canvas id="comparisonOriginal" class="w-full rounded-lg border border-gray-300"></canvas>
-                </div>
-                <div>
-                    <h4 class="text-center font-semibold text-gray-600 mb-2">Processed Snapshot</h4>
-                    <canvas id="comparisonProcessed" class="w-full rounded-lg border border-gray-300"></canvas>
+            <div id="status" class="mt-4 text-center text-gray-500 font-medium">Loading OpenCV... Press Start when ready.</div>
+            <button id="startBtn" class="w-full mt-4 bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition-all duration-200">Start Camera</button>
+
+            <div id="comparisonContainer" class="mt-6 hidden">
+                <h3 class="text-xl font-bold text-gray-700 text-center mb-2">Grading Result</h3>
+                <div id="result" class="mt-2 mb-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
+                        <canvas id="comparisonOriginal" class="w-full rounded-lg border border-gray-300"></canvas>
+                    </div>
+                    <div>
+                        <h4 class="text-center font-semibold text-gray-600 mb-2">Processed Snapshot</h4>
+                        <canvas id="comparisonProcessed" class="w-full rounded-lg border border-gray-300"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-
+        
+        <!-- Generator Tab Content -->
+        <div id="generator" class="tab-content hidden">
+            <div id="controls">
+                <h1 class="text-2xl font-bold text-center text-gray-800 mb-2">Answer Sheet Generator</h1>
+                <p class="text-center text-gray-500 mb-6">Create a custom, scanner-friendly answer sheet.</p>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <label for="question-count" class="absolute -top-2.5 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900">Number of Questions</label>
+                        <input type="number" id="question-count" value="15" min="1" class="block w-full rounded-md border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                        <button id="generate-btn" class="w-full sm:w-auto flex-1 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:bg-indigo-700">Generate Sheet</button>
+                        <button id="print-btn" class="w-full sm:w-auto flex-1 bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:bg-gray-800" style="display: none;">Print Sheet</button>
+                    </div>
+                     <p class="text-xs text-center text-gray-500 mt-2">After generating, click the bubbles to create the answer key before printing.</p>
+                </div>
+            </div>
+            <div id="sheet-container" class="w-full bg-white pt-8 mt-8">
+                <div class="border-b-2 border-gray-400 pb-4 mb-12">
+                    <div class="flex flex-col sm:flex-row justify-between gap-4">
+                        <div class="flex-1"><strong class="text-gray-800">Name:</strong><div class="border-b border-gray-500 mt-2"></div></div>
+                        <div class="flex-1"><strong class="text-gray-800">Class/Subject:</strong><div class="border-b border-gray-500 mt-2"></div></div>
+                        <div class="flex-1 sm:flex-none"><strong class="text-gray-800">Date:</strong><div class="border-b border-gray-500 mt-2 w-full sm:w-32"></div></div>
+                    </div>
+                </div>
+                <div id="sheet-content"><p class="text-center text-gray-500">Enter your settings and click "Generate Sheet" to begin.</p></div>
+            </div>
+        </div>
     </div>
 
     <script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvReady();"></script>
     <script>
+        // --- TAB SWITCHING LOGIC ---
+        const tabNav = document.getElementById('tab-nav');
+        const tabLinks = tabNav.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabNav.addEventListener('click', (e) => {
+            e.preventDefault();
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            tabLinks.forEach(l => {
+                l.classList.remove('border-indigo-600', 'text-indigo-600');
+                l.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+            });
+            link.classList.add('border-indigo-600', 'text-indigo-600');
+            link.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+
+            tabContents.forEach(content => content.classList.add('hidden'));
+            document.querySelector(link.getAttribute('href')).classList.remove('hidden');
+        });
+
+
+        // --- GRADER LOGIC ---
         const video = document.getElementById('video');
         const startBtn = document.getElementById('startBtn');
         const scanKeyBtn = document.getElementById('scanKeyBtn');
@@ -92,26 +173,19 @@
             try {
                 if (stream) stream.getTracks().forEach(track => track.stop());
                 if (animationFrameId) cancelAnimationFrame(animationFrameId);
-
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
                 video.srcObject = stream;
                 await video.play();
-
                 const { videoWidth, videoHeight } = video;
-                [outputCanvas, comparisonOriginalCanvas, comparisonProcessedCanvas].forEach(c => {
-                    c.width = videoWidth;
-                    c.height = videoHeight;
-                });
-
+                [outputCanvas, comparisonOriginalCanvas, comparisonProcessedCanvas].forEach(c => { c.width = videoWidth; c.height = videoHeight; });
                 startBtn.textContent = 'Restart Camera';
                 scanKeyBtn.disabled = false;
                 gradeStudentBtn.disabled = true;
                 answerKey = null;
-                statusEl.textContent = 'Camera started. Position the answer key and scan.';
+                statusEl.textContent = 'Camera started. Looking for markers...';
                 resultEl.innerHTML = '';
                 comparisonContainer.classList.add('hidden');
-                
-                processingLoop(); // Start the live processing loop
+                processingLoop();
             } catch (err) {
                 console.error("Error accessing camera: ", err);
                 statusEl.textContent = 'Error: Could not access camera.';
@@ -119,9 +193,9 @@
                 startBtn.disabled = false;
             }
         });
-
+        
         scanKeyBtn.addEventListener('click', () => {
-            if (latestProcessedResult && latestProcessedResult.answers.length > 0) {
+             if (latestProcessedResult && latestProcessedResult.answers.length > 0) {
                 answerKey = latestProcessedResult.answers;
                 statusEl.textContent = `Key scanned with ${answerKey.length} questions. Ready to grade.`;
                 resultEl.textContent = '';
@@ -131,22 +205,18 @@
                  statusEl.textContent = 'Could not detect a valid answer key. Try again.';
             }
         });
-        
+
         gradeStudentBtn.addEventListener('click', () => {
             if (!answerKey || !latestProcessedResult) return;
-
             const studentResult = latestProcessedResult;
             const studentAnswers = studentResult.answers;
-            
             let score = 0;
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = video.videoWidth;
             tempCanvas.height = video.videoHeight;
             const tempCtx = tempCanvas.getContext('2d');
             tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-            
             const numQuestions = Math.min(answerKey.length, studentAnswers.length);
-
             for (let i = 0; i < numQuestions; i++) {
                 const studentChoiceIndex = studentAnswers[i].choice;
                 const correctChoiceIndex = answerKey[i].choice;
@@ -157,22 +227,18 @@
                 }
                 if (studentChoiceIndex === correctChoiceIndex && studentChoiceIndex !== -1) score++;
             }
-            
             statusEl.textContent = 'Grading complete.';
             resultEl.textContent = `Score: ${score} / ${answerKey.length}`;
-            
             comparisonContainer.classList.remove('hidden');
             comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
             cv.imshow('comparisonProcessed', studentResult.binaryImage);
         });
-
+        
         function processingLoop() {
             if (!video.srcObject || video.paused || video.ended) return;
-
             const result = processImage();
             if (result && result.binaryImage) {
                 cv.imshow('outputCanvas', result.binaryImage);
-                // Clean up the old result before assigning the new one
                 if (latestProcessedResult && latestProcessedResult.binaryImage) {
                     latestProcessedResult.binaryImage.delete();
                 }
@@ -191,103 +257,97 @@
 
         function processImage() {
             if (!window.cv || video.readyState < 3) return null;
-
-            let src, gray, binary, cleanBinary;
             const mats = [];
-
+            let src, gray, binary, warpedGray, cleanBinary;
             try {
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = video.videoWidth;
-                tempCanvas.height = video.videoHeight;
+                tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 src = cv.matFromImageData(tempCtx.getImageData(0, 0, video.videoWidth, video.videoHeight));
                 mats.push(src);
-
                 gray = new cv.Mat(); mats.push(gray);
                 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-                
                 binary = new cv.Mat(); mats.push(binary);
-                cv.adaptiveThreshold(gray, binary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 5);
-
-                // Vertical and Horizontal Line Removal
-                let verticalKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(1, 40)); mats.push(verticalKernel);
-                let vertical_lines = new cv.Mat(); mats.push(vertical_lines);
-                cv.erode(binary, vertical_lines, verticalKernel);
-                cv.dilate(vertical_lines, vertical_lines, verticalKernel);
-
-                let horizontalKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(40, 1)); mats.push(horizontalKernel);
-                let horizontal_lines = new cv.Mat(); mats.push(horizontal_lines);
-                cv.erode(binary, horizontal_lines, horizontalKernel);
-                cv.dilate(horizontal_lines, horizontal_lines, horizontalKernel);
-
-                let line_mask = new cv.Mat(); mats.push(line_mask);
-                cv.add(vertical_lines, horizontal_lines, line_mask);
-                cv.subtract(binary, line_mask, binary);
-
-                // Noise Removal using Morphological Opening
+                cv.adaptiveThreshold(gray, binary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 15, 5);
                 let kernel = cv.Mat.ones(3, 3, cv.CV_8U); mats.push(kernel);
                 cv.morphologyEx(binary, binary, cv.MORPH_OPEN, kernel);
-
-                let contoursMat = binary; // Use the cleaned binary image for contour finding
                 let contours = new cv.MatVector(); mats.push(contours);
                 let hierarchy = new cv.Mat(); mats.push(hierarchy);
-                cv.findContours(contoursMat, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-
-                let circles = [];
-                let validContours = new cv.MatVector();
-                
+                cv.findContours(binary, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                let square, triangle;
                 for (let i = 0; i < contours.size(); ++i) {
                     let cnt = contours.get(i);
-                    let area = cv.contourArea(cnt);
-                    if (area < 150 || area > 5000) { cnt.delete(); continue; }
                     let perimeter = cv.arcLength(cnt, true);
-                    let circularity = (4 * Math.PI * area) / (perimeter * perimeter);
-                    if (circularity > 0.7) {
-                        let circle = cv.minEnclosingCircle(cnt);
-                        circles.push({ x: circle.center.x, y: circle.center.y, radius: circle.radius });
-                        validContours.push_back(cnt);
-                    }
+                    let approx = new cv.Mat();
+                    cv.approxPolyDP(cnt, approx, 0.04 * perimeter, true);
+                    let area = cv.contourArea(cnt);
+                    if (approx.rows === 4 && area > 1500) square = cv.boundingRect(cnt);
+                    else if (approx.rows === 3 && area > 1500) triangle = cv.boundingRect(cnt);
+                    approx.delete();
                     cnt.delete();
                 }
-
-                // **NEW: Create a clean binary image with filled circles**
-                cleanBinary = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC1);
+                if (!square || !triangle) {
+                    statusEl.textContent = 'Looking for markers...';
+                    return { answers: [], binaryImage: binary.clone() };
+                }
+                statusEl.textContent = 'Markers found! Processing...';
+                const [tl, tr, bl, br] = [new cv.Point(square.x, square.y), new cv.Point(triangle.x + triangle.width, square.y), new cv.Point(square.x, triangle.y + triangle.height), new cv.Point(triangle.x + triangle.width, triangle.y + triangle.height)];
+                const width = Math.max(br.x - tl.x, bl.x - tr.x);
+                const height = Math.max(br.y - tr.y, bl.y - tl.y);
+                const srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y]);
+                const dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, width, 0, width, height, 0, height]);
+                mats.push(srcTri); mats.push(dstTri);
+                const M = cv.getPerspectiveTransform(srcTri, dstTri); mats.push(M);
+                warpedGray = new cv.Mat(); mats.push(warpedGray);
+                cv.warpPerspective(gray, warpedGray, M, new cv.Size(width, height));
+                let warpedBinary = new cv.Mat(); mats.push(warpedBinary);
+                cv.adaptiveThreshold(warpedGray, warpedBinary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 15, 5);
+                let contoursWarped = new cv.MatVector(); mats.push(contoursWarped);
+                let hierarchyWarped = new cv.Mat(); mats.push(hierarchyWarped);
+                cv.findContours(warpedBinary, contoursWarped, hierarchyWarped, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                let circles = [];
+                let validContours = new cv.MatVector();
+                for (let i = 0; i < contoursWarped.size(); ++i) {
+                     let cnt = contoursWarped.get(i);
+                     let area = cv.contourArea(cnt);
+                     if (area < 50 || area > 2000) { cnt.delete(); continue; }
+                     let perimeter = cv.arcLength(cnt, true);
+                     let circularity = (4 * Math.PI * area) / (perimeter * perimeter);
+                     if (circularity > 0.6) {
+                         let circle = cv.minEnclosingCircle(cnt);
+                         circles.push({ x: circle.center.x, y: circle.center.y, radius: circle.radius });
+                         validContours.push_back(cnt);
+                     }
+                     cnt.delete();
+                }
+                cleanBinary = cv.Mat.zeros(warpedGray.rows, warpedGray.cols, cv.CV_8UC1);
                 cv.drawContours(cleanBinary, validContours, -1, new cv.Scalar(255), cv.FILLED);
                 validContours.delete();
-
-
-                if (circles.length === 0) {
-                     return { answers: [], binaryImage: cleanBinary };
-                }
-
-                circles.sort((a, b) => (Math.abs(a.y - b.y) > 25) ? a.y - b.y : a.x - b.x);
-                
+                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary };
+                circles.sort((a, b) => (Math.abs(a.y - b.y) > 20) ? a.y - b.y : a.x - b.x);
                 const questions = [];
                 let currentQuestion = [circles[0]];
                 for (let i = 1; i < circles.length; i++) {
-                    if (Math.abs(circles[i].y - currentQuestion[0].y) < 25) currentQuestion.push(circles[i]);
+                    if (Math.abs(circles[i].y - currentQuestion[0].y) < 20) currentQuestion.push(circles[i]);
                     else { questions.push(currentQuestion); currentQuestion = [circles[i]]; }
                 }
                 questions.push(currentQuestion);
-
                 const answers = [];
                 for (const group of questions) {
                     let darkestCircleIndex = -1, minIntensity = 255;
                     for (let i = 0; i < group.length; i++) {
                         const circle = group[i];
                         const rect = new cv.Rect(Math.max(0, circle.x - circle.radius), Math.max(0, circle.y - circle.radius), circle.radius * 2, circle.radius * 2);
-                        if (rect.x + rect.width > gray.cols || rect.y + rect.height > gray.rows) continue;
-                        let roi = gray.roi(rect);
+                        if (rect.x + rect.width > warpedGray.cols || rect.y + rect.height > warpedGray.rows) continue;
+                        let roi = warpedGray.roi(rect);
                         let mean = cv.mean(roi)[0];
                         if (mean < minIntensity) { minIntensity = mean; darkestCircleIndex = i; }
                         roi.delete();
                     }
-                    answers.push({ group, choice: minIntensity < 120 ? darkestCircleIndex : -1 });
+                    answers.push({ group, choice: minIntensity < 145 ? darkestCircleIndex : -1 });
                 }
-                
                 return { answers, binaryImage: cleanBinary };
-
             } catch (error) {
                 console.error("Error during image processing:", error);
                 if(cleanBinary && !cleanBinary.isDeleted()) cleanBinary.delete();
@@ -296,11 +356,88 @@
                 mats.forEach(mat => { if(mat && !mat.isDeleted()) mat.delete();});
             }
         }
-
+        
         window.addEventListener('beforeunload', () => {
             if (stream) stream.getTracks().forEach(track => track.stop());
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         });
+
+        // --- GENERATOR LOGIC ---
+        const generateBtn = document.getElementById('generate-btn');
+        const printBtn = document.getElementById('print-btn');
+        const questionCountInput = document.getElementById('question-count');
+        const sheetContent = document.getElementById('sheet-content');
+
+        const generateSheet = () => {
+            const count = parseInt(questionCountInput.value, 10);
+            if (isNaN(count) || count < 1) {
+                sheetContent.innerHTML = `<p class="text-center text-red-500">Please enter a valid number of questions.</p>`;
+                printBtn.style.display = 'none';
+                return;
+            }
+            sheetContent.innerHTML = '';
+            const header = document.createElement('div');
+            header.id = 'sheet-header';
+            header.className = 'flex items-center justify-between space-x-10 text-base p-3 mb-2';
+            const numberPlaceholder = document.createElement('div');
+            numberPlaceholder.className = 'w-12';
+            header.appendChild(numberPlaceholder);
+            const markersContainer = document.createElement('div');
+            markersContainer.className = 'flex-1 flex items-center justify-between';
+            header.appendChild(markersContainer);
+            const square = document.createElement('div');
+            square.className = 'w-6 h-6 bg-black';
+            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            triangle.setAttribute('width', '24');
+            triangle.setAttribute('height', '24');
+            triangle.setAttribute('viewBox', '0 0 100 100');
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '50,0 100,100 0,100');
+            polygon.setAttribute('fill', 'black');
+            triangle.appendChild(polygon);
+            markersContainer.appendChild(square);
+            markersContainer.appendChild(triangle);
+            sheetContent.appendChild(header);
+            const grid = document.createElement('div');
+            grid.id = 'sheet-grid';
+            grid.className = 'grid grid-cols-1';
+            for (let i = 1; i <= count; i++) {
+                const questionItem = document.createElement('div');
+                questionItem.className = 'flex items-center justify-center space-x-10 text-base py-1 px-3 border-b border-gray-200';
+                const number = document.createElement('span');
+                number.className = 'font-bold w-12 text-right';
+                number.textContent = `${i}.`;
+                const options = document.createElement('div');
+                options.className = 'flex items-center space-x-10';
+                ['A', 'B', 'C'].forEach(letter => {
+                    const optionWrapper = document.createElement('div');
+                    optionWrapper.className = 'flex items-center space-x-2 cursor-pointer';
+                    const letterSpan = document.createElement('span');
+                    letterSpan.textContent = letter;
+                    letterSpan.className = 'font-semibold text-gray-700';
+                    const circle = document.createElement('div');
+                    circle.className = 'w-6 h-6 border-2 border-gray-500 rounded-full';
+                    optionWrapper.appendChild(letterSpan);
+                    optionWrapper.appendChild(circle);
+                    options.appendChild(optionWrapper);
+                    optionWrapper.addEventListener('click', () => {
+                        const currentCircle = optionWrapper.querySelector('div.rounded-full');
+                        const isSelected = currentCircle.classList.contains('bg-black');
+                        options.querySelectorAll('div.rounded-full').forEach(circ => circ.classList.remove('bg-black'));
+                        if (!isSelected) currentCircle.classList.add('bg-black');
+                    });
+                });
+                questionItem.appendChild(number);
+                questionItem.appendChild(options);
+                grid.appendChild(questionItem);
+            }
+            sheetContent.appendChild(grid);
+            printBtn.style.display = 'inline-block';
+        };
+        const printSheet = () => { window.print(); };
+        generateBtn.addEventListener('click', generateSheet);
+        printBtn.addEventListener('click', printSheet);
+        generateSheet(); // Also generate on initial load
     </script>
 </body>
 </html>
