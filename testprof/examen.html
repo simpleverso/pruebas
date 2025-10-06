@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.1</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.2</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -99,7 +99,7 @@
                 <div class="space-y-4">
                     <div class="relative">
                         <label for="question-count" class="absolute -top-2.5 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900">Number of Questions</label>
-                        <input type="number" id="question-count" value="15" min="1" class="block w-full rounded-md border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
+                        <input type="number" id="question-count" value="5" min="1" class="block w-full rounded-md border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
                         <button id="generate-btn" class="w-full sm:w-auto flex-1 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:bg-indigo-700">Generate Sheet</button>
@@ -109,7 +109,7 @@
                 </div>
             </div>
             <div id="sheet-container" class="w-full bg-white pt-8 mt-8">
-                <div class="border-b-2 border-gray-400 pb-4 mb-12">
+                <div class="border-b-2 border-gray-400 pb-4 mb-6">
                     <div class="flex flex-col sm:flex-row justify-between gap-4">
                         <div class="flex-1"><strong class="text-gray-800">Name:</strong><div class="border-b border-gray-500 mt-2"></div></div>
                         <div class="flex-1"><strong class="text-gray-800">Class/Subject:</strong><div class="border-b border-gray-500 mt-2"></div></div>
@@ -377,56 +377,13 @@
             }
             sheetContent.innerHTML = '';
             
-            // **FIX: Re-structured header for correct marker alignment**
-            const header = document.createElement('div');
-            header.id = 'sheet-header';
-            header.className = 'flex items-center justify-center space-x-10 text-base p-3 mb-2';
-
-            const numberPlaceholder = document.createElement('div');
-            numberPlaceholder.className = 'w-12';
-            header.appendChild(numberPlaceholder);
-
-            const markersContainer = document.createElement('div');
-            markersContainer.className = 'flex items-center space-x-10';
-            header.appendChild(markersContainer);
-
-            // Marker wrapper for column 'A' (The Square)
-            const squareWrapper = document.createElement('div');
-            squareWrapper.className = 'flex items-center space-x-2';
-            const ghostLetterA = document.createElement('span');
-            ghostLetterA.textContent = 'A';
-            ghostLetterA.className = 'font-semibold text-transparent pointer-events-none';
+            // **FIX: Marker Placement Logic**
+            const topMarkerContainer = document.createElement('div');
+            topMarkerContainer.className = 'flex justify-start mb-4';
             const square = document.createElement('div');
-            square.className = 'w-6 h-6 bg-black';
-            squareWrapper.appendChild(ghostLetterA);
-            squareWrapper.appendChild(square);
-            markersContainer.appendChild(squareWrapper);
-
-            // Marker wrapper for column 'B' (Invisible Placeholder for spacing)
-            const bPlaceholder = document.createElement('div');
-            bPlaceholder.className = 'flex items-center space-x-2';
-            bPlaceholder.innerHTML = `<span class="font-semibold text-transparent pointer-events-none">B</span><div class="w-6 h-6 border-2 border-transparent rounded-full"></div>`;
-            markersContainer.appendChild(bPlaceholder);
-
-            // Marker wrapper for column 'C' (The Triangle)
-            const triangleWrapper = document.createElement('div');
-            triangleWrapper.className = 'flex items-center space-x-2';
-            const ghostLetterC = document.createElement('span');
-            ghostLetterC.textContent = 'C';
-            ghostLetterC.className = 'font-semibold text-transparent pointer-events-none';
-            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            triangle.setAttribute('width', '24');
-            triangle.setAttribute('height', '24');
-            triangle.setAttribute('viewBox', '0 0 100 100');
-            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            polygon.setAttribute('points', '50,0 100,100 0,100');
-            polygon.setAttribute('fill', 'black');
-            triangle.appendChild(polygon);
-            triangleWrapper.appendChild(ghostLetterC);
-            triangleWrapper.appendChild(triangle);
-            markersContainer.appendChild(triangleWrapper);
-            
-            sheetContent.appendChild(header);
+            square.className = 'w-8 h-8 bg-black';
+            topMarkerContainer.appendChild(square);
+            sheetContent.appendChild(topMarkerContainer);
 
             const grid = document.createElement('div');
             grid.id = 'sheet-grid';
@@ -462,6 +419,20 @@
                 grid.appendChild(questionItem);
             }
             sheetContent.appendChild(grid);
+            
+            const bottomMarkerContainer = document.createElement('div');
+            bottomMarkerContainer.className = 'flex justify-end mt-4';
+            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            triangle.setAttribute('width', '32');
+            triangle.setAttribute('height', '32');
+            triangle.setAttribute('viewBox', '0 0 100 100');
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '50,0 100,100 0,100');
+            polygon.setAttribute('fill', 'black');
+            triangle.appendChild(polygon);
+            bottomMarkerContainer.appendChild(triangle);
+            sheetContent.appendChild(bottomMarkerContainer);
+
             printBtn.style.display = 'inline-block';
         };
         const printSheet = () => { window.print(); };
