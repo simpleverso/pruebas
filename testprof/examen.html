@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.2</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.3</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -377,13 +377,37 @@
             }
             sheetContent.innerHTML = '';
             
-            // **FIX: Marker Placement Logic**
-            const topMarkerContainer = document.createElement('div');
-            topMarkerContainer.className = 'flex justify-start mb-4';
-            const square = document.createElement('div');
-            square.className = 'w-8 h-8 bg-black';
-            topMarkerContainer.appendChild(square);
-            sheetContent.appendChild(topMarkerContainer);
+            // **FIX: Marker Placement Logic v3.3**
+            const createMarkerRow = (markerType) => {
+                const markerRow = document.createElement('div');
+                markerRow.className = 'flex items-center justify-center space-x-10 text-base py-1 px-3';
+                const numberPlaceholder = document.createElement('div');
+                numberPlaceholder.className = 'font-bold w-12 text-right';
+                markerRow.appendChild(numberPlaceholder);
+                
+                const options = document.createElement('div');
+                options.className = 'flex items-center space-x-10';
+                
+                const optionA = document.createElement('div');
+                optionA.className = 'flex items-center space-x-2';
+                optionA.innerHTML = `<span class="font-semibold text-transparent">A</span>` + (markerType === 'square' ? `<div class="w-6 h-6 bg-black"></div>` : `<div class="w-6 h-6"></div>`);
+                
+                const optionB = document.createElement('div');
+                optionB.className = 'flex items-center space-x-2';
+                optionB.innerHTML = `<span class="font-semibold text-transparent">B</span><div class="w-6 h-6"></div>`;
+
+                const optionC = document.createElement('div');
+                optionC.className = 'flex items-center space-x-2';
+                optionC.innerHTML = `<span class="font-semibold text-transparent">C</span>` + (markerType === 'triangle' ? `<svg width="24" height="24" viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" fill="black"></polygon></svg>` : `<div class="w-6 h-6"></div>`);
+
+                options.appendChild(optionA);
+                options.appendChild(optionB);
+                options.appendChild(optionC);
+                markerRow.appendChild(options);
+                return markerRow;
+            };
+
+            sheetContent.appendChild(createMarkerRow('square'));
 
             const grid = document.createElement('div');
             grid.id = 'sheet-grid';
@@ -420,18 +444,7 @@
             }
             sheetContent.appendChild(grid);
             
-            const bottomMarkerContainer = document.createElement('div');
-            bottomMarkerContainer.className = 'flex justify-end mt-4';
-            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            triangle.setAttribute('width', '32');
-            triangle.setAttribute('height', '32');
-            triangle.setAttribute('viewBox', '0 0 100 100');
-            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            polygon.setAttribute('points', '50,0 100,100 0,100');
-            polygon.setAttribute('fill', 'black');
-            triangle.appendChild(polygon);
-            bottomMarkerContainer.appendChild(triangle);
-            sheetContent.appendChild(bottomMarkerContainer);
+            sheetContent.appendChild(createMarkerRow('triangle'));
 
             printBtn.style.display = 'inline-block';
         };
