@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.1</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.2</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -162,7 +162,6 @@
                     outputCanvas.width = videoWidth;
                     outputCanvas.height = videoHeight;
                     
-                    // **FIX: Dynamically set aspect ratio of container**
                     cameraContainer.style.aspectRatio = `${videoWidth} / ${videoHeight}`;
 
                     startBtn.textContent = 'Restart Camera';
@@ -195,8 +194,10 @@
                  statusEl.textContent = 'Could not detect a valid answer key. Try again.';
                  scanResultEl.textContent = '';
             }
-            if (result && result.binaryImage) result.binaryImage.delete();
-            if (result && result.transformMatrix) result.transformMatrix.delete();
+            if (result) {
+                if (result.binaryImage) result.binaryImage.delete();
+                if (result.transformMatrix) result.transformMatrix.delete();
+            }
             processingLoop();
         });
 
@@ -211,7 +212,8 @@
                 let score = 0;
                 let missingAnswers = 0;
                 
-                ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                // **FIX: Use the returned image data for the overlay**
+                ctx.putImageData(studentResult.originalImageData, 0, 0);
                 
                 const inverseM = new cv.Mat();
                 cv.invert(studentResult.transformMatrix, inverseM);
@@ -260,8 +262,10 @@
                 studentResult.transformMatrix.delete();
             } else {
                  statusEl.textContent = 'Could not read student sheet. Please try again.';
-                 if (studentResult && studentResult.binaryImage) studentResult.binaryImage.delete();
-                 if (studentResult && studentResult.transformMatrix) studentResult.transformMatrix.delete();
+                 if (studentResult) {
+                    if (studentResult.binaryImage) studentResult.binaryImage.delete();
+                    if (studentResult.transformMatrix) studentResult.transformMatrix.delete();
+                 }
                  processingLoop(); // Restart if grading failed
             }
         });
@@ -297,13 +301,14 @@
         function processImage(isFinalScan) {
             if (!window.cv || video.readyState < 3) return null;
             const mats = [];
-            let src, gray, binary, warpedGray, cleanBinary, M;
+            let src, gray, binary, warpedGray, cleanBinary, M, originalImageData;
             try {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-                src = cv.matFromImageData(tempCtx.getImageData(0, 0, video.videoWidth, video.videoHeight));
+                originalImageData = tempCtx.getImageData(0, 0, video.videoWidth, video.videoHeight);
+                src = cv.matFromImageData(originalImageData);
                 mats.push(src);
                 gray = new cv.Mat(); mats.push(gray);
                 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
@@ -328,7 +333,7 @@
                 }
                 if (!square || !triangle) {
                     if (isFinalScan) statusEl.textContent = 'Markers not found.';
-                    return { answers: [], binaryImage: binary.clone(), transformMatrix: null };
+                    return { answers: [], binaryImage: binary.clone(), transformMatrix: null, originalImageData: isFinalScan ? originalImageData : null };
                 }
                 if(!isFinalScan) statusEl.textContent = 'Markers found! Ready to scan.';
                 const [tl, tr, bl, br] = [new cv.Point(square.x, square.y), new cv.Point(triangle.x + triangle.width, square.y), new cv.Point(square.x, triangle.y + triangle.height), new cv.Point(triangle.x + triangle.width, triangle.y + triangle.height)];
@@ -363,7 +368,7 @@
                 cleanBinary = cv.Mat.zeros(warpedGray.rows, warpedGray.cols, cv.CV_8UC1);
                 cv.drawContours(cleanBinary, validContours, -1, new cv.Scalar(255), cv.FILLED);
                 validContours.delete();
-                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width };
+                if (circles.length === 0) return { answers: [], binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width, originalImageData: isFinalScan ? originalImageData : null };
                 circles.sort((a, b) => (Math.abs(a.y - b.y) > 20) ? a.y - b.y : a.x - b.x);
                 const questions = [];
                 let currentQuestion = [circles[0]];
@@ -386,7 +391,7 @@
                     }
                     answers.push({ group, choice: minIntensity < 145 ? darkestCircleIndex : -1 });
                 }
-                return { answers, binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width };
+                return { answers, binaryImage: cleanBinary, transformMatrix: M.clone(), warpedWidth: width, originalImageData: isFinalScan ? originalImageData : null };
             } catch (error) {
                 console.error("Error during image processing:", error);
                 if(cleanBinary && !cleanBinary.isDeleted()) cleanBinary.delete();
