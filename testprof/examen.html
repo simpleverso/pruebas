@@ -58,7 +58,7 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.5</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v3.6</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
@@ -132,18 +132,15 @@
             e.preventDefault();
             const link = e.target.closest('a');
             if (!link) return;
-
             tabLinks.forEach(l => {
                 l.classList.remove('border-indigo-600', 'text-indigo-600');
                 l.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             });
             link.classList.add('border-indigo-600', 'text-indigo-600');
-            link.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-
+            link.classList.remove('border-transparent', 'text-gray-500');
             tabContents.forEach(content => content.classList.add('hidden'));
             document.querySelector(link.getAttribute('href')).classList.remove('hidden');
         });
-
 
         // --- GRADER LOGIC ---
         const video = document.getElementById('video');
@@ -159,7 +156,6 @@
 
         let stream = null;
         let answerKey = null;
-        let latestProcessedResult = null;
         let animationFrameId;
 
         function onOpenCvReady() {
@@ -194,55 +190,64 @@
             }
         });
         
+        // **FIX: Active scanning logic for reliability**
         scanKeyBtn.addEventListener('click', () => {
-             if (latestProcessedResult && latestProcessedResult.answers.length > 0) {
-                answerKey = latestProcessedResult.answers;
-                statusEl.textContent = `Key scanned with ${answerKey.length} questions. Ready to grade.`;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            const result = processImage(true); // Process a single, stable frame
+            if (result && result.answers && result.answers.length > 0) {
+                answerKey = JSON.parse(JSON.stringify(result.answers)); // Deep copy
+                statusEl.textContent = `Key scanned with ${result.answers.length} questions. Ready to grade.`;
                 resultEl.textContent = '';
                 gradeStudentBtn.disabled = false;
                 comparisonContainer.classList.add('hidden');
             } else {
                  statusEl.textContent = 'Could not detect a valid answer key. Try again.';
             }
+            if (result && result.binaryImage) result.binaryImage.delete();
+            processingLoop(); // Restart live view
         });
 
         gradeStudentBtn.addEventListener('click', () => {
-            if (!answerKey || !latestProcessedResult) return;
-            const studentResult = latestProcessedResult;
-            const studentAnswers = studentResult.answers;
-            let score = 0;
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = video.videoWidth;
-            tempCanvas.height = video.videoHeight;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-            const numQuestions = Math.min(answerKey.length, studentAnswers.length);
-            for (let i = 0; i < numQuestions; i++) {
-                const studentChoiceIndex = studentAnswers[i].choice;
-                const correctChoiceIndex = answerKey[i].choice;
-                for (let j = 0; j < studentAnswers[i].group.length; j++) {
-                    const circle = studentAnswers[i].group[j];
-                    if (j === correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(0, 255, 0, 0.7)');
-                    if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(255, 0, 0, 0.7)');
+            if (!answerKey) return;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            const studentResult = processImage(true); // Process a single, stable frame
+            if (studentResult && studentResult.answers) {
+                const studentAnswers = studentResult.answers;
+                let score = 0;
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                const numQuestions = Math.min(answerKey.length, studentAnswers.length);
+                for (let i = 0; i < numQuestions; i++) {
+                    const studentChoiceIndex = studentAnswers[i].choice;
+                    const correctChoiceIndex = answerKey[i].choice;
+                    for (let j = 0; j < studentAnswers[i].group.length; j++) {
+                        const circle = studentAnswers[i].group[j];
+                        if (j === correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(0, 255, 0, 0.7)');
+                        if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, circle, 'rgba(255, 0, 0, 0.7)');
+                    }
+                    if (studentChoiceIndex === correctChoiceIndex && studentChoiceIndex !== -1) score++;
                 }
-                if (studentChoiceIndex === correctChoiceIndex && studentChoiceIndex !== -1) score++;
+                statusEl.textContent = 'Grading complete.';
+                resultEl.textContent = `Score: ${score} / ${answerKey.length}`;
+                comparisonContainer.classList.remove('hidden');
+                comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
+                cv.imshow('comparisonProcessed', studentResult.binaryImage);
+                studentResult.binaryImage.delete();
+            } else {
+                 statusEl.textContent = 'Could not read student sheet. Please try again.';
             }
-            statusEl.textContent = 'Grading complete.';
-            resultEl.textContent = `Score: ${score} / ${answerKey.length}`;
-            comparisonContainer.classList.remove('hidden');
-            comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
-            cv.imshow('comparisonProcessed', studentResult.binaryImage);
+            processingLoop(); // Restart live view
         });
         
         function processingLoop() {
             if (!video.srcObject || video.paused || video.ended) return;
-            const result = processImage();
+            const result = processImage(false); // 'false' for live view processing
             if (result && result.binaryImage) {
                 cv.imshow('outputCanvas', result.binaryImage);
-                if (latestProcessedResult && latestProcessedResult.binaryImage) {
-                    latestProcessedResult.binaryImage.delete();
-                }
-                latestProcessedResult = result;
+                result.binaryImage.delete();
             }
             animationFrameId = requestAnimationFrame(processingLoop);
         }
@@ -255,7 +260,7 @@
             context.stroke();
         }
 
-        function processImage() {
+        function processImage(isFinalScan) {
             if (!window.cv || video.readyState < 3) return null;
             const mats = [];
             let src, gray, binary, warpedGray, cleanBinary;
@@ -288,10 +293,10 @@
                     cnt.delete();
                 }
                 if (!square || !triangle) {
-                    statusEl.textContent = 'Looking for markers...';
+                    if (isFinalScan) statusEl.textContent = 'Markers not found.';
                     return { answers: [], binaryImage: binary.clone() };
                 }
-                statusEl.textContent = 'Markers found! Processing...';
+                if(!isFinalScan) statusEl.textContent = 'Markers found! Ready to scan.';
                 const [tl, tr, bl, br] = [new cv.Point(square.x, square.y), new cv.Point(triangle.x + triangle.width, square.y), new cv.Point(square.x, triangle.y + triangle.height), new cv.Point(triangle.x + triangle.width, triangle.y + triangle.height)];
                 const width = Math.max(br.x - tl.x, bl.x - tr.x);
                 const height = Math.max(br.y - tr.y, bl.y - tl.y);
@@ -377,91 +382,75 @@
             }
             sheetContent.innerHTML = '';
             
-            // **FIX: Marker Placement Logic v3.5**
+            // **FIX: Marker Placement Logic v3.6**
+             const mainContainer = document.createElement('div');
+            mainContainer.className = "flex justify-center";
+
+            const gridWrapper = document.createElement('div');
+            mainContainer.appendChild(gridWrapper);
+
             const createRow = () => {
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-center space-x-10 text-base py-1 px-3';
+                row.className = 'flex items-stretch'; // Use stretch for equal height
                 const numberCol = document.createElement('div');
-                numberCol.className = 'font-bold w-12 text-right';
+                numberCol.className = 'w-12 text-right font-bold flex items-center justify-end pr-4';
                 const optionsCol = document.createElement('div');
                 optionsCol.className = 'flex items-center space-x-10';
                 row.appendChild(numberCol);
                 row.appendChild(optionsCol);
                 return { row, numberCol, optionsCol };
             };
-
+            
             const header = createRow();
+            header.numberCol.innerHTML = `&nbsp;`;
             ['A', 'B', 'C'].forEach(letter => {
-                const optionWrapper = document.createElement('div');
-                optionWrapper.className = 'flex items-center justify-center w-12';
-                const letterSpan = document.createElement('span');
-                letterSpan.className = 'font-semibold text-gray-800';
-                letterSpan.textContent = letter;
-                optionWrapper.appendChild(letterSpan);
-                header.optionsCol.appendChild(optionWrapper);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-12 h-8 flex justify-center items-center font-semibold text-gray-800';
+                wrapper.textContent = letter;
+                header.optionsCol.appendChild(wrapper);
             });
-            sheetContent.appendChild(header.row);
+            gridWrapper.appendChild(header.row);
 
             const topMarker = createRow();
+            topMarker.numberCol.innerHTML = `&nbsp;`;
             const squareWrapper = document.createElement('div');
-            squareWrapper.className = 'flex items-center justify-center w-12 h-6';
-            const square = document.createElement('div');
-            square.className = 'w-6 h-6 bg-black';
-            squareWrapper.appendChild(square);
-            const placeholderB1 = document.createElement('div'); placeholderB1.className = 'w-12 h-6';
-            const placeholderC1 = document.createElement('div'); placeholderC1.className = 'w-12 h-6';
+            squareWrapper.className = 'w-12 h-8 flex justify-center items-center';
+            squareWrapper.innerHTML = `<div class="w-8 h-8 bg-black"></div>`;
             topMarker.optionsCol.appendChild(squareWrapper);
-            topMarker.optionsCol.appendChild(placeholderB1);
-            topMarker.optionsCol.appendChild(placeholderC1);
-            sheetContent.appendChild(topMarker.row);
-            
-            const grid = document.createElement('div');
-            grid.id = 'sheet-grid';
+            topMarker.optionsCol.appendChild(document.createElement('div')).className = 'w-12';
+            topMarker.optionsCol.appendChild(document.createElement('div')).className = 'w-12';
+            gridWrapper.appendChild(topMarker.row);
+
             for (let i = 1; i <= count; i++) {
                 const item = createRow();
-                item.row.classList.remove('py-1');
-                item.row.classList.add('py-2');
                 item.numberCol.textContent = `${i}.`;
-
                 ['A', 'B', 'C'].forEach(() => {
                     const optionWrapper = document.createElement('div');
-                    optionWrapper.className = 'flex items-center justify-center w-12 cursor-pointer';
+                    optionWrapper.className = 'w-12 py-2 flex justify-center items-center cursor-pointer';
                     const circle = document.createElement('div');
                     circle.className = 'w-6 h-6 border-2 border-gray-500 rounded-full';
                     optionWrapper.appendChild(circle);
                     item.optionsCol.appendChild(optionWrapper);
-
                     optionWrapper.addEventListener('click', () => {
                         const isSelected = circle.classList.contains('bg-black');
-                        item.optionsCol.querySelectorAll('div.rounded-full').forEach(circ => circ.classList.remove('bg-black'));
+                        item.optionsCol.querySelectorAll('div.rounded-full').forEach(c => c.classList.remove('bg-black'));
                         if (!isSelected) circle.classList.add('bg-black');
                     });
                 });
-                grid.appendChild(item.row);
-            }
-            sheetContent.appendChild(grid);
-            
-            const bottomMarker = createRow();
-            const placeholderA2 = document.createElement('div'); placeholderA2.className = 'w-12 h-6';
-            const placeholderB2 = document.createElement('div'); placeholderB2.className = 'w-12 h-6';
-            
-            const triangleWrapper = document.createElement('div');
-            triangleWrapper.className = 'flex items-center justify-center w-12 h-6';
-            const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            triangle.setAttribute('width', '24');
-            triangle.setAttribute('height', '24');
-            triangle.setAttribute('viewBox', '0 0 100 100');
-            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            polygon.setAttribute('points', '50,0 100,100 0,100');
-            polygon.setAttribute('fill', 'black');
-            triangle.appendChild(polygon);
-triangleWrapper.appendChild(triangle);
-            
-            bottomMarker.optionsCol.appendChild(placeholderA2);
-            bottomMarker.optionsCol.appendChild(placeholderB2);
-            bottomMarker.optionsCol.appendChild(triangleWrapper);
-            sheetContent.appendChild(bottomMarker.row);
+                gridWrapper.appendChild(item.row);
+             }
 
+            const bottomMarker = createRow();
+            bottomMarker.numberCol.innerHTML = `&nbsp;`;
+            bottomMarker.optionsCol.appendChild(document.createElement('div')).className = 'w-12';
+            bottomMarker.optionsCol.appendChild(document.createElement('div')).className = 'w-12';
+            const triangleWrapper = document.createElement('div');
+            triangleWrapper.className = 'w-12 h-8 flex justify-center items-center';
+            triangleWrapper.innerHTML = `<svg width="32" height="32" viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" fill="black"></polygon></svg>`;
+            bottomMarker.optionsCol.appendChild(triangleWrapper);
+            gridWrapper.appendChild(bottomMarker.row);
+            
+            sheetContent.appendChild(mainContainer);
             printBtn.style.display = 'inline-block';
         };
 
