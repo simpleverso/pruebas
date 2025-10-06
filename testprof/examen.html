@@ -58,13 +58,13 @@
         <div id="grader" class="tab-content">
             <div class="relative text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">📝 OMR Exam Grader</h1>
-                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v4.1</p>
+                <p class="absolute top-0 right-0 text-xs font-mono text-gray-400">v5.1</p>
                 <p class="text-gray-600 mt-2">Place a ■ marker at the top-left and a ▲ at the bottom-right of the answer area.</p>
             </div>
             
-            <div class="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
+            <div id="camera-container" class="relative w-full bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
                 <video id="video" class="absolute w-full h-full object-cover" style="opacity: 0; pointer-events: none;" playsinline autoplay muted></video>
-                <canvas id="outputCanvas" class="w-full h-full"></canvas>
+                <canvas id="outputCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
             </div>
 
             <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -72,18 +72,9 @@
                 <button id="gradeStudentBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400" disabled>2. Grade Student Sheet</button>
             </div>
 
-            <div id="scan-result" class="mt-4 text-center text-2xl font-bold text-blue-600 h-8"></div>
+            <div id="scan-result" class="mt-4 text-center text-2xl font-bold text-blue-600 h-10"></div>
             <div id="status" class="mt-2 text-center text-gray-500 font-medium">Loading OpenCV... Press Start when ready.</div>
             <button id="startBtn" class="w-full mt-4 bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition-all duration-200">Start Camera</button>
-
-            <div id="comparisonContainer" class="mt-6 hidden">
-                <h3 class="text-xl font-bold text-gray-700 text-center mb-4">Grading Result</h3>
-                <div>
-                    <h4 class="text-center font-semibold text-gray-600 mb-2">Graded Overlay</h4>
-                    <canvas id="comparisonOriginal" class="w-full rounded-lg border border-gray-300"></canvas>
-                </div>
-                <div id="result" class="mt-4 text-center text-3xl font-bold text-blue-600 h-10"></div>
-            </div>
         </div>
         
         <!-- Generator Tab Content -->
@@ -143,11 +134,10 @@
         const scanKeyBtn = document.getElementById('scanKeyBtn');
         const gradeStudentBtn = document.getElementById('gradeStudentBtn');
         const statusEl = document.getElementById('status');
-        const resultEl = document.getElementById('result');
         const scanResultEl = document.getElementById('scan-result');
         const outputCanvas = document.getElementById('outputCanvas');
-        const comparisonContainer = document.getElementById('comparisonContainer');
-        const comparisonOriginalCanvas = document.getElementById('comparisonOriginal');
+        const cameraContainer = document.getElementById('camera-container');
+        const ctx = outputCanvas.getContext('2d');
 
         let stream = null;
         let answerKey = null;
@@ -166,17 +156,25 @@
                 if (animationFrameId) cancelAnimationFrame(animationFrameId);
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
                 video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    const { videoWidth, videoHeight } = video;
+                    outputCanvas.width = videoWidth;
+                    outputCanvas.height = videoHeight;
+                    
+                    // **FIX: Dynamically set aspect ratio of container**
+                    cameraContainer.style.aspectRatio = `${videoWidth} / ${videoHeight}`;
+
+                    startBtn.textContent = 'Restart Camera';
+                    scanKeyBtn.disabled = false;
+                    gradeStudentBtn.disabled = true;
+                    answerKey = null;
+                    statusEl.textContent = 'Camera started. Looking for markers...';
+                    scanResultEl.innerHTML = '';
+                    processingLoop();
+                };
                 await video.play();
-                const { videoWidth, videoHeight } = video;
-                [outputCanvas, comparisonOriginalCanvas].forEach(c => { c.width = videoWidth; c.height = videoHeight; });
-                startBtn.textContent = 'Restart Camera';
-                scanKeyBtn.disabled = false;
-                gradeStudentBtn.disabled = true;
-                answerKey = null;
-                statusEl.textContent = 'Camera started. Looking for markers...';
-                scanResultEl.innerHTML = '';
-                comparisonContainer.classList.add('hidden');
-                processingLoop();
+
             } catch (err) {
                 console.error("Error accessing camera: ", err);
                 statusEl.textContent = 'Error: Could not access camera.';
@@ -193,7 +191,6 @@
                 scanResultEl.textContent = `${result.answers.length} questions detected.`;
                 statusEl.textContent = 'Answer key scanned. Ready to grade student sheets.';
                 gradeStudentBtn.disabled = false;
-                comparisonContainer.classList.add('hidden');
             } else {
                  statusEl.textContent = 'Could not detect a valid answer key. Try again.';
                  scanResultEl.textContent = '';
@@ -214,10 +211,7 @@
                 let score = 0;
                 let missingAnswers = 0;
                 
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 
                 const inverseM = new cv.Mat();
                 cv.invert(studentResult.transformMatrix, inverseM);
@@ -232,25 +226,18 @@
                         missingAnswers++;
                         const firstBubble = studentAnswers[i].group[0];
                         const lastBubble = studentAnswers[i].group[studentAnswers[i].group.length - 1];
-                        
                         let startVec = cv.matFromArray(1, 1, cv.CV_32FC2, [firstBubble.x, firstBubble.y]);
                         let endVec = cv.matFromArray(1, 1, cv.CV_32FC2, [lastBubble.x, lastBubble.y]);
                         let startDstVec = new cv.Mat(1, 1, cv.CV_32FC2);
                         let endDstVec = new cv.Mat(1, 1, cv.CV_32FC2);
-
                         cv.perspectiveTransform(startVec, startDstVec, inverseM);
                         cv.perspectiveTransform(endVec, endDstVec, inverseM);
-
                         const startPoint = { x: startDstVec.data32F[0], y: startDstVec.data32F[1] };
                         const endPoint = { x: endDstVec.data32F[0], y: endDstVec.data32F[1] };
-                        
-                        drawLine(tempCtx, startPoint, endPoint, 'rgba(255, 165, 0, 0.8)');
-
+                        drawLine(ctx, startPoint, endPoint, 'rgba(255, 165, 0, 0.8)');
                         startVec.delete(); endVec.delete(); startDstVec.delete(); endDstVec.delete();
                     } else {
-                        if (studentChoiceIndex === correctChoiceIndex) {
-                            score++;
-                        }
+                        if (studentChoiceIndex === correctChoiceIndex) score++;
                         for (let j = 0; j < studentAnswers[i].group.length; j++) {
                             const circle = studentAnswers[i].group[j];
                             let srcVec = cv.matFromArray(1, 1, cv.CV_32FC2, [circle.x, circle.y]);
@@ -258,20 +245,15 @@
                             cv.perspectiveTransform(srcVec, dstVec, inverseM);
                             const originalCircle = { x: dstVec.data32F[0], y: dstVec.data32F[1], radius: circle.radius * scaleFactor };
                             srcVec.delete(); dstVec.delete();
-                            if (j === correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(0, 255, 0, 0.7)');
-                            if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(tempCtx, originalCircle, 'rgba(255, 0, 0, 0.7)');
+                            if (j === correctChoiceIndex) drawCircle(ctx, originalCircle, 'rgba(0, 255, 0, 0.7)');
+                            if (j === studentChoiceIndex && studentChoiceIndex !== correctChoiceIndex) drawCircle(ctx, originalCircle, 'rgba(255, 0, 0, 0.7)');
                         }
                     }
                 }
-                statusEl.textContent = 'Grading complete.';
+                statusEl.textContent = 'Grading complete. Press "Restart Camera" to continue.';
                 let resultText = `Score: ${score} / ${answerKey.length}`;
-                if (missingAnswers > 0) {
-                    resultText += ` and ${missingAnswers} missing response${missingAnswers > 1 ? 's' : ''}`;
-                }
-                resultEl.textContent = resultText;
-                
-                comparisonContainer.classList.remove('hidden');
-                comparisonOriginalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0);
+                if (missingAnswers > 0) resultText += ` and ${missingAnswers} missing response${missingAnswers > 1 ? 's' : ''}`;
+                scanResultEl.textContent = resultText;
                 
                 inverseM.delete();
                 studentResult.binaryImage.delete();
@@ -280,8 +262,8 @@
                  statusEl.textContent = 'Could not read student sheet. Please try again.';
                  if (studentResult && studentResult.binaryImage) studentResult.binaryImage.delete();
                  if (studentResult && studentResult.transformMatrix) studentResult.transformMatrix.delete();
+                 processingLoop(); // Restart if grading failed
             }
-            processingLoop();
         });
         
         function processingLoop() {
