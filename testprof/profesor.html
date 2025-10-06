@@ -925,7 +925,15 @@
             activeScanner.button = buttonEl;
             activeScanner.successCallback = successCallback;
 
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            const constraints = {
+                video: {
+                    facingMode: "environment",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints)
                 .then(function(stream) {
                     activeScanner.stream = stream;
                     activeScanner.video.srcObject = stream;
@@ -958,7 +966,9 @@
                     return;
                 }
             }
-            activeScanner.animationFrameId = requestAnimationFrame(tick);
+            if (activeScanner.animationFrameId) {
+                activeScanner.animationFrameId = requestAnimationFrame(tick);
+            }
         }
         
         function stopScanner() {
