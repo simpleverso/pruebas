@@ -200,7 +200,7 @@
         <!-- Section 2: QR Reader to Set Grade -->
         <div id="qr-reader-section" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
              <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-white">Scan Student QR</h1>
+                <h1 class="text-2xl font-bold text-white">Scan Student QR <span class="text-sm font-normal text-gray-500 align-middle">v3.0</span></h1>
                 <button class="back-btn text-gray-400 hover:text-white">&larr; Back</button>
             </div>
             <div id="reader" class="bg-gray-900 rounded-xl aspect-square w-full">
@@ -242,7 +242,7 @@
         <!-- Section 4: Student Report Section -->
         <div id="student-report-section" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-white">View Student Report</h1>
+                <h1 class="text-2xl font-bold text-white">View Student Report <span class="text-sm font-normal text-gray-500 align-middle">Scanner v3.0</span></h1>
                 <button class="back-btn text-gray-400 hover:text-white">&larr; Back</button>
             </div>
             <div id="report-scanner-view">
@@ -962,7 +962,7 @@
         }
         
         function tick() {
-            if (activeScanner.video.readyState === activeScanner.video.HAVE_ENOUGH_DATA) {
+            if (activeScanner.video && activeScanner.video.readyState === activeScanner.video.HAVE_ENOUGH_DATA) {
                 activeScanner.status.textContent = "Scanning...";
                 activeScanner.canvas.canvas.height = activeScanner.video.videoHeight;
                 activeScanner.canvas.canvas.width = activeScanner.video.videoWidth;
@@ -1010,9 +1010,22 @@
                     document.getElementById('scan-status'),
                     startScanBtn,
                     (data) => {
-                        const student = DB.getData().students[data];
-                        if (student) handleValidStudent(student);
-                        else showMessage("Unrecognized QR code.", true, 4000);
+                        const scanStatusEl = document.getElementById('scan-status');
+                        scanStatusEl.textContent = `Code Found: ${data}`;
+                        startScanBtn.textContent = 'Processing...';
+                        startScanBtn.disabled = true;
+
+                        setTimeout(() => {
+                            const student = DB.getData().students[data];
+                            if (student) {
+                                handleValidStudent(student);
+                            } else { 
+                                showMessage("Unrecognized QR code.", true, 4000);
+                                scanStatusEl.textContent = "Unrecognized Code. Try again.";
+                            }
+                            startScanBtn.textContent = 'Start Scan';
+                            startScanBtn.disabled = false;
+                        }, 1000);
                     }
                 );
             }
@@ -1278,12 +1291,22 @@
                     document.getElementById('report-scan-status'),
                     startReportScanBtn,
                     (data) => {
-                         const student = DB.getData().students[data];
-                        if (student) {
-                            renderStudentReport(student.id);
-                        } else {
-                            showMessage("Unrecognized QR code.", true, 4000);
-                        }
+                         const reportStatusEl = document.getElementById('report-scan-status');
+                        reportStatusEl.textContent = `Code Found: ${data}`;
+                        startReportScanBtn.textContent = 'Processing...';
+                        startReportScanBtn.disabled = true;
+
+                        setTimeout(() => {
+                            const student = DB.getData().students[data];
+                            if (student) {
+                                renderStudentReport(student.id);
+                            } else {
+                                showMessage("Unrecognized QR code.", true, 4000);
+                                reportStatusEl.textContent = "Unrecognized Code. Try again.";
+                            }
+                            startReportScanBtn.textContent = 'Scan Student QR for Report';
+                            startReportScanBtn.disabled = false;
+                        }, 1000);
                     }
                 );
             }
