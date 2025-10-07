@@ -5,22 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EOC - GIS & Mapping</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- LeafletJS CSS for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
         :root {
             --primary-bg: #111827; --secondary-bg: #1f2937; --tertiary-bg: #374151;
             --accent-color: #3b82f6; --text-primary: #f9fafb; --text-secondary: #d1d5db;
         }
-        body { background-color: var(--primary-bg); color: var(--text-primary); }
+        body { background-color: var(--primary-bg); color: var(--text-primary); font-family: 'Inter', sans-serif; }
         .sidebar { background-color: var(--secondary-bg); }
         .nav-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: var(--text-secondary); transition: all 0.2s; }
         .nav-link:hover { background-color: var(--tertiary-bg); color: var(--text-primary); }
         .nav-link.active { background-color: var(--accent-color); color: white; font-weight: 600; }
         .card { background-color: var(--secondary-bg); border: 1px solid var(--tertiary-bg); border-radius: 0.75rem; }
         .header { background-color: var(--secondary-bg); border-bottom: 1px solid var(--tertiary-bg); }
-        .map-container { position: relative; width: 100%; height: 100%; }
-        .map-overlay { position: absolute; top: 1rem; left: 1rem; z-index: 10; }
-        .map-legend { position: absolute; bottom: 1rem; right: 1rem; z-index: 10; }
+        
+        #map { height: 100%; width: 100%; background-color: #333; }
+
+        .leaflet-popup-content-wrapper {
+            background: var(--secondary-bg); color: var(--text-primary); border-radius: 0.5rem;
+        }
+        .leaflet-popup-content { margin: 1rem; width: 300px !important; } /* Wider popup */
+        .leaflet-popup-tip { background: var(--secondary-bg); }
+        .leaflet-control-layers {
+            background: var(--secondary-bg); border: 1px solid var(--tertiary-bg); color: var(--text-primary);
+        }
+        .leaflet-control-layers-selector { accent-color: var(--accent-color); }
+
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--secondary-bg); margin: 5% auto; padding: 2rem;
+            border: 1px solid var(--tertiary-bg); width: 90%;
+            border-radius: 0.75rem;
+        }
+        .requirement-item, .corporation-item { display: flex; justify-content: space-between; align-items: center; }
+        .leaflet-control-attribution { font-size: 10px !important; }
+        .map-instruction {
+            position: absolute; bottom: 10px; right: 10px; z-index: 400;
+            background-color: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px;
+            border-radius: 4px; font-size: 12px; pointer-events: none;
+        }
+        .tab-button { background-color: var(--tertiary-bg); border: 1px solid var(--tertiary-bg); }
+        .tab-button.active { background-color: var(--accent-color); color: white; }
     </style>
 </head>
 <body>
@@ -32,27 +63,13 @@
                 <h1 class="text-xl font-bold text-white">EOC Platform</h1>
             </div>
             <nav class="space-y-2">
-                <a href="./dashboard.html" class="nav-link">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
-                </a>
-                <a href="#" class="nav-link active">
-                    <i data-lucide="map" class="w-5 h-5 mr-3"></i> GIS & Mapping
-                </a>
-                <a href="./resources.html" class="nav-link">
-                    <i data-lucide="users" class="w-5 h-5 mr-3"></i> Resource Mgmt
-                </a>
-                 <a href="./humanitarian.html" class="nav-link">
-                    <i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i> Humanitarian
-                </a>
-                <a href="./hospitals.html" class="nav-link">
-                    <i data-lucide="hospital" class="w-5 h-5 mr-3"></i> Hospital Status
-                </a>
-                <a href="./requests.html" class="nav-link">
-                    <i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Needs & Requests
-                </a>
-                <a href="./communications.html" class="nav-link">
-                    <i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Communications
-                </a>
+                <a href="./dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard</a>
+                <a href="#" class="nav-link active"><i data-lucide="map" class="w-5 h-5 mr-3"></i> GIS & Mapping</a>
+                <a href="./resources.html" class="nav-link"><i data-lucide="users" class="w-5 h-5 mr-3"></i> Resource Mgmt</a>
+                <a href="./humanitarian.html" class="nav-link"><i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i> Humanitarian</a>
+                <a href="./hospitals.html" class="nav-link"><i data-lucide="hospital" class="w-5 h-5 mr-3"></i> Hospital Status</a>
+                <a href="./requests.html" class="nav-link"><i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Needs & Requests</a>
+                <a href="./communications.html" class="nav-link"><i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Communications</a>
             </nav>
         </aside>
 
@@ -60,42 +77,493 @@
         <main class="flex-1 flex flex-col">
             <header class="header p-4 flex justify-between items-center flex-shrink-0">
                 <h2 class="text-2xl font-semibold">Geospatial Information System (GIS)</h2>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
-                    <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> Add New Incident
-                </button>
-            </header>
-            <div class="flex-1 p-0 m-0 relative">
-                <div class="map-container">
-                    <img src="https://placehold.co/1600x1200/374151/9CA3AF?text=Interactive+City+Map" alt="Interactive Map" class="object-cover w-full h-full">
-
-                    <!-- Map Layers Overlay -->
-                    <div class="map-overlay card p-4 w-72">
-                        <h3 class="font-semibold mb-3">Map Layers</h3>
-                        <div class="space-y-2 text-sm">
-                            <label class="flex items-center"><input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" checked> <span class="ml-2">Incidents</span></label>
-                            <label class="flex items-center"><input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" checked> <span class="ml-2">Hospitals</span></label>
-                            <label class="flex items-center"><input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded"> <span class="ml-2">Personnel</span></label>
-                            <label class="flex items-center"><input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" checked> <span class="ml-2">Evacuation Zones</span></label>
-                            <label class="flex items-center"><input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded"> <span class="ml-2">Road Closures</span></label>
-                        </div>
-                    </div>
-
-                     <!-- Map Legend Overlay -->
-                    <div class="map-legend card p-4 w-60">
-                        <h3 class="font-semibold mb-3">Legend</h3>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex items-center"><i data-lucide="siren" class="w-5 h-5 text-red-500 mr-2"></i><span>Incident</span></div>
-                            <div class="flex items-center"><i data-lucide="hospital" class="w-5 h-5 text-green-500 mr-2"></i><span>Hospital</span></div>
-                            <div class="flex items-center"><i data-lucide="user-check" class="w-5 h-5 text-blue-500 mr-2"></i><span>Staging Area</span></div>
-                             <div class="flex items-center"><div class="w-4 h-4 bg-yellow-500/50 border border-yellow-400 mr-2.5"></div><span>Evacuation Zone</span></div>
-                        </div>
-                    </div>
+                <div class="flex space-x-2">
+                    <button id="manageConfigBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                        <i data-lucide="settings-2" class="w-5 h-5 mr-2"></i> Manage Config
+                    </button>
                 </div>
+            </header>
+            <div id="map" class="flex-1">
+                 <div class="map-instruction">Double-click to add an incident</div>
             </div>
         </main>
     </div>
+
+    <!-- Add/Edit Incident Modal -->
+    <div id="incidentModal" class="modal">
+        <div class="modal-content max-w-2xl">
+            <h2 class="text-xl font-semibold mb-4">Add Incident</h2>
+            <form id="incidentForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto pr-2">
+                    <!-- Column 1 -->
+                    <div>
+                        <input type="hidden" id="incidentId"><input type="hidden" id="incidentLat"><input type="hidden" id="incidentLng"><input type="hidden" id="incidentPhotoUrl">
+                        <input type="file" id="fileUploadInput" class="hidden" accept="image/*">
+                        <input type="file" id="cameraUploadInput" class="hidden" accept="image/*" capture="environment">
+                        
+                        <div class="mb-4">
+                            <label for="incidentTitle" class="block mb-2 text-sm font-medium">Title</label>
+                            <input type="text" id="incidentTitle" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="incidentType" class="block mb-2 text-sm font-medium">Type</label>
+                            <select id="incidentType" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"></select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="incidentStatus" class="block mb-2 text-sm font-medium">Status</label>
+                            <select id="incidentStatus" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5">
+                                <option value="Active">Active</option><option value="Controlled">Controlled</option><option value="Waiting">Waiting</option><option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="incidentPriority" class="block mb-2 text-sm font-medium">Priority (1=Low, 5=High)</label>
+                            <select id="incidentPriority" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5">
+                                <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-sm font-medium">Location</p>
+                            <p id="location-feedback" class="text-sm h-4 mt-1 text-green-400"></p>
+                        </div>
+                        <div class="mb-4">
+                            <label for="newComment" class="block mb-2 text-sm font-medium">Add Comment</label>
+                            <textarea id="newComment" rows="2" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"></textarea>
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div>
+                         <div class="mb-4">
+                            <label class="block mb-2 text-sm font-medium">Photo</label>
+                            <div class="flex space-x-2 mb-2">
+                                <button type="button" id="photoUrlBtn" class="text-xs bg-gray-600 hover:bg-gray-700 p-2 rounded-lg w-full">From URL</button>
+                                <button type="button" id="uploadFileBtn" class="text-xs bg-gray-600 hover:bg-gray-700 p-2 rounded-lg w-full">Upload File</button>
+                                <button type="button" id="useCameraBtn" class="text-xs bg-gray-600 hover:bg-gray-700 p-2 rounded-lg w-full">Use Camera</button>
+                            </div>
+                            <img id="photoPreview" src="" class="w-full h-32 object-cover rounded-lg bg-gray-700 hidden">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 text-sm font-medium">Corporations Needed</label>
+                            <div id="corporationsContainer" class="grid grid-cols-2 gap-2 p-2 bg-gray-700 rounded-lg max-h-32 overflow-y-auto"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="newRequirement" class="block mb-2 text-sm font-medium">Requirements</label>
+                            <div class="flex">
+                                <input type="text" id="newRequirement" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-l-lg block w-full p-2.5" placeholder="e.g., Heavy Machinery">
+                                <button type="button" id="addRequirementBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-r-lg">Add</button>
+                            </div>
+                            <ul id="requirementsList" class="mt-2 space-y-1 text-sm max-h-32 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-4 mt-4 pt-4 border-t border-gray-600">
+                    <button type="button" class="close-modal-btn py-2 px-4 rounded-lg text-gray-300 hover:bg-gray-600">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Save Incident</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Manage Config Modal -->
+    <div id="configModal" class="modal">
+        <div class="modal-content max-w-lg">
+            <h2 class="text-xl font-semibold mb-4">Manage Configuration</h2>
+            <div class="flex border-b border-gray-600 mb-4">
+                <button id="typesTab" class="tab-button active py-2 px-4 rounded-t-lg">Incident Types</button>
+                <button id="corpsTab" class="tab-button py-2 px-4 rounded-t-lg">Corporations</button>
+            </div>
+
+            <!-- Incident Types Panel -->
+            <div id="typesPanel">
+                <div id="incidentTypeList" class="space-y-2 mb-6 max-h-60 overflow-y-auto"></div>
+                <hr class="border-gray-600 my-4">
+                <h3 id="typeFormTitle" class="text-lg font-semibold mb-2">Add New Type</h3>
+                <form id="incidentTypeForm">
+                    <input type="hidden" id="typeId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="typeName" placeholder="Type Name" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" required>
+                        <input type="url" id="typeIconUrl" placeholder="Icon URL" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" required>
+                    </div>
+                    <div class="flex justify-end mt-4"><button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Save Type</button></div>
+                </form>
+            </div>
+
+            <!-- Corporations Panel -->
+            <div id="corpsPanel" class="hidden">
+                 <div id="corporationList" class="space-y-2 mb-6 max-h-60 overflow-y-auto"></div>
+                <hr class="border-gray-600 my-4">
+                <h3 class="text-lg font-semibold mb-2">Add New Corporation</h3>
+                <form id="corporationForm">
+                    <div class="flex">
+                        <input type="text" id="corpName" placeholder="Corporation Name" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-l-lg block w-full p-2.5" required>
+                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 rounded-r-lg">Add</button>
+                    </div>
+                </form>
+            </div>
+             <div class="flex justify-end mt-6">
+                 <button type="button" class="close-modal-btn py-2 px-4 rounded-lg text-gray-300 hover:bg-gray-600">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal" style="z-index: 1050;"> <!-- Higher z-index -->
+        <div class="modal-content max-w-sm">
+            <h2 id="confirmationMessage" class="text-lg font-semibold mb-6 text-center">Are you sure?</h2>
+            <div class="flex justify-center space-x-4">
+                <button id="cancelBtn" class="py-2 px-6 rounded-lg text-gray-300 hover:bg-gray-600 border border-gray-600">Cancel</button>
+                <button id="confirmBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         lucide.createIcons();
+
+        const map = L.map('map').setView([16.43, -95.02], 13); // Centered on Juchitán, Oaxaca
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 20
+        }).addTo(map);
+
+        // --- DATA STORES ---
+        let incidentTypes = [
+            {id: 'collapse', name: 'Structural Collapse', iconUrl: 'https://placehold.co/32x32/ef4444/FFFFFF?text=!'},
+            {id: 'fire', name: 'Fire', iconUrl: 'https://placehold.co/32x32/f97316/FFFFFF?text=F'},
+            {id: 'medical', name: 'Medical Emergency', iconUrl: 'https://placehold.co/32x32/8b5cf6/FFFFFF?text=M'},
+        ];
+
+        let availableCorporations = ['Military', 'Navy', 'Police', 'SAMU', 'Fire Dept', 'Civil Prot.'];
+
+        let mapData = [
+            {id: 1, type: 'hospital', lat: 19.4025, lng: -99.1670, title: 'Hospital General de México', status: 'Diversion'},
+            {id: 2, type: 'staging', lat: 19.435, lng: -99.145, title: 'Staging Area Alpha', personnel: 50},
+            {id: 4, type: 'collapse', lat: 19.418, lng: -99.165, title: 'Building Collapse - Condesa', status: 'Active', priority: 5, photoUrl: 'https://placehold.co/600x400/7f1d1d/ffffff?text=Damaged+Building', requirements: ['Heavy Machinery', 'Search & Rescue K9'], corporations: ['Military', 'Civil Prot.'], comments: [{user: 'Cmdr. Eva', text: 'Perimeter secured.'}]},
+            {id: 5, type: 'fire', lat: 19.45, lng: -99.13, title: 'Warehouse Fire - Centro', status: 'Controlled', priority: 4, photoUrl: 'https://placehold.co/600x400/b91c1c/ffffff?text=Warehouse+Fire', requirements: ['Water Tankers', 'Foam Supply'], corporations: ['Fire Dept', 'Police'], comments: [{user: 'Chief Diaz', text: 'Fire is contained, monitoring hotspots.'}]}
+        ];
+        
+        const staticIcons = {
+            hospital: L.icon({ iconUrl: 'https://placehold.co/32x32/22c55e/FFFFFF?text=H', iconSize: [32, 32] }),
+            staging: L.icon({ iconUrl: 'https://placehold.co/32x32/3b82f6/FFFFFF?text=S', iconSize: [32, 32] }),
+        };
+
+        let layers = { hospitals: L.layerGroup().addTo(map), stagingAreas: L.layerGroup().addTo(map), incidents: L.layerGroup().addTo(map) };
+        let tempRequirements = [];
+
+        // --- DYNAMIC RENDERING ---
+        function getIconForType(typeId) {
+            if (staticIcons[typeId]) return staticIcons[typeId];
+            const incidentType = incidentTypes.find(t => t.id === typeId);
+            return incidentType ? L.icon({ iconUrl: incidentType.iconUrl, iconSize: [32, 32] }) : staticIcons.staging;
+        }
+        
+        function getPriorityColor(p) {
+            if (p == 5) return 'text-red-400'; if (p == 4) return 'text-orange-400';
+            if (p == 3) return 'text-yellow-400'; return 'text-blue-400';
+        }
+
+        function renderMarkers() {
+            Object.values(layers).forEach(layer => layer.clearLayers());
+            mapData.forEach(item => {
+                const marker = L.marker([item.lat, item.lng], { icon: getIconForType(item.type) });
+                marker.bindPopup(createPopupContent(item));
+                if (item.type === 'hospital') layers.hospitals.addLayer(marker);
+                else if (item.type === 'staging') layers.stagingAreas.addLayer(marker);
+                else layers.incidents.addLayer(marker);
+            });
+        }
+
+        function createPopupContent(item) {
+            let content = `<div class="text-white"><h3 class="font-bold text-lg">${item.title}</h3><p>Status: <span class="font-semibold">${item.status || 'N/A'}</span></p>`;
+            if(item.personnel) content += `<p>Personnel: ${item.personnel}</p>`;
+            if(item.priority) content += `<p>Priority: <span class="font-bold text-xl ${getPriorityColor(item.priority)}">${item.priority}</span></p>`;
+            if(item.photoUrl) content += `<img src="${item.photoUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/1f2937/4b5563?text=Invalid+Image'" class="my-2 rounded-lg w-full object-cover max-h-40">`;
+            if(item.corporations?.length) content += `<h4 class="font-semibold mt-2">Corporations:</h4><p class="text-xs">${item.corporations.join(', ')}</p>`;
+            if(item.requirements?.length) {
+                content += `<h4 class="font-semibold mt-2">Requirements:</h4><ul class="list-disc list-inside text-xs">`;
+                item.requirements.forEach(req => { content += `<li>${req}</li>`; });
+                content += `</ul>`;
+            }
+            if(item.comments?.length) {
+                content += `<h4 class="font-semibold mt-2">Comments:</h4><div class="text-xs max-h-24 overflow-y-auto bg-gray-800 p-1 rounded">`;
+                [...item.comments].reverse().forEach(com => { content += `<p><strong>${com.user}:</strong> ${com.text}</p>`; });
+                content += `</div>`;
+            }
+            content += `<div class="mt-4 flex space-x-2"><button class="bg-blue-600 text-xs py-1 px-2 rounded" onclick="editItem(${item.id})">Update</button><button class="bg-red-600 text-xs py-1 px-2 rounded" onclick="removeItem(${item.id})">Remove</button></div></div>`;
+            return content;
+        }
+        
+        function populateIncidentTypeDropdown() {
+            const select = document.getElementById('incidentType');
+            select.innerHTML = '';
+            incidentTypes.forEach(type => {
+                select.innerHTML += `<option value="${type.id}">${type.name}</option>`;
+            });
+        }
+        
+        function populateCorporations() {
+            const container = document.getElementById('corporationsContainer');
+            container.innerHTML = '';
+            availableCorporations.forEach(corp => {
+                container.innerHTML += `<label class="flex items-center space-x-2 text-sm"><input type="checkbox" name="corporations" value="${corp}" class="bg-gray-800 border-gray-600 rounded accent-blue-500"><span>${corp}</span></label>`;
+            });
+        }
+
+        L.control.layers(null, {"Incidents": layers.incidents, "Hospitals": layers.hospitals, "Staging Areas": layers.stagingAreas}, { collapsed: false }).addTo(map);
+
+        // --- MODAL HANDLING ---
+        const incidentModal = document.getElementById('incidentModal');
+        const configModal = document.getElementById('configModal');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const incidentForm = document.getElementById('incidentForm');
+        const locationFeedback = document.getElementById('location-feedback');
+        
+        function handleAddIncident(e) {
+            incidentForm.reset();
+            incidentModal.querySelector('h2').innerText = 'Add Incident';
+            document.getElementById('incidentId').value = '';
+            document.getElementById('incidentLat').value = e.latlng.lat;
+            document.getElementById('incidentLng').value = e.latlng.lng;
+            document.getElementById('incidentPhotoUrl').value = '';
+            document.getElementById('photoPreview').src = '';
+            document.getElementById('photoPreview').classList.add('hidden');
+            locationFeedback.textContent = `Location set: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+            tempRequirements = [];
+            renderRequirementsList();
+            document.querySelectorAll('input[name="corporations"]').forEach(cb => cb.checked = false);
+            incidentModal.style.display = 'flex';
+        }
+        
+        map.on('dblclick', handleAddIncident);
+        
+        document.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.onclick = () => btn.closest('.modal').style.display = 'none';
+        });
+
+        incidentForm.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('incidentId').value;
+            const selectedCorps = Array.from(document.querySelectorAll('input[name="corporations"]:checked')).map(cb => cb.value);
+            const newCommentText = document.getElementById('newComment').value.trim();
+
+            let currentComments = [];
+            if(id) {
+                const existingItem = mapData.find(item => item.id === parseInt(id));
+                currentComments = existingItem?.comments || [];
+            }
+            if (newCommentText) currentComments.push({ user: 'Operator', text: newCommentText });
+
+            const newItemData = {
+                type: document.getElementById('incidentType').value, lat: parseFloat(document.getElementById('incidentLat').value), lng: parseFloat(document.getElementById('incidentLng').value),
+                title: document.getElementById('incidentTitle').value, status: document.getElementById('incidentStatus').value, priority: parseInt(document.getElementById('incidentPriority').value),
+                photoUrl: document.getElementById('incidentPhotoUrl').value, requirements: [...tempRequirements], corporations: selectedCorps, comments: currentComments
+            };
+
+            if (id) mapData = mapData.map(item => item.id === parseInt(id) ? {...item, ...newItemData} : item);
+            else mapData.push({ id: Date.now(), ...newItemData });
+            
+            incidentModal.style.display = 'none';
+            renderMarkers();
+        };
+        
+        window.editItem = function(id) {
+            const item = mapData.find(d => d.id === id);
+            if (!item || item.type === 'hospital' || item.type === 'staging') return;
+            
+            incidentModal.querySelector('h2').innerText = 'Update Incident';
+            Object.keys(item).forEach(key => {
+                const el = document.getElementById(`incident${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                if (el) el.value = item[key];
+            });
+            document.getElementById('incidentId').value = item.id;
+            locationFeedback.textContent = `Location: ${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}`;
+            
+            if (item.photoUrl) {
+                document.getElementById('photoPreview').src = item.photoUrl;
+                document.getElementById('photoPreview').classList.remove('hidden');
+            } else {
+                document.getElementById('photoPreview').src = '';
+                document.getElementById('photoPreview').classList.add('hidden');
+            }
+            
+            document.querySelectorAll('input[name="corporations"]').forEach(cb => cb.checked = item.corporations?.includes(cb.value));
+            tempRequirements = [...(item.requirements || [])];
+            renderRequirementsList();
+            document.getElementById('newComment').value = '';
+            incidentModal.style.display = 'flex';
+            map.closePopup();
+        }
+
+        // --- CONFIRMATION MODAL & REMOVE ITEM LOGIC ---
+        function showConfirmation(message, onConfirm) {
+            const confirmMsg = document.getElementById('confirmationMessage');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            confirmMsg.textContent = message;
+            
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.onclick = () => {
+                onConfirm();
+                confirmationModal.style.display = 'none';
+            };
+
+            cancelBtn.onclick = () => {
+                confirmationModal.style.display = 'none';
+            };
+            
+            confirmationModal.style.display = 'flex';
+        }
+
+        window.removeItem = function(id) {
+            showConfirmation('Are you sure you want to remove this item?', () => {
+                mapData = mapData.filter(d => d.id !== id);
+                map.closePopup(); 
+                renderMarkers();
+            });
+        }
+        
+        // --- REQUIREMENTS LOGIC ---
+        document.getElementById('addRequirementBtn').onclick = () => {
+            const newReqInput = document.getElementById('newRequirement');
+            const reqText = newReqInput.value.trim();
+            if (reqText) {
+                tempRequirements.push(reqText);
+                newReqInput.value = '';
+                renderRequirementsList();
+            }
+        };
+        function renderRequirementsList() {
+            const reqList = document.getElementById('requirementsList');
+            reqList.innerHTML = '';
+            tempRequirements.forEach((req, index) => {
+                reqList.innerHTML += `<li class="requirement-item bg-gray-700 p-2 rounded"><span>${req}</span><button type="button" onclick="removeRequirement(${index})" class="text-red-400 hover:text-red-300">&times;</button></li>`;
+            });
+        }
+        window.removeRequirement = (index) => {
+            tempRequirements.splice(index, 1);
+            renderRequirementsList();
+        };
+
+        // --- PHOTO UPLOAD LOGIC ---
+        const photoUrlHiddenInput = document.getElementById('incidentPhotoUrl');
+        const photoPreview = document.getElementById('photoPreview');
+        const fileUploadInput = document.getElementById('fileUploadInput');
+        const cameraUploadInput = document.getElementById('cameraUploadInput');
+
+        document.getElementById('photoUrlBtn').onclick = () => {
+            const url = prompt("Please enter the image URL:");
+            if (url) {
+                photoUrlHiddenInput.value = url;
+                photoPreview.src = url;
+                photoPreview.classList.remove('hidden');
+            }
+        };
+        document.getElementById('uploadFileBtn').onclick = () => fileUploadInput.click();
+        document.getElementById('useCameraBtn').onclick = () => cameraUploadInput.click();
+        
+        const handleFileSelect = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                photoUrlHiddenInput.value = event.target.result;
+                photoPreview.src = event.target.result;
+                photoPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+        fileUploadInput.onchange = handleFileSelect;
+        cameraUploadInput.onchange = handleFileSelect;
+
+        // --- CONFIG MODAL LOGIC ---
+        document.getElementById('manageConfigBtn').onclick = () => {
+            renderIncidentTypesList();
+            renderCorporationsList();
+            configModal.style.display = 'flex';
+        };
+
+        // Tab Switching
+        const typesTab = document.getElementById('typesTab');
+        const corpsTab = document.getElementById('corpsTab');
+        const typesPanel = document.getElementById('typesPanel');
+        const corpsPanel = document.getElementById('corpsPanel');
+        typesTab.onclick = () => {
+            typesTab.classList.add('active'); corpsTab.classList.remove('active');
+            typesPanel.classList.remove('hidden'); corpsPanel.classList.add('hidden');
+        };
+        corpsTab.onclick = () => {
+            corpsTab.classList.add('active'); typesTab.classList.remove('active');
+            corpsPanel.classList.remove('hidden'); typesPanel.classList.add('hidden');
+        };
+        
+        // Incident Type Management
+        const incidentTypeForm = document.getElementById('incidentTypeForm');
+        function renderIncidentTypesList() {
+            const listEl = document.getElementById('incidentTypeList');
+            listEl.innerHTML = '';
+            incidentTypes.forEach(type => {
+                listEl.innerHTML += `<div class="flex items-center justify-between p-2 bg-gray-700 rounded-lg"> <div class="flex items-center"> <img src="${type.iconUrl}" class="w-6 h-6 mr-3 rounded-sm"> <span>${type.name}</span> </div> <div class="space-x-2"> <button onclick="editIncidentType('${type.id}')" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit" class="w-4 h-4"></i></button> <button onclick="deleteIncidentType('${type.id}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button> </div> </div>`;
+            });
+            lucide.createIcons();
+        }
+        incidentTypeForm.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('typeId').value;
+            const newType = {
+                id: id || document.getElementById('typeName').value.toLowerCase().replace(/\s+/g, '-'),
+                name: document.getElementById('typeName').value, iconUrl: document.getElementById('typeIconUrl').value
+            };
+            if (id) incidentTypes = incidentTypes.map(t => t.id === id ? newType : t); else incidentTypes.push(newType);
+            incidentTypeForm.reset(); document.getElementById('typeId').value = ''; document.getElementById('typeFormTitle').innerText = 'Add New Type';
+            renderIncidentTypesList(); populateIncidentTypeDropdown();
+        };
+        window.editIncidentType = (id) => {
+            const type = incidentTypes.find(t => t.id === id); if (!type) return;
+            document.getElementById('typeFormTitle').innerText = 'Edit Type';
+            document.getElementById('typeId').value = type.id; document.getElementById('typeName').value = type.name; document.getElementById('typeIconUrl').value = type.iconUrl;
+        };
+        window.deleteIncidentType = (id) => {
+            showConfirmation('Are you sure you want to delete this incident type?', () => {
+                incidentTypes = incidentTypes.filter(t => t.id !== id);
+                renderIncidentTypesList(); populateIncidentTypeDropdown(); renderMarkers();
+            });
+        };
+
+        // Corporation Management
+        const corporationForm = document.getElementById('corporationForm');
+        function renderCorporationsList() {
+            const listEl = document.getElementById('corporationList');
+            listEl.innerHTML = '';
+            availableCorporations.forEach(corp => {
+                listEl.innerHTML += `<div class="corporation-item p-2 bg-gray-700 rounded-lg"><span>${corp}</span><button onclick="deleteCorporation('${corp}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+            });
+            lucide.createIcons();
+        }
+        corporationForm.onsubmit = (e) => {
+            e.preventDefault();
+            const newCorpName = document.getElementById('corpName').value.trim();
+            if (newCorpName && !availableCorporations.includes(newCorpName)) {
+                availableCorporations.push(newCorpName);
+                renderCorporationsList();
+                populateCorporations();
+                corporationForm.reset();
+            }
+        };
+        window.deleteCorporation = (corpName) => {
+            showConfirmation(`Are you sure you want to delete "${corpName}"?`, () => {
+                availableCorporations = availableCorporations.filter(c => c !== corpName);
+                renderCorporationsList();
+                populateCorporations();
+            });
+        };
+
+        // --- INITIAL LOAD ---
+        renderMarkers();
+        populateIncidentTypeDropdown();
+        populateCorporations();
     </script>
 </body>
 </html>
+
