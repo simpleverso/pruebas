@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Management Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Defer ensures this script is parsed and ready before the module script runs -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- Library for generating QR codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tab-button.active, .mode-button.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        .preview-container {
+            position: relative;
+        }
+        .preview-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none; /* Allows clicks to go through to the image if needed */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <!-- Login Page -->
+    <div id="loginOverlay" class="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center z-50">
+        <div class="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+            <!-- TOTP Setup View -->
+            <div id="totpSetup">
+                <div class="text-center">
+                    <h2 class="mt-2 text-3xl font-extrabold text-white">
+                        Two-Factor Setup
+                    </h2>
+                    <p class="mt-2 text-sm text-gray-400">Scan this QR code with your authenticator app (e.g., Google Authenticator).</p>
+                </div>
+                <div class="flex justify-center my-4">
+                    <canvas id="qrCodeCanvas"></canvas>
+                </div>
+                <p class="text-center text-sm text-gray-400">Or manually enter this key:</p>
+                <p id="totpSecretKey" class="text-center bg-gray-900 text-white font-mono p-2 rounded-md tracking-wider break-all"></p>
+                <button id="setupCompleteBtn" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    Next
+                </button>
+            </div>
+            <!-- TOTP Login View -->
+            <div id="totpLogin" class="hidden">
+                 <div class="text-center">
+                    <h2 class="mt-6 text-3xl font-extrabold text-white">
+                        Authentication Required
+                    </h2>
+                    <p class="mt-2 text-sm text-gray-400">Please enter the 6-digit code from your authenticator app.</p>
+                </div>
+                <div class="space-y-6 mt-4">
+                    <div class="relative">
+                        <input id="twoFactorCode" name="2fa-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-3 text-center text-3xl tracking-widest focus:ring-blue-500 focus:border-blue-500" placeholder="_ _ _ _ _ _">
+                    </div>
+                    <div>
+                        <button id="loginBtn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Unlock
+                        </button>
+                    </div>
+                    <p id="loginError" class="text-center text-sm text-red-400 h-4"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 hidden">
+        <div class="loader"></div>
+        <p id="loadingStatus" class="mt-4 text-lg">Loading...</p>
+    </div>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-40 hidden">
+        <div class="bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-700">
+            <video id="videoFeed" width="640" height="480" autoplay class="rounded-md"></video>
+            <div class="flex justify-center mt-4 space-x-4">
+                <button id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Capture Photo</button>
+                <button id="cancelCameraBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainAppContainer" class="container mx-auto p-4 md:p-8 hidden">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Face Recognition Management Tool</h1>
+            <p class="text-gray-400">Manage face collections and perform searches locally or with the cloud.</p>
+        </header>
+
+        <!-- Config Section -->
+        <div class="mb-8 p-6 rounded-lg bg-gray-800 border border-gray-700">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div class="mb-4 sm:mb-0">
+                    <h3 class="text-xl font-semibold">Configuration</h3>
+                    <p class="text-sm text-gray-400">Select processing mode and provide credentials if using the Cloud.</p>
+                </div>
+                <div class="flex items-center space-x-2 bg-gray-900 p-1 rounded-lg">
+                    <button id="modeBrowserBtn" class="mode-button px-4 py-2 text-sm font-semibold rounded-md">Local</button>
+                    <button id="modeAwsBtn" class="mode-button px-4 py-2 text-sm font-semibold rounded-md">Cloud</button>
+                </div>
+            </div>
+
+            <div id="awsConfigSection" class="hidden mt-6 pt-4 border-t border-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="awsRegion" placeholder="AWS Region (e.g., us-east-1)" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="text" id="awsAccessKeyId" placeholder="AWS Access Key ID" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="password" id="awsSecretAccessKey" placeholder="AWS Secret Access Key" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center justify-between mt-4">
+                    <span id="awsStatus" class="text-sm text-yellow-400">Status: Configuration needed.</span>
+                    <button id="saveAwsConfigBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save & Initialize</button>
+                </div>
+                 <p class="text-xs text-gray-500 mt-4">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Warning: Storing credentials in the browser is not secure for production environments. This is for demonstration purposes only.
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Add Face & Search -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Add New Face -->
+                <section id="add-face-section" class="glass-card p-6 rounded-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Add New Face</h2>
+                    <div class="space-y-4">
+                        <label for="faceName" class="block text-sm font-medium text-gray-300">Face Name / ID</label>
+                        <input type="text" id="faceName" placeholder="e.g., Jane Doe" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        
+                        <label for="faceComments" class="block text-sm font-medium text-gray-300">Comments (Optional)</label>
+                        <textarea id="faceComments" placeholder="e.g., VIP Client, Floor 3" rows="2" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        
+                        <div id="addFaceCollectionWrapper" class="hidden">
+                            <label for="addFaceCollectionSelect" class="block text-sm font-medium text-gray-300">Add to Collection</label>
+                            <select id="addFaceCollectionSelect" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                        </div>
+
+                        <label for="faceUpload" class="block text-sm font-medium text-gray-300">Image Source</label>
+                        <div class="flex items-center space-x-2">
+                             <input type="file" id="faceUpload" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700">
+                             <button id="useCameraBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                             </button>
+                        </div>
+                        
+                        <div class="preview-container mt-4">
+                            <img id="facePreview" class="hidden w-full h-auto rounded-lg" alt="Face preview"/>
+                            <canvas id="facePreviewCanvas" class="preview-canvas"></canvas>
+                        </div>
+                        <button id="addFaceBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">Add Face</button>
+                    </div>
+                </section>
+
+                <!-- Search for Face -->
+                <section id="search-face-section" class="glass-card p-6 rounded-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Search for Face</h2>
+                    <div class="space-y-4">
+                         <label for="searchUpload" class="block text-sm font-medium text-gray-300">Image Source for Search</label>
+                         <div class="flex items-center space-x-2">
+                            <input type="file" id="searchUpload" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700">
+                            <button id="useCameraSearchBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera for Search">
+                               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </button>
+                         </div>
+                        
+                        <label for="searchList" class="block text-sm font-medium text-gray-300">Search In</label>
+                        <select id="searchList" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <!-- Options will be populated by JS -->
+                        </select>
+                        <div class="preview-container mt-4">
+                            <img id="searchPreview" class="hidden w-full h-auto rounded-lg" alt="Search preview"/>
+                            <canvas id="searchPreviewCanvas" class="preview-canvas"></canvas>
+                        </div>
+                        <button id="searchFaceBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">Search Face</button>
+                    </div>
+                     <div id="searchResults" class="mt-4"></div>
+                </section>
+
+                <!-- Compare 2 Faces -->
+                <section id="compare-faces-section" class="glass-card p-6 rounded-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Compare 2 Faces</h2>
+                    <div class="grid grid-cols-2 gap-4 items-start">
+                        <!-- Image 1 -->
+                        <div>
+                            <label for="compareUpload1" class="block text-sm font-medium text-gray-300 mb-2">Image 1</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="file" id="compareUpload1" accept="image/*" class="w-full text-sm text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700">
+                                <button id="useCameraCompare1Btn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera for Image 1">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </button>
+                            </div>
+                            <div class="preview-container mt-2">
+                                <img id="comparePreview1" class="hidden w-full h-auto rounded-lg" alt="Compare preview 1"/>
+                                <canvas id="comparePreview1Canvas" class="preview-canvas"></canvas>
+                            </div>
+                        </div>
+                        <!-- Image 2 -->
+                         <div>
+                            <label for="compareUpload2" class="block text-sm font-medium text-gray-300 mb-2">Image 2</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="file" id="compareUpload2" accept="image/*" class="w-full text-sm text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700">
+                                <button id="useCameraCompare2Btn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera for Image 2">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </button>
+                            </div>
+                            <div class="preview-container mt-2">
+                                <img id="comparePreview2" class="hidden w-full h-auto rounded-lg" alt="Compare preview 2"/>
+                                <canvas id="comparePreview2Canvas" class="preview-canvas"></canvas>
+                            </div>
+                         </div>
+                    </div>
+                    <button id="compareFacesBtn" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">Compare Faces</button>
+                    <div id="compareResults" class="mt-4"></div>
+                </section>
+            </div>
+
+            <!-- Right Column: Collections & Lists -->
+            <div class="lg:col-span-2">
+                <div class="glass-card p-6 rounded-lg">
+                    <!-- Tabs -->
+                    <div class="flex border-b border-gray-700 mb-4">
+                        <button id="tabFaces" class="tab-button py-2 px-4 font-semibold text-gray-300 hover:bg-gray-700 rounded-t-lg active">Face Collection</button>
+                        <button id="tabLists" class="tab-button py-2 px-4 font-semibold text-gray-300 hover:bg-gray-700 rounded-t-lg">Manage Lists / Collections</button>
+                    </div>
+
+                    <!-- Face Collection Tab -->
+                    <div id="facesContent">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                            <h2 class="text-2xl font-semibold">Faces (<span id="faceCount">0</span>)</h2>
+                            <div id="viewCollectionWrapper" class="hidden flex items-center space-x-2 mt-2 sm:mt-0">
+                                <label for="viewCollectionSelect" class="text-sm">View Collection:</label>
+                                <select id="viewCollectionSelect" class="bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                            </div>
+                        </div>
+                        <div id="faceCollection" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-[800px] overflow-y-auto p-2 bg-gray-900/50 rounded-lg">
+                           <p id="noFacesMessage" class="col-span-full text-center text-gray-400 p-8">No faces have been added yet.</p>
+                        </div>
+                    </div>
+
+                    <!-- List Management Tab -->
+                    <div id="listsContent" class="hidden">
+                        <h2 class="text-2xl font-semibold mb-4">Manage Lists / Collections</h2>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <input type="text" id="newListName" placeholder="New list/collection name" class="w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <button id="createListBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Create</button>
+                        </div>
+                        
+                        <div id="importExportWrapper" class="hidden mt-4 pt-4 border-t border-gray-700">
+                            <h3 class="text-lg font-semibold mb-2">Backup & Restore</h3>
+                            <div class="flex items-center space-x-2">
+                                <button id="exportDataBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Export Local Data</button>
+                                <button id="importDataBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Import Local Data</button>
+                                <input type="file" id="importFile" class="hidden" accept=".json">
+                            </div>
+                        </div>
+
+                        <div id="faceLists" class="space-y-4 mt-4">
+                             <p id="noListsMessage" class="text-center text-gray-400 p-8">No lists or collections exist yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-5 rounded-lg shadow-lg opacity-0 transform translate-y-10 transition-all duration-300">
+        <p id="toastMessage"></p>
+    </div>
+
+<script type="module">
+    // --- STATE MANAGEMENT ---
+    let state = {
+        mode: 'browser', // 'browser' or 'aws'
+        cameraContext: 'add', // 'add', 'search', 'compare1', 'compare2'
+        awsConfig: {
+            region: '',
+            accessKeyId: '',
+            secretAccessKey: '',
+        },
+        awsRekognition: null, // AWS SDK Rekognition instance
+        awsCollections: [], // For cloud mode
+        currentViewCollection: null, // For cloud mode
+        faceDatabase: [], // For browser mode
+        faceLists: {}, // For browser mode
+    };
+
+    let capturedImageBlob = null; // To store image from webcam
+    let videoStream = null;
+
+    // --- DOM ELEMENTS ---
+    const dom = {
+        loginOverlay: document.getElementById('loginOverlay'),
+        loginBtn: document.getElementById('loginBtn'),
+        twoFactorCode: document.getElementById('twoFactorCode'),
+        loginError: document.getElementById('loginError'),
+        mainAppContainer: document.getElementById('mainAppContainer'),
+        totpSetup: document.getElementById('totpSetup'),
+        totpLogin: document.getElementById('totpLogin'),
+        qrCodeCanvas: document.getElementById('qrCodeCanvas'),
+        totpSecretKey: document.getElementById('totpSecretKey'),
+        setupCompleteBtn: document.getElementById('setupCompleteBtn'),
+        loadingModal: document.getElementById('loadingModal'),
+        loadingStatus: document.getElementById('loadingStatus'),
+        cameraModal: document.getElementById('cameraModal'),
+        videoFeed: document.getElementById('videoFeed'),
+        captureBtn: document.getElementById('captureBtn'),
+        cancelCameraBtn: document.getElementById('cancelCameraBtn'),
+        useCameraBtn: document.getElementById('useCameraBtn'),
+        useCameraSearchBtn: document.getElementById('useCameraSearchBtn'),
+        modeBrowserBtn: document.getElementById('modeBrowserBtn'),
+        modeAwsBtn: document.getElementById('modeAwsBtn'),
+        awsConfigSection: document.getElementById('awsConfigSection'),
+        awsRegion: document.getElementById('awsRegion'),
+        awsAccessKeyId: document.getElementById('awsAccessKeyId'),
+        awsSecretAccessKey: document.getElementById('awsSecretAccessKey'),
+        saveAwsConfigBtn: document.getElementById('saveAwsConfigBtn'),
+        awsStatus: document.getElementById('awsStatus'),
+        addFaceSection: document.getElementById('add-face-section'),
+        faceName: document.getElementById('faceName'),
+        faceComments: document.getElementById('faceComments'),
+        faceUpload: document.getElementById('faceUpload'),
+        addFaceCollectionWrapper: document.getElementById('addFaceCollectionWrapper'),
+        addFaceCollectionSelect: document.getElementById('addFaceCollectionSelect'),
+        facePreview: document.getElementById('facePreview'),
+        facePreviewCanvas: document.getElementById('facePreviewCanvas'),
+        addFaceBtn: document.getElementById('addFaceBtn'),
+        searchFaceSection: document.getElementById('search-face-section'),
+        searchUpload: document.getElementById('searchUpload'),
+        searchListSelect: document.getElementById('searchList'),
+        searchPreview: document.getElementById('searchPreview'),
+        searchPreviewCanvas: document.getElementById('searchPreviewCanvas'),
+        searchFaceBtn: document.getElementById('searchFaceBtn'),
+        searchResults: document.getElementById('searchResults'),
+        compareFacesSection: document.getElementById('compare-faces-section'),
+        compareUpload1: document.getElementById('compareUpload1'),
+        useCameraCompare1Btn: document.getElementById('useCameraCompare1Btn'),
+        comparePreview1: document.getElementById('comparePreview1'),
+        comparePreview1Canvas: document.getElementById('comparePreview1Canvas'),
+        compareUpload2: document.getElementById('compareUpload2'),
+        useCameraCompare2Btn: document.getElementById('useCameraCompare2Btn'),
+        comparePreview2: document.getElementById('comparePreview2'),
+        comparePreview2Canvas: document.getElementById('comparePreview2Canvas'),
+        compareFacesBtn: document.getElementById('compareFacesBtn'),
+        compareResults: document.getElementById('compareResults'),
+        tabFaces: document.getElementById('tabFaces'),
+        tabLists: document.getElementById('tabLists'),
+        facesContent: document.getElementById('facesContent'),
+        listsContent: document.getElementById('listsContent'),
+        faceCountSpan: document.getElementById('faceCount'),
+        viewCollectionWrapper: document.getElementById('viewCollectionWrapper'),
+        viewCollectionSelect: document.getElementById('viewCollectionSelect'),
+        faceCollectionDiv: document.getElementById('faceCollection'),
+        noFacesMessage: document.getElementById('noFacesMessage'),
+        listsContentDiv: document.getElementById('listsContent'),
+        newListName: document.getElementById('newListName'),
+        createListBtn: document.getElementById('createListBtn'),
+        importExportWrapper: document.getElementById('importExportWrapper'),
+        exportDataBtn: document.getElementById('exportDataBtn'),
+        importDataBtn: document.getElementById('importDataBtn'),
+        importFile: document.getElementById('importFile'),
+        faceListsDiv: document.getElementById('faceLists'),
+        noListsMessage: document.getElementById('noListsMessage'),
+        toast: document.getElementById('toast'),
+        toastMessage: document.getElementById('toastMessage'),
+    };
+    
+    // --- UTILITY FUNCTIONS ---
+    
+    function showToast(message, isError = false) {
+        dom.toastMessage.textContent = message;
+        dom.toast.className = `fixed bottom-5 right-5 text-white py-2 px-5 rounded-lg shadow-lg transition-all duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'} opacity-100 transform translate-y-0`;
+        setTimeout(() => {
+            dom.toast.className = dom.toast.className.replace('opacity-100 transform translate-y-0', 'opacity-0 transform translate-y-10');
+        }, 3000);
+    }
+
+    function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+    
+    // --- CAMERA LOGIC ---
+    async function openCamera() {
+        if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+        try {
+            videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            dom.videoFeed.srcObject = videoStream;
+            dom.cameraModal.classList.remove('hidden');
+            dom.cameraModal.classList.add('flex');
+        } catch (err) {
+            showToast('Could not access the camera. Please check permissions.', true);
+            console.error("Camera Error:", err);
+        }
+    }
+
+    function closeCamera() {
+        if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+        dom.cameraModal.classList.add('hidden');
+        dom.cameraModal.classList.remove('flex');
+    }
+
+    function captureImage() {
+        const canvas = document.createElement('canvas');
+        canvas.width = dom.videoFeed.videoWidth;
+        canvas.height = dom.videoFeed.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(dom.videoFeed, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        
+        const previewMap = { 
+            'add': {img: dom.facePreview, canvas: dom.facePreviewCanvas},
+            'search': {img: dom.searchPreview, canvas: dom.searchPreviewCanvas},
+            'compare1': {img: dom.comparePreview1, canvas: dom.comparePreview1Canvas},
+            'compare2': {img: dom.comparePreview2, canvas: dom.comparePreview2Canvas}
+        };
+        const elements = previewMap[state.cameraContext];
+        if (elements) {
+            elements.img.src = dataUrl;
+            elements.img.classList.remove('hidden');
+            elements.img.onload = () => detectAndDrawFace(elements.img, elements.canvas);
+        }
+
+        canvas.toBlob(blob => {
+            capturedImageBlob = blob;
+            const inputMap = { 'add': dom.faceUpload, 'search': dom.searchUpload, 'compare1': dom.compareUpload1, 'compare2': dom.compareUpload2 };
+            const inputElement = inputMap[state.cameraContext];
+            if(inputElement) inputElement.value = '';
+        }, 'image/jpeg');
+        
+        closeCamera();
+    }
+
+
+    // --- LOCAL (BROWSER) MODE LOGIC ---
+    let localModelsLoaded = false;
+    
+    function waitForFaceAPI() {
+        return new Promise((resolve) => {
+            if (typeof faceapi !== 'undefined') return resolve();
+            const interval = setInterval(() => { if (typeof faceapi !== 'undefined') { clearInterval(interval); resolve(); } }, 100);
+        });
+    }
+
+    async function loadBrowserModels() {
+        if (localModelsLoaded) { 
+            dom.loadingModal.classList.add('hidden');
+            return; 
+        }
+        dom.loadingModal.classList.remove('hidden');
+        dom.loadingModal.classList.add('flex');
+        dom.loadingStatus.textContent = 'Loading ML Library...';
+        try {
+            await waitForFaceAPI();
+            dom.loadingStatus.textContent = 'Loading ML Models (this may take a moment)...';
+            const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
+            await Promise.all([
+                faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                faceapi.nets.mtcnn.loadFromUri(MODEL_URL), // New, more accurate model
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+            ]);
+            showToast('Local models loaded successfully!');
+            localModelsLoaded = true;
+        } catch (error) {
+            showToast('Failed to load local models. Please refresh.', true);
+            console.error(error);
+        } finally {
+            dom.loadingModal.classList.add('hidden');
+        }
+    }
+
+    async function getFaceDescriptors(imageElement) {
+        if (!localModelsLoaded) return null;
+        try {
+            const ssdOptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 });
+            const tinyOptions = new faceapi.TinyFaceDetectorOptions();
+            const mtcnnOptions = new faceapi.MtcnnOptions();
+
+            // Run detections in parallel for efficiency
+            const [resultSsd, resultTiny, resultMtcnn] = await Promise.all([
+                faceapi.detectSingleFace(imageElement, ssdOptions).withFaceLandmarks().withFaceDescriptor(),
+                faceapi.detectSingleFace(imageElement, tinyOptions).withFaceLandmarks().withFaceDescriptor(),
+                faceapi.detectSingleFace(imageElement, mtcnnOptions).withFaceLandmarks().withFaceDescriptor()
+            ]);
+
+            return {
+                ssd: resultSsd ? resultSsd.descriptor : null,
+                tiny: resultTiny ? resultTiny.descriptor : null,
+                mtcnn: resultMtcnn ? resultMtcnn.descriptor : null
+            };
+        } catch (error) {
+            console.error("Error getting face descriptors:", error);
+            return { ssd: null, tiny: null, mtcnn: null };
+        }
+    }
+
+    async function detectAndDrawFace(imgEl, canvasEl) {
+        if (!localModelsLoaded) return;
+        // Use the faster model for quick preview drawing
+        const options = new faceapi.TinyFaceDetectorOptions();
+        const detection = await faceapi.detectSingleFace(imgEl, options);
+
+        const displaySize = { width: imgEl.width, height: imgEl.height };
+        faceapi.matchDimensions(canvasEl, displaySize);
+        canvasEl.getContext('2d').clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+        if (detection) {
+            const resizedDetection = faceapi.resizeResults(detection, displaySize);
+            const drawOptions = {
+                lineWidth: 2,
+                boxColor: '#1E90FF' // DodgerBlue
+            };
+            faceapi.draw.drawDetections(canvasEl, resizedDetection, drawOptions);
+        } else {
+             showToast("Warning: No face detected in the preview. Results may be inaccurate.", true);
+        }
+    }
+
+    // --- CLOUD (AWS) MODE LOGIC ---
+    let awsSdkLoaded = false;
+
+    async function loadAwsSdk() {
+        if (awsSdkLoaded) return;
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://sdk.amazonaws.com/js/aws-sdk-2.1093.0.min.js';
+            script.onload = () => { awsSdkLoaded = true; resolve(); };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    async function initializeAwsRekognition() {
+        dom.loadingModal.classList.remove('hidden');
+        dom.loadingModal.classList.add('flex');
+        dom.loadingStatus.textContent = 'Initializing AWS SDK...';
+        try {
+            await loadAwsSdk();
+            const { region, accessKeyId, secretAccessKey } = state.awsConfig;
+            if (!region || !accessKeyId || !secretAccessKey) { throw new Error("AWS configuration is incomplete."); }
+            AWS.config.update({ region, credentials: new AWS.Credentials(accessKeyId, secretAccessKey) });
+            state.awsRekognition = new AWS.Rekognition();
+            await listAwsCollections(); // Test connection and fetch collections
+            dom.awsStatus.textContent = 'Status: Connected';
+            dom.awsStatus.className = 'text-sm text-green-400';
+            showToast('Successfully connected to AWS Rekognition.');
+        } catch (error) {
+            dom.awsStatus.textContent = `Status: Error - ${error.message}`;
+            dom.awsStatus.className = 'text-sm text-red-400';
+            showToast(`AWS Connection Error: ${error.message}`, true);
+            state.awsRekognition = null;
+        } finally {
+            dom.loadingModal.classList.add('hidden');
+        }
+    }
+    
+    async function listAwsCollections() {
+        if (!state.awsRekognition) return;
+        try {
+            const response = await state.awsRekognition.listCollections({ MaxResults: 4096 }).promise();
+            state.awsCollections = response.CollectionIds || [];
+            updateAllAwsDropdowns();
+            renderAwsLists();
+            if (state.awsCollections.length > 0) {
+                state.currentViewCollection = state.currentViewCollection && state.awsCollections.includes(state.currentViewCollection) ? state.currentViewCollection : state.awsCollections[0];
+                dom.viewCollectionSelect.value = state.currentViewCollection;
+                await refreshFacesInAwsCollection(state.currentViewCollection);
+            } else {
+                 state.currentViewCollection = null;
+                renderAwsCollection([]);
+            }
+        } catch (error) {
+            showToast(`Could not list AWS collections: ${error.message}`, true);
+        }
+    }
+
+    async function refreshFacesInAwsCollection(collectionId) {
+        if (!state.awsRekognition || !collectionId) {
+            renderAwsCollection([]);
+            return;
+        };
+        dom.loadingModal.classList.remove('hidden');
+        dom.loadingModal.classList.add('flex');
+        dom.loadingStatus.textContent = `Fetching faces from ${collectionId}...`;
+        try {
+            const response = await state.awsRekognition.listFaces({ CollectionId: collectionId, MaxResults: 4096 }).promise();
+            const faces = response.Faces.map(face => ({
+                id: face.FaceId,
+                externalId: face.ExternalImageId || '{}',
+                imageSrc: `https://placehold.co/100x100/334155/E2E8F0?text=AWS`,
+                collectionId: collectionId
+            }));
+            renderAwsCollection(faces);
+        } catch(error) {
+            showToast(`Failed to fetch AWS faces: ${error.message}`, true);
+            renderAwsCollection([]);
+        } finally {
+            dom.loadingModal.classList.add('hidden');
+        }
+    }
+
+
+    // --- UI RENDERING & UPDATES ---
+    function updateUIForMode() {
+        const isBrowser = state.mode === 'browser';
+        dom.modeBrowserBtn.classList.toggle('active', isBrowser);
+        dom.modeAwsBtn.classList.toggle('active', !isBrowser);
+        dom.awsConfigSection.classList.toggle('hidden', isBrowser);
+        dom.addFaceCollectionWrapper.style.display = isBrowser ? 'none' : 'block';
+        dom.viewCollectionWrapper.style.display = isBrowser ? 'none' : 'flex';
+        dom.importExportWrapper.style.display = isBrowser ? 'block' : 'none';
+        
+        const allCanvases = document.querySelectorAll('.preview-canvas');
+        allCanvases.forEach(c => c.getContext('2d').clearRect(0,0,c.width, c.height));
+
+        [dom.searchPreview, dom.facePreview, dom.comparePreview1, dom.comparePreview2].forEach(p => { p.src = ''; p.classList.add('hidden'); });
+        [dom.searchResults, dom.compareResults].forEach(r => r.innerHTML = '');
+        [dom.faceName, dom.faceComments, dom.faceUpload, dom.searchUpload, dom.compareUpload1, dom.compareUpload2, dom.newListName].forEach(i => i.value = '');
+        
+        if (isBrowser) {
+            switchTab('faces');
+            renderBrowserUI();
+        } else {
+            if (state.awsRekognition) listAwsCollections();
+            else {
+                 renderAwsCollection([]);
+                 renderAwsLists();
+                 updateAllAwsDropdowns();
+            }
+        }
+    }
+    
+    function renderBrowserUI() {
+        renderBrowserCollection();
+        renderBrowserLists();
+        updateSearchListDropdown();
+    }
+    
+    function renderBrowserCollection() {
+        dom.faceCollectionDiv.innerHTML = '';
+        dom.faceCountSpan.textContent = state.faceDatabase.length;
+        dom.noFacesMessage.style.display = state.faceDatabase.length === 0 ? 'block' : 'none';
+        
+        state.faceDatabase.forEach(face => {
+            const faceCard = document.createElement('div');
+            faceCard.className = 'relative group bg-gray-800 rounded-lg overflow-hidden shadow-lg';
+            const addToListDropdown = `<div class="absolute top-0 right-0 m-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <select data-face-id="${face.id}" class="add-to-list-select text-xs bg-gray-900 text-white rounded p-1">
+                        <option value="">Add to list...</option>
+                        ${Object.keys(state.faceLists).map(listName => `<option value="${listName}">${listName}</option>`).join('')}
+                    </select>
+                </div>`;
+            faceCard.innerHTML = `
+                <img src="${face.imageSrc}" alt="${face.name}" class="w-full h-32 object-cover">
+                <div class="p-2"><p class="text-sm font-semibold truncate" title="${face.comments || ''}">${face.name}</p></div>
+                <button data-face-id="${face.id}" class="delete-face-btn absolute bottom-0 right-0 m-1 p-1 bg-red-600 rounded-full hover:bg-red-700 opacity-0 group-hover:opacity-100">
+                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+                ${addToListDropdown}`;
+            dom.faceCollectionDiv.appendChild(faceCard);
+        });
+    }
+
+    function renderBrowserLists() {
+        dom.faceListsDiv.innerHTML = '';
+        const listNames = Object.keys(state.faceLists);
+        dom.noListsMessage.style.display = listNames.length === 0 ? 'block' : 'none';
+
+        listNames.forEach(listName => {
+            const listContainer = document.createElement('div');
+            listContainer.className = 'bg-gray-800 rounded-lg';
+            listContainer.innerHTML = `<div class="p-3 flex justify-between items-center cursor-pointer list-header">
+                    <h3 class="font-semibold">${listName} (${state.faceLists[listName].length} faces)</h3>
+                    <div>
+                        <button data-list-name="${listName}" class="delete-list-btn p-1 bg-red-600 rounded-full hover:bg-red-700 mr-2">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        <span class="transform transition-transform duration-300">▼</span>
+                    </div>
+                </div>
+                <div class="p-3 border-t border-gray-700 hidden list-content">
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                        ${state.faceLists[listName].length > 0 ? state.faceLists[listName].map(faceId => {
+                            const face = state.faceDatabase.find(f => f.id === faceId);
+                            return face ? `<div class="relative group text-center">
+                                    <img src="${face.imageSrc}" alt="${face.name}" class="w-full h-24 object-cover rounded">
+                                    <p class="text-xs mt-1 truncate" title="${face.comments || ''}">${face.name}</p>
+                                    <button data-list-name="${listName}" data-face-id="${face.id}" class="remove-from-list-btn absolute top-0 right-0 m-1 p-1 bg-red-600 rounded-full hover:bg-red-700 opacity-0 group-hover:opacity-100">
+                                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>` : '';
+                        }).join('') : `<p class="col-span-full text-center text-sm text-gray-400">This list is empty.</p>`}
+                    </div>
+                </div>`;
+            dom.faceListsDiv.appendChild(listContainer);
+        });
+    }
+
+    function renderAwsLists() {
+        dom.faceListsDiv.innerHTML = '';
+        dom.noListsMessage.style.display = state.awsCollections.length === 0 ? 'block' : 'none';
+
+        state.awsCollections.forEach(collectionId => {
+             const listContainer = document.createElement('div');
+            listContainer.className = 'bg-gray-800 rounded-lg p-3 flex justify-between items-center';
+            listContainer.innerHTML = `
+                <h3 class="font-semibold">${collectionId}</h3>
+                <button data-list-name="${collectionId}" class="delete-list-btn p-1 bg-red-600 rounded-full hover:bg-red-700">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>`;
+            dom.faceListsDiv.appendChild(listContainer);
+        });
+    }
+    
+    function renderAwsCollection(faces) {
+        dom.faceCollectionDiv.innerHTML = '';
+        dom.faceCountSpan.textContent = faces.length;
+        dom.noFacesMessage.style.display = faces.length === 0 ? 'block' : 'none';
+
+        faces.forEach(face => {
+            let name = 'N/A', comments = '';
+            try { const parsed = JSON.parse(face.externalId); name = parsed.name || 'N/A'; comments = parsed.comments || ''; } 
+            catch(e) { name = face.externalId; }
+
+            const faceCard = document.createElement('div');
+            faceCard.className = 'relative group bg-gray-800 rounded-lg overflow-hidden shadow-lg';
+            faceCard.innerHTML = `
+                <img src="${face.imageSrc}" alt="${name}" class="w-full h-32 object-cover bg-gray-700">
+                <div class="p-2">
+                    <p class="text-sm font-semibold truncate" title="${comments}">${name}</p>
+                    <p class="text-xs text-gray-400 truncate" title="${face.id}">ID: ${face.id}</p>
+                </div>
+                <button data-face-id="${face.id}" data-collection-id="${face.collectionId}" class="delete-face-btn absolute bottom-0 right-0 m-1 p-1 bg-red-600 rounded-full hover:bg-red-700 opacity-0 group-hover:opacity-100">
+                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>`;
+            dom.faceCollectionDiv.appendChild(faceCard);
+        });
+    }
+
+    function updateAllAwsDropdowns() {
+        const optionsHtml = state.awsCollections.map(c => `<option value="${c}">${c}</option>`).join('');
+        dom.addFaceCollectionSelect.innerHTML = optionsHtml;
+        dom.viewCollectionSelect.innerHTML = optionsHtml;
+        updateSearchListDropdown();
+    }
+
+    function updateSearchListDropdown() {
+        if (state.mode === 'browser') {
+            dom.searchListSelect.innerHTML = '<option value="all">All Faces</option>';
+            for (const listName in state.faceLists) {
+                dom.searchListSelect.innerHTML += `<option value="${listName}">${listName}</option>`;
+            }
+        } else {
+            const optionsHtml = state.awsCollections.map(c => `<option value="${c}">${c}</option>`).join('');
+            dom.searchListSelect.innerHTML = optionsHtml || '<option value="">No collections available</option>';
+        }
+    }
+    
+    function switchTab(tab) {
+        if (tab === 'faces') {
+            dom.facesContent.classList.remove('hidden');
+            dom.listsContent.classList.add('hidden');
+            dom.tabFaces.classList.add('active');
+            dom.tabLists.classList.remove('active');
+        } else {
+            dom.facesContent.classList.add('hidden');
+            dom.listsContent.classList.remove('hidden');
+            dom.tabFaces.classList.remove('active');
+            dom.tabLists.classList.add('active');
+        }
+    }
+
+    // --- DATA PERSISTENCE ---
+    function saveState() {
+        const stateToSave = { ...state, awsRekognition: null };
+        localStorage.setItem('faceRecogState', JSON.stringify(stateToSave));
+    }
+    
+    function loadState() {
+        const savedState = localStorage.getItem('faceRecogState');
+        if (savedState) {
+            const parsedState = JSON.parse(savedState);
+
+            // FIX: Reconstitute descriptors after loading from localStorage
+            if (parsedState.faceDatabase) {
+                parsedState.faceDatabase.forEach(face => {
+                    if (face.descriptors) {
+                        for (const key in face.descriptors) {
+                            if (face.descriptors[key] && typeof face.descriptors[key] === 'object') {
+                                face.descriptors[key] = new Float32Array(Object.values(face.descriptors[key]));
+                            }
+                        }
+                    }
+                });
+            }
+            state = { ...state, ...parsedState };
+        }
+        dom.awsRegion.value = state.awsConfig.region || '';
+        dom.awsAccessKeyId.value = state.awsConfig.accessKeyId || '';
+        dom.awsSecretAccessKey.value = state.awsConfig.secretAccessKey || '';
+    }
+
+    // --- EVENT HANDLERS ---
+    async function handleAddFace() {
+        const name = dom.faceName.value.trim();
+        const comments = dom.faceComments.value.trim();
+        const file = dom.faceUpload.files[0];
+        if (!name || (!file && !capturedImageBlob)) return showToast('Please provide a name and an image source.', true);
+
+        dom.addFaceBtn.disabled = true;
+        dom.addFaceBtn.textContent = 'Processing...';
+
+        if (state.mode === 'browser') {
+            const descriptors = await getFaceDescriptors(dom.facePreview);
+            if (!descriptors.ssd && !descriptors.tiny && !descriptors.mtcnn) { 
+                showToast('Could not detect a face. Try a clearer image.', true);
+            } else {
+                state.faceDatabase.push({ id: Date.now().toString(), name, comments, descriptors, imageSrc: dom.facePreview.src });
+                showToast(`Face "${name}" added successfully.`);
+                renderBrowserCollection();
+                saveState();
+            }
+        } else { // AWS Mode
+            const collectionId = dom.addFaceCollectionSelect.value;
+            if (!state.awsRekognition) { showToast('AWS is not connected.', true); }
+            else if (!collectionId) { showToast('Please select a collection to add the face to.', true); }
+            else {
+                try {
+                    const imageSource = capturedImageBlob || file;
+                    const imageBytes = await readFileAsArrayBuffer(imageSource);
+                    const externalImageId = JSON.stringify({ name, comments });
+                    await state.awsRekognition.indexFaces({ CollectionId: collectionId, Image: { Bytes: imageBytes }, ExternalImageId: externalImageId, MaxFaces: 1, QualityFilter: "AUTO" }).promise();
+                    showToast(`Face "${name}" added to collection ${collectionId}.`);
+                    if(collectionId === state.currentViewCollection) await refreshFacesInAwsCollection(collectionId);
+                } catch(error) { showToast(`AWS Error: ${error.message}`, true); }
+            }
+        }
+        
+        dom.faceName.value = '';
+        dom.faceComments.value = '';
+        dom.faceUpload.value = '';
+        capturedImageBlob = null;
+        dom.facePreview.classList.add('hidden');
+        dom.facePreviewCanvas.getContext('2d').clearRect(0,0,dom.facePreviewCanvas.width, dom.facePreviewCanvas.height);
+        dom.addFaceBtn.disabled = false;
+        dom.addFaceBtn.textContent = 'Add Face';
+    }
+    
+    async function handleSearchFace() {
+        const file = dom.searchUpload.files[0];
+        if (!file && !capturedImageBlob) return showToast('Please provide an image source to search.', true);
+        
+        dom.searchFaceBtn.disabled = true;
+        dom.searchFaceBtn.textContent = 'Searching...';
+        dom.searchResults.innerHTML = '<div class="text-center">Searching for a match...</div>';
+
+        if (state.mode === 'browser') {
+            const listToSearch = dom.searchListSelect.value;
+            let searchSpace = (listToSearch === 'all') ? state.faceDatabase : state.faceDatabase.filter(face => state.faceLists[listToSearch]?.includes(face.id));
+            if (searchSpace.length === 0) {
+                showToast('There are no faces in the selected list to search against.', true);
+                dom.searchResults.innerHTML = '';
+            } else {
+                const queryDescriptors = await getFaceDescriptors(dom.searchPreview);
+                if (!queryDescriptors.ssd && !queryDescriptors.tiny && !queryDescriptors.mtcnn) {
+                    showToast('Could not detect a face in the search image.', true);
+                    dom.searchResults.innerHTML = '';
+                } else {
+                    // --- Multi-descriptor search logic ---
+                    const labeledSsd = searchSpace.filter(f => f.descriptors.ssd).map(f => new faceapi.LabeledFaceDescriptors(f.name, [f.descriptors.ssd]));
+                    const labeledTiny = searchSpace.filter(f => f.descriptors.tiny).map(f => new faceapi.LabeledFaceDescriptors(f.name, [f.descriptors.tiny]));
+                    const labeledMtcnn = searchSpace.filter(f => f.descriptors.mtcnn).map(f => new faceapi.LabeledFaceDescriptors(f.name, [f.descriptors.mtcnn]));
+
+                    const matcherSsd = labeledSsd.length > 0 && queryDescriptors.ssd ? new faceapi.FaceMatcher(labeledSsd) : null;
+                    const matcherTiny = labeledTiny.length > 0 && queryDescriptors.tiny ? new faceapi.FaceMatcher(labeledTiny) : null;
+                    const matcherMtcnn = labeledMtcnn.length > 0 && queryDescriptors.mtcnn ? new faceapi.FaceMatcher(labeledMtcnn) : null;
+
+                    const bestMatchSsd = matcherSsd ? matcherSsd.findBestMatch(queryDescriptors.ssd) : { label: 'unknown', distance: 1 };
+                    const bestMatchTiny = matcherTiny ? matcherTiny.findBestMatch(queryDescriptors.tiny) : { label: 'unknown', distance: 1 };
+                    const bestMatchMtcnn = matcherMtcnn ? matcherMtcnn.findBestMatch(queryDescriptors.mtcnn) : { label: 'unknown', distance: 1 };
+
+                    // --- Consensus logic ---
+                    const matches = [bestMatchSsd, bestMatchTiny, bestMatchMtcnn].filter(m => m.label !== 'unknown');
+                    const votes = {};
+                    matches.forEach(m => {
+                        votes[m.label] = (votes[m.label] || 0) + 1;
+                    });
+                    
+                    let finalLabel = 'unknown';
+                    let maxVotes = 0;
+                    for (const label in votes) {
+                        if (votes[label] > maxVotes) {
+                            maxVotes = votes[label];
+                            finalLabel = label;
+                        }
+                    }
+
+                    if (finalLabel !== 'unknown') {
+                        const consensusMatches = matches.filter(m => m.label === finalLabel);
+                        const avgDistance = consensusMatches.reduce((sum, m) => sum + m.distance, 0) / consensusMatches.length;
+                        const matchConfidence = (1 - avgDistance) * 100;
+                        const matchedFace = state.faceDatabase.find(f => f.name === finalLabel);
+                        let matchType = "Match";
+                        if(maxVotes === 3) matchType = "Very High Confidence Match";
+                        else if (maxVotes === 2) matchType = "High Confidence Match";
+
+                        dom.searchResults.innerHTML = `<div class="p-4 bg-green-800 rounded-lg text-center"><p class="font-bold text-lg">${matchType} Found! (${maxVotes}/3 models agree)</p><img src="${matchedFace.imageSrc}" class="w-24 h-24 object-cover rounded-full mx-auto my-2 border-2 border-green-400"><p>Name: <strong>${finalLabel}</strong></p><p>Confidence: <strong>${matchConfidence.toFixed(2)}%</strong></p></div>`;
+                    } else {
+                        dom.searchResults.innerHTML = `<div class="p-4 bg-red-800 rounded-lg text-center"><p class="font-bold text-lg">No Match Found</p></div>`;
+                    }
+                }
+            }
+        } else { // AWS Mode
+             const collectionId = dom.searchListSelect.value;
+             if (!state.awsRekognition) showToast('AWS is not connected.', true);
+             else if (!collectionId) showToast('Please select a collection to search in.', true);
+             else {
+                try {
+                    const imageSource = capturedImageBlob || file;
+                    const imageBytes = await readFileAsArrayBuffer(imageSource);
+                    const response = await state.awsRekognition.searchFacesByImage({ CollectionId: collectionId, Image: { Bytes: imageBytes }, MaxFaces: 1, FaceMatchThreshold: 80 }).promise();
+                    
+                    if (response.FaceMatches && response.FaceMatches.length > 0) {
+                        const match = response.FaceMatches[0];
+                        let name = match.Face.ExternalImageId;
+                        try { name = JSON.parse(name).name } catch(e){}
+                        dom.searchResults.innerHTML = `<div class="p-4 bg-green-800 rounded-lg text-center"><p class="font-bold text-lg">Match Found!</p><img src="https://placehold.co/100x100/166534/E2E8F0?text=AWS" class="w-24 h-24 object-cover rounded-full mx-auto my-2 border-2 border-green-400"><p>Name: <strong>${name || 'N/A'}</strong></p><p>Face ID: <strong class="text-xs">${match.Face.FaceId}</strong></p><p>Confidence: <strong>${match.Similarity.toFixed(2)}%</strong></p></div>`;
+                    } else {
+                        dom.searchResults.innerHTML = `<div class="p-4 bg-red-800 rounded-lg text-center"><p class="font-bold text-lg">No Match Found</p></div>`;
+                    }
+                } catch(error) {
+                    showToast(`AWS Search Error: ${error.message}`, true);
+                    dom.searchResults.innerHTML = '';
+                }
+             }
+        }
+
+        dom.searchFaceBtn.disabled = false;
+        dom.searchFaceBtn.textContent = 'Search Face';
+        capturedImageBlob = null;
+        dom.searchUpload.value = '';
+        dom.searchPreview.classList.add('hidden');
+        dom.searchPreviewCanvas.getContext('2d').clearRect(0,0,dom.searchPreviewCanvas.width, dom.searchPreviewCanvas.height);
+    }
+
+    async function handleCompareFaces() {
+        if (!dom.comparePreview1.src || !dom.comparePreview2.src) return showToast('Please provide two images to compare.', true);
+        
+        dom.compareFacesBtn.disabled = true;
+        dom.compareFacesBtn.textContent = 'Comparing...';
+        dom.compareResults.innerHTML = '';
+
+        if(state.mode === 'browser') {
+            const descriptors1 = await getFaceDescriptors(dom.comparePreview1);
+            const descriptors2 = await getFaceDescriptors(dom.comparePreview2);
+
+            if((!descriptors1.ssd && !descriptors1.tiny && !descriptors1.mtcnn) || (!descriptors2.ssd && !descriptors2.tiny && !descriptors2.mtcnn)) {
+                return showToast('Could not detect a face in one or both images.', true);
+            }
+            
+            let distances = [];
+            if (descriptors1.ssd && descriptors2.ssd) distances.push(faceapi.euclideanDistance(descriptors1.ssd, descriptors2.ssd));
+            if (descriptors1.tiny && descriptors2.tiny) distances.push(faceapi.euclideanDistance(descriptors1.tiny, descriptors2.tiny));
+            if (descriptors1.mtcnn && descriptors2.mtcnn) distances.push(faceapi.euclideanDistance(descriptors1.mtcnn, descriptors2.mtcnn));
+
+            if(distances.length > 0) {
+                const avgDistance = distances.reduce((a, b) => a + b, 0) / distances.length;
+                const similarity = ((1 - avgDistance) * 100).toFixed(2);
+                dom.compareResults.innerHTML = `<div class="p-4 bg-indigo-800 rounded-lg text-center"><p class="font-bold text-2xl">${similarity}%</p><p>Similarity Score</p></div>`;
+            } else {
+                showToast('Could not generate comparable descriptors for the faces.', true);
+            }
+        } else { // AWS Mode
+            if (!state.awsRekognition) return showToast('AWS is not connected.', true);
+            try {
+                const blob1 = await (await fetch(dom.comparePreview1.src)).blob();
+                const blob2 = await (await fetch(dom.comparePreview2.src)).blob();
+                const bytes1 = await readFileAsArrayBuffer(blob1);
+                const bytes2 = await readFileAsArrayBuffer(blob2);
+                const response = await state.awsRekognition.compareFaces({ SourceImage: { Bytes: bytes1 }, TargetImage: { Bytes: bytes2 }, SimilarityThreshold: 0 }).promise();
+                if (response.FaceMatches && response.FaceMatches.length > 0) {
+                    const similarity = response.FaceMatches[0].Similarity.toFixed(2);
+                     dom.compareResults.innerHTML = `<div class="p-4 bg-indigo-800 rounded-lg text-center"><p class="font-bold text-2xl">${similarity}%</p><p>Similarity Score (AWS)</p></div>`;
+                } else {
+                     dom.compareResults.innerHTML = `<div class="p-4 bg-yellow-800 rounded-lg text-center"><p class="font-bold text-lg">Faces Do Not Match</p><p>Similarity: 0%</p></div>`;
+                }
+            } catch(error) { showToast(`AWS Compare Error: ${error.message}`, true); }
+        }
+        dom.compareFacesBtn.disabled = false;
+        dom.compareFacesBtn.textContent = 'Compare Faces';
+    }
+
+
+    async function handleDeleteFace(faceId, collectionId) {
+        if (!confirm(`Are you sure you want to delete this face?`)) return;
+
+        if (state.mode === 'browser') {
+            state.faceDatabase = state.faceDatabase.filter(face => face.id !== faceId);
+            for (const listName in state.faceLists) {
+                state.faceLists[listName] = state.faceLists[listName].filter(id => id !== faceId);
+            }
+            showToast('Face deleted.');
+            renderBrowserUI();
+            saveState();
+        } else { // AWS Mode
+            if (!state.awsRekognition) return showToast('AWS not connected.', true);
+            try {
+                await state.awsRekognition.deleteFaces({ CollectionId: collectionId, FaceIds: [faceId] }).promise();
+                showToast(`Face ${faceId} deleted from AWS.`);
+                await refreshFacesInAwsCollection(collectionId);
+            } catch(error) { showToast(`AWS Delete Error: ${error.message}`, true); }
+        }
+    }
+
+    async function handleCreateList() {
+        const listName = dom.newListName.value.trim();
+        if (!listName) return showToast('Please enter a name.', true);
+
+        if(state.mode === 'browser') {
+            if (state.faceLists[listName]) return showToast('A list with this name already exists.', true);
+            state.faceLists[listName] = [];
+            showToast(`List "${listName}" created.`);
+            renderBrowserLists();
+            updateSearchListDropdown();
+            saveState();
+        } else { // AWS Mode
+             if (!state.awsRekognition) return showToast('AWS not connected.', true);
+             if (!/^[a-zA-Z0-9_.-]+$/.test(listName) || listName.length > 255) return showToast('Invalid collection name. Use letters, numbers, underscore, period, or hyphen.', true);
+             try {
+                await state.awsRekognition.createCollection({ CollectionId: listName }).promise();
+                showToast(`AWS Collection "${listName}" created.`);
+                await listAwsCollections();
+             } catch(error) { showToast(`AWS Create Error: ${error.message}`, true); }
+        }
+        dom.newListName.value = '';
+    }
+    
+    async function handleDeleteList(listName) {
+        if (!confirm(`Are you sure you want to delete "${listName}"? This cannot be undone.`)) return;
+        
+        if (state.mode === 'browser') {
+            delete state.faceLists[listName];
+            showToast(`Deleted list "${listName}".`);
+            renderBrowserLists();
+            updateSearchListDropdown();
+            saveState();
+        } else { // AWS Mode
+            if (!state.awsRekognition) return showToast('AWS not connected.', true);
+            dom.loadingModal.classList.remove('hidden');
+            dom.loadingModal.classList.add('flex');
+            dom.loadingStatus.textContent = `Deleting ${listName}...`;
+            try {
+                await state.awsRekognition.deleteCollection({ CollectionId: listName }).promise();
+                showToast(`AWS Collection "${listName}" deleted.`);
+                await listAwsCollections();
+            } catch(error) {
+                showToast(`AWS Delete Error: ${error.message}`, true);
+            } finally {
+                dom.loadingModal.classList.add('hidden');
+            }
+        }
+    }
+
+    function handleExport() {
+        if (state.mode !== 'browser' || state.faceDatabase.length === 0) {
+            return showToast('Export is only available for local data and when faces exist.', true);
+        }
+        const dataToExport = {
+            faceDatabase: state.faceDatabase,
+            faceLists: state.faceLists
+        };
+        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `face-recognition-data-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+        showToast('Local data exported successfully.');
+    }
+
+    function handleImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data && data.faceDatabase && data.faceLists) {
+                    // Convert nested descriptor objects back to Float32Arrays
+                    data.faceDatabase.forEach(face => {
+                        if (face.descriptors) {
+                           for (const key in face.descriptors) {
+                               if (face.descriptors[key] && typeof face.descriptors[key] === 'object') {
+                                   face.descriptors[key] = new Float32Array(Object.values(face.descriptors[key]));
+                               }
+                           }
+                        }
+                    });
+                    state.faceDatabase = data.faceDatabase;
+                    state.faceLists = data.faceLists;
+                    saveState();
+                    renderBrowserUI();
+                    showToast('Data imported successfully!');
+                } else {
+                    throw new Error('Invalid file format.');
+                }
+            } catch (error) {
+                showToast(`Failed to import file: ${error.message}`, true);
+            } finally {
+                // Reset file input to allow re-importing the same file
+                dom.importFile.value = '';
+            }
+        };
+        reader.onerror = () => {
+            showToast('Error reading the import file.', true);
+            dom.importFile.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    function initializeApp() {
+        loadState();
+        updateUIForMode();
+
+        // Mode Switching
+        dom.modeBrowserBtn.addEventListener('click', () => { state.mode = 'browser'; updateUIForMode(); loadBrowserModels(); });
+        dom.modeAwsBtn.addEventListener('click', () => { state.mode = 'aws'; updateUIForMode(); });
+
+        // Camera controls
+        dom.useCameraBtn.addEventListener('click', () => { state.cameraContext = 'add'; openCamera(); });
+        dom.useCameraSearchBtn.addEventListener('click', () => { state.cameraContext = 'search'; openCamera(); });
+        dom.useCameraCompare1Btn.addEventListener('click', () => { state.cameraContext = 'compare1'; openCamera(); });
+        dom.useCameraCompare2Btn.addEventListener('click', () => { state.cameraContext = 'compare2'; openCamera(); });
+        dom.cancelCameraBtn.addEventListener('click', closeCamera);
+        dom.captureBtn.addEventListener('click', captureImage);
+
+        // Tab Switching
+        dom.tabFaces.addEventListener('click', () => switchTab('faces'));
+        dom.tabLists.addEventListener('click', () => switchTab('lists'));
+        
+        // AWS Config
+        dom.saveAwsConfigBtn.addEventListener('click', () => {
+            state.awsConfig = {
+                region: dom.awsRegion.value.trim(),
+                accessKeyId: dom.awsAccessKeyId.value.trim(),
+                secretAccessKey: dom.awsSecretAccessKey.value,
+            };
+            saveState();
+            initializeAwsRekognition();
+        });
+        
+        dom.viewCollectionSelect.addEventListener('change', (e) => {
+            state.currentViewCollection = e.target.value;
+            refreshFacesInAwsCollection(state.currentViewCollection);
+        });
+
+        // Image Previews with Face Detection Drawing
+        const setupPreview = (uploadEl, imgEl, canvasEl) => {
+             uploadEl.addEventListener('change', async (e) => {
+                if (e.target.files[0]) {
+                    const dataUrl = await readFileAsDataURL(e.target.files[0]);
+                    imgEl.src = dataUrl;
+                    imgEl.classList.remove('hidden');
+                    imgEl.onload = () => detectAndDrawFace(imgEl, canvasEl);
+                }
+            });
+        };
+        setupPreview(dom.faceUpload, dom.facePreview, dom.facePreviewCanvas);
+        setupPreview(dom.searchUpload, dom.searchPreview, dom.searchPreviewCanvas);
+        setupPreview(dom.compareUpload1, dom.comparePreview1, dom.comparePreview1Canvas);
+        setupPreview(dom.compareUpload2, dom.comparePreview2, dom.comparePreview2Canvas);
+
+
+        // Main Actions
+        dom.addFaceBtn.addEventListener('click', handleAddFace);
+        dom.searchFaceBtn.addEventListener('click', handleSearchFace);
+        dom.compareFacesBtn.addEventListener('click', handleCompareFaces);
+        dom.createListBtn.addEventListener('click', handleCreateList);
+        dom.exportDataBtn.addEventListener('click', handleExport);
+        dom.importDataBtn.addEventListener('click', () => dom.importFile.click());
+        dom.importFile.addEventListener('change', handleImport);
+        
+        // Delegated Event Listeners for dynamic content
+        document.body.addEventListener('click', (e) => {
+            const target = e.target;
+            const deleteBtn = target.closest('.delete-face-btn');
+            if (deleteBtn) { handleDeleteFace(deleteBtn.dataset.faceId, deleteBtn.dataset.collectionId); return; }
+            const listHeader = target.closest('.list-header');
+            if (listHeader && !target.closest('button')) {
+                const content = listHeader.nextElementSibling;
+                content.classList.toggle('hidden');
+                listHeader.querySelector('span').classList.toggle('rotate-180');
+                return;
+            }
+            const deleteListBtn = target.closest('.delete-list-btn');
+            if (deleteListBtn) { handleDeleteList(deleteListBtn.dataset.listName); return; }
+            const removeFromListBtn = target.closest('.remove-from-list-btn');
+            if (removeFromListBtn) {
+                const { listName, faceId } = removeFromListBtn.dataset;
+                state.faceLists[listName] = state.faceLists[listName].filter(id => id !== faceId);
+                showToast('Face removed from list.');
+                renderBrowserLists();
+                saveState();
+            }
+        });
+        
+        document.body.addEventListener('change', (e) => {
+            const addToListSelect = e.target.closest('.add-to-list-select');
+            if (addToListSelect) {
+                const listName = addToListSelect.value;
+                const faceId = addToListSelect.dataset.faceId;
+                if (listName) {
+                    if (!state.faceLists[listName].includes(faceId)) {
+                        state.faceLists[listName].push(faceId);
+                        showToast('Face added to list.');
+                        renderBrowserLists();
+                        saveState();
+                    } else { showToast('Face is already in this list.', true); }
+                }
+                addToListSelect.value = '';
+            }
+        });
+
+        // Initial load for the main app
+        if (state.mode === 'browser') { loadBrowserModels(); } 
+        else if (state.awsConfig.region && state.awsConfig.accessKeyId && state.awsConfig.secretAccessKey) { initializeAwsRekognition(); }
+    }
+
+    // --- LOGIN AND INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- TOTP Generation and Verification Logic ---
+        const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+        function toBase32(buffer) {
+            let bits = '';
+            let base32 = '';
+            
+            for (let i = 0; i < buffer.length; i++) {
+                bits += buffer[i].toString(2).padStart(8, '0');
+            }
+
+            for (let i = 0; i < bits.length; i += 5) {
+                const chunk = bits.slice(i, i + 5);
+                if (chunk.length < 5) continue;
+                const value = parseInt(chunk, 2);
+                base32 += base32Chars[value];
+            }
+            
+            return base32;
+        }
+
+        function fromBase32(str) {
+            const buffer = new Uint8Array(Math.ceil(str.length * 5 / 8));
+            let bits = '';
+            let bufferOffset = 0;
+
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charAt(i).toUpperCase();
+                const value = base32Chars.indexOf(char);
+                if (value === -1) throw new Error("Invalid Base32 character");
+                bits += value.toString(2).padStart(5, '0');
+            }
+
+            for (let i = 0; i < bits.length; i += 8) {
+                const chunk = bits.slice(i, i + 8);
+                if (chunk.length < 8) continue;
+                buffer[bufferOffset++] = parseInt(chunk, 2);
+            }
+            return buffer.slice(0, bufferOffset);
+        }
+
+        async function generateTOTP(secretBuffer, counterOffset = 0) {
+            const key = await crypto.subtle.importKey('raw', secretBuffer, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+            const timeStep = 30;
+            const counter = Math.floor(Date.now() / 1000 / timeStep) + counterOffset;
+            
+            const counterBuffer = new ArrayBuffer(8);
+            const counterView = new DataView(counterBuffer);
+            const high = Math.floor(counter / 0x100000000);
+            const low = counter % 0x100000000;
+            counterView.setUint32(0, high, false);
+            counterView.setUint32(4, low, false);
+
+            const hmac = await crypto.subtle.sign('HMAC', key, counterBuffer);
+            const hmacArray = new Uint8Array(hmac);
+            
+            const offset = hmacArray[hmacArray.length - 1] & 0x0f;
+            const truncatedHash = (hmacArray[offset] & 0x7f) << 24 |
+                                (hmacArray[offset + 1] & 0xff) << 16 |
+                                (hmacArray[offset + 2] & 0xff) << 8 |
+                                (hmacArray[offset + 3] & 0xff);
+
+            let otp = (truncatedHash % 1000000).toString();
+            return otp.padStart(6, '0');
+        }
+        
+        async function handleLogin() {
+            const code = dom.twoFactorCode.value.trim();
+            if (!/^\d{6}$/.test(code)) {
+                dom.loginError.textContent = 'Please enter a 6-digit code.';
+                return;
+            }
+
+            const secretBase32 = localStorage.getItem('totpAppSecret');
+            const secretBuffer = fromBase32(secretBase32);
+
+            const validCodes = await Promise.all([
+                generateTOTP(secretBuffer, 0),
+                generateTOTP(secretBuffer, -1),
+                generateTOTP(secretBuffer, 1)
+            ]);
+
+            if (validCodes.includes(code)) {
+                dom.loginOverlay.classList.add('hidden');
+                dom.mainAppContainer.classList.remove('hidden');
+                initializeApp();
+            } else {
+                dom.loginError.textContent = 'Invalid code. Please try again.';
+                dom.twoFactorCode.value = '';
+                dom.loginOverlay.querySelector('.w-full.max-w-md').classList.add('animate-shake');
+                setTimeout(() => {
+                    dom.loginOverlay.querySelector('.w-full.max-w-md').classList.remove('animate-shake');
+                }, 500);
+            }
+        }
+        
+        function setupTotpScreen() {
+            const secretBuffer = crypto.getRandomValues(new Uint8Array(20));
+            const secretBase32 = toBase32(secretBuffer);
+            localStorage.setItem('totpAppSecret', secretBase32);
+
+            dom.totpSecretKey.textContent = secretBase32;
+            const uri = `otpauth://totp/FaceRecogTool:user?secret=${secretBase32}&issuer=FaceRecogTool`;
+            new QRious({ element: dom.qrCodeCanvas, value: uri, size: 200, background: 'white', foreground: 'black' });
+
+            dom.totpSetup.classList.remove('hidden');
+            dom.totpLogin.classList.add('hidden');
+        }
+
+        function showLoginScreen() {
+             dom.totpSetup.classList.add('hidden');
+             dom.totpLogin.classList.remove('hidden');
+             dom.twoFactorCode.focus();
+        }
+
+        if (localStorage.getItem('totpAppSecret')) {
+            showLoginScreen();
+        } else {
+            setupTotpScreen();
+        }
+        
+        dom.setupCompleteBtn.addEventListener('click', () => {
+            localStorage.setItem('totpSetupComplete', 'true'); // Keep this to avoid re-showing setup
+            showLoginScreen();
+        });
+        dom.loginBtn.addEventListener('click', handleLogin);
+        dom.twoFactorCode.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+            .animate-shake {
+                animation: shake 0.5s ease-in-out;
+            }
+        `;
+        document.head.appendChild(style);
+
+    });
+
+</script>
+</body>
+</html>
