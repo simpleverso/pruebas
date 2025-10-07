@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Operations Center - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide-react/dist/lucide-react.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-bg: #111827; /* Gray 900 */
+            --secondary-bg: #1f2937; /* Gray 800 */
+            --tertiary-bg: #374151; /* Gray 700 */
+            --accent-color: #3b82f6; /* Blue 500 */
+            --text-primary: #f9fafb; /* Gray 50 */
+            --text-secondary: #d1d5db; /* Gray 300 */
+            --danger-color: #ef4444; /* Red 500 */
+            --warning-color: #f97316; /* Orange 500 */
+            --success-color: #22c55e; /* Green 500 */
+        }
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            background-color: var(--secondary-bg);
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover {
+            background-color: var(--tertiary-bg);
+            color: var(--text-primary);
+        }
+        .nav-link.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+        .card {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--tertiary-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        .header {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--tertiary-bg);
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 sidebar flex-shrink-0 p-4">
+            <div class="flex items-center mb-8">
+                <i data-lucide="siren" class="w-8 h-8 text-red-500 mr-2"></i>
+                <h1 class="text-xl font-bold text-white">EOC Platform</h1>
+            </div>
+            <nav class="space-y-2">
+                <a href="#" class="nav-link active">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="./map.html" class="nav-link">
+                    <i data-lucide="map" class="w-5 h-5 mr-3"></i>
+                    GIS & Mapping
+                </a>
+                <a href="./resources.html" class="nav-link">
+                    <i data-lucide="users" class="w-5 h-5 mr-3"></i>
+                    Resource Mgmt
+                </a>
+                <a href="./humanitarian.html" class="nav-link">
+                    <i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i>
+                    Humanitarian
+                </a>
+                <a href="./hospitals.html" class="nav-link">
+                    <i data-lucide="hospital" class="w-5 h-5 mr-3"></i>
+                    Hospital Status
+                </a>
+                <a href="./requests.html" class="nav-link">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i>
+                    Needs & Requests
+                </a>
+                <a href="./communications.html" class="nav-link">
+                    <i data-lucide="message-square" class="w-5 h-5 mr-3"></i>
+                    Communications
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="header p-4 flex justify-between items-center sticky top-0 z-10">
+                <div>
+                    <h2 class="text-2xl font-semibold">Incident Dashboard</h2>
+                    <p class="text-sm text-gray-400">Mexico City Earthquake - Event ID: MX-2025-1006</p>
+                </div>
+                 <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="font-medium">Cmdr. Rodriguez</p>
+                        <p class="text-xs text-gray-400">Incident Commander</p>
+                    </div>
+                    <img src="https://placehold.co/40x40/4A5568/E2E8F0?text=CR" alt="User Avatar" class="rounded-full">
+                </div>
+            </header>
+
+            <div class="p-6 space-y-6">
+                <!-- At a Glance Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="card flex items-center">
+                        <div class="p-3 bg-red-500/20 rounded-lg mr-4">
+                            <i data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Active Incidents</p>
+                            <p class="text-3xl font-bold">14</p>
+                        </div>
+                    </div>
+                    <div class="card flex items-center">
+                        <div class="p-3 bg-green-500/20 rounded-lg mr-4">
+                            <i data-lucide="users" class="w-8 h-8 text-green-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Personnel Deployed</p>
+                            <p class="text-3xl font-bold">1,280</p>
+                        </div>
+                    </div>
+                    <div class="card flex items-center">
+                         <div class="p-3 bg-blue-500/20 rounded-lg mr-4">
+                            <i data-lucide="ambulance" class="w-8 h-8 text-blue-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Hospitals at Capacity</p>
+                            <p class="text-3xl font-bold">8 / 25</p>
+                        </div>
+                    </div>
+                    <div class="card flex items-center">
+                         <div class="p-3 bg-orange-500/20 rounded-lg mr-4">
+                            <i data-lucide="user-search" class="w-8 h-8 text-orange-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Missing Persons</p>
+                            <p class="text-3xl font-bold">212</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map and Priority Alerts -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 card">
+                        <h3 class="text-lg font-semibold mb-4">Live Incident Overview Map</h3>
+                        <div class="aspect-video bg-gray-700 rounded-lg flex items-center justify-center">
+                           <img src="https://placehold.co/800x450/374151/FFFFFF?text=Live+Map+of+Mexico+City" alt="Live Map of Mexico City" class="object-cover w-full h-full rounded-lg">
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-lg font-semibold mb-4">Priority Alerts</h3>
+                        <div class="space-y-4">
+                            <div class="p-3 bg-red-900/50 border border-red-500 rounded-lg">
+                                <p class="font-semibold text-red-300">Structural Collapse</p>
+                                <p class="text-sm text-gray-300">Condesa District - 3 teams requested.</p>
+                                <p class="text-xs text-gray-500">11:15 PM CST</p>
+                            </div>
+                            <div class="p-3 bg-orange-900/50 border border-orange-500 rounded-lg">
+                                <p class="font-semibold text-orange-300">Hospital Overload</p>
+                                <p class="text-sm text-gray-300">Hospital General de México at capacity.</p>
+                                 <p class="text-xs text-gray-500">11:05 PM CST</p>
+                            </div>
+                             <div class="p-3 bg-blue-900/50 border border-blue-500 rounded-lg">
+                                <p class="font-semibold text-blue-300">Resource Fulfilled</p>
+                                <p class="text-sm text-gray-300">Heavy machinery dispatched to Roma Norte.</p>
+                                 <p class="text-xs text-gray-500">10:58 PM CST</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
