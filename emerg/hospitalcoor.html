@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EOC - Hospital Coordination</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-bg: #111827; --secondary-bg: #1f2937; --tertiary-bg: #374151;
+            --accent-color: #3b82f6; --text-primary: #f9fafb; --text-secondary: #d1d5db;
+        }
+        body { background-color: var(--primary-bg); color: var(--text-primary); }
+        .sidebar { background-color: var(--secondary-bg); }
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: var(--text-secondary); transition: all 0.2s; }
+        .nav-link:hover { background-color: var(--tertiary-bg); color: var(--text-primary); }
+        .nav-link.active { background-color: var(--accent-color); color: white; font-weight: 600; }
+        .card { background-color: var(--secondary-bg); border: 1px solid var(--tertiary-bg); border-radius: 0.75rem; padding: 1.5rem; }
+        .header { background-color: var(--secondary-bg); border-bottom: 1px solid var(--tertiary-bg); }
+        .table-header { background-color: var(--tertiary-bg); }
+        .table-row { border-bottom: 1px solid var(--tertiary-bg); }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 sidebar flex-shrink-0 p-4">
+            <div class="flex items-center mb-8">
+                <i data-lucide="siren" class="w-8 h-8 text-red-500 mr-2"></i>
+                <h1 class="text-xl font-bold text-white">EOC Platform</h1>
+            </div>
+            <nav class="space-y-2">
+                 <a href="./dashboard.html" class="nav-link">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+                </a>
+                <a href="./map.html" class="nav-link">
+                    <i data-lucide="map" class="w-5 h-5 mr-3"></i> GIS & Mapping
+                </a>
+                <a href="./resources.html" class="nav-link">
+                    <i data-lucide="users" class="w-5 h-5 mr-3"></i> Resource Mgmt
+                </a>
+                 <a href="./humanitarian.html" class="nav-link">
+                    <i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i> Humanitarian
+                </a>
+                <a href="#" class="nav-link active">
+                    <i data-lucide="hospital" class="w-5 h-5 mr-3"></i> Hospital Status
+                </a>
+                <a href="./requests.html" class="nav-link">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Needs & Requests
+                </a>
+                <a href="./communications.html" class="nav-link">
+                    <i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Communications
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="header p-4 flex justify-between items-center sticky top-0 z-10">
+                <h2 class="text-2xl font-semibold">Hospital Status Board</h2>
+                <div class="flex items-center space-x-2 text-sm">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div><span>At Capacity</span>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div><span>Limited</span>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div><span>Accepting</span>
+                </div>
+            </header>
+            
+            <div class="p-6">
+                <div class="card">
+                    <table class="w-full text-left">
+                        <thead class="table-header text-sm">
+                            <tr>
+                                <th class="p-3">Facility</th>
+                                <th class="p-3 text-center">ER Status</th>
+                                <th class="p-3 text-center">ICU Beds</th>
+                                <th class="p-3 text-center">Surgical Beds</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="p-3 font-semibold">Hospital General de México</td>
+                                <td class="p-3 text-center"><span class="px-3 py-1 text-sm font-semibold rounded-full bg-red-500/20 text-red-300">DIVERSION</span></td>
+                                <td class="p-3 font-mono text-center text-lg">0</td>
+                                <td class="p-3 font-mono text-center text-lg">2</td>
+                            </tr>
+                             <tr class="table-row">
+                                <td class="p-3 font-semibold">Hospital Ángeles Pedregal</td>
+                                <td class="p-3 text-center"><span class="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-500/20 text-yellow-300">LIMITED</span></td>
+                                <td class="p-3 font-mono text-center text-lg">3</td>
+                                <td class="p-3 font-mono text-center text-lg">8</td>
+                            </tr>
+                             <tr class="table-row">
+                                <td class="p-3 font-semibold">Centro Médico ABC</td>
+                                <td class="p-3 text-center"><span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-500/20 text-green-300">ACCEPTING</span></td>
+                                <td class="p-3 font-mono text-center text-lg">12</td>
+                                <td class="p-3 font-mono text-center text-lg">25</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
