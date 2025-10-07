@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EOC - Humanitarian Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-bg: #111827; --secondary-bg: #1f2937; --tertiary-bg: #374151;
+            --accent-color: #3b82f6; --text-primary: #f9fafb; --text-secondary: #d1d5db;
+        }
+        body { background-color: var(--primary-bg); color: var(--text-primary); }
+        .sidebar { background-color: var(--secondary-bg); }
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: var(--text-secondary); transition: all 0.2s; }
+        .nav-link:hover { background-color: var(--tertiary-bg); color: var(--text-primary); }
+        .nav-link.active { background-color: var(--accent-color); color: white; font-weight: 600; }
+        .card { background-color: var(--secondary-bg); border: 1px solid var(--tertiary-bg); border-radius: 0.75rem; padding: 1.5rem; }
+        .header { background-color: var(--secondary-bg); border-bottom: 1px solid var(--tertiary-bg); }
+        .table-header { background-color: var(--tertiary-bg); }
+        .table-row { border-bottom: 1px solid var(--tertiary-bg); }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 sidebar flex-shrink-0 p-4">
+             <div class="flex items-center mb-8">
+                <i data-lucide="siren" class="w-8 h-8 text-red-500 mr-2"></i>
+                <h1 class="text-xl font-bold text-white">EOC Platform</h1>
+            </div>
+            <nav class="space-y-2">
+                 <a href="./dashboard.html" class="nav-link">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+                </a>
+                <a href="./map.html" class="nav-link">
+                    <i data-lucide="map" class="w-5 h-5 mr-3"></i> GIS & Mapping
+                </a>
+                <a href="./resources.html" class="nav-link">
+                    <i data-lucide="users" class="w-5 h-5 mr-3"></i> Resource Mgmt
+                </a>
+                 <a href="#" class="nav-link active">
+                    <i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i> Humanitarian
+                </a>
+                <a href="./hospitals.html" class="nav-link">
+                    <i data-lucide="hospital" class="w-5 h-5 mr-3"></i> Hospital Status
+                </a>
+                <a href="./requests.html" class="nav-link">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Needs & Requests
+                </a>
+                <a href="./communications.html" class="nav-link">
+                    <i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Communications
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="header p-4 flex justify-between items-center sticky top-0 z-10">
+                <h2 class="text-2xl font-semibold">Humanitarian Services</h2>
+                <button class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i> Report Missing Person
+                </button>
+            </header>
+
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Missing Persons Registry -->
+                <div class="card lg:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Missing Persons Registry (212)</h3>
+                    <table class="w-full text-left text-sm">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="p-3">Name</th><th class="p-3">Age</th><th class="p-3">Last Seen</th><th class="p-3">Status</th><th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="p-3">Elena Morales</td><td class="p-3">34</td><td class="p-3">Roma Norte Office Bldg</td>
+                                <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-300">Missing</span></td>
+                                <td class="p-3 text-right"><button class="text-blue-400 hover:text-blue-300">View File</button></td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="p-3">Carlos Gutierrez</td><td class="p-3">9</td><td class="p-3">Parque México</td>
+                                <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-300">Located</span></td>
+                                <td class="p-3 text-right"><button class="text-blue-400 hover:text-blue-300">View File</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Shelter Management -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Shelter Status</h3>
+                     <table class="w-full text-left text-sm">
+                        <thead class="table-header">
+                            <tr><th class="p-3">Location</th><th class="p-3">Occupancy</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="p-3">Estadio Azteca</td>
+                                <td class="p-3">
+                                    <div class="w-full bg-gray-600 rounded-full h-2.5">
+                                        <div class="bg-green-600 h-2.5 rounded-full" style="width: 45%"></div>
+                                    </div>
+                                    <span class="text-xs">450 / 1000</span>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="p-3">Benito Juárez Hall</td>
+                                 <td class="p-3">
+                                    <div class="w-full bg-gray-600 rounded-full h-2.5">
+                                        <div class="bg-red-600 h-2.5 rounded-full" style="width: 95%"></div>
+                                    </div>
+                                    <span class="text-xs">190 / 200</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Volunteer/Donation Hub -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-4">Volunteer & Donation Hub</h3>
+                    <div class="space-y-3">
+                        <p class="text-gray-300">Manage incoming offers of support.</p>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">View Volunteer Roster</button>
+                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg">Manage Donations</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
