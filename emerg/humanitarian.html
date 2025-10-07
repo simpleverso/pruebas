@@ -5,134 +5,653 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EOC - Humanitarian Services</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
         :root {
             --primary-bg: #111827; --secondary-bg: #1f2937; --tertiary-bg: #374151;
             --accent-color: #3b82f6; --text-primary: #f9fafb; --text-secondary: #d1d5db;
         }
-        body { background-color: var(--primary-bg); color: var(--text-primary); }
+        body { background-color: var(--primary-bg); color: var(--text-primary); font-family: 'Inter', sans-serif; }
         .sidebar { background-color: var(--secondary-bg); }
         .nav-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: var(--text-secondary); transition: all 0.2s; }
         .nav-link:hover { background-color: var(--tertiary-bg); color: var(--text-primary); }
         .nav-link.active { background-color: var(--accent-color); color: white; font-weight: 600; }
-        .card { background-color: var(--secondary-bg); border: 1px solid var(--tertiary-bg); border-radius: 0.75rem; padding: 1.5rem; }
         .header { background-color: var(--secondary-bg); border-bottom: 1px solid var(--tertiary-bg); }
-        .table-header { background-color: var(--tertiary-bg); }
-        .table-row { border-bottom: 1px solid var(--tertiary-bg); }
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--secondary-bg); margin: 5% auto; padding: 2rem;
+            border: 1px solid var(--tertiary-bg); width: 90%; max-width: 600px;
+            border-radius: 0.75rem;
+            max-h-[90vh]; /* Add max height for small screens */
+            overflow-y: auto; /* Allow scrolling within the modal */
+        }
+        .tab-button {
+            padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s;
+            border: 1px solid var(--tertiary-bg); color: var(--text-secondary);
+        }
+        .tab-button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; } /* FIX: Changed from block to flex to enable flexbox layout */
+        #modalMap { height: 200px; margin-top: 1rem; border-radius: 0.5rem; }
     </style>
 </head>
 <body>
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 sidebar flex-shrink-0 p-4">
-             <div class="flex items-center mb-8">
+        <aside class="w-64 sidebar flex-shrink-0 p-4 hidden md:block">
+            <div class="flex items-center mb-8">
                 <i data-lucide="siren" class="w-8 h-8 text-red-500 mr-2"></i>
                 <h1 class="text-xl font-bold text-white">EOC Platform</h1>
             </div>
             <nav class="space-y-2">
-                 <a href="./dashboard.html" class="nav-link">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
-                </a>
-                <a href="./map.html" class="nav-link">
-                    <i data-lucide="map" class="w-5 h-5 mr-3"></i> GIS & Mapping
-                </a>
-                <a href="./resources.html" class="nav-link">
-                    <i data-lucide="users" class="w-5 h-5 mr-3"></i> Resource Mgmt
-                </a>
-                 <a href="#" class="nav-link active">
-                    <i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i> Humanitarian
-                </a>
-                <a href="./hospitals.html" class="nav-link">
-                    <i data-lucide="hospital" class="w-5 h-5 mr-3"></i> Hospital Status
-                </a>
-                <a href="./requests.html" class="nav-link">
-                    <i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Needs & Requests
-                </a>
-                <a href="./communications.html" class="nav-link">
-                    <i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Communications
-                </a>
+                <a href="./dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard</a>
+                <a href="./map.html" class="nav-link"><i data-lucide="map" class="w-5 h-5 mr-3"></i> GIS & Mapping</a>
+                <a href="./resources.html" class="nav-link"><i data-lucide="users" class="w-5 h-5 mr-3"></i> Resource Mgmt</a>
+                <a href="#" class="nav-link active"><i data-lucide="heart-handshake" class="w-5 h-5 mr-3"></i> Humanitarian</a>
+                <a href="./hospitals.html" class="nav-link"><i data-lucide="hospital" class="w-5 h-5 mr-3"></i> Hospital Status</a>
+                <a href="./requests.html" class="nav-link"><i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Needs & Requests</a>
+                <a href="./communications.html" class="nav-link"><i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Communications</a>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
-            <header class="header p-4 flex justify-between items-center sticky top-0 z-10">
+        <main class="flex-1 flex flex-col">
+            <header class="header p-4 flex justify-between items-center flex-shrink-0">
                 <h2 class="text-2xl font-semibold">Humanitarian Services</h2>
-                <button class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
-                    <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i> Report Missing Person
-                </button>
             </header>
-
-            <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Missing Persons Registry -->
-                <div class="card lg:col-span-2">
-                    <h3 class="text-lg font-semibold mb-4">Missing Persons Registry (212)</h3>
-                    <table class="w-full text-left text-sm">
-                        <thead class="table-header">
-                            <tr>
-                                <th class="p-3">Name</th><th class="p-3">Age</th><th class="p-3">Last Seen</th><th class="p-3">Status</th><th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="table-row">
-                                <td class="p-3">Elena Morales</td><td class="p-3">34</td><td class="p-3">Roma Norte Office Bldg</td>
-                                <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-300">Missing</span></td>
-                                <td class="p-3 text-right"><button class="text-blue-400 hover:text-blue-300">View File</button></td>
-                            </tr>
-                            <tr class="table-row">
-                                <td class="p-3">Carlos Gutierrez</td><td class="p-3">9</td><td class="p-3">Parque México</td>
-                                <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-300">Located</span></td>
-                                <td class="p-3 text-right"><button class="text-blue-400 hover:text-blue-300">View File</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+            
+            <div class="p-4 sm:p-6 flex-1 flex flex-col min-h-0">
+                <!-- Tabs -->
+                <div class="flex space-x-2 mb-4 border-b border-gray-700 pb-2 overflow-x-auto">
+                    <button class="tab-button active flex-shrink-0" data-tab="missing">Missing Persons</button>
+                    <button class="tab-button flex-shrink-0" data-tab="shelters">Shelters</button>
+                    <button class="tab-button flex-shrink-0" data-tab="volunteers">Volunteers & Donations</button>
                 </div>
 
-                <!-- Shelter Management -->
-                <div class="card">
-                    <h3 class="text-lg font-semibold mb-4">Shelter Status</h3>
-                     <table class="w-full text-left text-sm">
-                        <thead class="table-header">
-                            <tr><th class="p-3">Location</th><th class="p-3">Occupancy</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr class="table-row">
-                                <td class="p-3">Estadio Azteca</td>
-                                <td class="p-3">
-                                    <div class="w-full bg-gray-600 rounded-full h-2.5">
-                                        <div class="bg-green-600 h-2.5 rounded-full" style="width: 45%"></div>
-                                    </div>
-                                    <span class="text-xs">450 / 1000</span>
-                                </td>
-                            </tr>
-                            <tr class="table-row">
-                                <td class="p-3">Benito Juárez Hall</td>
-                                 <td class="p-3">
-                                    <div class="w-full bg-gray-600 rounded-full h-2.5">
-                                        <div class="bg-red-600 h-2.5 rounded-full" style="width: 95%"></div>
-                                    </div>
-                                    <span class="text-xs">190 / 200</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Volunteer/Donation Hub -->
-                <div class="card">
-                    <h3 class="text-lg font-semibold mb-4">Volunteer & Donation Hub</h3>
-                    <div class="space-y-3">
-                        <p class="text-gray-300">Manage incoming offers of support.</p>
-                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">View Volunteer Roster</button>
-                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg">Manage Donations</button>
+                <!-- Missing Persons Tab -->
+                <div id="missing" class="tab-content active flex-1 flex-col min-h-0">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 flex-shrink-0">
+                        <h3 class="text-xl font-semibold">Missing Persons Registry</h3>
+                        <button id="addMissingPersonBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Report Missing Person
+                        </button>
                     </div>
+                    <div id="missingPersonsList" class="space-y-4 overflow-y-auto flex-1 pr-2">
+                        <!-- Missing person cards will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Shelters Tab -->
+                <div id="shelters" class="tab-content flex-1 flex-col min-h-0">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 flex-shrink-0">
+                        <h3 class="text-xl font-semibold">Shelter Directory</h3>
+                        <button id="addShelterBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Add Shelter
+                        </button>
+                    </div>
+                    <div id="sheltersList" class="space-y-4 overflow-y-auto flex-1 pr-2">
+                        <!-- Shelter cards will be injected here -->
+                    </div>
+                </div>
+                
+                <!-- Volunteers & Donations Tab -->
+                <div id="volunteers" class="tab-content flex-1 flex-col min-h-0">
+                     <h3 class="text-xl font-semibold mb-4 flex-shrink-0">Community Support</h3>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
+                        <div class="bg-gray-800 p-4 rounded-lg flex flex-col min-h-[200px]">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold">Registered Volunteers</h4>
+                                <button id="addVolunteerBtn" class="text-sm bg-indigo-600 hover:bg-indigo-700 py-1 px-2 rounded-lg flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add</button>
+                            </div>
+                            <div id="volunteersList" class="space-y-3 overflow-y-auto flex-1"></div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg flex flex-col min-h-[200px]">
+                             <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold">Offered Donations</h4>
+                                <button id="addDonationBtn" class="text-sm bg-indigo-600 hover:bg-indigo-700 py-1 px-2 rounded-lg flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add</button>
+                            </div>
+                            <div id="donationsList" class="space-y-3 overflow-y-auto flex-1"></div>
+                        </div>
+                     </div>
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Missing Person Modal -->
+    <div id="missingPersonModal" class="modal">
+        <div class="modal-content">
+            <h2 id="missingModalTitle" class="text-xl font-semibold mb-4">Report Missing Person</h2>
+            <form id="missingPersonForm">
+                <input type="hidden" id="missingPersonId">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" id="personName" placeholder="Full Name" class="bg-gray-700 p-2 rounded w-full" required>
+                        <input type="number" id="personAge" placeholder="Age" class="bg-gray-700 p-2 rounded w-full">
+                    </div>
+                     <div class="space-y-2">
+                        <label class="block text-sm font-medium">Photo</label>
+                        <div class="flex items-center justify-center w-full">
+                            <img id="photoPreview" src="https://placehold.co/100x100/374151/9ca3af?text=No+Image" class="w-24 h-24 rounded-md object-cover bg-gray-700">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm mt-2">
+                            <label for="photoFile" class="text-center p-2 bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer">Upload File</label>
+                            <input type="file" id="photoFile" class="hidden" accept="image/*">
+                            
+                            <label for="photoCamera" class="text-center p-2 bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer">Use Camera</label>
+                            <input type="file" id="photoCamera" class="hidden" accept="image/*" capture="environment">
+                        </div>
+                         <input type="text" id="personPhotoUrl" placeholder="Or paste Photo URL" class="bg-gray-700 p-2 rounded w-full text-sm">
+                    </div>
+                    <textarea id="personDescription" placeholder="Description (clothing, etc.)" class="bg-gray-700 p-2 rounded w-full" rows="2"></textarea>
+                    <input type="text" id="lastSeen" placeholder="Last Seen Location (Text)" class="bg-gray-700 p-2 rounded w-full">
+                    <select id="personStatus" class="bg-gray-700 p-2 rounded w-full">
+                        <option value="Missing">Missing</option>
+                        <option value="Located">Located</option>
+                        <option value="Found">Found</option>
+                        <option value="Safe">Safe</option>
+                    </select>
+                     <div id="foundLocationContainer" class="hidden">
+                        <input type="text" id="foundLocation" placeholder="Location where person was found" class="bg-gray-700 p-2 rounded w-full mt-2">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" class="close-modal-btn py-2 px-4">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Shelter Modal -->
+    <div id="shelterModal" class="modal">
+        <div class="modal-content">
+             <h2 id="shelterModalTitle" class="text-xl font-semibold mb-4">Add Shelter</h2>
+             <form id="shelterForm">
+                 <input type="hidden" id="shelterId">
+                 <div class="space-y-4">
+                     <input type="text" id="shelterName" placeholder="Shelter Name" class="w-full bg-gray-700 p-2 rounded" required>
+                     <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="shelterCapacity" placeholder="Total Capacity" class="bg-gray-700 p-2 rounded" min="0">
+                        <input type="number" id="shelterOccupancy" placeholder="Current Occupancy" class="bg-gray-700 p-2 rounded" min="0">
+                     </div>
+                     <input type="text" id="shelterLocation" placeholder="Address / Location" class="w-full bg-gray-700 p-2 rounded">
+                     <div>
+                        <h4 class="mb-2 text-sm font-medium">Services Available</h4>
+                        <div id="shelterServices" class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                            <!-- Checkboxes will be here -->
+                        </div>
+                     </div>
+                 </div>
+                 <div class="flex justify-end space-x-4 mt-6">
+                     <button type="button" class="close-modal-btn py-2 px-4">Cancel</button>
+                     <button type="submit" class="bg-green-600 hover:bg-green-700 py-2 px-4 rounded">Save</button>
+                 </div>
+             </form>
+        </div>
+    </div>
+    
+    <!-- Volunteer Modal -->
+    <div id="volunteerModal" class="modal">
+        <div class="modal-content">
+            <h2 id="volunteerModalTitle" class="text-xl font-semibold mb-4">Add Volunteer</h2>
+            <form id="volunteerForm">
+                <input type="hidden" id="volunteerId">
+                <div class="space-y-4">
+                    <input type="text" id="volunteerName" placeholder="Volunteer Name" class="w-full bg-gray-700 p-2 rounded" required>
+                    <input type="text" id="volunteerSkill" placeholder="Skill / Expertise" class="w-full bg-gray-700 p-2 rounded">
+                    <input type="text" id="volunteerContact" placeholder="Contact Info (Phone/Email)" class="w-full bg-gray-700 p-2 rounded">
+                </div>
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" class="close-modal-btn py-2 px-4">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 py-2 px-4 rounded">Save Volunteer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Donation Modal -->
+    <div id="donationModal" class="modal">
+        <div class="modal-content">
+            <h2 id="donationModalTitle" class="text-xl font-semibold mb-4">Add Donation</h2>
+            <form id="donationForm">
+                <input type="hidden" id="donationId">
+                <div class="space-y-4">
+                    <input type="text" id="donationItem" placeholder="Item(s) Offered" class="w-full bg-gray-700 p-2 rounded" required>
+                    <input type="text" id="donationQuantity" placeholder="Quantity" class="w-full bg-gray-700 p-2 rounded">
+                    <select id="donationStatus" class="bg-gray-700 p-2 rounded w-full">
+                        <option value="Offered">Offered</option>
+                        <option value="Collected">Collected</option>
+                        <option value="Distributed">Distributed</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" class="close-modal-btn py-2 px-4">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 py-2 px-4 rounded">Save Donation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal" style="z-index: 1050;">
+        <div class="modal-content max-w-sm">
+            <h2 id="confirmationMessage" class="text-lg font-semibold mb-6 text-center">Are you sure?</h2>
+            <div class="flex justify-center space-x-4">
+                <button id="cancelBtn" class="py-2 px-6 rounded-lg text-gray-300 hover:bg-gray-600 border border-gray-600">Cancel</button>
+                <button id="confirmBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         lucide.createIcons();
+        
+        // --- DATA ---
+        let missingPersonsData = [
+            { id: 1, name: 'Juana Pérez', age: 45, photo: 'https://placehold.co/100x100/555/fff?text=JP', description: 'Wearing a red blouse and jeans.', lastSeen: 'Mercado Central, Juchitán', status: 'Missing', foundLocation: '' },
+            { id: 2, name: 'Carlos López', age: 22, photo: 'https://placehold.co/100x100/555/fff?text=CL', description: 'Carrying a black backpack.', lastSeen: 'Near the river', status: 'Located', foundLocation: '' },
+        ];
+        
+        let sheltersData = [
+            { id: 1, name: 'Escuela Primaria "Héroes"', capacity: 150, occupancy: 110, location: 'Av. Principal 123', services: ['Medical', 'Food', 'Pet-Friendly'] },
+            { id: 2, name: 'Gimnasio Municipal', capacity: 250, occupancy: 120, location: 'Calle 5 de Mayo', services: ['Food', 'Water', 'Beds'] }
+        ];
+
+        let volunteersData = [
+            { id: 1, name: 'Dr. Elena Ríos', skill: 'Medical Doctor', contact: '555-1234' },
+            { id: 2, name: 'Pedro Morales', skill: 'Structural Engineer', contact: '555-5678' }
+        ];
+        
+        let donationsData = [
+            { id: 1, item: 'Bottled Water', quantity: '50 cases', status: 'Collected' },
+            { id: 2, item: 'Blankets', quantity: '200 units', status: 'Offered' }
+        ];
+
+        // --- TABS ---
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.tab;
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tab).classList.add('active');
+            });
+        });
+
+        // --- MISSING PERSONS ---
+        const missingModal = document.getElementById('missingPersonModal');
+        const missingForm = document.getElementById('missingPersonForm');
+        
+        function renderMissingPersons() {
+            const listEl = document.getElementById('missingPersonsList');
+            listEl.innerHTML = '';
+            missingPersonsData.forEach(p => {
+                let statusColor = p.status === 'Missing' ? 'bg-red-500' : (p.status === 'Located' ? 'bg-yellow-500' : 'bg-green-500');
+                let foundHtml = '';
+                if (p.status === 'Found' && p.foundLocation) {
+                    foundHtml = `<p class="text-sm text-green-300 mt-1"><strong>Found at:</strong> ${p.foundLocation}</p>`;
+                }
+
+                listEl.innerHTML += `
+                    <div class="bg-gray-800 p-4 rounded-lg flex flex-col sm:flex-row items-start gap-4">
+                        <img src="${p.photo || 'https://placehold.co/100x100/374151/9ca3af?text=No+Image'}" alt="${p.name}" class="w-24 h-24 sm:w-20 sm:h-20 rounded-md object-cover flex-shrink-0">
+                        <div class="flex-1">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-start gap-2 w-full">
+                                <h4 class="font-bold text-lg">${p.name}, ${p.age}</h4>
+                                <span class="text-xs font-bold py-1 px-2 rounded-full ${statusColor} self-start sm:self-center flex-shrink-0">${p.status}</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mt-2"><strong>Last Seen:</strong> ${p.lastSeen}</p>
+                            <p class="text-sm text-gray-300 mt-1">${p.description}</p>
+                            ${foundHtml}
+                            <div class="mt-2"><button onclick="editMissingPerson(${p.id})" class="text-xs text-blue-400 hover:underline">Edit Status</button></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('addMissingPersonBtn').onclick = () => {
+            missingForm.reset();
+            document.getElementById('missingPersonId').value = '';
+            document.getElementById('missingModalTitle').innerText = 'Report Missing Person';
+            document.getElementById('photoPreview').src = 'https://placehold.co/100x100/374151/9ca3af?text=No+Image';
+            document.getElementById('foundLocationContainer').classList.add('hidden');
+            missingModal.style.display = 'flex';
+        };
+
+        window.editMissingPerson = (id) => {
+            const person = missingPersonsData.find(p => p.id === id);
+            if (!person) return;
+            document.getElementById('missingPersonId').value = person.id;
+            document.getElementById('personName').value = person.name;
+            document.getElementById('personAge').value = person.age;
+            document.getElementById('personDescription').value = person.description;
+            document.getElementById('lastSeen').value = person.lastSeen;
+            document.getElementById('personStatus').value = person.status;
+            
+            document.getElementById('personPhotoUrl').value = person.photo && !person.photo.startsWith('data:') ? person.photo : '';
+            document.getElementById('photoPreview').src = person.photo || 'https://placehold.co/100x100/374151/9ca3af?text=No+Image';
+
+            const statusSelect = document.getElementById('personStatus');
+            const foundContainer = document.getElementById('foundLocationContainer');
+            if (person.status === 'Found') {
+                foundContainer.classList.remove('hidden');
+                document.getElementById('foundLocation').value = person.foundLocation || '';
+            } else {
+                foundContainer.classList.add('hidden');
+            }
+
+            document.getElementById('missingModalTitle').innerText = 'Update Person Status';
+            missingModal.style.display = 'flex';
+        }
+
+        missingForm.onsubmit = e => {
+            e.preventDefault();
+            const id = document.getElementById('missingPersonId').value;
+            const photo = document.getElementById('photoPreview').src;
+            const data = {
+                name: document.getElementById('personName').value, age: document.getElementById('personAge').value,
+                photo: photo.includes('placehold.co') ? '' : photo,
+                description: document.getElementById('personDescription').value,
+                lastSeen: document.getElementById('lastSeen').value, status: document.getElementById('personStatus').value,
+                foundLocation: document.getElementById('personStatus').value === 'Found' ? document.getElementById('foundLocation').value : ''
+            };
+            if (id) {
+                missingPersonsData = missingPersonsData.map(p => p.id == id ? {...p, ...data} : p);
+            } else {
+                missingPersonsData.push({ id: Date.now(), ...data });
+            }
+            renderMissingPersons();
+            missingModal.style.display = 'none';
+        };
+        
+        // Photo handlers
+        const photoFile = document.getElementById('photoFile');
+        const photoCamera = document.getElementById('photoCamera');
+        const photoPreview = document.getElementById('photoPreview');
+        const personPhotoUrl = document.getElementById('personPhotoUrl');
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoPreview.src = e.target.result;
+                    personPhotoUrl.value = ''; // Clear URL if a file is uploaded
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        photoFile.addEventListener('change', handlePhotoUpload);
+        photoCamera.addEventListener('change', handlePhotoUpload);
+        personPhotoUrl.addEventListener('input', () => {
+          if(personPhotoUrl.value.trim()) {
+            photoPreview.src = personPhotoUrl.value.trim();
+            photoFile.value = '';
+            photoCamera.value = '';
+          } else {
+            photoPreview.src = 'https://placehold.co/100x100/374151/9ca3af?text=No+Image';
+          }
+        });
+
+        // Show/hide found location input based on status
+        document.getElementById('personStatus').addEventListener('change', (e) => {
+            const foundContainer = document.getElementById('foundLocationContainer');
+            if (e.target.value === 'Found') {
+                foundContainer.classList.remove('hidden');
+            } else {
+                foundContainer.classList.add('hidden');
+            }
+        });
+
+
+        // --- SHELTERS ---
+        const shelterModal = document.getElementById('shelterModal');
+        const shelterForm = document.getElementById('shelterForm');
+        const ALL_SERVICES = ['Medical', 'Food', 'Water', 'Beds', 'Pet-Friendly', 'Showers'];
+        
+        function renderShelters() {
+            const listEl = document.getElementById('sheltersList');
+            listEl.innerHTML = '';
+            sheltersData.forEach(s => {
+                const occupancy = s.capacity > 0 ? Math.round((s.occupancy / s.capacity) * 100) : 0;
+                let progressColor = 'bg-green-500';
+                if (occupancy > 85) progressColor = 'bg-red-500';
+                else if (occupancy > 60) progressColor = 'bg-yellow-500';
+                const servicesHtml = s.services.map(serv => `<span class="text-xs bg-gray-700 py-0.5 px-2 rounded">${serv}</span>`).join(' ');
+
+                listEl.innerHTML += `
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <div class="flex justify-between items-start gap-2 mb-2">
+                             <h4 class="font-bold text-lg">${s.name}</h4>
+                             <button onclick="editShelter(${s.id})" class="text-xs text-blue-400 hover:underline flex-shrink-0">Edit</button>
+                        </div>
+                        <p class="text-sm text-gray-400">${s.location}</p>
+                        <div class="my-2">
+                             <div class="flex justify-between text-sm mb-1"><span>Occupancy</span><span>${s.occupancy}/${s.capacity}</span></div>
+                             <div class="w-full bg-gray-700 rounded-full h-2.5"><div class="${progressColor} h-2.5 rounded-full" style="width: ${occupancy}%"></div></div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-2">${servicesHtml}</div>
+                    </div>
+                `;
+            });
+        }
+        
+        document.getElementById('addShelterBtn').onclick = () => {
+            shelterForm.reset();
+            document.getElementById('shelterId').value = '';
+            document.getElementById('shelterModalTitle').innerText = 'Add Shelter';
+            renderShelterServicesCheckboxes();
+            shelterModal.style.display = 'flex';
+        };
+        
+        window.editShelter = (id) => {
+            const shelter = sheltersData.find(s => s.id === id);
+            if (!shelter) return;
+            document.getElementById('shelterId').value = shelter.id;
+            document.getElementById('shelterName').value = shelter.name;
+            document.getElementById('shelterCapacity').value = shelter.capacity;
+            document.getElementById('shelterOccupancy').value = shelter.occupancy;
+            document.getElementById('shelterLocation').value = shelter.location;
+            renderShelterServicesCheckboxes(shelter.services);
+            document.getElementById('shelterModalTitle').innerText = 'Edit Shelter';
+            shelterModal.style.display = 'flex';
+        }
+
+        shelterForm.onsubmit = e => {
+            e.preventDefault();
+            const id = document.getElementById('shelterId').value;
+            const selectedServices = [];
+            document.querySelectorAll('#shelterServices input[type="checkbox"]:checked').forEach(cb => selectedServices.push(cb.value));
+
+            const data = {
+                name: document.getElementById('shelterName').value,
+                capacity: parseInt(document.getElementById('shelterCapacity').value) || 0,
+                occupancy: parseInt(document.getElementById('shelterOccupancy').value) || 0,
+                location: document.getElementById('shelterLocation').value,
+                services: selectedServices
+            };
+            if (id) {
+                sheltersData = sheltersData.map(s => s.id == id ? {...s, ...data} : s);
+            } else {
+                sheltersData.push({id: Date.now(), ...data});
+            }
+            renderShelters();
+            shelterModal.style.display = 'none';
+        };
+
+        function renderShelterServicesCheckboxes(activeServices = []) {
+            const container = document.getElementById('shelterServices');
+            container.innerHTML = ALL_SERVICES.map(service => `
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" value="${service}" class="rounded bg-gray-600 border-gray-500" ${activeServices.includes(service) ? 'checked' : ''}>
+                    <span>${service}</span>
+                </label>
+            `).join('');
+        }
+        
+        // --- VOLUNTEERS & DONATIONS ---
+        const volunteerModal = document.getElementById('volunteerModal');
+        const volunteerForm = document.getElementById('volunteerForm');
+        const donationModal = document.getElementById('donationModal');
+        const donationForm = document.getElementById('donationForm');
+
+        function renderVolunteersAndDonations() {
+            const vList = document.getElementById('volunteersList');
+            vList.innerHTML = volunteersData.map(v => `
+                <div class="bg-gray-700 p-2 rounded text-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <strong>${v.name}</strong> - <span class="text-gray-300">${v.skill}</span>
+                            <p class="text-xs text-gray-400">${v.contact}</p>
+                        </div>
+                        <div class="flex space-x-2 flex-shrink-0">
+                             <button onclick="editVolunteer(${v.id})" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+                             <button onclick="deleteVolunteer(${v.id})" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                </div>`).join('');
+
+            const dList = document.getElementById('donationsList');
+            dList.innerHTML = donationsData.map(d => {
+                let statusColor = d.status === 'Offered' ? 'text-yellow-400' : (d.status === 'Collected' ? 'text-blue-400' : 'text-green-400');
+                return `
+                <div class="bg-gray-700 p-2 rounded text-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <strong>${d.item}</strong> - <span class="text-gray-300">${d.quantity}</span>
+                            <p class="text-xs font-semibold ${statusColor}">${d.status}</p>
+                        </div>
+                        <div class="flex space-x-2 flex-shrink-0">
+                            <button onclick="editDonation(${d.id})" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteDonation(${d.id})" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                </div>`
+            }).join('');
+            lucide.createIcons();
+        }
+        
+        // Volunteer Actions
+        document.getElementById('addVolunteerBtn').onclick = () => {
+            volunteerForm.reset();
+            document.getElementById('volunteerId').value = '';
+            document.getElementById('volunteerModalTitle').innerText = 'Add Volunteer';
+            volunteerModal.style.display = 'flex';
+        };
+
+        window.editVolunteer = (id) => {
+            const vol = volunteersData.find(v => v.id === id);
+            if (!vol) return;
+            document.getElementById('volunteerId').value = vol.id;
+            document.getElementById('volunteerName').value = vol.name;
+            document.getElementById('volunteerSkill').value = vol.skill;
+            document.getElementById('volunteerContact').value = vol.contact;
+            document.getElementById('volunteerModalTitle').innerText = 'Edit Volunteer';
+            volunteerModal.style.display = 'flex';
+        };
+        
+        window.deleteVolunteer = (id) => {
+            showConfirmation("Delete this volunteer?", () => {
+                volunteersData = volunteersData.filter(v => v.id !== id);
+                renderVolunteersAndDonations();
+            });
+        };
+
+        volunteerForm.onsubmit = e => {
+            e.preventDefault();
+            const id = document.getElementById('volunteerId').value;
+            const data = {
+                name: document.getElementById('volunteerName').value,
+                skill: document.getElementById('volunteerSkill').value,
+                contact: document.getElementById('volunteerContact').value
+            };
+            if (id) {
+                volunteersData = volunteersData.map(v => v.id == id ? {...v, ...data} : v);
+            } else {
+                volunteersData.push({id: Date.now(), ...data});
+            }
+            renderVolunteersAndDonations();
+            volunteerModal.style.display = 'none';
+        };
+        
+        // Donation Actions
+        document.getElementById('addDonationBtn').onclick = () => {
+            donationForm.reset();
+            document.getElementById('donationId').value = '';
+            document.getElementById('donationModalTitle').innerText = 'Add Donation';
+            donationModal.style.display = 'flex';
+        };
+        
+        window.editDonation = (id) => {
+            const don = donationsData.find(d => d.id === id);
+            if (!don) return;
+            document.getElementById('donationId').value = don.id;
+            document.getElementById('donationItem').value = don.item;
+            document.getElementById('donationQuantity').value = don.quantity;
+            document.getElementById('donationStatus').value = don.status;
+            document.getElementById('donationModalTitle').innerText = 'Edit Donation';
+            donationModal.style.display = 'flex';
+        };
+        
+        window.deleteDonation = (id) => {
+             showConfirmation("Delete this donation offer?", () => {
+                donationsData = donationsData.filter(d => d.id !== id);
+                renderVolunteersAndDonations();
+            });
+        };
+        
+        donationForm.onsubmit = e => {
+            e.preventDefault();
+            const id = document.getElementById('donationId').value;
+            const data = {
+                item: document.getElementById('donationItem').value,
+                quantity: document.getElementById('donationQuantity').value,
+                status: document.getElementById('donationStatus').value
+            };
+            if (id) {
+                donationsData = donationsData.map(d => d.id == id ? {...d, ...data} : d);
+            } else {
+                donationsData.push({id: Date.now(), ...data});
+            }
+            renderVolunteersAndDonations();
+            donationModal.style.display = 'none';
+        };
+
+        // --- GENERAL ---
+        document.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.onclick = () => btn.closest('.modal').style.display = 'none';
+        });
+        
+        function showConfirmation(message, onConfirm) {
+            const confirmationModal = document.getElementById('confirmationModal');
+            const confirmMsg = document.getElementById('confirmationMessage');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            confirmMsg.textContent = message;
+            
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.onclick = () => { onConfirm(); confirmationModal.style.display = 'none'; };
+            cancelBtn.onclick = () => { confirmationModal.style.display = 'none'; };
+            confirmationModal.style.display = 'flex';
+        }
+
+        // --- INIT ---
+        renderMissingPersons();
+        renderShelters();
+        renderVolunteersAndDonations();
+        lucide.createIcons();
+
     </script>
 </body>
 </html>
+
