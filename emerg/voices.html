@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Voice Matcher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        .app-card {
+            background-color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        .btn-secondary {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #374151; /* gray-700 */
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db; /* gray-300 */
+        }
+        .btn-danger {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626; /* red-600 */
+        }
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .dot-flashing {
+            position: relative;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #ef4444;
+            color: #ef4444;
+            animation: dotFlashing 1s infinite linear alternate;
+            animation-delay: .5s;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            top: 0;
+        }
+        .dot-flashing::before {
+            left: -15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #ef4444;
+            color: #ef4444;
+            animation: dotFlashing 1s infinite alternate;
+            animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #ef4444;
+            color: #ef4444;
+            animation: dotFlashing 1s infinite alternate;
+            animation-delay: 1s;
+        }
+        @keyframes dotFlashing {
+            0% { background-color: #ef4444; }
+            50%, 100% { background-color: rgba(239, 68, 68, 0.2); }
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div class="min-h-screen container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Offline Voice Matcher</h1>
+            <p class="text-lg text-gray-600 mt-2">Identify voices using client-side "machine learning".</p>
+        </header>
+
+        <div id="loading-indicator" class="text-center p-4">
+            <p id="loading-text" class="text-indigo-600 font-medium">Initializing Application and loading AI models...</p>
+        </div>
+        
+        <main id="app-content" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column -->
+            <div>
+                <!-- Enroll Section -->
+                <div class="app-card">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">1. Enroll a New Subject</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="subject-name" class="block text-sm font-medium text-gray-700">Subject Name</label>
+                            <input type="text" id="subject-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border">
+                        </div>
+                        
+                        <!-- Embedding Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Embedding Models for Enrollment</label>
+                            <div class="mt-2 p-3 border border-gray-200 rounded-lg space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-2">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 border-b border-gray-100 pb-1 mb-2">Original Audio</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center"><input id="emb-v1-raw" type="checkbox" data-embedding="v1_raw" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v1-raw" class="ml-2 block text-sm text-gray-900">V1: Simple</label></div>
+                                            <div class="flex items-center"><input id="emb-v2-raw" type="checkbox" data-embedding="v2_raw" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v2-raw" class="ml-2 block text-sm text-gray-900">V2: MFCC</label></div>
+                                            <div class="flex items-center"><input id="emb-v3-raw" type="checkbox" data-embedding="v3_raw" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v3-raw" class="ml-2 block text-sm text-gray-900">V3: YAMNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v4-raw" type="checkbox" data-embedding="v4_raw" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v4-raw" class="ml-2 block text-sm text-gray-900">V4: MobileNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v5-raw" type="checkbox" data-embedding="v5_raw" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v5-raw" class="ml-2 block text-sm text-gray-900">V5: ResNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v6-raw" type="checkbox" data-embedding="v6_raw" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v6-raw" class="ml-2 block text-sm text-gray-900">V6: LPC Analysis</label></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 border-b border-gray-100 pb-1 mb-2">High-Pass (80Hz+)</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center"><input id="emb-v1-highpass" type="checkbox" data-embedding="v1_highpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v1-highpass" class="ml-2 block text-sm text-gray-900">V1: Simple</label></div>
+                                            <div class="flex items-center"><input id="emb-v2-highpass" type="checkbox" data-embedding="v2_highpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v2-highpass" class="ml-2 block text-sm text-gray-900">V2: MFCC</label></div>
+                                            <div class="flex items-center"><input id="emb-v3-highpass" type="checkbox" data-embedding="v3_highpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v3-highpass" class="ml-2 block text-sm text-gray-900">V3: YAMNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v4-highpass" type="checkbox" data-embedding="v4_highpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v4-highpass" class="ml-2 block text-sm text-gray-900">V4: MobileNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v5-highpass" type="checkbox" data-embedding="v5_highpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v5-highpass" class="ml-2 block text-sm text-gray-900">V5: ResNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v6-highpass" type="checkbox" data-embedding="v6_highpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v6-highpass" class="ml-2 block text-sm text-gray-900">V6: LPC Analysis</label></div>
+                                        </div>
+                                    </div>
+                                     <div>
+                                        <h4 class="font-semibold text-gray-800 border-b border-gray-100 pb-1 mb-2">Low-Pass (10kHz-)</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center"><input id="emb-v1-lowpass" type="checkbox" data-embedding="v1_lowpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v1-lowpass" class="ml-2 block text-sm text-gray-900">V1: Simple</label></div>
+                                            <div class="flex items-center"><input id="emb-v2-lowpass" type="checkbox" data-embedding="v2_lowpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v2-lowpass" class="ml-2 block text-sm text-gray-900">V2: MFCC</label></div>
+                                            <div class="flex items-center"><input id="emb-v3-lowpass" type="checkbox" data-embedding="v3_lowpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v3-lowpass" class="ml-2 block text-sm text-gray-900">V3: YAMNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v4-lowpass" type="checkbox" data-embedding="v4_lowpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v4-lowpass" class="ml-2 block text-sm text-gray-900">V4: MobileNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v5-lowpass" type="checkbox" data-embedding="v5_lowpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v5-lowpass" class="ml-2 block text-sm text-gray-900">V5: ResNet</label></div>
+                                            <div class="flex items-center"><input id="emb-v6-lowpass" type="checkbox" data-embedding="v6_lowpass" class="embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="emb-v6-lowpass" class="ml-2 block text-sm text-gray-900">V6: LPC Analysis</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end space-x-3 pt-2 border-t border-gray-100">
+                                    <button id="select-all-btn" class="text-xs font-medium text-indigo-600 hover:underline">Select All</button>
+                                    <button id="deselect-all-btn" class="text-xs font-medium text-indigo-600 hover:underline">Deselect All</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Provide Audio for Enrollment</label>
+                            
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <button id="enroll-record-btn" class="btn btn-danger">
+                                    <span id="enroll-record-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0a5 5 0 01-5 5V4a1 1 0 112 0v4.522A5.002 5.002 0 017 8a1 1 0 10-2 0a7.001 7.001 0 006 6.93V17H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07z" clip-rule="evenodd"></path></svg>
+                                    </span>
+                                    <span id="enroll-record-text">Record Audio</span>
+                                </button>
+                                <div id="enroll-recording-indicator" class="hidden items-center justify-center mt-2">
+                                   <div class="dot-flashing"></div>
+                                   <span class="text-red-500 font-medium">Recording...</span>
+                               </div>
+                            </div>
+
+                            <div id="enroll-audio-playback" class="hidden mt-4">
+                                <p class="text-sm font-medium text-gray-700">Your Recording:</p>
+                                <audio controls class="w-full mt-1"></audio>
+                            </div>
+                            
+                            <div class="relative flex py-3 items-center">
+                                <div class="flex-grow border-t border-gray-200"></div>
+                                <span class="flex-shrink mx-4 text-gray-400 text-sm">OR</span>
+                                <div class="flex-grow border-t border-gray-200"></div>
+                            </div>
+                            
+                            <div>
+                                <label for="audio-file" class="block text-sm font-medium text-gray-700">Upload an Audio File</label>
+                                <input type="file" id="audio-file" accept="audio/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+                            </div>
+                        </div>
+                        <button id="enroll-btn" class="btn btn-primary w-full">Enroll Subject</button>
+                    </div>
+                </div>
+
+                <!-- Identify Section -->
+                <div class="app-card">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">2. Identify a Voice</h2>
+                    <div class="space-y-4">
+                        <p class="text-sm text-gray-600">Record a few seconds of audio or upload a file to identify a voice from the enrolled subjects list.</p>
+                        
+                        <!-- Identify Embedding Selection -->
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Embedding Models for Identification</label>
+                            <div class="mt-2 p-3 border border-gray-200 rounded-lg space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-2">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 border-b border-gray-100 pb-1 mb-2">Original Audio</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center"><input id="identify-emb-v1-raw" type="checkbox" data-embedding="v1_raw" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v1-raw" class="ml-2 block text-sm text-gray-900">V1: Simple</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v2-raw" type="checkbox" data-embedding="v2_raw" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v2-raw" class="ml-2 block text-sm text-gray-900">V2: MFCC</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v3-raw" type="checkbox" data-embedding="v3_raw" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v3-raw" class="ml-2 block text-sm text-gray-900">V3: YAMNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v4-raw" type="checkbox" data-embedding="v4_raw" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v4-raw" class="ml-2 block text-sm text-gray-900">V4: MobileNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v5-raw" type="checkbox" data-embedding="v5_raw" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v5-raw" class="ml-2 block text-sm text-gray-900">V5: ResNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v6-raw" type="checkbox" data-embedding="v6_raw" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v6-raw" class="ml-2 block text-sm text-gray-900">V6: LPC Analysis</label></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 border-b border-gray-100 pb-1 mb-2">High-Pass (80Hz+)</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center"><input id="identify-emb-v1-highpass" type="checkbox" data-embedding="v1_highpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v1-highpass" class="ml-2 block text-sm text-gray-900">V1: Simple</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v2-highpass" type="checkbox" data-embedding="v2_highpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v2-highpass" class="ml-2 block text-sm text-gray-900">V2: MFCC</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v3-highpass" type="checkbox" data-embedding="v3_highpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v3-highpass" class="ml-2 block text-sm text-gray-900">V3: YAMNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v4-highpass" type="checkbox" data-embedding="v4_highpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v4-highpass" class="ml-2 block text-sm text-gray-900">V4: MobileNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v5-highpass" type="checkbox" data-embedding="v5_highpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v5-highpass" class="ml-2 block text-sm text-gray-900">V5: ResNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v6-highpass" type="checkbox" data-embedding="v6_highpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v6-highpass" class="ml-2 block text-sm text-gray-900">V6: LPC Analysis</label></div>
+                                        </div>
+                                    </div>
+                                     <div>
+                                        <h4 class="font-semibold text-gray-800 border-b border-gray-100 pb-1 mb-2">Low-Pass (10kHz-)</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center"><input id="identify-emb-v1-lowpass" type="checkbox" data-embedding="v1_lowpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v1-lowpass" class="ml-2 block text-sm text-gray-900">V1: Simple</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v2-lowpass" type="checkbox" data-embedding="v2_lowpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v2-lowpass" class="ml-2 block text-sm text-gray-900">V2: MFCC</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v3-lowpass" type="checkbox" data-embedding="v3_lowpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v3-lowpass" class="ml-2 block text-sm text-gray-900">V3: YAMNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v4-lowpass" type="checkbox" data-embedding="v4_lowpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v4-lowpass" class="ml-2 block text-sm text-gray-900">V4: MobileNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v5-lowpass" type="checkbox" data-embedding="v5_lowpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v5-lowpass" class="ml-2 block text-sm text-gray-900">V5: ResNet</label></div>
+                                            <div class="flex items-center"><input id="identify-emb-v6-lowpass" type="checkbox" data-embedding="v6_lowpass" class="identify-embedding-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked><label for="identify-emb-v6-lowpass" class="ml-2 block text-sm text-gray-900">V6: LPC Analysis</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end space-x-3 pt-2 border-t border-gray-100">
+                                    <button id="identify-select-all-btn" class="text-xs font-medium text-indigo-600 hover:underline">Select All</button>
+                                    <button id="identify-deselect-all-btn" class="text-xs font-medium text-indigo-600 hover:underline">Deselect All</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                            <button id="record-btn" class="btn btn-danger">
+                                <span id="record-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0a5 5 0 01-5 5V4a1 1 0 112 0v4.522A5.002 5.002 0 017 8a1 1 0 10-2 0a7.001 7.001 0 006 6.93V17H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07z" clip-rule="evenodd" /></svg>
+                                </span>
+                                <span id="record-text">Start Recording</span>
+                            </button>
+                             <div id="recording-indicator" class="hidden items-center">
+                                <div class="dot-flashing"></div>
+                                <span class="text-red-500 font-medium">Recording...</span>
+                            </div>
+                        </div>
+                         <div>
+                            <label for="identify-file" class="block text-sm font-medium text-gray-700">Or Upload File to Identify</label>
+                            <input type="file" id="identify-file" accept="audio/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+                        </div>
+                        <div id="identify-audio-playback" class="hidden mt-4">
+                            <p class="text-sm font-medium text-gray-700">Audio for Identification:</p>
+                            <audio controls class="w-full mt-1"></audio>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div class="app-card">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">3. Identification Result</h2>
+                    <div id="result-container" class="text-center p-4 bg-gray-50 rounded-lg">
+                        <p class="text-gray-500">Result will be displayed here.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                 <div class="app-card">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                         <h2 class="text-2xl font-semibold">Enrolled Subjects</h2>
+                         <div class="flex space-x-2">
+                            <button id="import-btn-proxy" class="btn btn-secondary btn-sm">Import</button>
+                            <input type="file" id="import-file-input" class="hidden" accept=".json">
+                            <button id="export-btn" class="btn btn-secondary btn-sm">Export All</button>
+                            <button id="clear-db-btn" class="btn btn-danger btn-sm">Clear All</button>
+                        </div>
+                    </div>
+                    <div id="subjects-list" class="space-y-3 max-h-[40rem] overflow-y-auto">
+                        <p class="text-gray-500">No subjects enrolled yet.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Status Modal -->
+        <div id="status-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 shadow-xl text-center">
+                <p id="status-message" class="text-lg font-medium"></p>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirm-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 shadow-xl text-center max-w-sm">
+                <p id="confirm-message" class="text-lg font-medium mb-6">Are you sure?</p>
+                <div class="flex justify-center space-x-4">
+                    <button id="confirm-yes-btn" class="btn btn-danger">Yes, Delete</button>
+                    <button id="confirm-no-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.11.0/dist/tf-backend-webgl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        const DB_NAME = 'VoiceMatcherDB';
+        const DB_VERSION = 10; // Incremented DB version for import/export
+        const STORE_NAME = 'subjects';
+        const SIMILARITY_THRESHOLD = 0.80; // 80% similarity required for a match
+        const EMBEDDING_SIZE = 256; // The size of the voiceprint vector for V1/V2/V6
+        const YAMNET_MODEL_URL = 'https://tfhub.dev/google/tfjs-model/yamnet/tfjs/1';
+        const RESNET_MODEL_URL = 'https://www.kaggle.com/models/google/resnet-v2/TfJs/50-feature-vector/2';
+        const YAMNET_SAMPLE_rate = 16000;
+        const SPECTROGRAM_WIDTH = 224;
+        const SPECTROGRAM_HEIGHT = 224;
+        const HIGHPASS_FREQ = 80; 
+        const LOWPASS_FREQ = 10000;
+
+
+        // --- DOM ELEMENTS ---
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadingText = document.getElementById('loading-text');
+        const appContent = document.getElementById('app-content');
+        const enrollBtn = document.getElementById('enroll-btn');
+        const subjectNameInput = document.getElementById('subject-name');
+        const audioFileInput = document.getElementById('audio-file');
+        const subjectsList = document.getElementById('subjects-list');
+        const recordBtn = document.getElementById('record-btn');
+        const recordText = document.getElementById('record-text');
+        const recordingIndicator = document.getElementById('recording-indicator');
+        const identifyFileInput = document.getElementById('identify-file');
+        const resultContainer = document.getElementById('result-container');
+        const clearDbBtn = document.getElementById('clear-db-btn');
+        const statusModal = document.getElementById('status-modal');
+        const statusMessage = document.getElementById('status-message');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmMessage = document.getElementById('confirm-message');
+        const confirmYesBtn = document.getElementById('confirm-yes-btn');
+        const confirmNoBtn = document.getElementById('confirm-no-btn');
+        const enrollRecordBtn = document.getElementById('enroll-record-btn');
+        const enrollRecordText = document.getElementById('enroll-record-text');
+        const enrollRecordingIndicator = document.getElementById('enroll-recording-indicator');
+        const enrollAudioPlayback = document.getElementById('enroll-audio-playback');
+        const identifyAudioPlayback = document.getElementById('identify-audio-playback');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const deselectAllBtn = document.getElementById('deselect-all-btn');
+        const identifySelectAllBtn = document.getElementById('identify-select-all-btn');
+        const identifyDeselectAllBtn = document.getElementById('identify-deselect-all-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtnProxy = document.getElementById('import-btn-proxy');
+        const importFileInput = document.getElementById('import-file-input');
+
+
+        // --- STATE ---
+        let db;
+        let yamnetModel;
+        let mobilenetModel;
+        let resnetModel;
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let currentRecordingType = null; // 'enroll' or 'identify'
+        let enrollmentAudioBlob = null;
+
+        // --- DATABASE MANAGER ---
+        const DBManager = {
+            init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onerror = event => reject("IndexedDB error: " + event.target.errorCode);
+                    request.onsuccess = event => {
+                        db = event.target.result;
+                        resolve();
+                    };
+                    request.onupgradeneeded = event => {
+                        const db = event.target.result;
+                        if (db.objectStoreNames.contains(STORE_NAME)) {
+                            db.deleteObjectStore(STORE_NAME);
+                        }
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    };
+                });
+            },
+            addSubject(subject) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.add(subject);
+                    request.onsuccess = resolve;
+                    request.onerror = event => reject("Error adding subject: " + event.target.error);
+                });
+            },
+            getSubject(id) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.get(id);
+                    request.onsuccess = event => resolve(event.target.result);
+                    request.onerror = event => reject("Error getting subject: " + event.target.error);
+                });
+            },
+            getAllSubjects() {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.getAll();
+                    request.onsuccess = event => resolve(event.target.result);
+                    request.onerror = event => reject("Error getting subjects: " + event.target.error);
+                });
+            },
+            deleteSubject(id) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.delete(id);
+                    request.onsuccess = resolve;
+                    request.onerror = event => reject("Error deleting subject: " + event.target.error);
+                });
+            },
+            clearAll() {
+                 return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.clear();
+                    request.onsuccess = resolve;
+                    request.onerror = event => reject("Error clearing database: " + event.target.error);
+                });
+            }
+        };
+
+        // --- AUDIO PROCESSOR & "ML" MODEL ---
+        const VoiceProcessor = {
+            audioContext: new (window.AudioContext || window.webkitAudioContext)(),
+
+            async getAudioBuffer(audioSource) {
+                let arrayBuffer;
+                if (audioSource instanceof File || audioSource instanceof Blob) {
+                    arrayBuffer = await audioSource.arrayBuffer();
+                } else if (audioSource instanceof ArrayBuffer) {
+                    arrayBuffer = audioSource;
+                } else {
+                    throw new Error("Invalid audio source type");
+                }
+                return this.audioContext.decodeAudioData(arrayBuffer);
+            },
+            
+            async applyHighPassFilter(audioBuffer) {
+                const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+                const source = offlineContext.createBufferSource();
+                source.buffer = audioBuffer;
+                
+                const filter = offlineContext.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = HIGHPASS_FREQ;
+
+                source.connect(filter);
+                filter.connect(offlineContext.destination);
+                
+                source.start();
+                return await offlineContext.startRendering();
+            },
+
+            async applyLowPassFilter(audioBuffer) {
+                const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+                const source = offlineContext.createBufferSource();
+                source.buffer = audioBuffer;
+                
+                const filter = offlineContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = LOWPASS_FREQ;
+
+                source.connect(filter);
+                filter.connect(offlineContext.destination);
+                
+                source.start();
+                return await offlineContext.startRendering();
+            },
+
+            async createEmbeddingV1(audioBuffer) {
+                const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+                const source = offlineContext.createBufferSource();
+                source.buffer = audioBuffer;
+                const analyser = offlineContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                analyser.connect(offlineContext.destination);
+                source.start();
+                const renderedBuffer = await offlineContext.startRendering();
+                const channelData = renderedBuffer.getChannelData(0);
+                const embedding = new Float32Array(EMBEDDING_SIZE).fill(0);
+                const sliceSize = Math.floor(channelData.length / EMBEDDING_SIZE);
+                for(let i = 0; i < EMBEDDING_SIZE; i++){
+                    let sum = 0;
+                    for (let j = 0; j < sliceSize; j++) {
+                        sum += Math.abs(channelData[i * sliceSize + j]);
+                    }
+                    embedding[i] = sum / sliceSize;
+                }
+                return this.normalizeVector(Array.from(embedding));
+            },
+
+            async createEmbeddingV2(audioBuffer) {
+                const offlineContext = new OfflineAudioContext(1, audioBuffer.length, audioBuffer.sampleRate);
+                const source = offlineContext.createBufferSource();
+                source.buffer = audioBuffer;
+                const analyser = offlineContext.createAnalyser();
+                analyser.fftSize = 512;
+                const frequencyBinCount = analyser.frequencyBinCount;
+                source.connect(analyser);
+                source.connect(offlineContext.destination);
+                source.start(0);
+                await offlineContext.startRendering();
+                const frequencyData = new Float32Array(frequencyBinCount);
+                analyser.getFloatFrequencyData(frequencyData);
+                const embedding = new Float32Array(EMBEDDING_SIZE).fill(0);
+                const melPoints = Math.floor(frequencyBinCount / EMBEDDING_SIZE);
+                for (let i = 0; i < EMBEDDING_SIZE; i++) {
+                    let bandEnergy = 0;
+                    const start = i * melPoints;
+                    const end = start + melPoints;
+                    for (let j = start; j < end; j++) {
+                        bandEnergy += Math.pow(10, frequencyData[j] / 10); 
+                    }
+                    embedding[i] = Math.log(bandEnergy / melPoints + 1e-6);
+                }
+                return this.normalizeVector(Array.from(embedding));
+            },
+            
+            async createEmbeddingV3(audioBuffer) {
+                if (!yamnetModel) throw new Error("YAMNet model not loaded.");
+
+                const offlineContext = new OfflineAudioContext(1, audioBuffer.duration * YAMNET_SAMPLE_rate, YAMNET_SAMPLE_rate);
+                const source = offlineContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(offlineContext.destination);
+                source.start();
+                const resampled = await offlineContext.startRendering();
+                const audioData = resampled.getChannelData(0);
+
+                return tf.tidy(() => {
+                    const tensor = tf.tensor(audioData);
+                    const [, embeddings] = yamnetModel.predict(tensor);
+                    const voiceprint = embeddings.mean(0);
+                    return this.normalizeVector(voiceprint.dataSync());
+                });
+            },
+
+            async createSpectrogram(audioBuffer) {
+                const canvas = document.createElement('canvas');
+                canvas.width = SPECTROGRAM_WIDTH;
+                canvas.height = SPECTROGRAM_HEIGHT;
+                const canvasCtx = canvas.getContext('2d');
+                
+                const channelData = audioBuffer.getChannelData(0);
+                const sampleRate = audioBuffer.sampleRate;
+                const fftSize = 1024;
+                const hopLength = Math.floor((channelData.length - fftSize) / (SPECTROGRAM_WIDTH - 1));
+                const frequencyBinCount = fftSize / 2;
+                const dataArray = new Uint8Array(frequencyBinCount);
+                
+                for (let i = 0; i < SPECTROGRAM_WIDTH; i++) {
+                    const start = i * hopLength;
+                    const end = start + fftSize;
+                    if (end > channelData.length) break;
+
+                    const frame = channelData.slice(start, end);
+                    
+                    const offlineCtx = new OfflineAudioContext(1, fftSize, sampleRate);
+                    const source = offlineCtx.createBufferSource();
+                    const frameBuffer = offlineCtx.createBuffer(1, fftSize, sampleRate);
+                    frameBuffer.copyToChannel(frame, 0);
+                    source.buffer = frameBuffer;
+
+                    const analyser = offlineCtx.createAnalyser();
+                    analyser.fftSize = fftSize;
+
+                    source.connect(analyser);
+                    source.start();
+
+                    await offlineCtx.startRendering();
+                    analyser.getByteFrequencyData(dataArray);
+
+                    for (let j = 0; j < SPECTROGRAM_HEIGHT; j++) {
+                        const freqIndex = Math.floor((j / SPECTROGRAM_HEIGHT) * (frequencyBinCount * 0.75));
+                        const value = dataArray[freqIndex];
+                        const hue = 240 - (value / 255) * 240;
+                        canvasCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                        canvasCtx.fillRect(i, SPECTROGRAM_HEIGHT - j, 1, 1);
+                    }
+                }
+                return canvas;
+            },
+
+            async createEmbeddingV4(audioBuffer) {
+                if (!mobilenetModel) throw new Error("MobileNet model not loaded.");
+                
+                const spectrogramCanvas = await this.createSpectrogram(audioBuffer);
+
+                return tf.tidy(() => {
+                    const tensor = tf.browser.fromPixels(spectrogramCanvas)
+                        .resizeNearestNeighbor([224, 224])
+                        .toFloat()
+                        .div(tf.scalar(127.5))
+                        .sub(tf.scalar(1.0))
+                        .expandDims();
+                    
+                    const embedding = mobilenetModel.infer(tensor, true);
+                    return this.normalizeVector(embedding.dataSync());
+                });
+            },
+
+            async createEmbeddingV5(audioBuffer) {
+                if (!resnetModel) throw new Error("ResNet model not loaded.");
+                
+                const spectrogramCanvas = await this.createSpectrogram(audioBuffer);
+
+                return tf.tidy(() => {
+                    const tensor = tf.browser.fromPixels(spectrogramCanvas)
+                        .resizeNearestNeighbor([224, 224])
+                        .toFloat()
+                        .div(tf.scalar(255.0))
+                        .expandDims();
+                    
+                    const embedding = resnetModel.predict(tensor);
+                    return this.normalizeVector(embedding.squeeze().dataSync());
+                });
+            },
+            
+            async createEmbeddingV6(audioBuffer) {
+                const LPC_ORDER = 16;
+                const channelData = audioBuffer.getChannelData(0);
+                const sampleRate = audioBuffer.sampleRate;
+                
+                const frameSize = Math.floor(0.025 * sampleRate);
+                const frameStep = Math.floor(0.010 * sampleRate);
+
+                const windowFunc = new Float32Array(frameSize);
+                for (let i = 0; i < frameSize; i++) {
+                    windowFunc[i] = 0.54 - 0.46 * Math.cos((2 * Math.PI * i) / (frameSize - 1));
+                }
+
+                const lpcCoeffsList = [];
+
+                for (let i = 0; i + frameSize <= channelData.length; i += frameStep) {
+                    const frame = new Float32Array(frameSize);
+                    for (let j = 0; j < frameSize; j++) {
+                        frame[j] = channelData[i + j] * windowFunc[j];
+                    }
+
+                    const R = new Float32Array(LPC_ORDER + 1);
+                    for (let k = 0; k <= LPC_ORDER; k++) {
+                        let sum = 0;
+                        for (let n = 0; n < frameSize - k; n++) {
+                            sum += frame[n] * frame[n + k];
+                        }
+                        R[k] = sum;
+                    }
+
+                    if (R[0] === 0) continue;
+
+                    let a = new Array(LPC_ORDER + 1).fill(0);
+                    let E = R[0];
+                    a[0] = 1;
+                    for (let j = 1; j <= LPC_ORDER; j++) {
+                        let k_lpc = R[j];
+                        for (let l = 1; l < j; l++) {
+                            k_lpc -= a[l] * R[j - l];
+                        }
+                        k_lpc /= E;
+                        a[j] = k_lpc;
+                        const temp_a = [...a];
+                        for (let l = 1; l <= j; l++) {
+                            a[l] = temp_a[l] - k_lpc * temp_a[j - l];
+                        }
+                        E *= (1 - k_lpc * k_lpc);
+                    }
+                    
+                    lpcCoeffsList.push(a.slice(1));
+                }
+
+                if (lpcCoeffsList.length === 0) {
+                    return this.normalizeVector(new Array(EMBEDDING_SIZE).fill(0));
+                }
+
+                const avgCoeffs = new Float32Array(LPC_ORDER).fill(0);
+                for (const coeffs of lpcCoeffsList) {
+                    for (let i = 0; i < LPC_ORDER; i++) {
+                        avgCoeffs[i] += coeffs[i] || 0;
+                    }
+                }
+                for (let i = 0; i < LPC_ORDER; i++) {
+                    avgCoeffs[i] /= lpcCoeffsList.length;
+                }
+
+                const finalEmbedding = new Float32Array(EMBEDDING_SIZE).fill(0);
+                finalEmbedding.set(avgCoeffs, 0);
+
+                return this.normalizeVector(Array.from(finalEmbedding));
+            },
+
+
+            async generateEmbeddings(audioBuffer, selection) {
+                 const highpassAudioBuffer = await this.applyHighPassFilter(audioBuffer);
+                 const lowpassAudioBuffer = await this.applyLowPassFilter(audioBuffer);
+                 
+                 const embeddingTasks = {
+                    v1_raw: () => this.createEmbeddingV1(audioBuffer),
+                    v2_raw: () => this.createEmbeddingV2(audioBuffer),
+                    v3_raw: () => this.createEmbeddingV3(audioBuffer),
+                    v4_raw: () => this.createEmbeddingV4(audioBuffer),
+                    v5_raw: () => this.createEmbeddingV5(audioBuffer),
+                    v6_raw: () => this.createEmbeddingV6(audioBuffer),
+                    v1_highpass: () => this.createEmbeddingV1(highpassAudioBuffer),
+                    v2_highpass: () => this.createEmbeddingV2(highpassAudioBuffer),
+                    v3_highpass: () => this.createEmbeddingV3(highpassAudioBuffer),
+                    v4_highpass: () => this.createEmbeddingV4(highpassAudioBuffer),
+                    v5_highpass: () => this.createEmbeddingV5(highpassAudioBuffer),
+                    v6_highpass: () => this.createEmbeddingV6(highpassAudioBuffer),
+                    v1_lowpass: () => this.createEmbeddingV1(lowpassAudioBuffer),
+                    v2_lowpass: () => this.createEmbeddingV2(lowpassAudioBuffer),
+                    v3_lowpass: () => this.createEmbeddingV3(lowpassAudioBuffer),
+                    v4_lowpass: () => this.createEmbeddingV4(lowpassAudioBuffer),
+                    v5_lowpass: () => this.createEmbeddingV5(lowpassAudioBuffer),
+                    v6_lowpass: () => this.createEmbeddingV6(lowpassAudioBuffer),
+                };
+
+                const promises = [];
+                const keys = [];
+                for (const key in selection) {
+                    if (selection[key]) {
+                        promises.push(embeddingTasks[key]());
+                        keys.push(key);
+                    }
+                }
+
+                if (promises.length === 0) {
+                    return {};
+                }
+
+                const results = await Promise.all(promises);
+                
+                const embeddings = {};
+                keys.forEach((key, index) => {
+                    embeddings[key] = results[index];
+                });
+
+                return embeddings;
+            },
+
+            normalizeVector(vec) {
+                const magnitude = Math.sqrt(vec.reduce((sum, val) => sum + val * val, 0));
+                if (magnitude === 0) return Array.from(vec);
+                return Array.from(vec).map(v => v / magnitude);
+            }
+        };
+
+        // --- CORE LOGIC ---
+        const App = {
+            async init() {
+                try {
+                    loadingText.textContent = "Setting up ML Backend...";
+                    await tf.setBackend('webgl');
+                    loadingText.textContent = "Initializing Database...";
+                    await DBManager.init();
+                    
+                    loadingText.textContent = "Loading Voice AI Model (YAMNet)...";
+                    yamnetModel = await tf.loadGraphModel(YAMNET_MODEL_URL, { fromTFHub: true });
+                    
+                    loadingText.textContent = "Loading Image AI Model (MobileNet)...";
+                    mobilenetModel = await window.mobilenet.load({version: 2, alpha: 1.0});
+
+                    loadingText.textContent = "Loading Image AI Model (ResNet)...";
+                    resnetModel = await tf.loadGraphModel(RESNET_MODEL_URL, { fromTFHub: true });
+
+                    loadingText.textContent = "Warming up AI models...";
+                    // Warm up models
+                    tf.tidy(() => {
+                        yamnetModel.predict(tf.zeros([16000]));
+                        mobilenetModel.infer(tf.zeros([1, 224, 224, 3]));
+                        resnetModel.predict(tf.zeros([1, 224, 224, 3]));
+                    });
+
+                    await this.updateSubjectsList();
+                    appContent.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Initialization failed:", error);
+                    showStatus(`Initialization failed: ${error.message}`, true);
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            },
+
+            async enrollSubject() {
+                const name = subjectNameInput.value.trim();
+                const file = audioFileInput.files[0];
+
+                if (!name || (!file && !enrollmentAudioBlob)) {
+                    showStatus("Please provide a name and an audio source.", true);
+                    return;
+                }
+                
+                const selection = getEnrollmentEmbeddingSelection();
+                const selectedKeys = Object.keys(selection).filter(key => selection[key]);
+
+                if (selectedKeys.length === 0) {
+                    showStatus("Please select at least one embedding model to use.", true);
+                    return;
+                }
+
+                const audioSource = enrollmentAudioBlob || file;
+
+                enrollBtn.classList.add('btn-disabled');
+                enrollBtn.textContent = 'Processing...';
+
+                try {
+                    showStatus(`Creating ${selectedKeys.length} voiceprints (this may take a moment)...`);
+                    
+                    const rawAudioArrayBuffer = await audioSource.arrayBuffer();
+                    const audioBuffer = await VoiceProcessor.getAudioBuffer(rawAudioArrayBuffer.slice(0));
+                    
+                    const embeddings = await VoiceProcessor.generateEmbeddings(audioBuffer, selection);
+                    
+                    const subjectData = { name, rawAudioArrayBuffer, ...embeddings };
+
+                    await DBManager.addSubject(subjectData);
+                    
+                    subjectNameInput.value = '';
+                    audioFileInput.value = '';
+                    enrollmentAudioBlob = null;
+                    enrollAudioPlayback.classList.add('hidden');
+                    enrollAudioPlayback.querySelector('audio').src = '';
+                    await this.updateSubjectsList();
+                    showStatus(`Successfully enrolled ${name}.`);
+
+                } catch (error) {
+                    console.error("Enrollment failed:", error);
+                    showStatus(`Enrollment failed: ${error.message}`, true);
+                } finally {
+                    enrollBtn.classList.remove('btn-disabled');
+                    enrollBtn.textContent = 'Enroll Subject';
+                }
+            },
+            
+            async identifyVoice(audioSource) {
+                const selection = getIdentificationEmbeddingSelection();
+                const selectedKeys = Object.keys(selection).filter(key => selection[key]);
+
+                if (selectedKeys.length === 0) {
+                    resultContainer.innerHTML = '<p class="text-red-500">Please select at least one embedding model to use for identification.</p>';
+                    return;
+                }
+                
+                resultContainer.innerHTML = `<p class="text-indigo-600">Identifying voice with ${selectedKeys.length} embedding model(s)...</p>`;
+
+                try {
+                    const subjects = await DBManager.getAllSubjects();
+                    if (subjects.length === 0) {
+                        resultContainer.innerHTML = '<p class="text-gray-500">No subjects enrolled. Please enroll a subject first.</p>';
+                        return;
+                    }
+
+                    const audioBuffer = await VoiceProcessor.getAudioBuffer(audioSource);
+                    const newEmbeddings = await VoiceProcessor.generateEmbeddings(audioBuffer, selection);
+
+                    let bestMatch = { subject: null, similarity: -1, modelCount: 0 };
+
+                    for (const subject of subjects) {
+                        let totalSimilarity = 0;
+                        let commonModelCount = 0;
+
+                        for (const key of selectedKeys) {
+                            if (subject[key] && newEmbeddings[key]) {
+                                const similarity = this.cosineSimilarity(newEmbeddings[key], subject[key]);
+                                if (!isNaN(similarity)) {
+                                    totalSimilarity += similarity;
+                                    commonModelCount++;
+                                }
+                            }
+                        }
+                        
+                        if (commonModelCount > 0) {
+                            const averageSimilarity = totalSimilarity / commonModelCount;
+                            if (averageSimilarity > bestMatch.similarity) {
+                                bestMatch = { subject, similarity: averageSimilarity, modelCount: commonModelCount };
+                            }
+                        }
+                    }
+
+                    this.displayResult(bestMatch);
+
+                } catch (error) {
+                     console.error("Identification failed:", error);
+                     resultContainer.innerHTML = `<p class="text-red-500">Identification failed: ${error.message}</p>`;
+                }
+            },
+
+            cosineSimilarity(vecA, vecB) {
+                if (!vecA || !vecB || vecA.length !== vecB.length) return NaN;
+                let dotProduct = 0.0;
+                let normA = 0.0;
+                let normB = 0.0;
+                for (let i = 0; i < vecA.length; i++) {
+                    dotProduct += vecA[i] * vecB[i];
+                    normA += vecA[i] * vecA[i];
+                    normB += vecB[i] * vecB[i];
+                }
+                if (normA === 0 || normB === 0) return 0;
+                return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+            },
+
+            displayResult(match) {
+                if (match.subject && match.similarity > SIMILARITY_THRESHOLD) {
+                    const percentage = (match.similarity * 100).toFixed(1);
+                    resultContainer.innerHTML = `
+                        <p class="text-lg font-medium text-green-700">Match Found!</p>
+                        <p class="text-2xl font-bold text-indigo-600 mt-2">${match.subject.name}</p>
+                        <p class="text-md text-gray-600 mt-1">${match.modelCount}-Model Combined Similarity: ${percentage}%</p>
+                    `;
+                } else {
+                     const percentage = (match.similarity > 0 ? match.similarity * 100 : 0).toFixed(1);
+                     resultContainer.innerHTML = `
+                        <p class="text-lg font-medium text-red-700">No Confident Match Found.</p>
+                        <p class="text-md text-gray-600 mt-1">Closest match was ${match.subject?.name || 'N/A'} with a ${match.modelCount}-model combined similarity of ${percentage}%, which is below the ${SIMILARITY_THRESHOLD*100}% threshold.</p>
+                    `;
+                }
+            },
+
+            async updateSubjectsList() {
+                const subjects = await DBManager.getAllSubjects();
+                if (subjects.length > 0) {
+                    subjectsList.innerHTML = subjects.map(s => {
+                        const embeddingKeys = Object.keys(s).filter(k => k.startsWith('v'));
+                        return `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <span class="font-medium text-gray-700">${s.name}</span>
+                                <span class="block text-xs text-gray-500">${embeddingKeys.length} models enrolled</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button data-id="${s.id}" class="export-subject-btn btn btn-secondary btn-sm !py-1 !px-2 text-xs">Export</button>
+                                <button data-id="${s.id}" class="delete-subject-btn btn btn-danger btn-sm !py-1 !px-2 text-xs">Delete</button>
+                            </div>
+                        </div>
+                    `}).join('');
+                } else {
+                    subjectsList.innerHTML = '<p class="text-gray-500 p-3">No subjects enrolled yet.</p>';
+                }
+            },
+            
+            async toggleRecording(type) {
+                if (isRecording) {
+                    if (currentRecordingType === type) {
+                        mediaRecorder.stop();
+                    } else {
+                        showStatus(`Already recording for ${currentRecordingType === 'enroll' ? 'enrollment' : 'identification'}. Please stop that first.`, true);
+                    }
+                    return;
+                }
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                    
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioChunks = [];
+                        stream.getTracks().forEach(track => track.stop());
+
+                        if (currentRecordingType === 'identify') {
+                            const audioUrl = URL.createObjectURL(audioBlob);
+                            const audioPlayer = identifyAudioPlayback.querySelector('audio');
+                            audioPlayer.src = audioUrl;
+                            identifyAudioPlayback.classList.remove('hidden');
+                            this.identifyVoice(audioBlob);
+                        } else if (currentRecordingType === 'enroll') {
+                            enrollmentAudioBlob = audioBlob;
+                            const audioUrl = URL.createObjectURL(audioBlob);
+                            const audioPlayer = enrollAudioPlayback.querySelector('audio');
+                            audioPlayer.src = audioUrl;
+                            enrollAudioPlayback.classList.remove('hidden');
+                            audioFileInput.value = '';
+                        }
+
+                        isRecording = false;
+                        currentRecordingType = null;
+                        this.updateRecordingUI();
+                    };
+
+                    audioChunks = [];
+                    mediaRecorder.start();
+                    isRecording = true;
+                    currentRecordingType = type;
+                    this.updateRecordingUI();
+
+                } catch (err) {
+                    showStatus("Microphone access denied or not available.", true);
+                    console.error("Error accessing microphone:", err);
+                }
+            },
+
+            updateRecordingUI() {
+                // Identification Button UI
+                if (isRecording && currentRecordingType === 'identify') {
+                    recordText.textContent = 'Stop Recording';
+                    recordBtn.classList.remove('btn-danger');
+                    recordBtn.classList.add('btn-secondary');
+                    recordingIndicator.classList.remove('hidden');
+                    recordingIndicator.classList.add('flex');
+                } else {
+                    recordText.textContent = 'Start Recording';
+                    recordBtn.classList.add('btn-danger');
+                    recordBtn.classList.remove('btn-secondary');
+                    recordingIndicator.classList.add('hidden');
+                    recordingIndicator.classList.remove('flex');
+                    recordBtn.classList.toggle('btn-disabled', isRecording && currentRecordingType !== 'identify');
+                }
+                
+                // Enrollment Button UI
+                if (isRecording && currentRecordingType === 'enroll') {
+                    enrollRecordText.textContent = 'Stop Recording';
+                    enrollRecordBtn.classList.remove('btn-danger');
+                    enrollRecordBtn.classList.add('btn-secondary');
+                    enrollRecordingIndicator.classList.remove('hidden');
+                    enrollRecordingIndicator.classList.add('flex');
+                } else {
+                    enrollRecordText.textContent = 'Record Audio';
+                    enrollRecordBtn.classList.add('btn-danger');
+                    enrollRecordBtn.classList.remove('btn-secondary');
+                    enrollRecordingIndicator.classList.add('hidden');
+                    enrollRecordingIndicator.classList.remove('flex');
+                    enrollRecordBtn.classList.toggle('btn-disabled', isRecording && currentRecordingType !== 'enroll');
+                }
+            },
+
+            async _generateExportData(subjects) {
+                 const exportableSubjects = [];
+
+                for (const subject of subjects) {
+                    const rawAudioBuffer = await VoiceProcessor.getAudioBuffer(subject.rawAudioArrayBuffer.slice(0));
+                    const highPassAudioBuffer = await VoiceProcessor.applyHighPassFilter(rawAudioBuffer);
+                    const lowPassAudioBuffer = await VoiceProcessor.applyLowPassFilter(rawAudioBuffer);
+
+                    const rawWavBlob = pcmToWav(rawAudioBuffer);
+                    const highPassWavBlob = pcmToWav(highPassAudioBuffer);
+                    const lowPassWavBlob = pcmToWav(lowPassAudioBuffer);
+
+                    const [rawBase64, highPassBase64, lowPassBase64] = await Promise.all([
+                        blobToBase64(rawWavBlob),
+                        blobToBase64(highPassWavBlob),
+                        blobToBase64(lowPassWavBlob)
+                    ]);
+
+                    const embeddings = {};
+                    Object.keys(subject).forEach(key => {
+                        if (key.startsWith('v')) {
+                            embeddings[key] = Array.from(subject[key]);
+                        }
+                    });
+
+                    exportableSubjects.push({
+                        name: subject.name,
+                        embeddings: embeddings,
+                        audio: {
+                            raw: rawBase64,
+                            highpass: highPassBase64,
+                            lowpass: lowPassBase64,
+                        },
+                    });
+                }
+                return exportableSubjects;
+            },
+
+            async exportData() {
+                showStatus('Exporting all data...');
+                try {
+                    const subjects = await DBManager.getAllSubjects();
+                    if (subjects.length === 0) {
+                        showStatus('No subjects to export.', true);
+                        return;
+                    }
+
+                    const exportableSubjects = await this._generateExportData(subjects);
+
+                    const jsonString = JSON.stringify(exportableSubjects, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `voice-matcher-export-all-${new Date().toISOString().slice(0,10)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showStatus('Export complete.');
+                } catch (error) {
+                    console.error('Export failed:', error);
+                    showStatus(`Export failed: ${error.message}`, true);
+                }
+            },
+            
+            async exportSingleSubject(id) {
+                 showStatus('Exporting subject...');
+                 try {
+                    const subject = await DBManager.getSubject(id);
+                    if (!subject) {
+                        showStatus('Subject not found.', true);
+                        return;
+                    }
+
+                    const exportableSubjects = await this._generateExportData([subject]);
+
+                    const jsonString = JSON.stringify(exportableSubjects, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `voice-matcher-export-${subject.name.replace(/\s+/g, '_')}-${new Date().toISOString().slice(0,10)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(a.href);
+                    showStatus(`Export of ${subject.name} complete.`);
+
+                 } catch(error) {
+                    console.error('Single export failed:', error);
+                    showStatus(`Export failed: ${error.message}`, true);
+                 }
+            },
+
+            async importData(file) {
+                if (!file) return;
+                showStatus('Importing data...');
+                try {
+                    const content = await file.text();
+                    const subjectsToImport = JSON.parse(content);
+
+                    if (!Array.isArray(subjectsToImport)) {
+                        throw new Error('Invalid file format.');
+                    }
+                    
+                    let importedCount = 0;
+                    for (const subject of subjectsToImport) {
+                        if (subject.name && subject.embeddings && subject.audio && subject.audio.raw) {
+                            const response = await fetch(subject.audio.raw);
+                            const rawAudioArrayBuffer = await response.arrayBuffer();
+
+                            const subjectData = {
+                                name: subject.name,
+                                rawAudioArrayBuffer,
+                                ...subject.embeddings
+                            };
+                            await DBManager.addSubject(subjectData);
+                            importedCount++;
+                        }
+                    }
+                    
+                    await this.updateSubjectsList();
+                    showStatus(`Successfully imported ${importedCount} subjects.`);
+
+                } catch (error) {
+                    console.error('Import failed:', error);
+                    showStatus(`Import failed: ${error.message}`, true);
+                } finally {
+                    importFileInput.value = ''; // Reset file input
+                }
+            }
+        };
+
+        // --- UTILITY FUNCTIONS ---
+        function getEnrollmentEmbeddingSelection() {
+            const selection = {};
+            document.querySelectorAll('.embedding-checkbox').forEach(cb => {
+                selection[cb.dataset.embedding] = cb.checked;
+            });
+            return selection;
+        }
+
+        function getIdentificationEmbeddingSelection() {
+            const selection = {};
+            document.querySelectorAll('.identify-embedding-checkbox').forEach(cb => {
+                selection[cb.dataset.embedding] = cb.checked;
+            });
+            return selection;
+        }
+
+        function showStatus(message, isError = false, duration = 3000) {
+            statusMessage.textContent = message;
+            statusMessage.className = isError ? 'text-lg font-medium text-red-600' : 'text-lg font-medium text-green-600';
+            statusModal.classList.remove('hidden');
+            setTimeout(() => {
+                statusModal.classList.add('hidden');
+            }, duration);
+        }
+
+        let confirmResolve = null;
+        function showConfirm(message = "Are you sure?") {
+            return new Promise(resolve => {
+                confirmResolve = resolve;
+                confirmMessage.textContent = message;
+                confirmModal.classList.remove('hidden');
+            });
+        }
+        
+        function pcmToWav(audioBuffer) {
+            const numOfChan = audioBuffer.numberOfChannels;
+            let pcmData = [];
+            for(let i=0; i<numOfChan; i++){
+                pcmData.push(audioBuffer.getChannelData(i));
+            }
+
+            const format = 1; // PCM
+            const bitDepth = 16;
+            const sampleRate = audioBuffer.sampleRate;
+            
+            let interleaved = new Int16Array(pcmData[0].length * numOfChan);
+            for (let i = 0; i < pcmData[0].length; i++) {
+                for (let channel = 0; channel < numOfChan; channel++) {
+                    let sample = pcmData[channel][i];
+                    sample = Math.max(-1, Math.min(1, sample));
+                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    interleaved[i * numOfChan + channel] = sample;
+                }
+            }
+
+            const dataLength = interleaved.length * (bitDepth / 8);
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+            
+            let offset = 0;
+            writeString(view, offset, 'RIFF'); offset += 4;
+            view.setUint32(offset, 36 + dataLength, true); offset += 4;
+            writeString(view, offset, 'WAVE'); offset += 4;
+            writeString(view, offset, 'fmt '); offset += 4;
+            view.setUint32(offset, 16, true); offset += 4;
+            view.setUint16(offset, format, true); offset += 2;
+            view.setUint16(offset, numOfChan, true); offset += 2;
+            view.setUint32(offset, sampleRate, true); offset += 4;
+            view.setUint32(offset, sampleRate * numOfChan * (bitDepth / 8), true); offset += 4;
+            view.setUint16(offset, numOfChan * (bitDepth / 8), true); offset += 2;
+            view.setUint16(offset, bitDepth, true); offset += 2;
+            writeString(view, offset, 'data'); offset += 4;
+            view.setUint32(offset, dataLength, true); offset += 4;
+
+            for (let i = 0; i < interleaved.length; i++, offset += 2) {
+                view.setInt16(offset, interleaved[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        confirmYesBtn.addEventListener('click', () => {
+            if (confirmResolve) confirmResolve(true);
+            confirmModal.classList.add('hidden');
+        });
+        
+        confirmNoBtn.addEventListener('click', () => {
+            if (confirmResolve) confirmResolve(false);
+            confirmModal.classList.add('hidden');
+        });
+
+        // --- INITIALIZER ---
+        function startAppWhenReady(timeout = 15000) {
+            const startTime = Date.now();
+            function check() {
+                if (window.tf && window.mobilenet) {
+                    App.init();
+                } else if (Date.now() - startTime > timeout) {
+                    const missing = [];
+                    if (!window.tf) missing.push('TensorFlow.js');
+                    if (!window.mobilenet) missing.push('MobileNet');
+                    const errorMsg = `Initialization failed: Timed out waiting for AI libraries to load (${missing.join(', ')}). Please check your internet connection and refresh.`;
+                    console.error(errorMsg);
+                    loadingText.textContent = errorMsg;
+                    loadingText.classList.remove('text-indigo-600');
+                    loadingText.classList.add('text-red-600');
+                } else {
+                    setTimeout(check, 100);
+                }
+            }
+            check();
+        }
+
+        window.addEventListener('load', () => {
+            startAppWhenReady();
+        });
+
+
+        // --- EVENT LISTENERS ---
+        enrollBtn.addEventListener('click', () => App.enrollSubject());
+        
+        enrollRecordBtn.addEventListener('click', () => App.toggleRecording('enroll'));
+
+        recordBtn.addEventListener('click', () => App.toggleRecording('identify'));
+
+        audioFileInput.addEventListener('change', () => {
+            if (audioFileInput.files.length > 0) {
+                enrollmentAudioBlob = null;
+                enrollAudioPlayback.classList.add('hidden');
+                enrollAudioPlayback.querySelector('audio').src = '';
+            }
+        });
+
+        identifyFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const audioUrl = URL.createObjectURL(file);
+                const audioPlayer = identifyAudioPlayback.querySelector('audio');
+                audioPlayer.src = audioUrl;
+                identifyAudioPlayback.classList.remove('hidden');
+                App.identifyVoice(file);
+            }
+        });
+
+        clearDbBtn.addEventListener('click', async () => {
+            const confirmed = await showConfirm('Are you sure you want to delete all enrolled subjects? This action cannot be undone.');
+            if (confirmed) {
+                await DBManager.clearAll();
+                await App.updateSubjectsList();
+                showStatus('All subjects have been cleared.');
+            }
+        });
+
+        selectAllBtn.addEventListener('click', () => {
+            document.querySelectorAll('.embedding-checkbox').forEach(cb => cb.checked = true);
+        });
+
+        deselectAllBtn.addEventListener('click', () => {
+            document.querySelectorAll('.embedding-checkbox').forEach(cb => cb.checked = false);
+        });
+
+        identifySelectAllBtn.addEventListener('click', () => {
+            document.querySelectorAll('.identify-embedding-checkbox').forEach(cb => cb.checked = true);
+        });
+
+        identifyDeselectAllBtn.addEventListener('click', () => {
+            document.querySelectorAll('.identify-embedding-checkbox').forEach(cb => cb.checked = false);
+        });
+
+        exportBtn.addEventListener('click', () => App.exportData());
+        importBtnProxy.addEventListener('click', () => importFileInput.click());
+        importFileInput.addEventListener('change', (event) => App.importData(event.target.files[0]));
+
+        subjectsList.addEventListener('click', async (event) => {
+            const deleteBtn = event.target.closest('.delete-subject-btn');
+            const exportBtn = event.target.closest('.export-subject-btn');
+
+            if (deleteBtn) {
+                const subjectId = parseInt(deleteBtn.dataset.id, 10);
+                const confirmed = await showConfirm('Are you sure you want to delete this subject?');
+                if (confirmed) {
+                    await DBManager.deleteSubject(subjectId);
+                    await App.updateSubjectsList();
+                    showStatus('Subject deleted.');
+                }
+            }
+
+            if (exportBtn) {
+                const subjectId = parseInt(exportBtn.dataset.id, 10);
+                App.exportSingleSubject(subjectId);
+            }
+        });
+
+    </script>
+</body>
+</html>
+
