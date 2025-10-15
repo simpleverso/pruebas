@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Embedding Security Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .mode-button.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        .preview-container {
+            position: relative;
+            min-height: 150px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-container img {
+            display: block;
+        }
+        .preview-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        /* Custom file input */
+        input[type="file"]::file-selector-button {
+            @apply mr-4 py-2 px-4 rounded-full border-0 text-sm font-semibold bg-gray-600 text-white hover:bg-gray-700 cursor-pointer transition-colors;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
+        <div class="loader"></div>
+        <p id="loadingStatus" class="mt-4 text-lg">Loading AI Models...</p>
+    </div>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-700">
+            <video id="videoFeed" width="640" height="480" autoplay class="rounded-md"></video>
+            <div class="flex justify-center mt-4 space-x-4">
+                <button id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Capture Photo</button>
+                <button id="cancelCameraBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Face Embedding Security Tool</h1>
+            <p class="text-gray-400">Create encrypted face embedding files for enrollment and search.</p>
+        </header>
+
+        <!-- Mode Selector -->
+        <div class="flex justify-center mb-8">
+            <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
+                <button id="modeEnrollBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Enroll Person</button>
+                <button id="modeSearchBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Search Person</button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="max-w-4xl mx-auto">
+            <!-- Enroll View -->
+            <div id="enrollView" class="hidden">
+                <section class="glass-card p-6 rounded-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Enroll New Person</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="personName" class="block text-sm font-medium text-gray-300">Full Name</label>
+                            <input type="text" id="personName" placeholder="e.g., Jane Doe" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="personComments" class="block text-sm font-medium text-gray-300">Comments (Optional)</label>
+                            <textarea id="personComments" placeholder="e.g., Department, ID Number" rows="2" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                        <div>
+                             <label for="enrollUpload" class="block text-sm font-medium text-gray-300">Photo Source</label>
+                             <div class="flex items-center space-x-2 mt-1">
+                                <input type="file" id="enrollUpload" accept="image/*" class="flex-grow w-full text-sm text-gray-400">
+                                <button id="useCameraEnrollBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="preview-container mt-4">
+                            <img id="enrollPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Enrollment preview"/>
+                            <canvas id="enrollPreviewCanvas" class="preview-canvas"></canvas>
+                             <p id="enrollPlaceholder" class="text-gray-500">Image preview will appear here</p>
+                        </div>
+                        <button id="generateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Generate & Download .emb File</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Search View -->
+            <div id="searchView" class="hidden">
+                 <section class="glass-card p-6 rounded-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Search for Person</h2>
+                    <div class="space-y-6">
+                        <!-- Step 1 -->
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Step 1: Provide Photo to Search</h3>
+                            <div class="flex items-center space-x-2">
+                                <input type="file" id="searchUpload" accept="image/*" class="flex-grow w-full text-sm text-gray-400">
+                                <button id="useCameraSearchBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera for Search">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </button>
+                            </div>
+                            <div class="preview-container mt-4">
+                                <img id="searchPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Search preview"/>
+                                <canvas id="searchPreviewCanvas" class="preview-canvas"></canvas>
+                                <p id="searchPlaceholder" class="text-gray-500">Image preview will appear here</p>
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Step 2: Search against Online Database</h3>
+                            <p class="text-sm text-gray-400">The tool will automatically search against all embedding files located in the <code class="bg-gray-700 px-1 rounded">documentosemb/</code> directory on the server.</p>
+                            <p class="text-xs text-gray-500 mt-2">Note: For this to work, a `manifest.json` file must exist in that directory, listing all `.emb` filenames. E.g., `["id_123.emb", "id_456.emb"]`</p>
+                        </div>
+                        <!-- Step 3 -->
+                        <div>
+                             <button id="searchBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Search Online Database</button>
+                        </div>
+                    </div>
+                 </section>
+                 <section id="searchResults" class="mt-8"></section>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-5 rounded-lg shadow-lg opacity-0 transform translate-y-10 transition-all duration-300">
+        <p id="toastMessage"></p>
+    </div>
+
+<script type="module">
+    // --- STATE & CONFIG ---
+    let currentMode = 'enroll';
+    let modelsLoaded = false;
+    let cameraContext = null; // 'enroll' or 'search'
+    let capturedImageBlob = null;
+    let videoStream = null;
+    const EMBEDDINGS_PATH = 'documentosemb'; // As requested
+    
+    // --- DOM ELEMENTS ---
+    const dom = {
+        loadingModal: document.getElementById('loadingModal'),
+        loadingStatus: document.getElementById('loadingStatus'),
+        cameraModal: document.getElementById('cameraModal'),
+        videoFeed: document.getElementById('videoFeed'),
+        captureBtn: document.getElementById('captureBtn'),
+        cancelCameraBtn: document.getElementById('cancelCameraBtn'),
+        modeEnrollBtn: document.getElementById('modeEnrollBtn'),
+        modeSearchBtn: document.getElementById('modeSearchBtn'),
+        enrollView: document.getElementById('enrollView'),
+        searchView: document.getElementById('searchView'),
+        // Enroll elements
+        personName: document.getElementById('personName'),
+        personComments: document.getElementById('personComments'),
+        enrollUpload: document.getElementById('enrollUpload'),
+        useCameraEnrollBtn: document.getElementById('useCameraEnrollBtn'),
+        enrollPreview: document.getElementById('enrollPreview'),
+        enrollPreviewCanvas: document.getElementById('enrollPreviewCanvas'),
+        enrollPlaceholder: document.getElementById('enrollPlaceholder'),
+        generateBtn: document.getElementById('generateBtn'),
+        // Search elements
+        searchUpload: document.getElementById('searchUpload'),
+        useCameraSearchBtn: document.getElementById('useCameraSearchBtn'),
+        searchPreview: document.getElementById('searchPreview'),
+        searchPreviewCanvas: document.getElementById('searchPreviewCanvas'),
+        searchPlaceholder: document.getElementById('searchPlaceholder'),
+        searchBtn: document.getElementById('searchBtn'),
+        searchResults: document.getElementById('searchResults'),
+        // Toast
+        toast: document.getElementById('toast'),
+        toastMessage: document.getElementById('toastMessage'),
+    };
+
+    // --- UTILITY & CORE FUNCTIONS ---
+    function showToast(message, isError = false) {
+        dom.toastMessage.textContent = message;
+        dom.toast.className = `fixed bottom-5 right-5 text-white py-2 px-5 rounded-lg shadow-lg transition-all duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'} opacity-100 transform translate-y-0`;
+        setTimeout(() => {
+            dom.toast.className = dom.toast.className.replace('opacity-100 transform translate-y-0', 'opacity-0 transform translate-y-10');
+        }, 3000);
+    }
+
+    function simpleEncrypt(str) {
+        try {
+            return btoa(unescape(encodeURIComponent(str)));
+        } catch (e) {
+            console.error("Encryption failed:", e);
+            return "";
+        }
+    }
+
+    function simpleDecrypt(str) {
+        try {
+            return decodeURIComponent(escape(atob(str)));
+        } catch (e) {
+            console.error("Decryption failed, might be malformed data:", e);
+            return "decryption_error";
+        }
+    }
+
+    function hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash |= 0;
+        }
+        return `id_${Math.abs(hash)}`;
+    }
+
+    function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // --- CAMERA FUNCTIONS ---
+    async function openCamera(context) {
+        cameraContext = context;
+        if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+        try {
+            videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            dom.videoFeed.srcObject = videoStream;
+            dom.cameraModal.classList.remove('hidden');
+            dom.cameraModal.classList.add('flex');
+        } catch (err) {
+            showToast('Could not access the camera. Please check permissions.', true);
+            console.error("Camera Error:", err);
+        }
+    }
+
+    function closeCamera() {
+        if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+        dom.cameraModal.classList.add('hidden');
+        dom.cameraModal.classList.remove('flex');
+    }
+
+    function captureImage() {
+        const canvas = document.createElement('canvas');
+        canvas.width = dom.videoFeed.videoWidth;
+        canvas.height = dom.videoFeed.videoHeight;
+        canvas.getContext('2d').drawImage(dom.videoFeed, 0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        
+        canvas.toBlob(blob => {
+            capturedImageBlob = blob;
+            if (cameraContext === 'enroll') {
+                dom.enrollUpload.value = ''; // Clear file input
+                updatePreview(dataUrl, 'enroll');
+                checkEnrollButtonState();
+            } else if (cameraContext === 'search') {
+                dom.searchUpload.value = ''; // Clear file input
+                updatePreview(dataUrl, 'search');
+                checkSearchButtonState();
+            }
+        }, 'image/jpeg');
+        
+        closeCamera();
+    }
+
+    // --- FACE-API.JS FUNCTIONS ---
+
+    async function loadModels() {
+        if (modelsLoaded) return;
+        try {
+            dom.loadingModal.classList.remove('hidden');
+            dom.loadingStatus.textContent = "Loading AI Models...";
+            const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
+            await Promise.all([
+                faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                faceapi.nets.mtcnn.loadFromUri(MODEL_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+            ]);
+            modelsLoaded = true;
+        } catch (error) {
+            showToast('Failed to load AI models. Please refresh.', true);
+            console.error(error);
+        } finally {
+            dom.loadingModal.classList.add('hidden');
+        }
+    }
+
+    async function getFaceDescriptors(imageElement) {
+        if (!modelsLoaded) return null;
+
+        const detectionConfigs = [
+            { detector: new faceapi.MtcnnOptions({ minFaceSize: 50 }), useTinyLandmarks: false, key: 'mtcnn_full' },
+            { detector: new faceapi.MtcnnOptions({ minFaceSize: 50 }), useTinyLandmarks: true, key: 'mtcnn_tiny' },
+            { detector: new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }), useTinyLandmarks: false, key: 'ssd_full' },
+            { detector: new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }), useTinyLandmarks: true, key: 'ssd_tiny' },
+            { detector: new faceapi.TinyFaceDetectorOptions(), useTinyLandmarks: false, key: 'tiny_full' },
+            { detector: new faceapi.TinyFaceDetectorOptions(), useTinyLandmarks: true, key: 'tiny_tiny' },
+        ];
+
+        const descriptors = {};
+
+        for (const config of detectionConfigs) {
+            const detection = await faceapi.detectSingleFace(imageElement, config.detector)
+                                         .withFaceLandmarks(config.useTinyLandmarks)
+                                         .withFaceDescriptor();
+            descriptors[config.key] = detection ? detection.descriptor : null;
+        }
+        
+        if (Object.values(descriptors).every(d => d === null)) {
+            return null;
+        }
+
+        return descriptors;
+    }
+    
+    async function detectAndDrawFace(imgEl, canvasEl) {
+        if (!modelsLoaded) return;
+        // Use a faster model for preview drawing
+        const detection = await faceapi.detectSingleFace(imgEl, new faceapi.TinyFaceDetectorOptions());
+        
+        // Use clientWidth and clientHeight to get the rendered size of the image
+        const displaySize = { width: imgEl.clientWidth, height: imgEl.clientHeight };
+        faceapi.matchDimensions(canvasEl, displaySize);
+
+        // Adjust canvas position to align with the image inside the flex container
+        canvasEl.style.left = `${imgEl.offsetLeft}px`;
+        canvasEl.style.top = `${imgEl.offsetTop}px`;
+        
+        const resizedDetection = faceapi.resizeResults(detection, displaySize);
+        canvasEl.getContext('2d').clearRect(0, 0, canvasEl.width, canvasEl.height);
+        if (resizedDetection) {
+            faceapi.draw.drawDetections(canvasEl, resizedDetection);
+            return true;
+        } else {
+             showToast("Warning: No face detected in the image.", true);
+             return false;
+        }
+    }
+
+    // --- UI & EVENT HANDLERS ---
+    
+    function switchMode(mode) {
+        currentMode = mode;
+        if (mode === 'enroll') {
+            dom.modeEnrollBtn.classList.add('active');
+            dom.modeSearchBtn.classList.remove('active');
+            dom.enrollView.classList.remove('hidden');
+            dom.searchView.classList.add('hidden');
+        } else {
+            dom.modeEnrollBtn.classList.remove('active');
+            dom.modeSearchBtn.classList.add('active');
+            dom.enrollView.classList.add('hidden');
+            dom.searchView.classList.remove('hidden');
+        }
+        dom.searchResults.innerHTML = '';
+        capturedImageBlob = null;
+    }
+    
+    function checkEnrollButtonState() {
+        const name = dom.personName.value.trim();
+        const hasFile = dom.enrollUpload.files.length > 0 || capturedImageBlob;
+        dom.generateBtn.disabled = !(name && hasFile && currentMode === 'enroll');
+    }
+    
+    function checkSearchButtonState() {
+        const hasSearchFile = dom.searchUpload.files.length > 0 || capturedImageBlob;
+        dom.searchBtn.disabled = !(hasSearchFile && currentMode === 'search');
+    }
+
+    function updatePreview(dataUrl, context) {
+        const elements = context === 'enroll' 
+            ? { img: dom.enrollPreview, canvas: dom.enrollPreviewCanvas, placeholder: dom.enrollPlaceholder }
+            : { img: dom.searchPreview, canvas: dom.searchPreviewCanvas, placeholder: dom.searchPlaceholder };
+        
+        elements.img.src = dataUrl;
+        elements.img.classList.remove('hidden');
+        elements.placeholder.classList.add('hidden');
+        elements.img.onload = () => detectAndDrawFace(elements.img, elements.canvas);
+    }
+
+    async function handleEnrollment() {
+        const name = dom.personName.value.trim();
+        const comments = dom.personComments.value.trim();
+        const file = dom.enrollUpload.files[0];
+        
+        if (!name || (!file && !capturedImageBlob)) {
+            showToast("Name and photo are required.", true);
+            return;
+        }
+        
+        dom.loadingModal.classList.remove('hidden');
+        dom.loadingStatus.textContent = "Processing face (this may take a moment)...";
+
+        try {
+            const descriptors = await getFaceDescriptors(dom.enrollPreview);
+            if (!descriptors) throw new Error("Could not generate face descriptors. Make sure the face is clear.");
+
+            const imageDataSource = capturedImageBlob || file;
+            const imageData = await readFileAsDataURL(imageDataSource);
+            
+            const descriptorsAsArrays = {};
+            for (const key in descriptors) {
+                descriptorsAsArrays[key] = descriptors[key] ? Array.from(descriptors[key]) : null;
+            }
+
+            const payload = {
+                name: simpleEncrypt(name),
+                comments: simpleEncrypt(comments),
+                photo: simpleEncrypt(imageData),
+                descriptors: descriptorsAsArrays
+            };
+            
+            const filename = `${hashString(name)}.emb`;
+            downloadFile(filename, JSON.stringify(payload));
+            showToast(`Successfully generated ${filename}.`);
+            
+            // Reset form
+            dom.personName.value = '';
+            dom.personComments.value = '';
+            dom.enrollUpload.value = '';
+            dom.enrollPreview.src = '#';
+            dom.enrollPreview.classList.add('hidden');
+            dom.enrollPlaceholder.classList.remove('hidden');
+            dom.enrollPreviewCanvas.getContext('2d').clearRect(0,0,dom.enrollPreviewCanvas.width, dom.enrollPreviewCanvas.height);
+            capturedImageBlob = null;
+            checkEnrollButtonState();
+
+        } catch (error) {
+            showToast(error.message, true);
+        } finally {
+            dom.loadingModal.classList.add('hidden');
+        }
+    }
+
+    async function handleSearch() {
+        const searchFile = dom.searchUpload.files[0];
+
+        if (!searchFile && !capturedImageBlob) {
+            showToast("A photo is required to perform a search.", true);
+            return;
+        }
+        
+        dom.loadingModal.classList.remove('hidden');
+        dom.loadingStatus.textContent = "Analyzing search photo...";
+        dom.searchResults.innerHTML = '';
+
+        try {
+            const queryDescriptors = await getFaceDescriptors(dom.searchPreview);
+            if (!queryDescriptors) throw new Error("Could not find a face in the search photo.");
+
+            dom.loadingStatus.textContent = `Fetching embedding database...`;
+            
+            const manifestResponse = await fetch(`${EMBEDDINGS_PATH}/manifest.json`);
+            if (!manifestResponse.ok) throw new Error("Could not find the 'manifest.json' file in the embeddings directory.");
+            const filenames = await manifestResponse.json();
+            if (!Array.isArray(filenames) || filenames.length === 0) throw new Error("Manifest is empty or invalid.");
+
+            dom.loadingStatus.textContent = `Loading ${filenames.length} embedding file(s)...`;
+            
+            const filePromises = filenames.map(name => fetch(`${EMBEDDINGS_PATH}/${name}`).then(res => res.json()));
+            const allFileData = await Promise.all(filePromises);
+            
+            const allLabeledDescriptors = {};
+            for (const data of allFileData) {
+                if (data.name && data.photo && data.descriptors) {
+                    const decryptedData = { name: simpleDecrypt(data.name), comments: simpleDecrypt(data.comments), photo: simpleDecrypt(data.photo) };
+                    const label = JSON.stringify(decryptedData);
+                    for (const key in data.descriptors) {
+                        if (data.descriptors[key]) {
+                            if (!allLabeledDescriptors[key]) allLabeledDescriptors[key] = [];
+                            const descriptor = new Float32Array(data.descriptors[key]);
+                            allLabeledDescriptors[key].push(new faceapi.LabeledFaceDescriptors(label, [descriptor]));
+                        }
+                    }
+                }
+            }
+
+            dom.loadingStatus.textContent = "Comparing faces...";
+
+            const bestMatches = [];
+            for (const key in queryDescriptors) {
+                if (queryDescriptors[key] && allLabeledDescriptors[key] && allLabeledDescriptors[key].length > 0) {
+                    const faceMatcher = new faceapi.FaceMatcher(allLabeledDescriptors[key], 0.5);
+                    bestMatches.push(faceMatcher.findBestMatch(queryDescriptors[key]));
+                }
+            }
+
+            if (bestMatches.length === 0) {
+                renderSearchResults({ label: 'unknown' });
+                return;
+            }
+
+            const votes = {};
+            const matches = bestMatches.filter(m => m.label !== 'unknown');
+            matches.forEach(m => {
+                const parsedLabel = JSON.parse(m.label);
+                votes[parsedLabel.name] = (votes[parsedLabel.name] || 0) + 1;
+            });
+
+            let finalName = 'unknown';
+            let maxVotes = 0;
+            for (const name in votes) {
+                if (votes[name] > maxVotes) {
+                    maxVotes = votes[name];
+                    finalName = name;
+                }
+            }
+
+            let finalMatch = { label: 'unknown' };
+            if (finalName !== 'unknown') {
+                const consensusMatches = matches.filter(m => JSON.parse(m.label).name === finalName);
+                finalMatch = consensusMatches.reduce((best, current) => current.distance < best.distance ? current : best, consensusMatches[0]);
+            }
+            
+            renderSearchResults(finalMatch, votes, matches.length);
+
+        } catch (error) {
+            showToast(error.message, true);
+            dom.searchResults.innerHTML = '';
+        } finally {
+            dom.loadingModal.classList.add('hidden');
+        }
+    }
+    
+    function renderSearchResults(match, votes = {}, totalMatches = 0) {
+        if (match.label === 'unknown') {
+            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg text-center"><h3 class="text-2xl font-bold text-red-400 mb-2">No Match Found</h3><p class="text-gray-400">The uploaded photo did not match any in the database with sufficient confidence.</p></div>`;
+        } else {
+            const data = JSON.parse(match.label);
+            const confidence = ((1 - match.distance) * 100).toFixed(2);
+            const voteCount = votes[data.name] || 0;
+            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg"><h3 class="text-2xl font-bold text-green-400 mb-4 text-center">Match Found!</h3><div class="flex flex-col md:flex-row items-center gap-6"><img src="${data.photo}" alt="${data.name}" class="w-40 h-40 object-cover rounded-full border-4 border-green-500 shadow-lg"><div class="flex-1 text-center md:text-left"><p class="text-3xl font-bold">${data.name}</p><p class="text-gray-300 mt-1">${data.comments || 'No comments provided.'}</p><div class="mt-4 bg-gray-800 inline-block p-3 rounded-lg"><p class="text-lg">Confidence: <span class="font-bold text-xl text-green-400">${confidence}%</span></p><p class="text-xs text-gray-400 mt-1">(${voteCount} of ${totalMatches} models agree)</p></div></div></div></div>`;
+        }
+    }
+
+    // --- INITIALIZATION ---
+    async function initializeApp() {
+        switchMode('enroll');
+
+        // Event Listeners
+        dom.modeEnrollBtn.addEventListener('click', () => switchMode('enroll'));
+        dom.modeSearchBtn.addEventListener('click', () => switchMode('search'));
+        dom.generateBtn.addEventListener('click', handleEnrollment);
+        dom.searchBtn.addEventListener('click', handleSearch);
+
+        // Camera Listeners
+        dom.useCameraEnrollBtn.addEventListener('click', () => openCamera('enroll'));
+        dom.useCameraSearchBtn.addEventListener('click', () => openCamera('search'));
+        dom.captureBtn.addEventListener('click', captureImage);
+        dom.cancelCameraBtn.addEventListener('click', closeCamera);
+
+        // Input listeners
+        dom.personName.addEventListener('input', checkEnrollButtonState);
+        dom.enrollUpload.addEventListener('change', async (e) => {
+            if (e.target.files && e.target.files[0]) {
+                capturedImageBlob = null;
+                updatePreview(await readFileAsDataURL(e.target.files[0]), 'enroll');
+                checkEnrollButtonState();
+            }
+        });
+        dom.searchUpload.addEventListener('change', async (e) => {
+             if (e.target.files && e.target.files[0]) {
+                capturedImageBlob = null;
+                updatePreview(await readFileAsDataURL(e.target.files[0]), 'search');
+                checkSearchButtonState();
+            }
+        });
+
+        await loadModels();
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+</script>
+</body>
+</html>
+
