@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Embedding Security Tool</title>
+    <title>Herramienta de Seguridad de Embeddings Faciales</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+    <!-- Librería para QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -56,135 +58,185 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
 
-    <!-- Loading Modal -->
-    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
+    <!-- Modal de Carga -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 hidden">
         <div class="loader"></div>
-        <p id="loadingStatus" class="mt-4 text-lg">Loading AI Models...</p>
+        <p id="loadingStatus" class="mt-4 text-lg">Cargando Modelos de IA...</p>
+    </div>
+    
+    <!-- Modal de Progreso -->
+    <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
+        <div class="w-11/12 max-w-lg bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <p id="progressStatus" class="text-lg mb-2 text-center">Procesando...</p>
+            <div class="w-full bg-gray-700 rounded-full h-4">
+                <div id="progressBar" class="bg-blue-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Camera Modal -->
+
+    <!-- Modal de Cámara -->
     <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
         <div class="bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-700">
             <video id="videoFeed" width="640" height="480" autoplay class="rounded-md"></video>
             <div class="flex justify-center mt-4 space-x-4">
-                <button id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Capture Photo</button>
-                <button id="cancelCameraBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancel</button>
+                <button id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Capturar Foto</button>
+                <button id="cancelCameraBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancelar</button>
             </div>
         </div>
     </div>
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold mb-2">Face Embedding Security Tool</h1>
-            <p class="text-gray-400">Create encrypted face embedding files for enrollment and search.</p>
+            <h1 class="text-4xl font-bold mb-2">Herramienta de Seguridad Facial</h1>
+            <p class="text-gray-400">Cree archivos encriptados de embeddings faciales para inscripción y búsqueda.</p>
         </header>
 
-        <!-- Mode Selector -->
-        <div class="flex justify-center mb-8">
+        <!-- Selector de Modo -->
+        <div id="modeSelector" class="flex justify-center mb-8">
             <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
-                <button id="modeEnrollBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Enroll Person</button>
-                <button id="modeSearchBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Search Person</button>
+                <button id="modeEnrollBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Inscribir Persona</button>
+                <button id="modeSearchBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Buscar Persona</button>
             </div>
         </div>
 
-        <!-- Main Content Area -->
+        <!-- Área de Contenido Principal -->
         <main class="max-w-4xl mx-auto">
-            <!-- Enroll View -->
+            <!-- Vista de Inscripción -->
             <div id="enrollView" class="hidden">
                 <section class="glass-card p-6 rounded-lg">
-                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Enroll New Person</h2>
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Inscribir Nueva Persona</h2>
                     <div class="space-y-4">
                         <div>
-                            <label for="personName" class="block text-sm font-medium text-gray-300">Full Name</label>
-                            <input type="text" id="personName" placeholder="e.g., Jane Doe" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <label for="personName" class="block text-sm font-medium text-gray-300">Nombre Completo</label>
+                            <input type="text" id="personName" placeholder="Ej: Juan Pérez" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label for="personComments" class="block text-sm font-medium text-gray-300">Comments (Optional)</label>
-                            <textarea id="personComments" placeholder="e.g., Department, ID Number" rows="2" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            <label for="personComments" class="block text-sm font-medium text-gray-300">Comentarios (Opcional)</label>
+                            <textarea id="personComments" placeholder="Ej: Departamento, Número de ID" rows="2" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                         </div>
                         <div>
-                             <label for="enrollUpload" class="block text-sm font-medium text-gray-300">Photo Source</label>
+                             <label for="enrollUpload" class="block text-sm font-medium text-gray-300">Fuente de la Foto</label>
                              <div class="flex items-center space-x-2 mt-1">
                                 <input type="file" id="enrollUpload" accept="image/*" class="flex-grow w-full text-sm text-gray-400">
-                                <button id="useCameraEnrollBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera">
+                                <button id="useCameraEnrollBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Usar Cámara">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </button>
                             </div>
                         </div>
                         <div class="preview-container mt-4">
-                            <img id="enrollPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Enrollment preview"/>
+                            <img id="enrollPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Vista previa de inscripción"/>
                             <canvas id="enrollPreviewCanvas" class="preview-canvas"></canvas>
-                             <p id="enrollPlaceholder" class="text-gray-500">Image preview will appear here</p>
+                             <p id="enrollPlaceholder" class="text-gray-500">La vista previa de la imagen aparecerá aquí</p>
                         </div>
-                        <button id="generateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Generate & Download .emb File</button>
+                        <button id="generateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Generar y Descargar Archivo .emb</button>
                     </div>
                 </section>
             </div>
 
-            <!-- Search View -->
+            <!-- Vista de Búsqueda -->
             <div id="searchView" class="hidden">
                  <section class="glass-card p-6 rounded-lg">
-                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Search for Person</h2>
+                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Buscar Persona</h2>
                     <div class="space-y-6">
-                        <!-- Step 1 -->
                         <div>
-                            <h3 class="font-semibold text-lg mb-2">Step 1: Provide Photo to Search</h3>
+                            <h3 class="font-semibold text-lg mb-2">Paso 1: Proporcione la foto para buscar</h3>
                             <div class="flex items-center space-x-2">
                                 <input type="file" id="searchUpload" accept="image/*" class="flex-grow w-full text-sm text-gray-400">
-                                <button id="useCameraSearchBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Use Camera for Search">
+                                <button id="useCameraSearchBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Usar Cámara para Búsqueda">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </button>
                             </div>
                             <div class="preview-container mt-4">
-                                <img id="searchPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Search preview"/>
+                                <img id="searchPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Vista previa de búsqueda"/>
                                 <canvas id="searchPreviewCanvas" class="preview-canvas"></canvas>
-                                <p id="searchPlaceholder" class="text-gray-500">Image preview will appear here</p>
+                                <p id="searchPlaceholder" class="text-gray-500">La vista previa de la imagen aparecerá aquí</p>
                             </div>
                         </div>
-                        <!-- Step 2 -->
                         <div>
-                            <h3 class="font-semibold text-lg mb-2">Step 2: Search against Online Database</h3>
-                            <p class="text-sm text-gray-400">The tool will automatically search against all embedding files located in the <code class="bg-gray-700 px-1 rounded">documentosemb/</code> directory on the server.</p>
-                            <p class="text-xs text-gray-500 mt-2">Note: For this to work, a `manifest.json` file must exist in that directory, listing all `.emb` filenames. E.g., `["id_123.emb", "id_456.emb"]`</p>
+                            <h3 class="font-semibold text-lg mb-2">Paso 2: Buscar en la Base de Datos en Línea</h3>
+                            <p class="text-sm text-gray-400">La herramienta buscará automáticamente en todos los archivos de embeddings ubicados en el directorio <code class="bg-gray-700 px-1 rounded">documentosemb/</code> en el servidor.</p>
                         </div>
-                        <!-- Step 3 -->
                         <div>
-                             <button id="searchBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Search Online Database</button>
+                             <button id="searchBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Buscar en Base de Datos</button>
                         </div>
                     </div>
                  </section>
                  <section id="searchResults" class="mt-8"></section>
             </div>
+            
+             <!-- Vista de Verificación TOTP -->
+            <div id="totpView" class="hidden">
+                 <section class="glass-card p-6 rounded-lg text-center">
+                    <h2 class="text-2xl font-semibold mb-4">Verificación de Seguridad</h2>
+                    <p class="text-gray-400 mb-4">Ingrese el código de su aplicación de autenticación para continuar.</p>
+                    <input type="text" id="totpInput" inputmode="numeric" maxlength="6" class="bg-gray-700 text-white text-2xl tracking-widest text-center w-48 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button id="verifyTotpBtn" class="mt-4 w-48 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Verificar</button>
+                 </section>
+            </div>
+            
+            <!-- Vista de Instalación TOTP -->
+            <div id="installView" class="hidden">
+                <section class="glass-card p-6 rounded-lg text-center">
+                    <h2 class="text-2xl font-semibold mb-2">Configuración de Autenticación de Dos Factores (2FA)</h2>
+                    <p class="text-gray-400 mb-4">Escanee el siguiente código QR con su aplicación de autenticación (Ej: Google Authenticator, Authy).</p>
+                    <canvas id="qrCodeCanvas" class="mx-auto bg-white p-2 rounded-lg"></canvas>
+                    <p class="mt-4 text-gray-300 font-mono text-lg tracking-widest" id="secretKeyDisplay"></p>
+                    <p class="mt-2 text-gray-400">Guarde esta clave en un lugar seguro. Si pierde su dispositivo, la necesitará para recuperar el acceso.</p>
+                    
+                    <!-- NUEVO: Sección de Validación -->
+                    <div id="setupValidation" class="mt-6 border-t border-gray-700 pt-4">
+                        <h3 class="font-semibold text-lg mb-2">Verifique su configuración</h3>
+                        <p class="text-gray-400 mb-4">Ingrese un código de su aplicación para confirmar que la configuración es correcta.</p>
+                        <input type="text" id="setupTotpInput" inputmode="numeric" maxlength="6" class="bg-gray-700 text-white text-2xl tracking-widest text-center w-48 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <button id="verifySetupBtn" class="mt-4 w-48 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Confirmar Configuración</button>
+                        <p id="setupStatus" class="mt-2 h-5 text-sm"></p>
+                    </div>
+                </section>
+            </div>
+
         </main>
     </div>
     
-    <!-- Toast Notification -->
+    <!-- Notificación Toast -->
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-5 rounded-lg shadow-lg opacity-0 transform translate-y-10 transition-all duration-300">
         <p id="toastMessage"></p>
     </div>
 
 <script type="module">
-    // --- STATE & CONFIG ---
+    // --- ESTADO Y CONFIGURACIÓN ---
     let currentMode = 'enroll';
     let modelsLoaded = false;
     let cameraContext = null; // 'enroll' or 'search'
     let capturedImageBlob = null;
     let videoStream = null;
-    const EMBEDDINGS_PATH = 'documentosemb'; // As requested
+    const EMBEDDINGS_PATH = 'documentosemb';
     
-    // --- DOM ELEMENTS ---
+    // --- ELEMENTOS DEL DOM ---
     const dom = {
         loadingModal: document.getElementById('loadingModal'),
         loadingStatus: document.getElementById('loadingStatus'),
+        progressModal: document.getElementById('progressModal'),
+        progressBar: document.getElementById('progressBar'),
+        progressStatus: document.getElementById('progressStatus'),
         cameraModal: document.getElementById('cameraModal'),
         videoFeed: document.getElementById('videoFeed'),
         captureBtn: document.getElementById('captureBtn'),
         cancelCameraBtn: document.getElementById('cancelCameraBtn'),
+        modeSelector: document.getElementById('modeSelector'),
         modeEnrollBtn: document.getElementById('modeEnrollBtn'),
         modeSearchBtn: document.getElementById('modeSearchBtn'),
         enrollView: document.getElementById('enrollView'),
         searchView: document.getElementById('searchView'),
-        // Enroll elements
+        totpView: document.getElementById('totpView'),
+        installView: document.getElementById('installView'),
+        totpInput: document.getElementById('totpInput'),
+        verifyTotpBtn: document.getElementById('verifyTotpBtn'),
+        qrCodeCanvas: document.getElementById('qrCodeCanvas'),
+        secretKeyDisplay: document.getElementById('secretKeyDisplay'),
+        setupTotpInput: document.getElementById('setupTotpInput'),
+        verifySetupBtn: document.getElementById('verifySetupBtn'),
+        setupStatus: document.getElementById('setupStatus'),
         personName: document.getElementById('personName'),
         personComments: document.getElementById('personComments'),
         enrollUpload: document.getElementById('enrollUpload'),
@@ -193,7 +245,6 @@
         enrollPreviewCanvas: document.getElementById('enrollPreviewCanvas'),
         enrollPlaceholder: document.getElementById('enrollPlaceholder'),
         generateBtn: document.getElementById('generateBtn'),
-        // Search elements
         searchUpload: document.getElementById('searchUpload'),
         useCameraSearchBtn: document.getElementById('useCameraSearchBtn'),
         searchPreview: document.getElementById('searchPreview'),
@@ -201,12 +252,11 @@
         searchPlaceholder: document.getElementById('searchPlaceholder'),
         searchBtn: document.getElementById('searchBtn'),
         searchResults: document.getElementById('searchResults'),
-        // Toast
         toast: document.getElementById('toast'),
         toastMessage: document.getElementById('toastMessage'),
     };
 
-    // --- UTILITY & CORE FUNCTIONS ---
+    // --- UTILIDADES Y FUNCIONES PRINCIPALES ---
     function showToast(message, isError = false) {
         dom.toastMessage.textContent = message;
         dom.toast.className = `fixed bottom-5 right-5 text-white py-2 px-5 rounded-lg shadow-lg transition-all duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'} opacity-100 transform translate-y-0`;
@@ -215,22 +265,33 @@
         }, 3000);
     }
 
-    function simpleEncrypt(str) {
-        try {
-            return btoa(unescape(encodeURIComponent(str)));
-        } catch (e) {
-            console.error("Encryption failed:", e);
-            return "";
+    function showProgressBar(message = 'Procesando...') {
+        dom.progressStatus.textContent = message;
+        dom.progressBar.style.width = '0%';
+        dom.progressModal.classList.remove('hidden');
+        dom.progressModal.classList.add('flex');
+    }
+
+    function updateProgressBar(percentage, message) {
+        dom.progressBar.style.width = `${percentage}%`;
+        if (message) {
+            dom.progressStatus.textContent = message;
         }
     }
 
+    function hideProgressBar() {
+        setTimeout(() => {
+            dom.progressModal.classList.add('hidden');
+            dom.progressModal.classList.remove('flex');
+        }, 500);
+    }
+
+    function simpleEncrypt(str) {
+        try { return btoa(unescape(encodeURIComponent(str))); } catch (e) { return ""; }
+    }
+
     function simpleDecrypt(str) {
-        try {
-            return decodeURIComponent(escape(atob(str)));
-        } catch (e) {
-            console.error("Decryption failed, might be malformed data:", e);
-            return "decryption_error";
-        }
+        try { return decodeURIComponent(escape(atob(str))); } catch (e) { return "error_descifrado"; }
     }
 
     function hashString(str) {
@@ -263,8 +324,29 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+    
+    function libraryReady(libraryName) {
+        return new Promise((resolve, reject) => {
+            let elapsedTime = 0;
+            const interval = 100;
+            const timeout = 5000;
+            const check = setInterval(() => {
+                if (window[libraryName]) {
+                    clearInterval(check);
+                    resolve();
+                } else {
+                    elapsedTime += interval;
+                    if (elapsedTime >= timeout) {
+                        clearInterval(check);
+                        reject(new Error(`La biblioteca ${libraryName} no se pudo cargar.`));
+                    }
+                }
+            }, interval);
+        });
+    }
 
-    // --- CAMERA FUNCTIONS ---
+
+    // --- FUNCIONES DE CÁMARA ---
     async function openCamera(context) {
         cameraContext = context;
         if (videoStream) videoStream.getTracks().forEach(track => track.stop());
@@ -274,8 +356,7 @@
             dom.cameraModal.classList.remove('hidden');
             dom.cameraModal.classList.add('flex');
         } catch (err) {
-            showToast('Could not access the camera. Please check permissions.', true);
-            console.error("Camera Error:", err);
+            showToast('No se pudo acceder a la cámara. Por favor, verifique los permisos.', true);
         }
     }
 
@@ -290,32 +371,29 @@
         canvas.width = dom.videoFeed.videoWidth;
         canvas.height = dom.videoFeed.videoHeight;
         canvas.getContext('2d').drawImage(dom.videoFeed, 0, 0, canvas.width, canvas.height);
-        
         const dataUrl = canvas.toDataURL('image/jpeg');
-        
         canvas.toBlob(blob => {
             capturedImageBlob = blob;
             if (cameraContext === 'enroll') {
-                dom.enrollUpload.value = ''; // Clear file input
+                dom.enrollUpload.value = '';
                 updatePreview(dataUrl, 'enroll');
                 checkEnrollButtonState();
             } else if (cameraContext === 'search') {
-                dom.searchUpload.value = ''; // Clear file input
+                dom.searchUpload.value = '';
                 updatePreview(dataUrl, 'search');
                 checkSearchButtonState();
             }
         }, 'image/jpeg');
-        
         closeCamera();
     }
 
-    // --- FACE-API.JS FUNCTIONS ---
-
+    // --- FUNCIONES DE FACE-API.JS ---
     async function loadModels() {
         if (modelsLoaded) return;
         try {
             dom.loadingModal.classList.remove('hidden');
-            dom.loadingStatus.textContent = "Loading AI Models...";
+            dom.loadingModal.classList.add('flex');
+            dom.loadingStatus.textContent = "Cargando Modelos de IA...";
             const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
             await Promise.all([
                 faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
@@ -327,8 +405,7 @@
             ]);
             modelsLoaded = true;
         } catch (error) {
-            showToast('Failed to load AI models. Please refresh.', true);
-            console.error(error);
+            showToast('Fallo al cargar los modelos de IA. Por favor, refresque la página.', true);
         } finally {
             dom.loadingModal.classList.add('hidden');
         }
@@ -336,7 +413,6 @@
 
     async function getFaceDescriptors(imageElement) {
         if (!modelsLoaded) return null;
-
         const detectionConfigs = [
             { detector: new faceapi.MtcnnOptions({ minFaceSize: 50 }), useTinyLandmarks: false, key: 'mtcnn_full' },
             { detector: new faceapi.MtcnnOptions({ minFaceSize: 50 }), useTinyLandmarks: true, key: 'mtcnn_tiny' },
@@ -345,61 +421,174 @@
             { detector: new faceapi.TinyFaceDetectorOptions(), useTinyLandmarks: false, key: 'tiny_full' },
             { detector: new faceapi.TinyFaceDetectorOptions(), useTinyLandmarks: true, key: 'tiny_tiny' },
         ];
-
         const descriptors = {};
-
         for (const config of detectionConfigs) {
             const detection = await faceapi.detectSingleFace(imageElement, config.detector)
                                          .withFaceLandmarks(config.useTinyLandmarks)
                                          .withFaceDescriptor();
             descriptors[config.key] = detection ? detection.descriptor : null;
         }
-        
-        if (Object.values(descriptors).every(d => d === null)) {
-            return null;
-        }
-
-        return descriptors;
+        return Object.values(descriptors).every(d => d === null) ? null : descriptors;
     }
     
     async function detectAndDrawFace(imgEl, canvasEl) {
         if (!modelsLoaded) return;
-        // Use a faster model for preview drawing
         const detection = await faceapi.detectSingleFace(imgEl, new faceapi.TinyFaceDetectorOptions());
-        
-        // Use clientWidth and clientHeight to get the rendered size of the image
         const displaySize = { width: imgEl.clientWidth, height: imgEl.clientHeight };
         faceapi.matchDimensions(canvasEl, displaySize);
-
-        // Adjust canvas position to align with the image inside the flex container
         canvasEl.style.left = `${imgEl.offsetLeft}px`;
         canvasEl.style.top = `${imgEl.offsetTop}px`;
-        
         const resizedDetection = faceapi.resizeResults(detection, displaySize);
         canvasEl.getContext('2d').clearRect(0, 0, canvasEl.width, canvasEl.height);
         if (resizedDetection) {
             faceapi.draw.drawDetections(canvasEl, resizedDetection);
-            return true;
         } else {
-             showToast("Warning: No face detected in the image.", true);
-             return false;
+             showToast("Advertencia: No se detectó ningún rostro en la imagen.", true);
+        }
+    }
+    
+    // --- LÓGICA TOTP (CORREGIDA) ---
+    function generateRandomBase32Secret(length = 16) {
+        const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        const randomBytes = new Uint8Array(Math.floor(length * 5 / 8));
+        crypto.getRandomValues(randomBytes);
+        let bits = '';
+        randomBytes.forEach(byte => bits += byte.toString(2).padStart(8, '0'));
+        let base32 = '';
+        for (let i = 0; i < bits.length; i += 5) {
+            const chunk = bits.slice(i, i + 5);
+            if (chunk.length === 5) {
+                base32 += base32Chars[parseInt(chunk, 2)];
+            }
+        }
+        return base32.slice(0, length);
+    }
+
+    function getOrSetTotpSecret() {
+        let secret = localStorage.getItem('totpSecret');
+        if (!secret) {
+            secret = generateRandomBase32Secret();
+            localStorage.setItem('totpSecret', secret);
+        }
+        return secret;
+    }
+
+    function base32ToBuffer(base32) {
+        const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        const lookup = Object.fromEntries(Array.from(base32Chars).map((char, index) => [char, index]));
+        const upperBase32 = base32.toUpperCase().replace(/=/g, '');
+        let bits = '';
+        for (let i = 0; i < upperBase32.length; i++) {
+            const char = upperBase32[i];
+            if (lookup[char] === undefined) throw new Error('Invalid Base32 character found.');
+            bits += lookup[char].toString(2).padStart(5, '0');
+        }
+        const buffer = new Uint8Array(Math.floor(bits.length / 8));
+        for (let i = 0; i < buffer.length; i++) {
+            buffer[i] = parseInt(bits.slice(i * 8, (i + 1) * 8), 2);
+        }
+        return buffer.buffer;
+    }
+
+    const totp = {
+        generate: async function(secretBuffer, counterOffset = 0) {
+            try {
+                const key = await crypto.subtle.importKey('raw', secretBuffer, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+                const timeStep = 30;
+                const counter = Math.floor(Date.now() / 1000 / timeStep) + counterOffset;
+                const counterBuffer = new ArrayBuffer(8);
+                const counterView = new DataView(counterBuffer);
+                counterView.setUint32(4, counter, false);
+                const hmac = await crypto.subtle.sign('HMAC', key, counterBuffer);
+                const hmacArray = new Uint8Array(hmac);
+                const offset = hmacArray[hmacArray.length - 1] & 0x0f;
+                const truncatedHash = (hmacArray[offset] & 0x7f) << 24 |
+                                    (hmacArray[offset + 1] & 0xff) << 16 |
+                                    (hmacArray[offset + 2] & 0xff) << 8 |
+                                    (hmacArray[offset + 3] & 0xff);
+                let otp = (truncatedHash % 1000000).toString();
+                return otp.padStart(6, '0');
+            } catch (error) {
+                console.error("Error generating TOTP:", error);
+                return null;
+            }
+        }
+    };
+
+    async function verifyCode(inputCode) {
+        if (!/^\d{6}$/.test(inputCode)) {
+            return false;
+        }
+        const secretBase32 = getOrSetTotpSecret();
+        const secretBuffer = base32ToBuffer(secretBase32);
+        const validCodes = await Promise.all([
+            totp.generate(secretBuffer, 0),    // Current code
+            totp.generate(secretBuffer, -1),   // Previous code (tolerance window)
+            totp.generate(secretBuffer, 1)     // Next code (tolerance window)
+        ]);
+        return validCodes.includes(inputCode);
+    }
+    
+    async function setupTOTP() {
+        const secretBase32 = getOrSetTotpSecret();
+        dom.secretKeyDisplay.textContent = secretBase32;
+        const uri = `otpauth://totp/HerramientaFacial:Acceso?secret=${secretBase32}&issuer=HerramientaFacial`;
+        try {
+            await libraryReady('QRious');
+            new QRious({ element: dom.qrCodeCanvas, value: uri, size: 200 });
+        } catch(error) {
+            showToast("No se pudo generar el código QR.", true);
         }
     }
 
-    // --- UI & EVENT HANDLERS ---
-    
+    async function verifySetup() {
+        const code = dom.setupTotpInput.value.trim();
+        const isValid = await verifyCode(code);
+        if (isValid) {
+            dom.setupStatus.textContent = "¡Verificación exitosa! La configuración está completa.";
+            dom.setupStatus.classList.remove('text-red-400');
+            dom.setupStatus.classList.add('text-green-400');
+            setTimeout(() => window.location.search = '', 2000);
+        } else {
+            dom.setupStatus.textContent = "Código incorrecto. Inténtelo de nuevo.";
+            dom.setupStatus.classList.remove('text-green-400');
+            dom.setupStatus.classList.add('text-red-400');
+        }
+    }
+
+    async function verifyTOTP() {
+        const code = dom.totpInput.value.trim();
+        if (!/^\d{6}$/.test(code)) {
+            showToast('Por favor, ingrese un código de 6 dígitos.', true);
+            return;
+        }
+        const isValid = await verifyCode(code);
+        if (isValid) {
+            showToast("Verificación exitosa.");
+            dom.totpView.classList.add('hidden');
+            dom.searchView.classList.remove('hidden');
+        } else {
+            showToast("Código inválido o expirado. Intente de nuevo.", true);
+        }
+    }
+
+
+    // --- UI Y MANEJADORES DE EVENTOS ---
     function switchMode(mode) {
-        currentMode = mode;
+        dom.enrollView.classList.add('hidden');
+        dom.searchView.classList.add('hidden');
+        dom.totpView.classList.add('hidden');
+        
         if (mode === 'enroll') {
+            currentMode = 'enroll';
             dom.modeEnrollBtn.classList.add('active');
             dom.modeSearchBtn.classList.remove('active');
             dom.enrollView.classList.remove('hidden');
-            dom.searchView.classList.add('hidden');
         } else {
+            currentMode = 'search';
             dom.modeEnrollBtn.classList.remove('active');
             dom.modeSearchBtn.classList.add('active');
-            dom.enrollView.classList.add('hidden');
-            dom.searchView.classList.remove('hidden');
+            dom.totpView.classList.remove('hidden');
         }
         dom.searchResults.innerHTML = '';
         capturedImageBlob = null;
@@ -408,12 +597,12 @@
     function checkEnrollButtonState() {
         const name = dom.personName.value.trim();
         const hasFile = dom.enrollUpload.files.length > 0 || capturedImageBlob;
-        dom.generateBtn.disabled = !(name && hasFile && currentMode === 'enroll');
+        dom.generateBtn.disabled = !(name && hasFile);
     }
     
     function checkSearchButtonState() {
         const hasSearchFile = dom.searchUpload.files.length > 0 || capturedImageBlob;
-        dom.searchBtn.disabled = !(hasSearchFile && currentMode === 'search');
+        dom.searchBtn.disabled = !hasSearchFile;
     }
 
     function updatePreview(dataUrl, context) {
@@ -430,40 +619,25 @@
     async function handleEnrollment() {
         const name = dom.personName.value.trim();
         const comments = dom.personComments.value.trim();
-        const file = dom.enrollUpload.files[0];
-        
-        if (!name || (!file && !capturedImageBlob)) {
-            showToast("Name and photo are required.", true);
-            return;
-        }
+        if (!name || (!dom.enrollUpload.files[0] && !capturedImageBlob)) return;
         
         dom.loadingModal.classList.remove('hidden');
-        dom.loadingStatus.textContent = "Processing face (this may take a moment)...";
+        dom.loadingStatus.textContent = "Procesando rostro (esto puede tardar un momento)...";
 
         try {
             const descriptors = await getFaceDescriptors(dom.enrollPreview);
-            if (!descriptors) throw new Error("Could not generate face descriptors. Make sure the face is clear.");
-
-            const imageDataSource = capturedImageBlob || file;
-            const imageData = await readFileAsDataURL(imageDataSource);
-            
-            const descriptorsAsArrays = {};
-            for (const key in descriptors) {
-                descriptorsAsArrays[key] = descriptors[key] ? Array.from(descriptors[key]) : null;
-            }
-
+            if (!descriptors) throw new Error("No se pudieron generar los descriptores faciales. Asegúrese de que el rostro esté claro.");
+            const imageData = await readFileAsDataURL(capturedImageBlob || dom.enrollUpload.files[0]);
             const payload = {
                 name: simpleEncrypt(name),
                 comments: simpleEncrypt(comments),
                 photo: simpleEncrypt(imageData),
-                descriptors: descriptorsAsArrays
+                descriptors: Object.fromEntries(Object.entries(descriptors).map(([k, v]) => [k, v ? Array.from(v) : null]))
             };
             
-            const filename = `${hashString(name)}.emb`;
-            downloadFile(filename, JSON.stringify(payload));
-            showToast(`Successfully generated ${filename}.`);
+            downloadFile(`${hashString(name)}.emb`, JSON.stringify(payload));
+            showToast("Envie este archivo a su asesor de busqueda", false);
             
-            // Reset form
             dom.personName.value = '';
             dom.personComments.value = '';
             dom.enrollUpload.value = '';
@@ -473,7 +647,6 @@
             dom.enrollPreviewCanvas.getContext('2d').clearRect(0,0,dom.enrollPreviewCanvas.width, dom.enrollPreviewCanvas.height);
             capturedImageBlob = null;
             checkEnrollButtonState();
-
         } catch (error) {
             showToast(error.message, true);
         } finally {
@@ -482,53 +655,59 @@
     }
 
     async function handleSearch() {
-        const searchFile = dom.searchUpload.files[0];
-
-        if (!searchFile && !capturedImageBlob) {
-            showToast("A photo is required to perform a search.", true);
-            return;
-        }
+        if (!dom.searchUpload.files[0] && !capturedImageBlob) return;
         
         dom.loadingModal.classList.remove('hidden');
-        dom.loadingStatus.textContent = "Analyzing search photo...";
+        dom.loadingStatus.textContent = "Analizando foto de búsqueda...";
         dom.searchResults.innerHTML = '';
 
         try {
             const queryDescriptors = await getFaceDescriptors(dom.searchPreview);
-            if (!queryDescriptors) throw new Error("Could not find a face in the search photo.");
+            if (!queryDescriptors) throw new Error("No se pudo encontrar un rostro en la foto de búsqueda.");
 
-            dom.loadingStatus.textContent = `Fetching embedding database...`;
+            dom.loadingModal.classList.add('hidden');
+            showProgressBar(`Obteniendo base de datos de embeddings...`);
             
             const manifestResponse = await fetch(`${EMBEDDINGS_PATH}/manifest.json`);
-            if (!manifestResponse.ok) throw new Error("Could not find the 'manifest.json' file in the embeddings directory.");
+            if (!manifestResponse.ok) throw new Error("No se pudo encontrar el archivo 'manifest.json'.");
             const filenames = await manifestResponse.json();
-            if (!Array.isArray(filenames) || filenames.length === 0) throw new Error("Manifest is empty or invalid.");
+            if (!Array.isArray(filenames) || filenames.length === 0) throw new Error("El manifiesto está vacío o no es válido.");
 
-            dom.loadingStatus.textContent = `Loading ${filenames.length} embedding file(s)...`;
-            
-            const filePromises = filenames.map(name => fetch(`${EMBEDDINGS_PATH}/${name}`).then(res => res.json()));
-            const allFileData = await Promise.all(filePromises);
-            
             const allLabeledDescriptors = {};
-            for (const data of allFileData) {
-                if (data.name && data.photo && data.descriptors) {
-                    const decryptedData = { name: simpleDecrypt(data.name), comments: simpleDecrypt(data.comments), photo: simpleDecrypt(data.photo) };
-                    const label = JSON.stringify(decryptedData);
-                    for (const key in data.descriptors) {
-                        if (data.descriptors[key]) {
-                            if (!allLabeledDescriptors[key]) allLabeledDescriptors[key] = [];
-                            const descriptor = new Float32Array(data.descriptors[key]);
-                            allLabeledDescriptors[key].push(new faceapi.LabeledFaceDescriptors(label, [descriptor]));
+            for (let i = 0; i < filenames.length; i++) {
+                const name = filenames[i];
+                const percentage = ((i + 1) / filenames.length) * 100;
+                updateProgressBar(percentage, `Procesando archivo ${i + 1} de ${filenames.length}: ${name}`);
+                
+                try {
+                    const res = await fetch(`${EMBEDDINGS_PATH}/${name}`);
+                    if (!res.ok) throw new Error(`Fallo al cargar ${name}`);
+                    const data = await res.json();
+
+                    if (data.name && data.photo && data.descriptors) {
+                        const decryptedData = { name: simpleDecrypt(data.name), comments: simpleDecrypt(data.comments), photo: simpleDecrypt(data.photo) };
+                        const label = JSON.stringify(decryptedData);
+                        for (const key in data.descriptors) {
+                            if (data.descriptors[key]) {
+                                if (!allLabeledDescriptors[key]) allLabeledDescriptors[key] = [];
+                                allLabeledDescriptors[key].push(new faceapi.LabeledFaceDescriptors(label, [new Float32Array(data.descriptors[key])]));
+                            }
                         }
                     }
+                } catch (fileError) {
+                    console.error(`Error procesando ${name}:`, fileError);
+                    showToast(`Se omitió el archivo ${name} por un error.`, true);
+                    continue; // Continúa con el siguiente archivo si este falla
                 }
             }
-
-            dom.loadingStatus.textContent = "Comparing faces...";
+            
+            hideProgressBar();
+            dom.loadingModal.classList.remove('hidden');
+            dom.loadingStatus.textContent = "Comparando rostros...";
 
             const bestMatches = [];
             for (const key in queryDescriptors) {
-                if (queryDescriptors[key] && allLabeledDescriptors[key] && allLabeledDescriptors[key].length > 0) {
+                if (queryDescriptors[key] && allLabeledDescriptors[key]?.length > 0) {
                     const faceMatcher = new faceapi.FaceMatcher(allLabeledDescriptors[key], 0.5);
                     bestMatches.push(faceMatcher.findBestMatch(queryDescriptors[key]));
                 }
@@ -545,16 +724,10 @@
                 const parsedLabel = JSON.parse(m.label);
                 votes[parsedLabel.name] = (votes[parsedLabel.name] || 0) + 1;
             });
-
-            let finalName = 'unknown';
-            let maxVotes = 0;
+            let finalName = 'unknown', maxVotes = 0;
             for (const name in votes) {
-                if (votes[name] > maxVotes) {
-                    maxVotes = votes[name];
-                    finalName = name;
-                }
+                if (votes[name] > maxVotes) { maxVotes = votes[name]; finalName = name; }
             }
-
             let finalMatch = { label: 'unknown' };
             if (finalName !== 'unknown') {
                 const consensusMatches = matches.filter(m => JSON.parse(m.label).name === finalName);
@@ -562,53 +735,59 @@
             }
             
             renderSearchResults(finalMatch, votes, matches.length);
-
         } catch (error) {
             showToast(error.message, true);
             dom.searchResults.innerHTML = '';
         } finally {
+            hideProgressBar();
             dom.loadingModal.classList.add('hidden');
         }
     }
     
     function renderSearchResults(match, votes = {}, totalMatches = 0) {
         if (match.label === 'unknown') {
-            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg text-center"><h3 class="text-2xl font-bold text-red-400 mb-2">No Match Found</h3><p class="text-gray-400">The uploaded photo did not match any in the database with sufficient confidence.</p></div>`;
+            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg text-center"><h3 class="text-2xl font-bold text-red-400 mb-2">No se encontró coincidencia</h3><p class="text-gray-400">La foto subida no coincide con ninguna en la base de datos con suficiente confianza.</p></div>`;
         } else {
             const data = JSON.parse(match.label);
             const confidence = ((1 - match.distance) * 100).toFixed(2);
             const voteCount = votes[data.name] || 0;
-            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg"><h3 class="text-2xl font-bold text-green-400 mb-4 text-center">Match Found!</h3><div class="flex flex-col md:flex-row items-center gap-6"><img src="${data.photo}" alt="${data.name}" class="w-40 h-40 object-cover rounded-full border-4 border-green-500 shadow-lg"><div class="flex-1 text-center md:text-left"><p class="text-3xl font-bold">${data.name}</p><p class="text-gray-300 mt-1">${data.comments || 'No comments provided.'}</p><div class="mt-4 bg-gray-800 inline-block p-3 rounded-lg"><p class="text-lg">Confidence: <span class="font-bold text-xl text-green-400">${confidence}%</span></p><p class="text-xs text-gray-400 mt-1">(${voteCount} of ${totalMatches} models agree)</p></div></div></div></div>`;
+            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg"><h3 class="text-2xl font-bold text-green-400 mb-4 text-center">¡Coincidencia Encontrada!</h3><div class="flex flex-col md:flex-row items-center gap-6"><img src="${data.photo}" alt="${data.name}" class="w-40 h-40 object-cover rounded-full border-4 border-green-500 shadow-lg"><div class="flex-1 text-center md:text-left"><p class="text-3xl font-bold">${data.name}</p><p class="text-gray-300 mt-1">${data.comments || 'Sin comentarios.'}</p><div class="mt-4 bg-gray-800 inline-block p-3 rounded-lg"><p class="text-lg">Confianza: <span class="font-bold text-xl text-green-400">${confidence}%</span></p><p class="text-xs text-gray-400 mt-1">(${voteCount} de ${totalMatches} modelos concuerdan)</p></div></div></div></div>`;
         }
     }
 
-    // --- INITIALIZATION ---
+    // --- INICIALIZACIÓN ---
     async function initializeApp() {
-        switchMode('enroll');
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('install')) {
+            dom.installView.classList.remove('hidden');
+            dom.modeSelector.classList.add('hidden');
+            setupTOTP();
+        } else {
+            switchMode('enroll');
+        }
 
-        // Event Listeners
         dom.modeEnrollBtn.addEventListener('click', () => switchMode('enroll'));
         dom.modeSearchBtn.addEventListener('click', () => switchMode('search'));
         dom.generateBtn.addEventListener('click', handleEnrollment);
         dom.searchBtn.addEventListener('click', handleSearch);
-
-        // Camera Listeners
+        dom.verifyTotpBtn.addEventListener('click', verifyTOTP);
+        dom.verifySetupBtn.addEventListener('click', verifySetup);
+        dom.totpInput.addEventListener('keyup', e => { if (e.key === 'Enter') verifyTOTP() });
+        dom.setupTotpInput.addEventListener('keyup', e => { if (e.key === 'Enter') verifySetup() });
         dom.useCameraEnrollBtn.addEventListener('click', () => openCamera('enroll'));
         dom.useCameraSearchBtn.addEventListener('click', () => openCamera('search'));
         dom.captureBtn.addEventListener('click', captureImage);
         dom.cancelCameraBtn.addEventListener('click', closeCamera);
-
-        // Input listeners
         dom.personName.addEventListener('input', checkEnrollButtonState);
-        dom.enrollUpload.addEventListener('change', async (e) => {
-            if (e.target.files && e.target.files[0]) {
+        dom.enrollUpload.addEventListener('change', async e => {
+            if (e.target.files[0]) {
                 capturedImageBlob = null;
                 updatePreview(await readFileAsDataURL(e.target.files[0]), 'enroll');
                 checkEnrollButtonState();
             }
         });
-        dom.searchUpload.addEventListener('change', async (e) => {
-             if (e.target.files && e.target.files[0]) {
+        dom.searchUpload.addEventListener('change', async e => {
+             if (e.target.files[0]) {
                 capturedImageBlob = null;
                 updatePreview(await readFileAsDataURL(e.target.files[0]), 'search');
                 checkSearchButtonState();
@@ -618,9 +797,8 @@
         await loadModels();
     }
 
-    document.addEventListener('DOMContentLoaded', initializeApp);
+    window.addEventListener('load', initializeApp);
 
 </script>
 </body>
 </html>
-
