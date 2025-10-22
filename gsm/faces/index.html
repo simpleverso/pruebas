@@ -685,7 +685,12 @@
                     const data = await res.json();
 
                     if (data.name && data.photo && data.descriptors) {
-                        const decryptedData = { name: simpleDecrypt(data.name), comments: simpleDecrypt(data.comments), photo: simpleDecrypt(data.photo) };
+                        const decryptedData = {
+                            name: simpleDecrypt(data.name),
+                            comments: simpleDecrypt(data.comments),
+                            photo: simpleDecrypt(data.photo),
+                            filename: name // MODIFICACIÓN: Añadir el nombre del archivo
+                        };
                         const label = JSON.stringify(decryptedData);
                         for (const key in data.descriptors) {
                             if (data.descriptors[key]) {
@@ -751,7 +756,22 @@
             const data = JSON.parse(match.label);
             const confidence = ((1 - match.distance) * 100).toFixed(2);
             const voteCount = votes[data.name] || 0;
-            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg"><h3 class="text-2xl font-bold text-green-400 mb-4 text-center">¡Coincidencia Encontrada!</h3><div class="flex flex-col md:flex-row items-center gap-6"><img src="${data.photo}" alt="${data.name}" class="w-40 h-40 object-cover rounded-full border-4 border-green-500 shadow-lg"><div class="flex-1 text-center md:text-left"><p class="text-3xl font-bold">${data.name}</p><p class="text-gray-300 mt-1">${data.comments || 'Sin comentarios.'}</p><div class="mt-4 bg-gray-800 inline-block p-3 rounded-lg"><p class="text-lg">Confianza: <span class="font-bold text-xl text-green-400">${confidence}%</span></p><p class="text-xs text-gray-400 mt-1">(${voteCount} de ${totalMatches} modelos concuerdan)</p></div></div></div></div>`;
+            // MODIFICACIÓN: Se añade el nombre del archivo a la tarjeta de resultados.
+            dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg">
+                <h3 class="text-2xl font-bold text-green-400 mb-4 text-center">¡Coincidencia Encontrada!</h3>
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <img src="${data.photo}" alt="${data.name}" class="w-40 h-40 object-cover rounded-full border-4 border-green-500 shadow-lg">
+                    <div class="flex-1 text-center md:text-left">
+                        <p class="text-3xl font-bold">${data.name}</p>
+                        <p class="text-gray-300 mt-1">${data.comments || 'Sin comentarios.'}</p>
+                        <p class="text-sm text-gray-500 mt-2">Archivo de origen: <code class="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">${data.filename}</code></p>
+                        <div class="mt-4 bg-gray-800 inline-block p-3 rounded-lg">
+                            <p class="text-lg">Confianza: <span class="font-bold text-xl text-green-400">${confidence}%</span></p>
+                            <p class="text-xs text-gray-400 mt-1">(${voteCount} de ${totalMatches} modelos concuerdan)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
         }
     }
 
