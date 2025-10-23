@@ -6,7 +6,6 @@
     <title>Herramienta de Seguridad de Embeddings Faciales</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
-    <!-- Librería para QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -58,13 +57,11 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
 
-    <!-- Modal de Carga -->
     <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 hidden">
         <div class="loader"></div>
         <p id="loadingStatus" class="mt-4 text-lg">Cargando Modelos de IA...</p>
     </div>
     
-    <!-- Modal de Progreso -->
     <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
         <div class="w-11/12 max-w-lg bg-gray-800 rounded-lg p-6 border border-gray-700">
             <p id="progressStatus" class="text-lg mb-2 text-center">Procesando...</p>
@@ -75,7 +72,6 @@
     </div>
 
 
-    <!-- Modal de Cámara -->
     <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
         <div class="bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-700">
             <video id="videoFeed" width="640" height="480" autoplay class="rounded-md"></video>
@@ -92,7 +88,6 @@
             <p class="text-gray-400">Cree archivos encriptados de embeddings faciales para inscripción y búsqueda.</p>
         </header>
 
-        <!-- Selector de Modo -->
         <div id="modeSelector" class="flex justify-center mb-8">
             <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
                 <button id="modeEnrollBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Inscribir Persona</button>
@@ -100,9 +95,7 @@
             </div>
         </div>
 
-        <!-- Área de Contenido Principal -->
         <main class="max-w-4xl mx-auto">
-            <!-- Vista de Inscripción -->
             <div id="enrollView" class="hidden">
                 <section class="glass-card p-6 rounded-lg">
                     <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Inscribir Nueva Persona</h2>
@@ -134,7 +127,6 @@
                 </section>
             </div>
 
-            <!-- Vista de Búsqueda -->
             <div id="searchView" class="hidden">
                  <section class="glass-card p-6 rounded-lg">
                     <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Buscar Persona</h2>
@@ -165,17 +157,22 @@
                  <section id="searchResults" class="mt-8"></section>
             </div>
             
-             <!-- Vista de Verificación TOTP -->
-            <div id="totpView" class="hidden">
+             <div id="totpView" class="hidden">
                  <section class="glass-card p-6 rounded-lg text-center">
                     <h2 class="text-2xl font-semibold mb-4">Verificación de Seguridad</h2>
                     <p class="text-gray-400 mb-4">Ingrese el código de su aplicación de autenticación para continuar.</p>
-                    <input type="text" id="totpInput" inputmode="numeric" maxlength="6" class="bg-gray-700 text-white text-2xl tracking-widest text-center w-48 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="flex justify-center items-center space-x-2">
+                        <input type="text" id="totpInput" inputmode="numeric" maxlength="6" class="bg-gray-700 text-white text-2xl tracking-widest text-center w-48 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <button id="pasteTotpBtn" class="p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg" title="Pegar desde portapapeles">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a2.25 2.25 0 0 1-2.25 2.25H9A2.25 2.25 0 0 1 6.75 4.5v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                            </svg>
+                        </button>
+                    </div>
                     <button id="verifyTotpBtn" class="mt-4 w-48 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Verificar</button>
                  </section>
             </div>
             
-            <!-- Vista de Instalación TOTP -->
             <div id="installView" class="hidden">
                 <section class="glass-card p-6 rounded-lg text-center">
                     <h2 class="text-2xl font-semibold mb-2">Configuración de Autenticación de Dos Factores (2FA)</h2>
@@ -184,11 +181,17 @@
                     <p class="mt-4 text-gray-300 font-mono text-lg tracking-widest" id="secretKeyDisplay"></p>
                     <p class="mt-2 text-gray-400">Guarde esta clave en un lugar seguro. Si pierde su dispositivo, la necesitará para recuperar el acceso.</p>
                     
-                    <!-- NUEVO: Sección de Validación -->
                     <div id="setupValidation" class="mt-6 border-t border-gray-700 pt-4">
                         <h3 class="font-semibold text-lg mb-2">Verifique su configuración</h3>
                         <p class="text-gray-400 mb-4">Ingrese un código de su aplicación para confirmar que la configuración es correcta.</p>
-                        <input type="text" id="setupTotpInput" inputmode="numeric" maxlength="6" class="bg-gray-700 text-white text-2xl tracking-widest text-center w-48 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <div class="flex justify-center items-center space-x-2">
+                            <input type="text" id="setupTotpInput" inputmode="numeric" maxlength="6" class="bg-gray-700 text-white text-2xl tracking-widest text-center w-48 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <button id="pasteSetupTotpBtn" class="p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg" title="Pegar desde portapapeles">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a2.25 2.25 0 0 1-2.25 2.25H9A2.25 2.25 0 0 1 6.75 4.5v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                                </svg>
+                            </button>
+                        </div>
                         <button id="verifySetupBtn" class="mt-4 w-48 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Confirmar Configuración</button>
                         <p id="setupStatus" class="mt-2 h-5 text-sm"></p>
                     </div>
@@ -198,7 +201,6 @@
         </main>
     </div>
     
-    <!-- Notificación Toast -->
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-5 rounded-lg shadow-lg opacity-0 transform translate-y-10 transition-all duration-300">
         <p id="toastMessage"></p>
     </div>
@@ -231,10 +233,12 @@
         totpView: document.getElementById('totpView'),
         installView: document.getElementById('installView'),
         totpInput: document.getElementById('totpInput'),
+        pasteTotpBtn: document.getElementById('pasteTotpBtn'),
         verifyTotpBtn: document.getElementById('verifyTotpBtn'),
         qrCodeCanvas: document.getElementById('qrCodeCanvas'),
         secretKeyDisplay: document.getElementById('secretKeyDisplay'),
         setupTotpInput: document.getElementById('setupTotpInput'),
+        pasteSetupTotpBtn: document.getElementById('pasteSetupTotpBtn'),
         verifySetupBtn: document.getElementById('verifySetupBtn'),
         setupStatus: document.getElementById('setupStatus'),
         personName: document.getElementById('personName'),
@@ -263,6 +267,23 @@
         setTimeout(() => {
             dom.toast.className = dom.toast.className.replace('opacity-100 transform translate-y-0', 'opacity-0 transform translate-y-10');
         }, 3000);
+    }
+    
+    async function pasteFromClipboard(targetInput) {
+        try {
+            const text = await navigator.clipboard.readText();
+            const cleanText = text.trim().replace(/\s/g, ''); // Remove whitespace
+            if (/^\d+$/.test(cleanText)) {
+                targetInput.value = cleanText.slice(0, 6); // Only take first 6 digits
+                targetInput.dispatchEvent(new Event('input')); // Trigger any 'input' listeners
+                showToast("Código pegado desde el portapapeles.");
+            } else {
+                showToast("El portapapeles no contiene un código numérico.", true);
+            }
+        } catch (err) {
+            console.error('Failed to read clipboard contents: ', err);
+            showToast('No se pudo leer el portapapeles. Verifique los permisos.', true);
+        }
     }
 
     function showProgressBar(message = 'Procesando...') {
@@ -790,8 +811,12 @@
         dom.modeSearchBtn.addEventListener('click', () => switchMode('search'));
         dom.generateBtn.addEventListener('click', handleEnrollment);
         dom.searchBtn.addEventListener('click', handleSearch);
+        
         dom.verifyTotpBtn.addEventListener('click', verifyTOTP);
+        dom.pasteTotpBtn.addEventListener('click', () => pasteFromClipboard(dom.totpInput));
         dom.verifySetupBtn.addEventListener('click', verifySetup);
+        dom.pasteSetupTotpBtn.addEventListener('click', () => pasteFromClipboard(dom.setupTotpInput));
+
         dom.totpInput.addEventListener('keyup', e => { if (e.key === 'Enter') verifyTOTP() });
         dom.setupTotpInput.addEventListener('keyup', e => { if (e.key === 'Enter') verifySetup() });
         dom.useCameraEnrollBtn.addEventListener('click', () => openCamera('enroll'));
