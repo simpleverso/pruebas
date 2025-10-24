@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text & JSON Formatting Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+        h1 {
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        p {
+            text-align: center;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .label-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+        .label-group h2, .label-group label {
+            margin-bottom: 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        textarea, input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            box-sizing: border-box; 
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        /* Drag and Drop & File Input Styles */
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            color: #aaa;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+            margin-bottom: 1rem;
+        }
+        .drop-zone--over {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        .drop-zone__input {
+            display: none;
+        }
+        .drop-zone__prompt {
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 10px; /* space between checkbox and label */
+        }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .button-group {
+            display: grid;
+            /* 2 columns, will wrap as needed */
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .primary-button {
+             background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+         .secondary-button {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+        }
+        .tertiary-button {
+            background: linear-gradient(45deg, #28a745, #218838);
+        }
+        /* New button style for ARN Anonymizer */
+        .quaternary-button {
+            background: linear-gradient(45deg, #fd7e14, #d35400); /* Orange gradient */
+        }
+        /* New button style for Bucket Anonymizer */
+        .quinary-button {
+            background: linear-gradient(45deg, #6f42c1, #4a148c); /* Purple gradient */
+        }
+        /* New button style for Role Anonymizer */
+        .senary-button {
+            background: linear-gradient(45deg, #20c997, #00796b); /* Teal gradient */
+        }
+        .utility-button {
+            padding: 5px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: #e9ecef;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .utility-button:hover {
+            background-color: #d8dde1;
+            transform: none;
+            box-shadow: none;
+        }
+        .validation-message {
+            text-align: center;
+            margin: 1rem 0 0 0;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* Hidden by default */
+        }
+        .validation-message.valid {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .validation-message.invalid {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        #output {
+            margin-top: 1.5rem;
+        }
+        pre {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            min-height: 150px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        .result-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .download-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto; /* Pushes download to the right */
+        }
+        #xmlOptions {
+            display: none; /* Hidden by default */
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        #xmlOptions.visible {
+            display: block;
+        }
+        #xmlOptions input {
+            margin-bottom: 0.5rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Text & JSON Formatting Tool</h1>
+        <p>A versatile tool to insert new lines, validate, or format (expand/beautify) JSON.</p>
+        
+        <div class="form-group">
+            <label for="delimiter">Delimiter (for new line insertion):</label>
+            <input type="text" id="delimiter" value="," placeholder="e.g., , or ; or word">
+        </div>
+
+        <div class="form-group">
+            <div class="label-group">
+                <label for="inputText">Input Text:</label>
+                <button onclick="clearInput()" class="utility-button">Clear</button>
+            </div>
+             <!-- File Drop Zone -->
+            <div id="dropZone" class="drop-zone">
+                <span class="drop-zone__prompt">Drag & drop a file here or click to select a file (.txt, .csv, .json)</span>
+                <input type="file" id="fileInput" class="drop-zone__input" accept=".txt,.csv,.json">
+            </div>
+            <textarea id="inputText" placeholder="Your file content or pasted text will appear here..."></textarea>
+        </div>
+
+        <div class="options">
+             <input type="checkbox" id="removeDelimiterCheckbox">
+             <label for="removeDelimiterCheckbox">Remove the delimiter from the result</label>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="addNewLines()" class="primary-button">Convert Text</button>
+            <button onclick="validateJson()" class="secondary-button">Validate JSON</button>
+            <button onclick="formatJson()" class="tertiary-button">Format JSON</button>
+            <button onclick="anonymizeAwsArns()" class="quaternary-button">Anonymize account ARNs</button>
+            <button onclick="anonymizeAwsBuckets()" class="quinary-button">Anonymize Buckets ARNs</button>
+            <!-- New Button Added -->
+            <button onclick="anonymizeAwsRoles()" class="senary-button">Anonymize Role ARNs</button>
+        </div>
+        
+        <p id="jsonValidationResult" class="validation-message"></p>
+        
+        <div id="output">
+             <div class="label-group">
+                <h2>Result:</h2>
+                <div class="result-controls">
+                     <button onclick="copyResult(this)" class="utility-button">Copy</button>
+                     <div class="download-controls">
+                        <select id="downloadFormat" onchange="toggleXmlOptions()">
+                            <option value="txt">.txt</option>
+                            <option value="csv">.csv</option>
+                            <option value="json">.json</option>
+                            <option value="xml">.xml</option>
+                        </select>
+                        <button onclick="downloadResult()" class="utility-button">Download</button>
+                     </div>
+                </div>
+            </div>
+             <div id="xmlOptions">
+                <label for="xmlRoot">XML Root Tag:</label>
+                <input type="text" id="xmlRoot" placeholder="e.g., data">
+                <label for="xmlChild">XML Child Tag (for each line):</label>
+                <input type="text" id="xmlChild" placeholder="e.g., item">
+            </div>
+            <pre id="outputText">Your formatted text will appear here.</pre>
+        </div>
+    </div>
+
+    <script>
+        // --- Drag and Drop & File Input Logic ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const inputTextarea = document.getElementById('inputText');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-zone--over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-zone--over'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            handleFile(file);
+        }, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                inputTextarea.value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Core Tool Logic ---
+        function addNewLines() {
+            const delimiter = document.getElementById('delimiter').value;
+            const inputText = document.getElementById('inputText').value;
+            const shouldRemoveDelimiter = document.getElementById('removeDelimiterCheckbox').checked;
+            const outputElement = document.getElementById('outputText');
+            
+            document.getElementById('jsonValidationResult').style.display = 'none';
+
+            if (!delimiter) {
+                outputElement.textContent = "Error: Please enter a delimiter to convert text.";
+                return;
+            }
+
+            // Escape special regex characters in the delimiter
+            const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escapedDelimiter, 'g');
+            const replacement = shouldRemoveDelimiter ? '\n' : delimiter + '\n';
+            const formattedText = inputText.replace(regex, replacement);
+            outputElement.textContent = formattedText;
+        }
+        
+        function validateJson() {
+            const inputText = document.getElementById('inputText').value;
+            const resultElement = document.getElementById('jsonValidationResult');
+            const outputElement = document.getElementById('outputText');
+
+            outputElement.textContent = "Your formatted text will appear here.";
+            
+            if (!inputText.trim()) {
+                resultElement.textContent = 'Input is empty. Cannot validate.';
+                resultElement.className = 'validation-message invalid';
+                return;
+            }
+
+            try {
+                JSON.parse(inputText);
+                resultElement.textContent = 'Success: Valid JSON structure!';
+                resultElement.className = 'validation-message valid';
+            } catch (error) {
+                resultElement.textContent = 'Error: Invalid JSON. ' + error.message;
+                resultElement.className = 'validation-message invalid';
+            }
+        }
+        
+        function formatJson() {
+            const inputText = document.getElementById('inputText').value;
+            const resultElement = document.getElementById('jsonValidationResult');
+            const outputElement = document.getElementById('outputText');
+
+            outputElement.textContent = "Your formatted text will appear here.";
+
+            if (!inputText.trim()) {
+                resultElement.textContent = 'Input is empty. Cannot format.';
+                resultElement.className = 'validation-message invalid';
+                return;
+            }
+
+            try {
+                const jsonObject = JSON.parse(inputText);
+                const formattedJson = JSON.stringify(jsonObject, null, 2); 
+                outputElement.textContent = formattedJson;
+                resultElement.textContent = 'Success: JSON formatted!';
+                resultElement.className = 'validation-message valid';
+            } catch (error) {
+                resultElement.textContent = 'Error: Invalid JSON. Cannot format. ' + error.message;
+                resultElement.className = 'validation-message invalid';
+            }
+        }
+
+        // --- ARN Anonymizer Function ---
+        function anonymizeAwsArns() {
+            const inputText = document.getElementById('inputText').value;
+            const outputElement = document.getElementById('outputText');
+            document.getElementById('jsonValidationResult').style.display = 'none';
+
+            if (!inputText.trim()) {
+                outputElement.textContent = "Input is empty. Cannot anonymize.";
+                return;
+            }
+
+            // Regex to find ARNs and capture:
+            // (group 1: prefix) - (group 2: 12-digit account) - (group 3: suffix)
+            const arnRegex = /(arn:[^:]+:[^:]+:[^:]+:)(\d{12})(:.*)/g;
+            const accountMap = new Map();
+            let accountCounter = 1;
+
+            const anonymizedText = inputText.replace(arnRegex, (match, prefix, accountId, suffix) => {
+                let newId;
+                if (accountMap.has(accountId)) {
+                    // If we've seen this account ID, get its assigned new ID
+                    newId = accountMap.get(accountId);
+                } else {
+                    // If it's a new account ID, create the new identifier
+                    // as '09999999' + counter (e.g., 099999991, 099999992)
+                    newId = '09999999' + accountCounter;
+                    accountMap.set(accountId, newId);
+                    accountCounter++;
+                }
+                // Reconstruct the ARN with the new ID
+                return prefix + newId + suffix;
+            });
+
+            outputElement.textContent = anonymizedText;
+        }
+        
+        // --- Bucket Anonymizer Function ---
+        function anonymizeAwsBuckets() {
+            const inputText = document.getElementById('inputText').value;
+            const outputElement = document.getElementById('outputText');
+            document.getElementById('jsonValidationResult').style.display = 'none';
+        
+            if (!inputText.trim()) {
+                outputElement.textContent = "Input is empty. Cannot anonymize.";
+                return;
+            }
+        
+            // Regex to find S3 ARNs and capture:
+            // (group 1: prefix) - (group 2: bucket name) - (group 3: suffix/path)
+            // This handles arn:aws:s3:::my-bucket and arn:aws:s3:::my-bucket/path/to/object
+            const bucketArnRegex = /(arn:[^:]+:s3:::)([^/]+)(.*)/g;
+            const bucketMap = new Map();
+            let bucketCounter = 1;
+        
+            const anonymizedText = inputText.replace(bucketArnRegex, (match, prefix, bucketName, suffix) => {
+                let newId;
+                if (bucketMap.has(bucketName)) {
+                    // If we've seen this bucket, get its assigned new ID
+                    newId = bucketMap.get(bucketName);
+                } else {
+                    // If it's a new bucket, create the new identifier
+                    newId = 'bucket999' + bucketCounter;
+                    bucketMap.set(bucketName, newId);
+                    bucketCounter++;
+                }
+                // Reconstruct the ARN with the new bucket name
+                return prefix + newId + suffix;
+            });
+        
+            outputElement.textContent = anonymizedText;
+        }
+
+        // --- New Role Anonymizer Function ---
+        function anonymizeAwsRoles() {
+            const inputText = document.getElementById('inputText').value;
+            const outputElement = document.getElementById('outputText');
+            document.getElementById('jsonValidationResult').style.display = 'none';
+        
+            if (!inputText.trim()) {
+                outputElement.textContent = "Input is empty. Cannot anonymize.";
+                return;
+            }
+        
+            // Regex to find IAM Role ARNs and capture:
+            // (group 1: prefix) - (group 2: role name/path)
+            // This handles arn:aws:iam::123456789012:role/MyRole and arn:aws:iam::123456789012:role/path/MyRole
+            // It matches any partition, and any account ID (anonymized or not)
+            // FIX: Escaped the forward slash in 'role/' to 'role\/'
+            const roleArnRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/)(.+)/g;
+            const roleMap = new Map();
+            let roleCounter = 1;
+        
+            const anonymizedText = inputText.replace(roleArnRegex, (match, prefix, roleName) => {
+                let newId;
+                if (roleMap.has(roleName)) {
+                    // If we've seen this role, get its assigned new ID
+                    newId = roleMap.get(roleName);
+                } else {
+                    // If it's a new role, create the new identifier
+                    newId = 'role999' + roleCounter;
+                    roleMap.set(roleName, newId);
+                    roleCounter++;
+                }
+                // Reconstruct the ARN with the new role name
+                return prefix + newId;
+            });
+        
+            outputElement.textContent = anonymizedText;
+        }
+
+        function clearInput() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').textContent = 'Your formatted text will appear here.';
+            document.getElementById('jsonValidationResult').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function copyResult(copyButton) {
+            const outputText = document.getElementById('outputText').textContent;
+
+            if (outputText === 'Your formatted text will appear here.' || !outputText.trim()) {
+                copyButton.textContent = 'Nothing to copy!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                }, 2000);
+                return;
+            }
+
+            // Use execCommand for broader compatibility within iFrames
+            const textarea = document.createElement('textarea');
+            textarea.value = outputText;
+            textarea.style.position = 'fixed'; // Prevent scrolling
+            textarea.style.opacity = 0;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                copyButton.textContent = 'Copied!';
+            } catch (err) {
+                copyButton.textContent = 'Failed!';
+                console.error('Failed to copy text: ', err);
+            }
+            
+            document.body.removeChild(textarea);
+
+            setTimeout(() => {
+                copyButton.textContent = 'Copy';
+            }, 2000);
+        }
+
+        function toggleXmlOptions() {
+            const format = document.getElementById('downloadFormat').value;
+            const xmlOptions = document.getElementById('xmlOptions');
+            if (format === 'xml') {
+                xmlOptions.classList.add('visible');
+            } else {
+                xmlOptions.classList.remove('visible');
+            }
+        }
+
+        function downloadResult() {
+            let content = document.getElementById('outputText').textContent;
+            const format = document.getElementById('downloadFormat').value;
+            let mimeType = 'text/plain';
+            let filename = `result.${format}`;
+
+            if (content === 'Your formatted text will appear here.' || !content.trim()) {
+                // Use a custom message display instead of alert()
+                const downloadBtn = event.target;
+                const originalText = downloadBtn.textContent;
+                downloadBtn.textContent = 'No content!';
+                setTimeout(() => { downloadBtn.textContent = originalText; }, 2000);
+                return;
+            }
+
+            switch(format) {
+                case 'csv':
+                    mimeType = 'text/csv';
+                    break;
+                case 'json':
+                    mimeType = 'application/json';
+                    break;
+                case 'xml':
+                    mimeType = 'application/xml';
+                    const rootTag = document.getElementById('xmlRoot').value || 'root';
+                    const childTag = document.getElementById('xmlChild').value || 'item';
+                    const lines = content.trim().split('\n');
+                    const xmlLines = lines.map(line => {
+                        // Basic XML escaping
+                        const escapedLine = line.replace(/&/g, '&amp;')
+                                                .replace(/</g, '&lt;')
+                                                .replace(/>/g, '&gt;')
+                                                .replace(/"/g, '&quot;')
+                                                .replace(/'/g, '&apos;');
+                        return `  <${childTag}>${escapedLine}</${childTag}>`;
+                    });
+                    content = `<?xml version="1.0" encoding="UTF-8"?>\n<${rootTag}>\n${xmlLines.join('\n')}\n</${rootTag}>`;
+                    break;
+                case 'txt':
+                default:
+                    mimeType = 'text/plain';
+                    break;
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+    </script>
+
+</body>
+</html>
+
