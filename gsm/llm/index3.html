@@ -1,0 +1,328 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./index.css" />
+    <!-- Added library to read Excel files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- START: Added CSS for Excel Table -->
+    <style>
+      /* Styles specifically for the Excel table output */
+      #excel-table-output {
+        margin-top: 1rem;
+        /* Add horizontal scrolling if table is too wide */
+        overflow-x: auto;
+        max-width: 100%;
+        /* Add vertical scrolling for very long tables */
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      #excel-table-output table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        border: 1px solid #ccc;
+      }
+
+      #excel-table-output th,
+      #excel-table-output td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        /* Ensure cells don't collapse */
+        min-width: 50px;
+        white-space: nowrap;
+      }
+
+      /* Style for the header row (A, B, C...) and header column (1, 2, 3...) */
+      #excel-table-output th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        position: sticky; /* Make headers sticky */
+        top: 0; /* Sticky header row */
+        z-index: 10;
+      }
+      
+      /* Style for the header column (1, 2, 3...) */
+      #excel-table-output tbody th {
+        background-color: #f9f9f9;
+        position: sticky;
+        left: 0;
+        z-index: 5; /* Lower z-index than corner */
+      }
+      
+      /* Style for the top-left corner cell */
+      #excel-table-output thead th:first-child {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 15; /* Highest z-index */
+      }
+
+      /* START: Added CSS for QA Section */
+      .qa-container {
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background-color: #fafafa;
+      }
+      .qa-container label {
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        color: #333;
+      }
+      .qa-container textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        box-sizing: border-box; /* Ensures padding doesn't affect width */
+      }
+      .qa-container button {
+        padding: 8px 12px;
+        border: none;
+        background-color: #28a745; /* A different color to distinguish from chat */
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        align-self: flex-start;
+        font-weight: bold;
+      }
+      .qa-container button:hover {
+        background-color: #218838;
+      }
+      .qa-container textarea[readonly] {
+        background-color: #f0f0f0;
+        color: #333;
+      }
+      /* END: Added CSS for QA Section */
+    </style>
+    <!-- END: Added CSS for Excel Table -->
+  </head>
+
+  <body>
+    <p>Step 1: Initialize WebLLM and Download Model</p>
+    <div class="download-container">
+      <select id="model-selection"></select>
+      <button id="download">Download</button>
+    </div>
+    <p id="download-status" class="hidden"></p>
+
+    <p>Step 2: Chat</p>
+    <div class="chat-container">
+      <div id="chat-box" class="chat-box"></div>
+      <div id="chat-stats" class="chat-stats hidden"></div>
+      <div class="chat-input-container">
+        <input type="text" id="user-input" placeholder="Type a message..." />
+        <button id="send" disabled>Send</button>
+      </div>
+    </div>
+
+    <!-- START: New LLM Question Section -->
+    <p>Step 3: Ask a Single Question</p>
+    <div class="qa-container">
+      <label for="llm-question">Your Question:</label>
+      <textarea id="llm-question" rows="3" placeholder="Type your question for the LLM..."></textarea>
+      <button id="llm-ask-button">Ask</button>
+      <label for="llm-answer">LLM's Answer:</label>
+      <textarea id="llm-answer" rows="5" placeholder="LLM answer will appear here..." readonly></textarea>
+    </div>
+    <!-- END: New LLM Question Section -->
+
+    <!-- START: New Excel Viewer Section -->
+    <p>Step 4: Load and View Excel File</p>
+    <div class="excel-container">
+      <input
+        type="file"
+        id="excel-file-input"
+        accept=".xls, .xlsx"
+        aria-label="Upload Excel file"
+      />
+      <!-- This div will hold the generated HTML table -->
+      <div id="excel-table-output"></div>
+    </div>
+
+    <script>
+      // Wait for the DOM to be fully loaded before adding event listeners
+      document.addEventListener('DOMContentLoaded', (event) => {
+        // --- Excel Viewer Logic ---
+        const fileInput = document.getElementById('excel-file-input');
+        const outputDiv = document.getElementById('excel-table-output');
+
+        if (fileInput) {
+          fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+              return;
+            }
+
+            // Clear previous output
+            outputDiv.innerHTML = '<p>Loading...</p>';
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const data = new Uint8Array(event.target.result);
+
+              // Check if XLSX library is loaded
+              if (typeof XLSX === 'undefined') {
+                console.error('XLSX library not loaded.');
+                outputDiv.innerHTML =
+                  '<p style="color: red;">Error: Could not load Excel library.</p>';
+                return;
+              }
+
+              try {
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to a 2D array of values
+                const json = XLSX.utils.sheet_to_json(worksheet, {
+                  header: 1,
+                  defval: '', // Set default value for empty cells
+                });
+
+                // Generate and display the HTML table
+                outputDiv.innerHTML = generateTable(json);
+              } catch (err) {
+                console.error('Error processing Excel file:', err);
+                outputDiv.innerHTML =
+                  '<p style="color: red;">Error: Could not read the file. It might be corrupted or in an unsupported format.</p>';
+              }
+            };
+            reader.onerror = (err) => {
+              console.error('FileReader error:', err);
+              outputDiv.innerHTML =
+                '<p style="color: red;">Error: Could not read the file.</p>';
+            };
+            reader.readAsArrayBuffer(file);
+          });
+        }
+        
+        // --- New QA Section Logic ---
+        const qaAskButton = document.getElementById('llm-ask-button');
+        const qaQuestionBox = document.getElementById('llm-question');
+        const qaAnswerBox = document.getElementById('llm-answer');
+
+        if (qaAskButton) {
+          qaAskButton.addEventListener('click', async () => {
+            const question = qaQuestionBox.value;
+            if (!question) {
+              qaAnswerBox.value = 'Please type a question first.';
+              return;
+            }
+
+            // We assume 'index.js' exposes the chat instance on 'window.chat'.
+            // This listener is added on DOMContentLoaded, but the click will
+            // happen after index.js has (hopefully) loaded and set up window.chat.
+            if (typeof window.chat !== 'undefined' && typeof window.chat.generate === 'function') {
+              try {
+                qaAnswerBox.value = 'LLM is thinking...';
+                
+                // Call the generate function, assuming it's async and takes a prompt
+                const reply = await window.chat.generate(question);
+                
+                qaAnswerBox.value = reply;
+
+              } catch (err) {
+                console.error('Error generating LLM response:', err);
+                qaAnswerBox.value = 'An error occurred while getting the response.';
+              }
+            } else {
+              qaAnswerBox.value = 'LLM is not ready. Please initialize the model in Step 1 first.';
+              console.warn("Could not find 'window.chat.generate()' function. Make sure index.js exposes the chat instance as 'window.chat'.");
+            }
+          });
+        }
+        // --- End of New QA Section Logic ---
+
+
+        /**
+         * Generates a column letter (A, B, C...) from a zero-based column index.
+         * @param {number} colIndex - The 0-based column index.
+         * @returns {string} The corresponding column letter.
+         */
+        function getColLetter(colIndex) {
+          let letter = '';
+          let temp;
+          while (colIndex >= 0) {
+            temp = colIndex % 26;
+            letter = String.fromCharCode(temp + 65) + letter;
+            colIndex = Math.floor(colIndex / 26) - 1;
+          }
+          return letter;
+        }
+
+        /**
+         * Generates an HTML table string from a 2D array of data.
+         * @param {Array<Array<any>>} data - The 2D array (from sheet_to_json).
+         * @returns {string} The HTML table as a string.
+         */
+        function generateTable(data) {
+          if (!data || data.length === 0) {
+            return '<p>No data found in the Excel sheet.</p>';
+          }
+
+          let table = '<table>';
+          let maxCols = 0;
+          data.forEach((row) => {
+            if (row.length > maxCols) maxCols = row.length;
+          });
+
+          // --- Create Header Row (Column Letters) ---
+          table += '<thead><tr>';
+          table += '<th></th>'; // Empty corner cell
+          for (let c = 0; c < maxCols; c++) {
+            table += '<th>' + getColLetter(c) + '</th>';
+          }
+          table += '</tr></thead>';
+
+          // --- Create Data Rows (with Row Numbers) ---
+          table += '<tbody>';
+          for (let r = 0; r < data.length; r++) {
+            table += '<tr>';
+            // Row number cell (using <th> for header semantics)
+            table += '<th>' + (r + 1) + '</th>';
+
+            const row = data[r];
+            // Data cells
+            for (let c = 0; c < maxCols; c++) {
+              // Use the value from the row or an empty string if cell doesn't exist
+              const cellValue = row[c] !== null && row[c] !== undefined ? row[c] : '';
+              // Basic escaping for cell content to prevent HTML injection
+              const escapedCellValue = String(cellValue)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+              table += '<td>' + escapedCellValue + '</td>';
+            }
+            table += '</tr>';
+          }
+          table += '</tbody>';
+
+          table += '</table>';
+          return table;
+        }
+      });
+    </script>
+    <!-- END: New Excel Viewer Section -->
+
+    <script src="./index.js" type="module"></script>
+  </body>
+</html>
+
