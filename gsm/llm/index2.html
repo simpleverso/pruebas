@@ -1,276 +1,173 @@
 <!doctype html>
-<html lang="en">
+<html>
   <head>
-    <title>Simple Chatbot & Excel Viewer</title>
+    <title>Simple Chatbot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
-    
-    <!-- 1. Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. SheetJS (xlsx) library for reading Excel files -->
+    <link rel="stylesheet" href="./index.css" />
+    <!-- Added library to read Excel files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <script>
-      // Custom Tailwind configuration
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-          },
-        },
-      }
-    </script>
-    
-    <style>
-      /* Basic styles for the page */
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f3f4f6;
-      }
-      
-      /* Styles from the original index.css (approximated) */
-      .chat-box {
-        height: 300px;
-        overflow-y: auto;
-        border: 1px solid #d1d5db;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background-color: #ffffff;
-      }
-      .chat-stats {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-top: 0.5rem;
-      }
-      .hidden {
-        display: none;
-      }
-
-      /* Styles for the new Excel viewer */
-      #excel-viewer-container {
-        width: 100%;
-        max-height: 600px;
-        overflow: auto;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        background-color: #ffffff;
-        margin-top: 1rem;
-      }
-      
-      #excel-viewer table {
-        border-collapse: separate;
-        border-spacing: 0;
-        width: 100%;
-      }
-      
-      /* Sticky headers for columns and rows */
-      #excel-viewer th,
-      #excel-viewer td {
-        border: 1px solid #e5e7eb;
-        padding: 0.5rem 0.75rem;
-        white-space: nowrap;
-        min-width: 70px;
-      }
-      
-      #excel-viewer thead th {
-        position: -webkit-sticky; /* Safari */
-        position: sticky;
-        top: 0;
-        background-color: #f9fafb;
-        font-weight: 600;
-        z-index: 20;
-      }
-      
-      #excel-viewer tbody th {
-        position: -webkit-sticky; /* Safari */
-        position: sticky;
-        left: 0;
-        background-color: #f9fafb;
-        font-weight: 600;
-        z-index: 10;
-      }
-      
-      /* Top-left corner cell */
-      #excel-viewer thead th:first-child {
-        left: 0;
-        z-index: 30;
-      }
-    </style>
   </head>
 
-  <body class="text-gray-800">
+  <body>
+    <p>Step 1: Initialize WebLLM and Download Model</p>
+    <div class="download-container">
+      <select id="model-selection"></select>
+      <button id="download">Download</button>
+    </div>
+    <p id="download-status" class="hidden"></p>
 
-    <div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-    
-      <!-- Section 1: Original Chatbot UI -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-3">Step 1: Initialize WebLLM and Download Model</h2>
-        <div class="download-container flex items-center space-x-3">
-          <select id="model-selection" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></select>
-          <button id="download" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Download
-          </button>
-        </div>
-        <p id="download-status" class="hidden mt-3 text-sm text-gray-600"></p>
+    <p>Step 2: Chat</p>
+    <div class="chat-container">
+      <div id="chat-box" class="chat-box"></div>
+      <div id="chat-stats" class="chat-stats hidden"></div>
+      <div class="chat-input-container">
+        <input type="text" id="user-input" placeholder="Type a message..." />
+        <button id="send" disabled>Send</button>
       </div>
-
-      <!-- Section 2: Original Chatbot UI -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-3">Step 2: Chat</h2>
-        <div class="chat-container">
-          <div id="chat-box" class="chat-box mb-3"></div>
-          <div id="chat-stats" class="chat-stats hidden"></div>
-          <div class="chat-input-container flex space-x-3">
-            <input type="text" id="user-input" placeholder="Type a message..." class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-            <button id="send" disabled class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
-              Send
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 3: New Excel File Loader -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-3">Step 3: Load and View Excel File</h2>
-        <p class="text-sm text-gray-600 mb-3">Select an .xls or .xlsx file to display it in the table below.</p>
-        <div>
-          <label for="excel-input" class="block text-sm font-medium text-gray-700">Upload Excel File</label>
-          <input type="file" id="excel-input" accept=".xlsx, .xls" class="mt-1 block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-indigo-50 file:text-indigo-700
-            hover:file:bg-indigo-100
-          "/>
-        </div>
-        
-        <!-- Container for the table -->
-        <div id="excel-viewer-container" class="hidden">
-          <div id="excel-viewer"></div>
-        </div>
-      </div>
-
     </div>
 
-    <!-- 
-      Note: The original <script src="./index.js"></script> is not included
-      as its content was not provided. The buttons from Steps 1 & 2
-      will not be functional without it.
-    -->
-    
-    <!-- JavaScript for the new Excel Viewer -->
+    <!-- START: New Excel Viewer Section -->
+    <p>Step 3: Load and View Excel File</p>
+    <div class="excel-container">
+      <input
+        type="file"
+        id="excel-file-input"
+        accept=".xls, .xlsx"
+        aria-label="Upload Excel file"
+      />
+      <!-- This div will hold the generated HTML table -->
+      <div id="excel-table-output"></div>
+    </div>
+
     <script>
-      const input = document.getElementById('excel-input');
-      const viewerContainer = document.getElementById('excel-viewer-container');
-      const viewer = document.getElementById('excel-viewer');
+      // Wait for the DOM to be fully loaded before adding event listeners
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const fileInput = document.getElementById('excel-file-input');
+        const outputDiv = document.getElementById('excel-table-output');
 
-      input.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (!file) {
-          return;
+        if (fileInput) {
+          fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+              return;
+            }
+
+            // Clear previous output
+            outputDiv.innerHTML = '<p>Loading...</p>';
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const data = new Uint8Array(event.target.result);
+
+              // Check if XLSX library is loaded
+              if (typeof XLSX === 'undefined') {
+                console.error('XLSX library not loaded.');
+                outputDiv.innerHTML =
+                  '<p style="color: red;">Error: Could not load Excel library.</p>';
+                return;
+              }
+
+              try {
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to a 2D array of values
+                const json = XLSX.utils.sheet_to_json(worksheet, {
+                  header: 1,
+                  defval: '', // Set default value for empty cells
+                });
+
+                // Generate and display the HTML table
+                outputDiv.innerHTML = generateTable(json);
+              } catch (err) {
+                console.error('Error processing Excel file:', err);
+                outputDiv.innerHTML =
+                  '<p style="color: red;">Error: Could not read the file. It might be corrupted or in an unsupported format.</p>';
+              }
+            };
+            reader.onerror = (err) => {
+              console.error('FileReader error:', err);
+              outputDiv.innerHTML =
+                '<p style="color: red;">Error: Could not read the file.</p>';
+            };
+            reader.readAsArrayBuffer(file);
+          });
         }
 
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-
-          // Get the first sheet
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-
-          // Convert sheet to an array of arrays
-          const aoa = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-          // Render the table
-          renderTable(aoa);
-          
-          // Show the container
-          viewerContainer.classList.remove('hidden');
-        };
-
-        reader.readAsArrayBuffer(file);
-      });
-
-      /**
-       * Renders the array-of-arrays data into an HTML table.
-       * @param {Array<Array<any>>} data - The 2D array from the Excel sheet.
-       */
-      function renderTable(data) {
-        // Clear previous table
-        viewer.innerHTML = '';
-        
-        if (!data || data.length === 0) {
-            viewer.innerHTML = '<p class="p-4 text-gray-500">No data found in this sheet.</p>';
-            return;
-        }
-
-        const table = document.createElement('table');
-        table.className = "min-w-full";
-        
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
-        
-        const headerRow = document.createElement('tr');
-        
-        // 1. Create top-left empty corner cell
-        const cornerCell = document.createElement('th');
-        cornerCell.className = "w-16"; // Set a fixed width for row number column
-        headerRow.appendChild(cornerCell);
-        
-        // 2. Create Column Letter Headers (A, B, C...)
-        const numCols = data[0]?.length || 0;
-        for (let j = 0; j < numCols; j++) {
-          const th = document.createElement('th');
-          th.textContent = getColLetter(j);
-          headerRow.appendChild(th);
-        }
-        thead.appendChild(headerRow);
-        
-        // 3. Create Data Rows (with Row Numbers)
-        data.forEach((rowData, i) => {
-          const tr = document.createElement('tr');
-          
-          // Create Row Number Header (1, 2, 3...)
-          const th = document.createElement('th');
-          th.textContent = i + 1; // 1-based indexing
-          tr.appendChild(th);
-          
-          // Create Data Cells
-          for (let j = 0; j < numCols; j++) {
-            const td = document.createElement('td');
-            // Handle null or undefined cells
-            td.textContent = rowData[j] !== null && rowData[j] !== undefined ? rowData[j] : '';
-            tr.appendChild(td);
+        /**
+         * Generates a column letter (A, B, C...) from a zero-based column index.
+         * @param {number} colIndex - The 0-based column index.
+         * @returns {string} The corresponding column letter.
+         */
+        function getColLetter(colIndex) {
+          let letter = '';
+          let temp;
+          while (colIndex >= 0) {
+            temp = colIndex % 26;
+            letter = String.fromCharCode(temp + 65) + letter;
+            colIndex = Math.floor(colIndex / 26) - 1;
           }
-          tbody.appendChild(tr);
-        });
-
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        viewer.appendChild(table);
-      }
-
-      /**
-       * Converts a 0-based column index into an Excel-style letter (A, B, ... Z, AA, AB...)
-       * @param {number} colIndex - The 0-based column index.
-       * @returns {string} The Excel-style column letter.
-       */
-      function getColLetter(colIndex) {
-        let letter = '';
-        let num = colIndex + 1; // 1-based
-        while (num > 0) {
-          let rem = (num - 1) % 26;
-          letter = String.fromCharCode(65 + rem) + letter;
-          num = Math.floor((num - 1) / 26);
+          return letter;
         }
-        return letter;
-      }
+
+        /**
+         * Generates an HTML table string from a 2D array of data.
+         * @param {Array<Array<any>>} data - The 2D array (from sheet_to_json).
+         * @returns {string} The HTML table as a string.
+         */
+        function generateTable(data) {
+          if (!data || data.length === 0) {
+            return '<p>No data found in the Excel sheet.</p>';
+          }
+
+          let table = '<table>';
+          let maxCols = 0;
+          data.forEach((row) => {
+            if (row.length > maxCols) maxCols = row.length;
+          });
+
+          // --- Create Header Row (Column Letters) ---
+          table += '<thead><tr>';
+          table += '<th></th>'; // Empty corner cell
+          for (let c = 0; c < maxCols; c++) {
+            table += '<th>' + getColLetter(c) + '</th>';
+          }
+          table += '</tr></thead>';
+
+          // --- Create Data Rows (with Row Numbers) ---
+          table += '<tbody>';
+          for (let r = 0; r < data.length; r++) {
+            table += '<tr>';
+            // Row number cell (using <th> for header semantics)
+            table += '<th>' + (r + 1) + '</th>';
+
+            const row = data[r];
+            // Data cells
+            for (let c = 0; c < maxCols; c++) {
+              // Use the value from the row or an empty string if cell doesn't exist
+              const cellValue = row[c] !== null && row[c] !== undefined ? row[c] : '';
+              // Basic escaping for cell content to prevent HTML injection
+              const escapedCellValue = String(cellValue)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+              table += '<td>' + escapedCellValue + '</td>';
+            }
+            table += '</tr>';
+          }
+          table += '</tbody>';
+
+          table += '</table>';
+          return table;
+        }
+      });
     </script>
-    
+    <!-- END: New Excel Viewer Section -->
+
+    <script src="./index.js" type="module"></script>
   </body>
 </html>
