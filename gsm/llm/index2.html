@@ -7,6 +7,62 @@
     <link rel="stylesheet" href="./index.css" />
     <!-- Added library to read Excel files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- START: Added CSS for Excel Table -->
+    <style>
+      /* Styles specifically for the Excel table output */
+      #excel-table-output {
+        margin-top: 1rem;
+        /* Add horizontal scrolling if table is too wide */
+        overflow-x: auto;
+        max-width: 100%;
+      }
+
+      #excel-table-output table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        border: 1px solid #ccc;
+      }
+
+      #excel-table-output th,
+      #excel-table-output td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        /* Ensure cells don't collapse */
+        min-width: 50px;
+        white-space: nowrap;
+      }
+
+      /* Style for the header row (A, B, C...) and header column (1, 2, 3...) */
+      #excel-table-output th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        position: sticky; /* Make headers sticky */
+        top: 0; /* Sticky header row */
+        left: 0; /* Sticky header column */
+        z-index: 10;
+      }
+      
+      /* Style for the header column (1, 2, 3...) */
+      #excel-table-output tbody th {
+        background-color: #f9f9f9;
+        position: sticky;
+        left: 0;
+        z-index: 5; /* Lower z-index than corner */
+      }
+      
+      /* Style for the top-left corner cell */
+      #excel-table-output thead th:first-child {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 15; /* Highest z-index */
+      }
+    </style>
+    <!-- END: Added CSS for Excel Table -->
   </head>
 
   <body>
@@ -171,3 +227,4 @@
     <script src="./index.js" type="module"></script>
   </body>
 </html>
+
