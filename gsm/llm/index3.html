@@ -155,7 +155,14 @@
       <div id="excel-table-output"></div>
     </div>
 
+    <!-- Main app script -->
+    <script src="./index.js" type="module"></script>
+
+    <!-- This script block now runs AFTER index.js and is NOT a module -->
     <script>
+      // This script block contains the logic for the Excel Viewer and the QA section.
+      // It runs after index.js, so it can access 'window.chat' if index.js exposes it.
+
       // Wait for the DOM to be fully loaded before adding event listeners
       document.addEventListener('DOMContentLoaded', (event) => {
         // --- Excel Viewer Logic ---
@@ -225,9 +232,7 @@
               return;
             }
 
-            // We assume 'index.js' exposes the chat instance on 'window.chat'.
-            // This listener is added on DOMContentLoaded, but the click will
-            // happen after index.js has (hopefully) loaded and set up window.chat.
+            // --- FIXED: Check window.chat. This assumes index.js assigns its chat instance to window.chat ---
             if (typeof window.chat !== 'undefined' && typeof window.chat.generate === 'function') {
               try {
                 qaAnswerBox.value = 'LLM is thinking...';
@@ -243,7 +248,7 @@
               }
             } else {
               qaAnswerBox.value = 'LLM is not ready. Please initialize the model in Step 1 first.';
-              console.warn("Could not find 'window.chat.generate()' function. Make sure index.js exposes the chat instance as 'window.chat'.");
+              console.warn("Could not find 'window.chat.generate()' function. Make sure index.js exposes its chat instance as 'window.chat'.");
             }
           });
         }
@@ -322,7 +327,6 @@
     </script>
     <!-- END: New Excel Viewer Section -->
 
-    <script src="./index.js" type="module"></script>
   </body>
 </html>
 
