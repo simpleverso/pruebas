@@ -64,6 +64,28 @@
             min-height: 150px;
             resize: vertical;
         }
+
+        /* New styles for Epoch section */
+        .epoch-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .epoch-input-field {
+            flex-grow: 1; /* Input takes available space */
+            width: auto; /* Override default 100% */
+        }
+        .epoch-button-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0; /* Prevent buttons from shrinking */
+        }
+        .epoch-specific-button {
+            width: auto; /* Override default 100% width from 'button' rule */
+            padding: 12px 15px; /* Adjust padding to match input height */
+            font-size: 0.9rem; /* Slightly smaller text to fit */
+        }
+
         /* Drag and Drop & File Input Styles */
         .drop-zone {
             border: 2px dashed #ccc;
@@ -138,6 +160,18 @@
         /* New button style for Role Anonymizer */
         .senary-button {
             background: linear-gradient(45deg, #20c997, #00796b); /* Teal gradient */
+        }
+        /* New button style for AWS Extraction */
+        .septenary-button {
+            background: linear-gradient(45deg, #dc3545, #b02a37); /* Red gradient */
+        }
+        /* New button style for Epoch GMT-6 */
+        .epoch-button-gmt {
+            background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
+        }
+        /* New button style for Epoch UTC */
+        .epoch-button-utc {
+            background: linear-gradient(45deg, #ffc107, #d39e00); /* Warning/Yellow gradient */
         }
         .utility-button {
             padding: 5px 12px;
@@ -218,16 +252,28 @@
 
     <div class="container">
         <h1>Text & JSON Formatting Tool</h1>
-        <p>A versatile tool to insert new lines, validate, or format (expand/beautify) JSON.</p>
+        <p>A versatile tool to insert new lines, validate, format JSON, or convert Epoch time.</p>
         
         <div class="form-group">
             <label for="delimiter">Delimiter (for new line insertion):</label>
             <input type="text" id="delimiter" value="," placeholder="e.g., , or ; or word">
         </div>
 
+        <!-- New Epoch Input Section -->
+        <div class="form-group">
+            <label for="epochInput">Epoch Timestamp (seconds or ms):</label>
+            <div class="epoch-container">
+                <input type="text" id="epochInput" class="epoch-input-field" placeholder="e.g., 1678886400 or 1678886400000">
+                <div class="epoch-button-group">
+                    <button onclick="convertEpochToGmtMinus6()" class="epoch-button-gmt epoch-specific-button">GMT-6</button>
+                    <button onclick="convertEpochToUtc()" class="epoch-button-utc epoch-specific-button">UTC</button>
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <div class="label-group">
-                <label for="inputText">Input Text:</label>
+                <label for="inputText">Input Text (for Text/JSON tools):</label>
                 <button onclick="clearInput()" class="utility-button">Clear</button>
             </div>
              <!-- File Drop Zone -->
@@ -244,13 +290,15 @@
         </div>
         
         <div class="button-group">
+            <!-- Epoch Buttons moved up -->
+            <!-- Existing Buttons -->
             <button onclick="addNewLines()" class="primary-button">Convert Text</button>
             <button onclick="validateJson()" class="secondary-button">Validate JSON</button>
             <button onclick="formatJson()" class="tertiary-button">Format JSON</button>
             <button onclick="anonymizeAwsArns()" class="quaternary-button">Anonymize account ARNs</button>
             <button onclick="anonymizeAwsBuckets()" class="quinary-button">Anonymize Buckets ARNs</button>
-            <!-- New Button Added -->
             <button onclick="anonymizeAwsRoles()" class="senary-button">Anonymize Role ARNs</button>
+            <button onclick="extractAwsResources()" class="septenary-button">Extract AWS Infra & CLI</button>
         </div>
         
         <p id="jsonValidationResult" class="validation-message"></p>
@@ -326,6 +374,82 @@
             };
             reader.readAsText(file);
         }
+
+        // --- Epoch Conversion Logic ---
+
+        /**
+         * Reads, validates, and converts the epoch timestamp input into a Date object.
+         * Handles both seconds and milliseconds.
+         */
+        function getEpochDate() {
+            const epochInput = document.getElementById('epochInput').value.trim();
+            const outputElement = document.getElementById('outputText');
+            // Clear any previous JSON validation messages
+            document.getElementById('jsonValidationResult').style.display = 'none';
+
+            if (!epochInput) {
+                outputElement.textContent = "Error: Please enter an Epoch timestamp.";
+                return null;
+            }
+
+            let timestamp = Number(epochInput);
+
+            if (isNaN(timestamp)) {
+                outputElement.textContent = "Error: Invalid timestamp. Please enter numbers only.";
+                return null;
+            }
+
+            // Check if timestamp is likely in seconds (e.g., 10 digits) vs. milliseconds (13 digits)
+            // A simple check: if it's less than 3,000,000,000 (a date in 2065), assume seconds.
+            if (timestamp < 3000000000) {
+                timestamp *= 1000; // Convert seconds to milliseconds
+            }
+
+            return new Date(timestamp);
+        }
+
+        /**
+         * Converts the epoch timestamp to a human-readable string in GMT-6 timezone.
+         */
+        function convertEpochToGmtMinus6() {
+            const date = getEpochDate();
+            if (!date) return; // Error message already set by getEpochDate()
+
+            const outputElement = document.getElementById('outputText');
+            
+            // Use 'Etc/GMT+6' for a fixed GMT-6 offset.
+            // Note: IANA time zone signs are inverted from common usage. GMT-6 is Etc/GMT+6.
+            const options = {
+                timeZone: 'Etc/GMT+6', 
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZoneName: 'short'
+            };
+
+            try {
+                const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+                outputElement.textContent = `GMT-6: ${formattedDate}`;
+            } catch (e) {
+                outputElement.textContent = `Error formatting date: ${e.message}`;
+            }
+        }
+
+        /**
+         * Converts the epoch timestamp to a human-readable string in UTC.
+         */
+        function convertEpochToUtc() {
+            const date = getEpochDate();
+            if (!date) return; // Error message already set by getEpochDate()
+
+            const outputElement = document.getElementById('outputText');
+            outputElement.textContent = `UTC: ${date.toUTCString()}`;
+        }
+
 
         // --- Core Tool Logic ---
         function addNewLines() {
@@ -485,7 +609,8 @@
             // This handles arn:aws:iam::123456789012:role/MyRole and arn:aws:iam::123456789012:role/path/MyRole
             // It matches any partition, and any account ID (anonymized or not)
             // FIX: Escaped the forward slash in 'role/' to 'role\/'
-            const roleArnRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/)(.+)/g;
+            // FIX 2: Constrained role name characters to prevent over-matching.
+            const roleArnRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/)([\w\+\=\,\.\@\-\/]+)/g;
             const roleMap = new Map();
             let roleCounter = 1;
         
@@ -507,8 +632,76 @@
             outputElement.textContent = anonymizedText;
         }
 
+        // --- New AWS Resource Extractor Function ---
+        function extractAwsResources() {
+            const inputText = document.getElementById('inputText').value;
+            const outputElement = document.getElementById('outputText');
+            document.getElementById('jsonValidationResult').style.display = 'none';
+
+            if (!inputText.trim()) {
+                outputElement.textContent = "Input is empty. Cannot extract resources.";
+                return;
+            }
+
+            // Regex patterns for specific AWS resources
+            const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
+            const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
+            const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
+            // This regex matches IAM role ARNs
+            const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+
+            // Find all matches and use Set to get unique values
+            const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
+            const subnets = [...new Set(inputText.match(subnetRegex) || [])];
+            const sgs = [...new Set(inputText.match(sgRegex) || [])];
+            const roles = [...new Set(inputText.match(roleRegex) || [])];
+
+            let output = "";
+            const cliOutput = [];
+
+            if (vpcs.length > 0) {
+                output += `VPCs (${vpcs.length}):\n${vpcs.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-vpcs --vpc-ids ${vpcs.join(' ')}`);
+            }
+            if (subnets.length > 0) {
+                output += `Subnets (${subnets.length}):\n${subnets.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-subnets --subnet-ids ${subnets.join(' ')}`);
+            }
+            if (sgs.length > 0) {
+                output += `Security Groups (${sgs.length}):\n${sgs.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-security-groups --group-ids ${sgs.join(' ')}`);
+            }
+            if (roles.length > 0) {
+                output += `Execution Roles (IAM) (${roles.length}):\n${roles.join('\n')}\n\n`;
+                
+                const roleCommands = roles.map(role => {
+                    // Extract role name from ARN (e.g., arn:aws:iam::12345:role/path/RoleName -> path/RoleName)
+                    const roleNameMatch = role.match(/role\/(.+)/);
+                    if (roleNameMatch && roleNameMatch[1]) {
+                        return `aws iam get-role --role-name ${roleNameMatch[1]}`;
+                    }
+                    return null;
+                }).filter(Boolean); // Filter out any nulls if regex failed
+
+                if (roleCommands.length > 0) {
+                    cliOutput.push(...roleCommands);
+                }
+            }
+
+            if (output === "") {
+                outputElement.textContent = "No AWS VPCs, Subnets, Security Groups, or Execution Roles found.";
+            } else {
+                if (cliOutput.length > 0) {
+                    output += "--- AWS CLI Describe Commands ---\n";
+                    output += cliOutput.join('\n');
+                }
+                outputElement.textContent = output.trim();
+            }
+        }
+
         function clearInput() {
             document.getElementById('inputText').value = '';
+            document.getElementById('epochInput').value = ''; // Also clear epoch input
             document.getElementById('outputText').textContent = 'Your formatted text will appear here.';
             document.getElementById('jsonValidationResult').style.display = 'none';
             document.getElementById('fileInput').value = '';
@@ -579,6 +772,11 @@
                     break;
                 case 'json':
                     mimeType = 'application/json';
+                    // If the content is from an Epoch conversion, it's not JSON.
+                    // We should probably just save it as text.
+                    // But if it's from a JSON format, it is.
+                    // For simplicity, we'll just save the text content as is.
+                    // A better implementation might check the *source* of the outputText.
                     break;
                 case 'xml':
                     mimeType = 'application/xml';
@@ -615,4 +813,6 @@
 
 </body>
 </html>
+
+
 
