@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text & JSON Formatting Tool</title>
+    <!-- Updated Title -->
+    <title>Text, JSON & Base64 Tools</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -65,7 +66,46 @@
             resize: vertical;
         }
 
-        /* New styles for Epoch section */
+        /* --- New Base64 Tool Styles --- */
+        .tool-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .tool-selector label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .tool-selector input[type="radio"] {
+            width: auto;
+        }
+        #imagePreview {
+            display: none; /* Hidden by default */
+            margin-top: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0.5rem;
+            background-color: #fdfdfd;
+        }
+        #imagePreview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+        /* --- End New Base64 Styles --- */
+
+
+        /* Epoch section styles */
         .epoch-container {
             display: flex;
             gap: 0.5rem;
@@ -97,6 +137,11 @@
             transition: border-color 0.3s, background-color 0.3s;
             margin-bottom: 1rem;
         }
+        /* Will be toggled by JS */
+        .drop-zone.hidden {
+            display: none;
+        }
+
         .drop-zone--over {
             border-color: #007bff;
             background-color: #f0f8ff;
@@ -119,8 +164,8 @@
         }
         .button-group {
             display: grid;
-            /* 2 columns, will wrap as needed */
-            grid-template-columns: repeat(2, 1fr);
+            /* Updated to 3 columns for better layout */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
             margin-bottom: 1rem;
         }
@@ -149,27 +194,26 @@
         .tertiary-button {
             background: linear-gradient(45deg, #28a745, #218838);
         }
-        /* New button style for ARN Anonymizer */
         .quaternary-button {
             background: linear-gradient(45deg, #fd7e14, #d35400); /* Orange gradient */
         }
-        /* New button style for Bucket Anonymizer */
         .quinary-button {
             background: linear-gradient(45deg, #6f42c1, #4a148c); /* Purple gradient */
         }
-        /* New button style for Role Anonymizer */
         .senary-button {
             background: linear-gradient(45deg, #20c997, #00796b); /* Teal gradient */
         }
-        /* New button style for AWS Extraction */
         .septenary-button {
             background: linear-gradient(45deg, #dc3545, #b02a37); /* Red gradient */
         }
-        /* New button style for Epoch GMT-6 */
+        /* New button style for Base64 */
+        .octonary-button {
+            background: linear-gradient(45deg, #d946ef, #a21caf); /* Fuchsia gradient */
+        }
+
         .epoch-button-gmt {
             background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
         }
-        /* New button style for Epoch UTC */
         .epoch-button-utc {
             background: linear-gradient(45deg, #ffc107, #d39e00); /* Warning/Yellow gradient */
         }
@@ -242,24 +286,21 @@
         #xmlOptions.visible {
             display: block;
         }
-        #xmlOptions input {
-            margin-bottom: 0.5rem;
-        }
 
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Text & JSON Formatting Tool</h1>
-        <p>A versatile tool to insert new lines, validate, format JSON, or convert Epoch time.</p>
+        <h1>Text, JSON & Base64 Tools</h1>
+        <p>A versatile tool to format text, validate JSON, convert Epoch time, and encode/decode Base64.</p>
         
         <div class="form-group">
             <label for="delimiter">Delimiter (for new line insertion):</label>
             <input type="text" id="delimiter" value="," placeholder="e.g., , or ; or word">
         </div>
 
-        <!-- New Epoch Input Section -->
+        <!-- Epoch Input Section -->
         <div class="form-group">
             <label for="epochInput">Epoch Timestamp (seconds or ms):</label>
             <div class="epoch-container">
@@ -271,17 +312,43 @@
             </div>
         </div>
 
+        <!-- New Base64 Tool Selector -->
+        <div class="form-group">
+            <label>Base64 Tools:</label>
+            <div class="tool-selector">
+                <label>
+                    <input type="radio" name="base64tool" value="textEncode" onchange="updateToolMode()"> Text Encode
+                </label>
+                <label>
+                    <input type="radio" name="base64tool" value="textDecode" onchange="updateToolMode()"> Text Decode
+                </label>
+                <label>
+                    <input type="radio" name="base64tool" value="imgEncode" onchange="updateToolMode()"> Image Encode
+                </label>
+                <label>
+                    <input type="radio" name="base64tool" value="imgDecode" onchange="updateToolMode()"> Image Decode
+                </label>
+            </div>
+        </div>
+
         <div class="form-group">
             <div class="label-group">
-                <label for="inputText">Input Text (for Text/JSON tools):</label>
+                <!-- This label will be updated by JS -->
+                <label for="inputText" id="inputLabel">Input Text (for Text/JSON tools):</label>
                 <button onclick="clearInput()" class="utility-button">Clear</button>
             </div>
-             <!-- File Drop Zone -->
+             <!-- File Drop Zone - now accepts images -->
             <div id="dropZone" class="drop-zone">
-                <span class="drop-zone__prompt">Drag & drop a file here or click to select a file (.txt, .csv, .json)</span>
-                <input type="file" id="fileInput" class="drop-zone__input" accept=".txt,.csv,.json">
+                <span class="drop-zone__prompt" id="dropZonePrompt">Drag & drop a file here or click to select a file (.txt, .csv, .json)</span>
+                <input type="file" id="fileInput" class="drop-zone__input" accept=".txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp">
             </div>
-            <textarea id="inputText" placeholder="Your file content or pasted text will appear here..."></textarea>
+            <!-- Textarea will be hidden/shown by JS -->
+            <textarea id="inputText" placeholder="Your file content, pasted text, or Base64 string will appear here..."></textarea>
+            
+            <!-- New Image Preview Area -->
+            <div id="imagePreview">
+                <img id="previewImageTag" src="" alt="Image Preview">
+            </div>
         </div>
 
         <div class="options">
@@ -290,7 +357,8 @@
         </div>
         
         <div class="button-group">
-            <!-- Epoch Buttons moved up -->
+            <!-- New Base64 Button -->
+            <button onclick="runBase64Tool()" class="octonary-button">Run Base64 Tool</button>
             <!-- Existing Buttons -->
             <button onclick="addNewLines()" class="primary-button">Convert Text</button>
             <button onclick="validateJson()" class="secondary-button">Validate JSON</button>
@@ -330,11 +398,25 @@
     </div>
 
     <script>
-        // --- Drag and Drop & File Input Logic ---
+        // --- Global Element References ---
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const inputTextarea = document.getElementById('inputText');
+        const outputTextarea = document.getElementById('outputText');
+        const inputLabel = document.getElementById('inputLabel');
+        const dropZonePrompt = document.getElementById('dropZonePrompt');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImageTag = document.getElementById('previewImageTag');
+        const jsonValidationResult = document.getElementById('jsonValidationResult');
+        
+        // --- Page Load Initializer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial state
+            updateToolMode();
+        });
 
+
+        // --- Drag and Drop & File Input Logic ---
         dropZone.addEventListener('click', () => fileInput.click());
 
         fileInput.addEventListener('change', (e) => {
@@ -369,38 +451,153 @@
 
         function handleFile(file) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                inputTextarea.value = e.target.result;
-            };
-            reader.readAsText(file);
+            const selectedTool = document.querySelector('input[name="base64tool"]:checked')?.value;
+
+            if (selectedTool === 'imgEncode' && file.type.startsWith('image/')) {
+                reader.onload = (e) => {
+                    // Show image in preview
+                    previewImageTag.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    // Put the Base64 string in the output
+                    outputTextarea.textContent = e.target.result;
+                    jsonValidationResult.style.display = 'none';
+                };
+                reader.readAsDataURL(file); // Reads as Base64 Data URL
+            } else {
+                // Default behavior: read as text
+                reader.onload = (e) => {
+                    inputTextarea.value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
         }
 
-        // --- Epoch Conversion Logic ---
+        // --- New Base64 Tool Logic ---
+        function getSelectedTool() {
+            const selected = document.querySelector('input[name="base64tool"]:checked');
+            return selected ? selected.value : null;
+        }
 
-        /**
-         * Reads, validates, and converts the epoch timestamp input into a Date object.
-         * Handles both seconds and milliseconds.
-         */
+        function updateToolMode() {
+            const selectedTool = getSelectedTool();
+            
+            // Default state
+            inputTextarea.style.display = 'block';
+            dropZone.classList.add('hidden');
+            imagePreview.style.display = 'none';
+            inputLabel.textContent = 'Input Text (for Text/JSON tools):';
+            dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
+            fileInput.accept = '.txt,.csv,.json';
+
+            switch (selectedTool) {
+                case 'textEncode':
+                    inputLabel.textContent = 'Text to Encode:';
+                    break;
+                case 'textDecode':
+                    inputLabel.textContent = 'Base64 to Decode:';
+                    break;
+                case 'imgEncode':
+                    inputTextarea.style.display = 'none';
+                    dropZone.classList.remove('hidden');
+                    inputLabel.textContent = 'Image to Encode:';
+                    dropZonePrompt.textContent = 'Drag & drop an image or click to select (.png, .jpg, .gif, .webp)';
+                    fileInput.accept = '.png,.jpg,.jpeg,.gif,.webp';
+                    break;
+                case 'imgDecode':
+                    inputLabel.textContent = 'Base64 to Decode:';
+                    imagePreview.style.display = 'block';
+                    break;
+            }
+        }
+
+        function runBase64Tool() {
+            const selectedTool = getSelectedTool();
+            const input = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+            
+            if (!selectedTool) {
+                outputTextarea.textContent = 'Error: Please select a Base64 tool first.';
+                return;
+            }
+
+            try {
+                switch (selectedTool) {
+                    case 'textEncode':
+                        if (!input) {
+                            outputTextarea.textContent = 'Error: No text provided to encode.';
+                            return;
+                        }
+                        // Use btoa() to encode
+                        // Handle Unicode characters correctly
+                        const utf8Bytes = new TextEncoder().encode(input);
+                        const base64String = btoa(String.fromCharCode.apply(null, utf8Bytes));
+                        outputTextarea.textContent = base64String;
+                        break;
+                        
+                    case 'textDecode':
+                        if (!input) {
+                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
+                            return;
+                        }
+                        // Use atob() to decode
+                        const decodedBytes = atob(input).split('').map(c => c.charCodeAt(0));
+                        const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
+                        outputTextarea.textContent = decodedText;
+                        break;
+
+                    case 'imgEncode':
+                        // This is handled by handleFile()
+                        // This button click is a bit redundant, but we'll check
+                        if (previewImageTag.src && outputTextarea.textContent.startsWith('data:image')) {
+                             jsonValidationResult.textContent = 'Success: Image encoded. Base64 string is in the result box.';
+                             jsonValidationResult.className = 'validation-message valid';
+                        } else {
+                            outputTextarea.textContent = 'Error: Please drop or select an image file using the area above.';
+                        }
+                        break;
+
+                    case 'imgDecode':
+                        if (!input) {
+                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
+                            return;
+                        }
+                        // Check if it's a valid Data URL
+                        if (input.startsWith('data:image')) {
+                            previewImageTag.src = input;
+                            imagePreview.style.display = 'block';
+                            outputTextarea.textContent = 'Preview updated. You can copy the Base64 string from the input.';
+                        } else {
+                            outputTextarea.textContent = 'Error: Invalid Base64 string. Expected format: "data:image/png;base64,..."';
+                        }
+                        break;
+                }
+            } catch (error) {
+                outputTextarea.textContent = 'Error: Failed to process. ' + error.message;
+                if (selectedTool === 'textDecode') {
+                     outputTextarea.textContent = 'Error: Invalid Base64 string. ' + error.message;
+                }
+            }
+        }
+
+
+        // --- Epoch Conversion Logic ---
         function getEpochDate() {
             const epochInput = document.getElementById('epochInput').value.trim();
-            const outputElement = document.getElementById('outputText');
             // Clear any previous JSON validation messages
-            document.getElementById('jsonValidationResult').style.display = 'none';
+            jsonValidationResult.style.display = 'none';
 
             if (!epochInput) {
-                outputElement.textContent = "Error: Please enter an Epoch timestamp.";
+                outputTextarea.textContent = "Error: Please enter an Epoch timestamp.";
                 return null;
             }
 
             let timestamp = Number(epochInput);
 
             if (isNaN(timestamp)) {
-                outputElement.textContent = "Error: Invalid timestamp. Please enter numbers only.";
+                outputTextarea.textContent = "Error: Invalid timestamp. Please enter numbers only.";
                 return null;
             }
 
-            // Check if timestamp is likely in seconds (e.g., 10 digits) vs. milliseconds (13 digits)
-            // A simple check: if it's less than 3,000,000,000 (a date in 2065), assume seconds.
             if (timestamp < 3000000000) {
                 timestamp *= 1000; // Convert seconds to milliseconds
             }
@@ -408,17 +605,10 @@
             return new Date(timestamp);
         }
 
-        /**
-         * Converts the epoch timestamp to a human-readable string in GMT-6 timezone.
-         */
         function convertEpochToGmtMinus6() {
             const date = getEpochDate();
-            if (!date) return; // Error message already set by getEpochDate()
+            if (!date) return; 
 
-            const outputElement = document.getElementById('outputText');
-            
-            // Use 'Etc/GMT+6' for a fixed GMT-6 offset.
-            // Note: IANA time zone signs are inverted from common usage. GMT-6 is Etc/GMT+6.
             const options = {
                 timeZone: 'Etc/GMT+6', 
                 year: 'numeric',
@@ -433,107 +623,91 @@
 
             try {
                 const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-                outputElement.textContent = `GMT-6: ${formattedDate}`;
+                outputTextarea.textContent = `GMT-6: ${formattedDate}`;
             } catch (e) {
-                outputElement.textContent = `Error formatting date: ${e.message}`;
+                outputTextarea.textContent = `Error formatting date: ${e.message}`;
             }
         }
 
-        /**
-         * Converts the epoch timestamp to a human-readable string in UTC.
-         */
         function convertEpochToUtc() {
             const date = getEpochDate();
-            if (!date) return; // Error message already set by getEpochDate()
-
-            const outputElement = document.getElementById('outputText');
-            outputElement.textContent = `UTC: ${date.toUTCString()}`;
+            if (!date) return; 
+            outputTextarea.textContent = `UTC: ${date.toUTCString()}`;
         }
 
 
         // --- Core Tool Logic ---
         function addNewLines() {
             const delimiter = document.getElementById('delimiter').value;
-            const inputText = document.getElementById('inputText').value;
+            const inputText = inputTextarea.value;
             const shouldRemoveDelimiter = document.getElementById('removeDelimiterCheckbox').checked;
-            const outputElement = document.getElementById('outputText');
             
-            document.getElementById('jsonValidationResult').style.display = 'none';
+            jsonValidationResult.style.display = 'none';
 
             if (!delimiter) {
-                outputElement.textContent = "Error: Please enter a delimiter to convert text.";
+                outputTextarea.textContent = "Error: Please enter a delimiter to convert text.";
                 return;
             }
 
-            // Escape special regex characters in the delimiter
             const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(escapedDelimiter, 'g');
             const replacement = shouldRemoveDelimiter ? '\n' : delimiter + '\n';
             const formattedText = inputText.replace(regex, replacement);
-            outputElement.textContent = formattedText;
+            outputTextarea.textContent = formattedText;
         }
         
         function validateJson() {
-            const inputText = document.getElementById('inputText').value;
-            const resultElement = document.getElementById('jsonValidationResult');
-            const outputElement = document.getElementById('outputText');
-
-            outputElement.textContent = "Your formatted text will appear here.";
+            const inputText = inputTextarea.value;
+            outputTextarea.textContent = "Your formatted text will appear here.";
             
             if (!inputText.trim()) {
-                resultElement.textContent = 'Input is empty. Cannot validate.';
-                resultElement.className = 'validation-message invalid';
+                jsonValidationResult.textContent = 'Input is empty. Cannot validate.';
+                jsonValidationResult.className = 'validation-message invalid';
                 return;
             }
 
             try {
                 JSON.parse(inputText);
-                resultElement.textContent = 'Success: Valid JSON structure!';
-                resultElement.className = 'validation-message valid';
+                jsonValidationResult.textContent = 'Success: Valid JSON structure!';
+                jsonValidationResult.className = 'validation-message valid';
             } catch (error) {
-                resultElement.textContent = 'Error: Invalid JSON. ' + error.message;
-                resultElement.className = 'validation-message invalid';
+                jsonValidationResult.textContent = 'Error: Invalid JSON. ' + error.message;
+                jsonValidationResult.className = 'validation-message invalid';
             }
         }
         
         function formatJson() {
-            const inputText = document.getElementById('inputText').value;
-            const resultElement = document.getElementById('jsonValidationResult');
-            const outputElement = document.getElementById('outputText');
-
-            outputElement.textContent = "Your formatted text will appear here.";
+            const inputText = inputTextarea.value;
+            outputTextarea.textContent = "Your formatted text will appear here.";
 
             if (!inputText.trim()) {
-                resultElement.textContent = 'Input is empty. Cannot format.';
-                resultElement.className = 'validation-message invalid';
+                jsonValidationResult.textContent = 'Input is empty. Cannot format.';
+                jsonValidationResult.className = 'validation-message invalid';
                 return;
             }
 
             try {
                 const jsonObject = JSON.parse(inputText);
                 const formattedJson = JSON.stringify(jsonObject, null, 2); 
-                outputElement.textContent = formattedJson;
-                resultElement.textContent = 'Success: JSON formatted!';
-                resultElement.className = 'validation-message valid';
+                outputTextarea.textContent = formattedJson;
+                jsonValidationResult.textContent = 'Success: JSON formatted!';
+                jsonValidationResult.className = 'validation-message valid';
             } catch (error) {
-                resultElement.textContent = 'Error: Invalid JSON. Cannot format. ' + error.message;
-                resultElement.className = 'validation-message invalid';
+                jsonValidationResult.textContent = 'Error: Invalid JSON. Cannot format. ' + error.message;
+                jsonValidationResult.className = 'validation-message invalid';
             }
         }
 
         // --- ARN Anonymizer Function ---
         function anonymizeAwsArns() {
-            const inputText = document.getElementById('inputText').value;
-            const outputElement = document.getElementById('outputText');
-            document.getElementById('jsonValidationResult').style.display = 'none';
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
 
             if (!inputText.trim()) {
-                outputElement.textContent = "Input is empty. Cannot anonymize.";
+                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
                 return;
             }
 
-            // Regex to find ARNs and capture:
-            // (group 1: prefix) - (group 2: 12-digit account) - (group 3: suffix)
             const arnRegex = /(arn:[^:]+:[^:]+:[^:]+:)(\d{12})(:.*)/g;
             const accountMap = new Map();
             let accountCounter = 1;
@@ -541,36 +715,28 @@
             const anonymizedText = inputText.replace(arnRegex, (match, prefix, accountId, suffix) => {
                 let newId;
                 if (accountMap.has(accountId)) {
-                    // If we've seen this account ID, get its assigned new ID
                     newId = accountMap.get(accountId);
                 } else {
-                    // If it's a new account ID, create the new identifier
-                    // as '09999999' + counter (e.g., 099999991, 099999992)
                     newId = '09999999' + accountCounter;
                     accountMap.set(accountId, newId);
                     accountCounter++;
                 }
-                // Reconstruct the ARN with the new ID
                 return prefix + newId + suffix;
             });
 
-            outputElement.textContent = anonymizedText;
+            outputTextarea.textContent = anonymizedText;
         }
         
         // --- Bucket Anonymizer Function ---
         function anonymizeAwsBuckets() {
-            const inputText = document.getElementById('inputText').value;
-            const outputElement = document.getElementById('outputText');
-            document.getElementById('jsonValidationResult').style.display = 'none';
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
         
             if (!inputText.trim()) {
-                outputElement.textContent = "Input is empty. Cannot anonymize.";
+                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
                 return;
             }
         
-            // Regex to find S3 ARNs and capture:
-            // (group 1: prefix) - (group 2: bucket name) - (group 3: suffix/path)
-            // This handles arn:aws:s3:::my-bucket and arn:aws:s3:::my-bucket/path/to/object
             const bucketArnRegex = /(arn:[^:]+:s3:::)([^/]+)(.*)/g;
             const bucketMap = new Map();
             let bucketCounter = 1;
@@ -578,38 +744,28 @@
             const anonymizedText = inputText.replace(bucketArnRegex, (match, prefix, bucketName, suffix) => {
                 let newId;
                 if (bucketMap.has(bucketName)) {
-                    // If we've seen this bucket, get its assigned new ID
                     newId = bucketMap.get(bucketName);
                 } else {
-                    // If it's a new bucket, create the new identifier
                     newId = 'bucket999' + bucketCounter;
                     bucketMap.set(bucketName, newId);
                     bucketCounter++;
                 }
-                // Reconstruct the ARN with the new bucket name
                 return prefix + newId + suffix;
             });
         
-            outputElement.textContent = anonymizedText;
+            outputTextarea.textContent = anonymizedText;
         }
 
-        // --- New Role Anonymizer Function ---
+        // --- Role Anonymizer Function ---
         function anonymizeAwsRoles() {
-            const inputText = document.getElementById('inputText').value;
-            const outputElement = document.getElementById('outputText');
-            document.getElementById('jsonValidationResult').style.display = 'none';
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
         
             if (!inputText.trim()) {
-                outputElement.textContent = "Input is empty. Cannot anonymize.";
+                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
                 return;
             }
         
-            // Regex to find IAM Role ARNs and capture:
-            // (group 1: prefix) - (group 2: role name/path)
-            // This handles arn:aws:iam::123456789012:role/MyRole and arn:aws:iam::123456789012:role/path/MyRole
-            // It matches any partition, and any account ID (anonymized or not)
-            // FIX: Escaped the forward slash in 'role/' to 'role\/'
-            // FIX 2: Constrained role name characters to prevent over-matching.
             const roleArnRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/)([\w\+\=\,\.\@\-\/]+)/g;
             const roleMap = new Map();
             let roleCounter = 1;
@@ -617,40 +773,33 @@
             const anonymizedText = inputText.replace(roleArnRegex, (match, prefix, roleName) => {
                 let newId;
                 if (roleMap.has(roleName)) {
-                    // If we've seen this role, get its assigned new ID
                     newId = roleMap.get(roleName);
                 } else {
-                    // If it's a new role, create the new identifier
                     newId = 'role999' + roleCounter;
                     roleMap.set(roleName, newId);
                     roleCounter++;
                 }
-                // Reconstruct the ARN with the new role name
                 return prefix + newId;
             });
         
-            outputElement.textContent = anonymizedText;
+            outputTextarea.textContent = anonymizedText;
         }
 
-        // --- New AWS Resource Extractor Function ---
+        // --- AWS Resource Extractor Function ---
         function extractAwsResources() {
-            const inputText = document.getElementById('inputText').value;
-            const outputElement = document.getElementById('outputText');
-            document.getElementById('jsonValidationResult').style.display = 'none';
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
 
             if (!inputText.trim()) {
-                outputElement.textContent = "Input is empty. Cannot extract resources.";
+                outputTextarea.textContent = "Input is empty. Cannot extract resources.";
                 return;
             }
 
-            // Regex patterns for specific AWS resources
             const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
             const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
             const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
-            // This regex matches IAM role ARNs
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
 
-            // Find all matches and use Set to get unique values
             const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
             const subnets = [...new Set(inputText.match(subnetRegex) || [])];
             const sgs = [...new Set(inputText.match(sgRegex) || [])];
@@ -675,13 +824,12 @@
                 output += `Execution Roles (IAM) (${roles.length}):\n${roles.join('\n')}\n\n`;
                 
                 const roleCommands = roles.map(role => {
-                    // Extract role name from ARN (e.g., arn:aws:iam::12345:role/path/RoleName -> path/RoleName)
                     const roleNameMatch = role.match(/role\/(.+)/);
                     if (roleNameMatch && roleNameMatch[1]) {
                         return `aws iam get-role --role-name ${roleNameMatch[1]}`;
                     }
                     return null;
-                }).filter(Boolean); // Filter out any nulls if regex failed
+                }).filter(Boolean); 
 
                 if (roleCommands.length > 0) {
                     cliOutput.push(...roleCommands);
@@ -689,26 +837,39 @@
             }
 
             if (output === "") {
-                outputElement.textContent = "No AWS VPCs, Subnets, Security Groups, or Execution Roles found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, or Execution Roles found.";
             } else {
                 if (cliOutput.length > 0) {
                     output += "--- AWS CLI Describe Commands ---\n";
                     output += cliOutput.join('\n');
                 }
-                outputElement.textContent = output.trim();
+                outputTextarea.textContent = output.trim();
             }
         }
 
+        // --- Utility Functions ---
+
         function clearInput() {
-            document.getElementById('inputText').value = '';
-            document.getElementById('epochInput').value = ''; // Also clear epoch input
-            document.getElementById('outputText').textContent = 'Your formatted text will appear here.';
-            document.getElementById('jsonValidationResult').style.display = 'none';
-            document.getElementById('fileInput').value = '';
+            inputTextarea.value = '';
+            document.getElementById('epochInput').value = ''; 
+            outputTextarea.textContent = 'Your formatted text will appear here.';
+            jsonValidationResult.style.display = 'none';
+            fileInput.value = ''; // Clear file input selection
+            
+            // Clear Base64 radio buttons
+            const radios = document.getElementsByName('base64tool');
+            radios.forEach(radio => radio.checked = false);
+            
+            // Clear image preview
+            previewImageTag.src = '';
+            imagePreview.style.display = 'none';
+
+            // Reset tool mode to default
+            updateToolMode();
         }
 
         function copyResult(copyButton) {
-            const outputText = document.getElementById('outputText').textContent;
+            const outputText = outputTextarea.textContent;
 
             if (outputText === 'Your formatted text will appear here.' || !outputText.trim()) {
                 copyButton.textContent = 'Nothing to copy!';
@@ -718,10 +879,9 @@
                 return;
             }
 
-            // Use execCommand for broader compatibility within iFrames
             const textarea = document.createElement('textarea');
             textarea.value = outputText;
-            textarea.style.position = 'fixed'; // Prevent scrolling
+            textarea.style.position = 'fixed'; 
             textarea.style.opacity = 0;
             document.body.appendChild(textarea);
             textarea.select();
@@ -752,13 +912,12 @@
         }
 
         function downloadResult() {
-            let content = document.getElementById('outputText').textContent;
+            let content = outputTextarea.textContent;
             const format = document.getElementById('downloadFormat').value;
             let mimeType = 'text/plain';
             let filename = `result.${format}`;
 
             if (content === 'Your formatted text will appear here.' || !content.trim()) {
-                // Use a custom message display instead of alert()
                 const downloadBtn = event.target;
                 const originalText = downloadBtn.textContent;
                 downloadBtn.textContent = 'No content!';
@@ -772,11 +931,6 @@
                     break;
                 case 'json':
                     mimeType = 'application/json';
-                    // If the content is from an Epoch conversion, it's not JSON.
-                    // We should probably just save it as text.
-                    // But if it's from a JSON format, it is.
-                    // For simplicity, we'll just save the text content as is.
-                    // A better implementation might check the *source* of the outputText.
                     break;
                 case 'xml':
                     mimeType = 'application/xml';
@@ -784,7 +938,6 @@
                     const childTag = document.getElementById('xmlChild').value || 'item';
                     const lines = content.trim().split('\n');
                     const xmlLines = lines.map(line => {
-                        // Basic XML escaping
                         const escapedLine = line.replace(/&/g, '&amp;')
                                                 .replace(/</g, '&lt;')
                                                 .replace(/>/g, '&gt;')
@@ -813,6 +966,3 @@
 
 </body>
 </html>
-
-
-
