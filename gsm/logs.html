@@ -210,6 +210,10 @@
         .octonary-button {
             background: linear-gradient(45deg, #d946ef, #a21caf); /* Fuchsia gradient */
         }
+        /* New button style for AWS Request IDs */
+        .nonary-button {
+            background: linear-gradient(45deg, #0dcaf0, #08a5c7); /* Cyan gradient */
+        }
 
         .epoch-button-gmt {
             background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
@@ -366,7 +370,9 @@
             <button onclick="anonymizeAwsArns()" class="quaternary-button">Anonymize account ARNs</button>
             <button onclick="anonymizeAwsBuckets()" class="quinary-button">Anonymize Buckets ARNs</button>
             <button onclick="anonymizeAwsRoles()" class="senary-button">Anonymize Role ARNs</button>
-            <button onclick="extractAwsResources()" class="septenary-button">Extract AWS Infra & CLI</button>
+            <button onclick="extractAwsResources()" class="septenary-button">Extract AWS Infra, CLI & IDs</button>
+            <!-- New AWS Request ID Button -->
+            <!-- <button onclick="extractAwsRequestIds()" class="nonary-button">Extract AWS Request IDs</button> --> <!-- This button is now merged -->
         </div>
         
         <p id="jsonValidationResult" class="validation-message"></p>
@@ -799,11 +805,28 @@
             const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
             const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+            // Regex for request IDs
+            const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
+            const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
+            // New Regex for UUID-style Request IDs (e.g., from API Gateway, Lambda)
+            // The prefix group (?:...) is now optional with the final '?'
+            const uuidRequestIdRegex = /(?:x-amzn-RequestId:?\s*|[Rr]equestId:?\s*)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gi;
 
             const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
             const subnets = [...new Set(inputText.match(subnetRegex) || [])];
             const sgs = [...new Set(inputText.match(sgRegex) || [])];
             const roles = [...new Set(inputText.match(roleRegex) || [])];
+            
+            // Find request IDs
+            const requestIds = [...inputText.matchAll(requestIdRegex)];
+            const id2s = [...inputText.matchAll(id2Regex)];
+            const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; // Added this line
+
+            const allRequestIds = new Set();
+            requestIds.forEach(match => allRequestIds.add(match[1])); // S3 style
+            id2s.forEach(match => allRequestIds.add(match[1])); // S3 style
+            // Capture group is now 1 because the (optional) prefix group is non-capturing (?:...)
+            uuidRequestIds.forEach(match => allRequestIds.add(match[1])); // UUID style (now 1st capture group)
 
             let output = "";
             const cliOutput = [];
@@ -836,8 +859,13 @@
                 }
             }
 
+            // Add request IDs to output
+            if (allRequestIds.size > 0) {
+                output += `AWS Request IDs (${allRequestIds.size}):\n${Array.from(allRequestIds).join('\n')}\n\n`;
+            }
+
             if (output === "") {
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, or Execution Roles found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Execution Roles, or Request IDs found.";
             } else {
                 if (cliOutput.length > 0) {
                     output += "--- AWS CLI Describe Commands ---\n";
@@ -846,6 +874,37 @@
                 outputTextarea.textContent = output.trim();
             }
         }
+
+        // --- AWS Request ID Extractor Function ---
+        /* This function is now merged into extractAwsResources()
+        function extractAwsRequestIds() {
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+
+            if (!inputText.trim()) {
+                outputTextarea.textContent = "Input is empty. Cannot extract IDs.";
+                return;
+            }
+
+            // Regex for x-amz-request-id: typically 16+ uppercase hex chars
+            const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
+            // Regex for x-amz-id-2: typically 40+ Base64 chars
+            const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
+
+            const requestIds = [...inputText.matchAll(requestIdRegex)];
+            const id2s = [...inputText.matchAll(id2Regex)];
+
+            const allIds = new Set();
+            requestIds.forEach(match => allIds.add(match[1])); // Add the captured group (the ID)
+            id2s.forEach(match => allIds.add(match[1])); // Add the captured group (the ID)
+
+            if (allIds.size === 0) {
+                outputTextarea.textContent = "No 'x-amz-request-id' or 'x-amz-id-2' values found meeting criteria (16+ hex for request-id, 40+ base64 for id-2).";
+            } else {
+                outputTextarea.textContent = Array.from(allIds).join('\n');
+            }
+        }
+        */
 
         // --- Utility Functions ---
 
@@ -966,3 +1025,6 @@
 
 </body>
 </html>
+
+
+
