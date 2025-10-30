@@ -489,18 +489,22 @@
             
             // Default state
             inputTextarea.style.display = 'block';
-            dropZone.classList.add('hidden');
+            dropZone.classList.remove('hidden'); // <-- CHANGED: Show drop zone by default
             imagePreview.style.display = 'none';
             inputLabel.textContent = 'Input Text (for Text/JSON tools):';
             dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
-            fileInput.accept = '.txt,.csv,.json';
+            fileInput.accept = '.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp'; // <-- Accept all types by default
 
             switch (selectedTool) {
                 case 'textEncode':
                     inputLabel.textContent = 'Text to Encode:';
+                    dropZonePrompt.textContent = 'Drag & drop a file or click to select (.txt, .csv, .json)';
+                    fileInput.accept = '.txt,.csv,.json';
                     break;
                 case 'textDecode':
                     inputLabel.textContent = 'Base64 to Decode:';
+                    dropZonePrompt.textContent = 'Drag & drop a file or click to select (.txt)';
+                    fileInput.accept = '.txt';
                     break;
                 case 'imgEncode':
                     inputTextarea.style.display = 'none';
@@ -512,7 +516,12 @@
                 case 'imgDecode':
                     inputLabel.textContent = 'Base64 to Decode:';
                     imagePreview.style.display = 'block';
+                    dropZone.classList.add('hidden'); // <-- ADDED: Hide drop zone for this mode
                     break;
+                default: // Default case (no tool selected)
+                    inputLabel.textContent = 'Input Text (for Text/JSON tools):';
+                    dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
+                    fileInput.accept = '.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp';
             }
         }
 
@@ -1025,6 +1034,7 @@
 
 </body>
 </html>
+
 
 
 
