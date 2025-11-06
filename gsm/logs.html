@@ -589,7 +589,7 @@
             } catch (error) {
                 outputTextarea.textContent = 'Error: Failed to process. ' + error.message;
                 if (selectedTool === 'textDecode') {
-                     outputTextarea.textContent = 'Error: Invalid Base64 string. ' + error.message;
+                     outputTextarea.textContent = 'Error: Invalid Base6A4 string. ' + error.message;
                 }
             }
         }
@@ -813,6 +813,10 @@
             const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
             const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
             const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
+            // --- MODIFICATION START ---
+            // Added regex for ENIs
+            const eniRegex = /(eni-[0-9a-fA-F]{8,17})/g;
+            // --- MODIFICATION END ---
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
             // Regex for request IDs
             const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
@@ -824,6 +828,10 @@
             const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
             const subnets = [...new Set(inputText.match(subnetRegex) || [])];
             const sgs = [...new Set(inputText.match(sgRegex) || [])];
+            // --- MODIFICATION START ---
+            // Extract ENIs
+            const enis = [...new Set(inputText.match(eniRegex) || [])];
+            // --- MODIFICATION END ---
             const roles = [...new Set(inputText.match(roleRegex) || [])];
             
             // Find request IDs
@@ -852,6 +860,13 @@
                 output += `Security Groups (${sgs.length}):\n${sgs.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-security-groups --group-ids ${sgs.join(' ')}`);
             }
+            // --- MODIFICATION START ---
+            // Add ENIs to output and CLI command list
+            if (enis.length > 0) {
+                output += `Network Interfaces (ENIs) (${enis.length}):\n${enis.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-network-interfaces --network-interface-ids ${enis.join(' ')}`);
+            }
+            // --- MODIFICATION END ---
             if (roles.length > 0) {
                 output += `Execution Roles (IAM) (${roles.length}):\n${roles.join('\n')}\n\n`;
                 
@@ -874,7 +889,10 @@
             }
 
             if (output === "") {
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Execution Roles, or Request IDs found.";
+                // --- MODIFICATION START ---
+                // Updated "no resources found" message
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, Execution Roles, or Request IDs found.";
+                // --- MODIFICATION END ---
             } else {
                 if (cliOutput.length > 0) {
                     output += "--- AWS CLI Describe Commands ---\n";
@@ -1034,7 +1052,3 @@
 
 </body>
 </html>
-
-
-
-
