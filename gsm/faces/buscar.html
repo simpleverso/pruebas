@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Herramienta de Seguridad de Embeddings Faciales</title>
+    <title>Buscar - Herramienta de Seguridad Facial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -26,10 +27,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        .mode-button.active {
-            background-color: #3B82F6;
-            color: white;
         }
         .preview-container {
             position: relative;
@@ -74,7 +71,7 @@
 
     <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
         <div class="bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-700">
-            <video id="videoFeed" width="640" height="480" autoplay class="rounded-md"></video>
+            <video id="videoFeed" width="640" height="480" autoplay class="rounded-md" style="transform: scaleX(-1);"></video>
             <div class="flex justify-center mt-4 space-x-4">
                 <button id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Capturar Foto</button>
                 <button id="cancelCameraBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancelar</button>
@@ -85,47 +82,13 @@
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
             <h1 class="text-4xl font-bold mb-2">Herramienta de Seguridad Facial</h1>
-            <p class="text-gray-400">Cree archivos encriptados de embeddings faciales para inscripción y búsqueda.</p>
+            <p class="text-gray-400">Busque personas usando un archivo de embedding o una foto.</p>
         </header>
 
-        <div id="modeSelector" class="flex justify-center mb-8">
-            <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
-                <button id="modeEnrollBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Inscribir Persona</button>
-                <button id="modeSearchBtn" class="mode-button px-6 py-2 text-sm font-semibold rounded-md">Buscar Persona</button>
-            </div>
-        </div>
+        <!-- El selector de modo ha sido eliminado -->
 
         <main class="max-w-4xl mx-auto">
-            <div id="enrollView" class="hidden">
-                <section class="glass-card p-6 rounded-lg">
-                    <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Inscribir Nueva Persona</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="personName" class="block text-sm font-medium text-gray-300">Nombre Completo</label>
-                            <input type="text" id="personName" placeholder="Ej: Juan Pérez" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="personComments" class="block text-sm font-medium text-gray-300">Comentarios (Opcional)</label>
-                            <textarea id="personComments" placeholder="Ej: Departamento, Número de ID" rows="2" class="mt-1 w-full bg-gray-700 border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                        </div>
-                        <div>
-                             <label for="enrollUpload" class="block text-sm font-medium text-gray-300">Fuente de la Foto</label>
-                             <div class="flex items-center space-x-2 mt-1">
-                                <input type="file" id="enrollUpload" accept="image/*" class="flex-grow w-full text-sm text-gray-400">
-                                <button id="useCameraEnrollBtn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white" title="Usar Cámara">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="preview-container mt-4">
-                            <img id="enrollPreview" class="hidden max-w-full max-h-64 rounded-lg" alt="Vista previa de inscripción"/>
-                            <canvas id="enrollPreviewCanvas" class="preview-canvas"></canvas>
-                             <p id="enrollPlaceholder" class="text-gray-500">La vista previa de la imagen aparecerá aquí</p>
-                        </div>
-                        <button id="generateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Generar y Descargar Archivo .emb</button>
-                    </div>
-                </section>
-            </div>
+            <!-- La vista de inscripción ha sido eliminada -->
 
             <div id="searchView" class="hidden">
                  <section class="glass-card p-6 rounded-lg">
@@ -151,6 +114,12 @@
                         </div>
                         <div>
                              <button id="searchBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Buscar en Base de Datos</button>
+                        </div>
+                        <div class="mt-4">
+                            <label for="skipHashCheck" class="flex items-center text-sm text-gray-400 hover:text-white cursor-pointer">
+                                <input type="checkbox" id="skipHashCheck" class="mr-2 h-4 w-4 bg-gray-700 border-gray-600 rounded text-blue-600 focus:ring-blue-500">
+                                Buscar sin medidas de seguridad (omitir verificación de hash para archivos antiguos o de prueba)
+                            </label>
                         </div>
                     </div>
                  </section>
@@ -207,14 +176,13 @@
 
 <script type="module">
     // --- ESTADO Y CONFIGURACIÓN ---
-    let currentMode = 'enroll';
     let modelsLoaded = false;
     let cameraContext = null; // 'enroll' or 'search'
     let capturedImageBlob = null;
     let videoStream = null;
     const EMBEDDINGS_PATH = 'documentosemb';
     
-    // --- ELEMENTOS DEL DOM ---
+    // --- ELEMENTOS DEL DOM (Reducido para Búsqueda) ---
     const dom = {
         loadingModal: document.getElementById('loadingModal'),
         loadingStatus: document.getElementById('loadingStatus'),
@@ -225,37 +193,31 @@
         videoFeed: document.getElementById('videoFeed'),
         captureBtn: document.getElementById('captureBtn'),
         cancelCameraBtn: document.getElementById('cancelCameraBtn'),
-        modeSelector: document.getElementById('modeSelector'),
-        modeEnrollBtn: document.getElementById('modeEnrollBtn'),
-        modeSearchBtn: document.getElementById('modeSearchBtn'),
-        enrollView: document.getElementById('enrollView'),
+        // Vistas
         searchView: document.getElementById('searchView'),
         totpView: document.getElementById('totpView'),
         installView: document.getElementById('installView'),
+        // TOTP
         totpInput: document.getElementById('totpInput'),
         pasteTotpBtn: document.getElementById('pasteTotpBtn'),
         verifyTotpBtn: document.getElementById('verifyTotpBtn'),
+        // Instalación
         qrCodeCanvas: document.getElementById('qrCodeCanvas'),
         secretKeyDisplay: document.getElementById('secretKeyDisplay'),
         setupTotpInput: document.getElementById('setupTotpInput'),
         pasteSetupTotpBtn: document.getElementById('pasteSetupTotpBtn'),
         verifySetupBtn: document.getElementById('verifySetupBtn'),
         setupStatus: document.getElementById('setupStatus'),
-        personName: document.getElementById('personName'),
-        personComments: document.getElementById('personComments'),
-        enrollUpload: document.getElementById('enrollUpload'),
-        useCameraEnrollBtn: document.getElementById('useCameraEnrollBtn'),
-        enrollPreview: document.getElementById('enrollPreview'),
-        enrollPreviewCanvas: document.getElementById('enrollPreviewCanvas'),
-        enrollPlaceholder: document.getElementById('enrollPlaceholder'),
-        generateBtn: document.getElementById('generateBtn'),
+        // Búsqueda
         searchUpload: document.getElementById('searchUpload'),
         useCameraSearchBtn: document.getElementById('useCameraSearchBtn'),
         searchPreview: document.getElementById('searchPreview'),
         searchPreviewCanvas: document.getElementById('searchPreviewCanvas'),
         searchPlaceholder: document.getElementById('searchPlaceholder'),
         searchBtn: document.getElementById('searchBtn'),
+        skipHashCheck: document.getElementById('skipHashCheck'),
         searchResults: document.getElementById('searchResults'),
+        // Toast
         toast: document.getElementById('toast'),
         toastMessage: document.getElementById('toastMessage'),
     };
@@ -307,23 +269,15 @@
         }, 500);
     }
 
-    function simpleEncrypt(str) {
-        try { return btoa(unescape(encodeURIComponent(str))); } catch (e) { return ""; }
-    }
+    // simpleEncrypt no es necesario para buscar
+    // function simpleEncrypt(str) { ... }
 
     function simpleDecrypt(str) {
         try { return decodeURIComponent(escape(atob(str))); } catch (e) { return "error_descifrado"; }
     }
 
-    function hashString(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = (hash << 5) - hash + char;
-            hash |= 0;
-        }
-        return `id_${Math.abs(hash)}`;
-    }
+    // getFormattedDate no es necesario para buscar
+    // function getFormattedDate() { ... }
 
     function readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
@@ -334,17 +288,8 @@
         });
     }
     
-    function downloadFile(filename, content) {
-        const blob = new Blob([content], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+    // downloadFile no es necesario para buscar
+    // function downloadFile(filename, content) { ... }
     
     function libraryReady(libraryName) {
         return new Promise((resolve, reject) => {
@@ -369,7 +314,7 @@
 
     // --- FUNCIONES DE CÁMARA ---
     async function openCamera(context) {
-        cameraContext = context;
+        cameraContext = context; // Siempre será 'search' aquí
         if (videoStream) videoStream.getTracks().forEach(track => track.stop());
         try {
             videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -395,11 +340,8 @@
         const dataUrl = canvas.toDataURL('image/jpeg');
         canvas.toBlob(blob => {
             capturedImageBlob = blob;
-            if (cameraContext === 'enroll') {
-                dom.enrollUpload.value = '';
-                updatePreview(dataUrl, 'enroll');
-                checkEnrollButtonState();
-            } else if (cameraContext === 'search') {
+            // El contexto 'enroll' no existe aquí
+            if (cameraContext === 'search') {
                 dom.searchUpload.value = '';
                 updatePreview(dataUrl, 'search');
                 checkSearchButtonState();
@@ -409,6 +351,19 @@
     }
 
     // --- FUNCIONES DE FACE-API.JS ---
+
+    const MODEL_KEY_MAP = {
+        'mtcnn_full': 'dscx1',
+        'mtcnn_tiny': 'dscx2',
+        'ssd_full': 'dscx3',
+        'ssd_tiny': 'dscx4',
+        'tiny_full': 'dscx5',
+        'tiny_tiny': 'dscx6'
+    };
+    const REVERSE_MODEL_KEY_MAP = Object.fromEntries(
+        Object.entries(MODEL_KEY_MAP).map(([key, value]) => [value, key])
+    );
+
     async function loadModels() {
         if (modelsLoaded) return;
         try {
@@ -422,11 +377,14 @@
                 faceapi.nets.mtcnn.loadFromUri(MODEL_URL),
                 faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                 faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
-                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                libraryReady('SparkMD5'),
+                libraryReady('QRious') // Necesario para la instalación de 2FA
             ]);
             modelsLoaded = true;
         } catch (error) {
-            showToast('Fallo al cargar los modelos de IA. Por favor, refresque la página.', true);
+            console.error("Fallo al cargar dependencias:", error);
+            showToast('Fallo al cargar los modelos de IA o dependencias. Por favor, refresque la página.', true);
         } finally {
             dom.loadingModal.classList.add('hidden');
         }
@@ -447,7 +405,9 @@
             const detection = await faceapi.detectSingleFace(imageElement, config.detector)
                                          .withFaceLandmarks(config.useTinyLandmarks)
                                          .withFaceDescriptor();
-            descriptors[config.key] = detection ? detection.descriptor : null;
+            
+            const obfuscatedKey = MODEL_KEY_MAP[config.key];
+            descriptors[obfuscatedKey] = detection ? detection.descriptor : null;
         }
         return Object.values(descriptors).every(d => d === null) ? null : descriptors;
     }
@@ -586,6 +546,7 @@
         const isValid = await verifyCode(code);
         if (isValid) {
             showToast("Verificación exitosa.");
+            dom.totpInput.value = ''; // Limpiar el campo de entrada
             dom.totpView.classList.add('hidden');
             dom.searchView.classList.remove('hidden');
         } else {
@@ -595,31 +556,6 @@
 
 
     // --- UI Y MANEJADORES DE EVENTOS ---
-    function switchMode(mode) {
-        dom.enrollView.classList.add('hidden');
-        dom.searchView.classList.add('hidden');
-        dom.totpView.classList.add('hidden');
-        
-        if (mode === 'enroll') {
-            currentMode = 'enroll';
-            dom.modeEnrollBtn.classList.add('active');
-            dom.modeSearchBtn.classList.remove('active');
-            dom.enrollView.classList.remove('hidden');
-        } else {
-            currentMode = 'search';
-            dom.modeEnrollBtn.classList.remove('active');
-            dom.modeSearchBtn.classList.add('active');
-            dom.totpView.classList.remove('hidden');
-        }
-        dom.searchResults.innerHTML = '';
-        capturedImageBlob = null;
-    }
-    
-    function checkEnrollButtonState() {
-        const name = dom.personName.value.trim();
-        const hasFile = dom.enrollUpload.files.length > 0 || capturedImageBlob;
-        dom.generateBtn.disabled = !(name && hasFile);
-    }
     
     function checkSearchButtonState() {
         const hasSearchFile = dom.searchUpload.files.length > 0 || capturedImageBlob;
@@ -627,9 +563,12 @@
     }
 
     function updatePreview(dataUrl, context) {
-        const elements = context === 'enroll' 
-            ? { img: dom.enrollPreview, canvas: dom.enrollPreviewCanvas, placeholder: dom.enrollPlaceholder }
-            : { img: dom.searchPreview, canvas: dom.searchPreviewCanvas, placeholder: dom.searchPlaceholder };
+        // El contexto siempre será 'search' aquí
+        const elements = { 
+            img: dom.searchPreview, 
+            canvas: dom.searchPreviewCanvas, 
+            placeholder: dom.searchPlaceholder 
+        };
         
         elements.img.src = dataUrl;
         elements.img.classList.remove('hidden');
@@ -637,47 +576,11 @@
         elements.img.onload = () => detectAndDrawFace(elements.img, elements.canvas);
     }
 
-    async function handleEnrollment() {
-        const name = dom.personName.value.trim();
-        const comments = dom.personComments.value.trim();
-        if (!name || (!dom.enrollUpload.files[0] && !capturedImageBlob)) return;
-        
-        dom.loadingModal.classList.remove('hidden');
-        dom.loadingStatus.textContent = "Procesando rostro (esto puede tardar un momento)...";
-
-        try {
-            const descriptors = await getFaceDescriptors(dom.enrollPreview);
-            if (!descriptors) throw new Error("No se pudieron generar los descriptores faciales. Asegúrese de que el rostro esté claro.");
-            const imageData = await readFileAsDataURL(capturedImageBlob || dom.enrollUpload.files[0]);
-            const payload = {
-                name: simpleEncrypt(name),
-                comments: simpleEncrypt(comments),
-                photo: simpleEncrypt(imageData),
-                descriptors: Object.fromEntries(Object.entries(descriptors).map(([k, v]) => [k, v ? Array.from(v) : null]))
-            };
-            
-            downloadFile(`${hashString(name)}.emb`, JSON.stringify(payload));
-            showToast("Envie este archivo a su asesor de busqueda", false);
-            
-            dom.personName.value = '';
-            dom.personComments.value = '';
-            dom.enrollUpload.value = '';
-            dom.enrollPreview.src = '#';
-            dom.enrollPreview.classList.add('hidden');
-            dom.enrollPlaceholder.classList.remove('hidden');
-            dom.enrollPreviewCanvas.getContext('2d').clearRect(0,0,dom.enrollPreviewCanvas.width, dom.enrollPreviewCanvas.height);
-            capturedImageBlob = null;
-            checkEnrollButtonState();
-        } catch (error) {
-            showToast(error.message, true);
-        } finally {
-            dom.loadingModal.classList.add('hidden');
-        }
-    }
-
     async function handleSearch() {
         if (!dom.searchUpload.files[0] && !capturedImageBlob) return;
         
+        const skipSecurity = dom.skipHashCheck.checked;
+
         dom.loadingModal.classList.remove('hidden');
         dom.loadingStatus.textContent = "Analizando foto de búsqueda...";
         dom.searchResults.innerHTML = '';
@@ -705,25 +608,52 @@
                     if (!res.ok) throw new Error(`Fallo al cargar ${name}`);
                     const data = await res.json();
 
-                    if (data.name && data.photo && data.descriptors) {
+                    const storedHash = data.emb_verymk;
+                    
+                    if (!skipSecurity && storedHash) {
+                        const payloadContent = {
+                            emb_nm: data.emb_nm,
+                            emb_comx: data.emb_comx,
+                            emb_ph: data.emb_ph,
+                            emb_dsc: data.emb_dsc
+                        };
+                        const contentToHash = JSON.stringify(payloadContent);
+                        const calculatedHash = SparkMD5.hash(contentToHash);
+                        
+                        if (storedHash !== calculatedHash) {
+                            console.warn(`El hash de ${name} no coincide. El archivo está corrupto o ha sido modificado. Omitiendo.`);
+                            showToast(`Archivo ${name} corrupto. Omitiendo.`, true);
+                            continue;
+                        }
+                    }
+
+                    if (data.emb_nm && data.emb_ph && data.emb_dsc) {
                         const decryptedData = {
-                            name: simpleDecrypt(data.name),
-                            comments: simpleDecrypt(data.comments),
-                            photo: simpleDecrypt(data.photo),
-                            filename: name // MODIFICACIÓN: Añadir el nombre del archivo
+                            name: simpleDecrypt(data.emb_nm),
+                            comments: simpleDecrypt(data.emb_comx),
+                            photo: simpleDecrypt(data.emb_ph),
+                            filename: name 
                         };
                         const label = JSON.stringify(decryptedData);
-                        for (const key in data.descriptors) {
-                            if (data.descriptors[key]) {
-                                if (!allLabeledDescriptors[key]) allLabeledDescriptors[key] = [];
-                                allLabeledDescriptors[key].push(new faceapi.LabeledFaceDescriptors(label, [new Float32Array(data.descriptors[key])]));
+                        
+                        for (const obfuscatedKey in data.emb_dsc) {
+                            if (data.emb_dsc[obfuscatedKey]) {
+                                const originalModelKey = REVERSE_MODEL_KEY_MAP[obfuscatedKey];
+                                if (originalModelKey) {
+                                    if (!allLabeledDescriptors[originalModelKey]) {
+                                        allLabeledDescriptors[originalModelKey] = [];
+                                    }
+                                    allLabeledDescriptors[originalModelKey].push(
+                                        new faceapi.LabeledFaceDescriptors(label, [new Float32Array(data.emb_dsc[obfuscatedKey])])
+                                    );
+                                }
                             }
                         }
                     }
                 } catch (fileError) {
                     console.error(`Error procesando ${name}:`, fileError);
                     showToast(`Se omitió el archivo ${name} por un error.`, true);
-                    continue; // Continúa con el siguiente archivo si este falla
+                    continue;
                 }
             }
             
@@ -732,10 +662,19 @@
             dom.loadingStatus.textContent = "Comparando rostros...";
 
             const bestMatches = [];
-            for (const key in queryDescriptors) {
-                if (queryDescriptors[key] && allLabeledDescriptors[key]?.length > 0) {
+            
+            const originalKeyQueryDescriptors = {};
+            for (const obfuscatedKey in queryDescriptors) {
+                const originalKey = REVERSE_MODEL_KEY_MAP[obfuscatedKey];
+                if (originalKey) {
+                    originalKeyQueryDescriptors[originalKey] = queryDescriptors[obfuscatedKey];
+                }
+            }
+
+            for (const key in originalKeyQueryDescriptors) {
+                if (originalKeyQueryDescriptors[key] && allLabeledDescriptors[key]?.length > 0) {
                     const faceMatcher = new faceapi.FaceMatcher(allLabeledDescriptors[key], 0.5);
-                    bestMatches.push(faceMatcher.findBestMatch(queryDescriptors[key]));
+                    bestMatches.push(faceMatcher.findBestMatch(originalKeyQueryDescriptors[key]));
                 }
             }
 
@@ -777,7 +716,6 @@
             const data = JSON.parse(match.label);
             const confidence = ((1 - match.distance) * 100).toFixed(2);
             const voteCount = votes[data.name] || 0;
-            // MODIFICACIÓN: Se añade el nombre del archivo a la tarjeta de resultados.
             dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg">
                 <h3 class="text-2xl font-bold text-green-400 mb-4 text-center">¡Coincidencia Encontrada!</h3>
                 <div class="flex flex-col md:flex-row items-center gap-6">
@@ -801,15 +739,13 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('install')) {
             dom.installView.classList.remove('hidden');
-            dom.modeSelector.classList.add('hidden');
+            // dom.modeSelector.classList.add('hidden'); // modeSelector no existe
             setupTOTP();
         } else {
-            switchMode('enroll');
+            // Por defecto, mostrar la vista de TOTP para la búsqueda
+            dom.totpView.classList.remove('hidden');
         }
 
-        dom.modeEnrollBtn.addEventListener('click', () => switchMode('enroll'));
-        dom.modeSearchBtn.addEventListener('click', () => switchMode('search'));
-        dom.generateBtn.addEventListener('click', handleEnrollment);
         dom.searchBtn.addEventListener('click', handleSearch);
         
         dom.verifyTotpBtn.addEventListener('click', verifyTOTP);
@@ -819,18 +755,11 @@
 
         dom.totpInput.addEventListener('keyup', e => { if (e.key === 'Enter') verifyTOTP() });
         dom.setupTotpInput.addEventListener('keyup', e => { if (e.key === 'Enter') verifySetup() });
-        dom.useCameraEnrollBtn.addEventListener('click', () => openCamera('enroll'));
+        
         dom.useCameraSearchBtn.addEventListener('click', () => openCamera('search'));
         dom.captureBtn.addEventListener('click', captureImage);
         dom.cancelCameraBtn.addEventListener('click', closeCamera);
-        dom.personName.addEventListener('input', checkEnrollButtonState);
-        dom.enrollUpload.addEventListener('change', async e => {
-            if (e.target.files[0]) {
-                capturedImageBlob = null;
-                updatePreview(await readFileAsDataURL(e.target.files[0]), 'enroll');
-                checkEnrollButtonState();
-            }
-        });
+
         dom.searchUpload.addEventListener('change', async e => {
              if (e.target.files[0]) {
                 capturedImageBlob = null;
