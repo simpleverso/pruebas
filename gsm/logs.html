@@ -810,6 +810,63 @@
                 return;
             }
 
+            // --- MODIFICATION START ---
+            // Helper function to check for non-printable chars (excluding tab, newline, cr)
+            const isPrintable = (text) => !/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text);
+
+            // --- Base64 Detection ---
+            const base64Regex = /\b[A-Za-z0-9+/=]{20,}\b/g;
+            const decodedBase64Map = new Map();
+            let b64Match;
+            while ((b64Match = base64Regex.exec(inputText)) !== null) {
+                const potentialB64 = b64Match[0];
+                if (potentialB64.length % 4 !== 0 || !/^[A-Za-z0-9+/]*=?=?$/.test(potentialB64)) {
+                    continue; // Not a likely Base64 string
+                }
+                if (decodedBase64Map.has(potentialB64)) continue; // Already processed
+
+                try {
+                    const decodedBytes = atob(potentialB64).split('').map(c => c.charCodeAt(0));
+                    const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
+                    
+                    if (isPrintable(decodedText) && decodedText.trim().length > 0) { 
+                        decodedBase64Map.set(potentialB64, decodedText);
+                    }
+                } catch (e) {
+                    // Not valid Base64, ignore
+                }
+            }
+
+            // --- Epoch Detection ---
+            const epochRegex = /\b(\d{10}|\d{13})\b/g;
+            const convertedEpochMap = new Map();
+            // Min date: 2001-01-01. Max date: 1 year in the future.
+            const minDate = new Date('2001-01-01T00:00:00Z').getTime();
+            const maxDate = new Date().getTime() + (1000 * 60 * 60 * 24 * 365); 
+            let epochMatch;
+
+            while ((epochMatch = epochRegex.exec(inputText)) !== null) {
+                const tsString = epochMatch[0];
+                if (convertedEpochMap.has(tsString)) continue;
+                // Avoid matching AWS Account IDs (12 digits)
+                if (tsString.length === 12) continue; 
+
+                const timestampNum = Number(tsString);
+                let date;
+
+                if (tsString.length === 10) {
+                    date = new Date(timestampNum * 1000); // seconds
+                } else {
+                    date = new Date(timestampNum); // milliseconds
+                }
+
+                if (date.getTime() >= minDate && date.getTime() <= maxDate) {
+                    convertedEpochMap.set(tsString, date.toUTCString());
+                }
+            }
+            // --- MODIFICATION END ---
+
+
             const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
             const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
             const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
@@ -851,6 +908,13 @@
             if (vpcs.length > 0) {
                 output += `VPCs (${vpcs.length}):\n${vpcs.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-vpcs --vpc-ids ${vpcs.join(' ')}`);
+                
+                // --- MODIFICATION START ---
+                // Add describe-vpc-endpoints command for each VPC
+                vpcs.forEach(vpcId => {
+                    cliOutput.push(`aws ec2 describe-vpc-endpoints --filters Name=vpc-id,Values=${vpcId}`);
+                });
+                // --- MODIFICATION END ---
             }
             if (subnets.length > 0) {
                 output += `Subnets (${subnets.length}):\n${subnets.join('\n')}\n\n`;
@@ -888,10 +952,31 @@
                 output += `AWS Request IDs (${allRequestIds.size}):\n${Array.from(allRequestIds).join('\n')}\n\n`;
             }
 
+            // --- MODIFICATION START ---
+            // Add Decoded Base64 to output
+            if (decodedBase64Map.size > 0) {
+                output += `Decoded Base64 Strings (${decodedBase64Map.size}):\n`;
+                decodedBase64Map.forEach((decodedText, originalB64) => {
+                    output += `--- ${originalB64.substring(0, 20)}... ---\n${decodedText}\n---\n`;
+                });
+                output += "\n";
+            }
+
+            // Add Converted Epoch Timestamps to output
+            if (convertedEpochMap.size > 0) {
+                output += `Converted Epoch Timestamps (${convertedEpochMap.size}):\n`;
+                convertedEpochMap.forEach((utcDate, originalTs) => {
+                    output += `${originalTs}  =>  ${utcDate}\n`;
+                });
+                output += "\n";
+            }
+            // --- MODIFICATION END ---
+
+
             if (output === "") {
                 // --- MODIFICATION START ---
                 // Updated "no resources found" message
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, Execution Roles, or Request IDs found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, Execution Roles, Request IDs, Base64 strings, or Epoch timestamps found.";
                 // --- MODIFICATION END ---
             } else {
                 if (cliOutput.length > 0) {
