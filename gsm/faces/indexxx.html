@@ -7,8 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" defer></script>
-    <!-- Agregada la biblioteca SparkMD5 para la generación de hashes -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -76,7 +74,7 @@
 
     <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex-col items-center justify-center z-50 hidden">
         <div class="bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-700">
-            <video id="videoFeed" width="640" height="480" autoplay class="rounded-md" style="transform: scaleX(-1);"></video>
+            <video id="videoFeed" width="640" height="480" autoplay class="rounded-md"></video>
             <div class="flex justify-center mt-4 space-x-4">
                 <button id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Capturar Foto</button>
                 <button id="cancelCameraBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancelar</button>
@@ -153,12 +151,6 @@
                         </div>
                         <div>
                              <button id="searchBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>Buscar en Base de Datos</button>
-                        </div>
-                        <div class="mt-4">
-                            <label for="skipHashCheck" class="flex items-center text-sm text-gray-400 hover:text-white cursor-pointer">
-                                <input type="checkbox" id="skipHashCheck" class="mr-2 h-4 w-4 bg-gray-700 border-gray-600 rounded text-blue-600 focus:ring-blue-500">
-                                Buscar sin medidas de seguridad (omitir verificación de hash para archivos antiguos o de prueba)
-                            </label>
                         </div>
                     </div>
                  </section>
@@ -263,7 +255,6 @@
         searchPreviewCanvas: document.getElementById('searchPreviewCanvas'),
         searchPlaceholder: document.getElementById('searchPlaceholder'),
         searchBtn: document.getElementById('searchBtn'),
-        skipHashCheck: document.getElementById('skipHashCheck'), // <-- Añadido
         searchResults: document.getElementById('searchResults'),
         toast: document.getElementById('toast'),
         toastMessage: document.getElementById('toastMessage'),
@@ -324,12 +315,14 @@
         try { return decodeURIComponent(escape(atob(str))); } catch (e) { return "error_descifrado"; }
     }
 
-    function getFormattedDate() {
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
-        const year = now.getFullYear();
-        return `${day}${month}${year}`;
+    function hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash |= 0;
+        }
+        return `id_${Math.abs(hash)}`;
     }
 
     function readFileAsDataURL(file) {
@@ -416,23 +409,6 @@
     }
 
     // --- FUNCIONES DE FACE-API.JS ---
-
-    // --- Mapeo de seguridad para nombres de modelos ---
-    // Mapea los nombres de modelos internos a claves ofuscadas en el archivo .emb
-    const MODEL_KEY_MAP = {
-        'mtcnn_full': 'dscx1',
-        'mtcnn_tiny': 'dscx2',
-        'ssd_full': 'dscx3',
-        'ssd_tiny': 'dscx4',
-        'tiny_full': 'dscx5',
-        'tiny_tiny': 'dscx6'
-    };
-    // Mapeo inverso para la búsqueda (leer archivos .emb)
-    const REVERSE_MODEL_KEY_MAP = Object.fromEntries(
-        Object.entries(MODEL_KEY_MAP).map(([key, value]) => [value, key])
-    );
-    // --- Fin del Mapeo ---
-
     async function loadModels() {
         if (modelsLoaded) return;
         try {
@@ -446,13 +422,11 @@
                 faceapi.nets.mtcnn.loadFromUri(MODEL_URL),
                 faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                 faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
-                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-                libraryReady('SparkMD5') // --- CAMBIO AQUÍ: Esperar a que la librería MD5 esté lista ---
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
             ]);
             modelsLoaded = true;
         } catch (error) {
-            console.error("Fallo al cargar dependencias:", error);
-            showToast('Fallo al cargar los modelos de IA o dependencias. Por favor, refresque la página.', true);
+            showToast('Fallo al cargar los modelos de IA. Por favor, refresque la página.', true);
         } finally {
             dom.loadingModal.classList.add('hidden');
         }
@@ -473,9 +447,7 @@
             const detection = await faceapi.detectSingleFace(imageElement, config.detector)
                                          .withFaceLandmarks(config.useTinyLandmarks)
                                          .withFaceDescriptor();
-            
-            const obfuscatedKey = MODEL_KEY_MAP[config.key]; // Obtener la clave ofuscada
-            descriptors[obfuscatedKey] = detection ? detection.descriptor : null;
+            descriptors[config.key] = detection ? detection.descriptor : null;
         }
         return Object.values(descriptors).every(d => d === null) ? null : descriptors;
     }
@@ -614,7 +586,6 @@
         const isValid = await verifyCode(code);
         if (isValid) {
             showToast("Verificación exitosa.");
-            dom.totpInput.value = ''; // Limpiar el campo de entrada
             dom.totpView.classList.add('hidden');
             dom.searchView.classList.remove('hidden');
         } else {
@@ -675,40 +646,19 @@
         dom.loadingStatus.textContent = "Procesando rostro (esto puede tardar un momento)...";
 
         try {
-            // 1. Obtener descriptores e imagen
             const descriptors = await getFaceDescriptors(dom.enrollPreview);
             if (!descriptors) throw new Error("No se pudieron generar los descriptores faciales. Asegúrese de que el rostro esté claro.");
             const imageData = await readFileAsDataURL(capturedImageBlob || dom.enrollUpload.files[0]);
-            
-            // 2. Crear el objeto de contenido (sin el hash)
-            const payloadContent = {
-                emb_nm: simpleEncrypt(name),
-                emb_comx: simpleEncrypt(comments),
-                emb_ph: simpleEncrypt(imageData),
-                emb_dsc: Object.fromEntries(Object.entries(descriptors).map(([k, v]) => [k, v ? Array.from(v) : null]))
-            };
-            
-            // --- CAMBIO AQUÍ: Generar MD5 del contenido ---
-            // 3. Convertir el contenido a string y calcular el hash
-            const contentToHash = JSON.stringify(payloadContent);
-            const hash = SparkMD5.hash(contentToHash);
-            
-            // 4. Crear el payload final, incluyendo el hash
             const payload = {
-                ...payloadContent,
-                emb_verymk: hash // <-- CAMBIO AQUÍ: de emb_hash a emb_verymk
+                name: simpleEncrypt(name),
+                comments: simpleEncrypt(comments),
+                photo: simpleEncrypt(imageData),
+                descriptors: Object.fromEntries(Object.entries(descriptors).map(([k, v]) => [k, v ? Array.from(v) : null]))
             };
-            // --- FIN DEL CAMBIO ---
             
-            // 5. Generar nombre de archivo y descargar
-            const formattedDate = getFormattedDate();
-            const guid = crypto.randomUUID();
-            const newFilename = `id_${formattedDate}-${guid}.emb`;
-            
-            downloadFile(newFilename, JSON.stringify(payload));
+            downloadFile(`${hashString(name)}.emb`, JSON.stringify(payload));
             showToast("Envie este archivo a su asesor de busqueda", false);
             
-            // 6. Limpiar UI
             dom.personName.value = '';
             dom.personComments.value = '';
             dom.enrollUpload.value = '';
@@ -728,10 +678,6 @@
     async function handleSearch() {
         if (!dom.searchUpload.files[0] && !capturedImageBlob) return;
         
-        // --- CAMBIO AQUÍ: Leer el estado del checkbox ---
-        const skipSecurity = dom.skipHashCheck.checked;
-        // --- FIN DEL CAMBIO ---
-
         dom.loadingModal.classList.remove('hidden');
         dom.loadingStatus.textContent = "Analizando foto de búsqueda...";
         dom.searchResults.innerHTML = '';
@@ -759,52 +705,18 @@
                     if (!res.ok) throw new Error(`Fallo al cargar ${name}`);
                     const data = await res.json();
 
-                    // --- CAMBIO AQUÍ: Verificación de integridad MD5 (con omisión) ---
-                    const storedHash = data.emb_verymk; // <-- Renombrado de emb_hash a emb_verymk
-                    
-                    // Solo verificar el hash si:
-                    // 1. NO estamos omitiendo la seguridad (skipSecurity es false)
-                    // 2. El archivo contiene un hash (storedHash existe)
-                    if (!skipSecurity && storedHash) {
-                        // Si el archivo tiene un hash, debemos verificarlo
-                        const payloadContent = {
-                            emb_nm: data.emb_nm,
-                            emb_comx: data.emb_comx,
-                            emb_ph: data.emb_ph,
-                            emb_dsc: data.emb_dsc
-                        };
-                        const contentToHash = JSON.stringify(payloadContent);
-                        const calculatedHash = SparkMD5.hash(contentToHash);
-                        
-                        if (storedHash !== calculatedHash) {
-                            console.warn(`El hash de ${name} no coincide. El archivo está corrupto o ha sido modificado. Omitiendo.`);
-                            showToast(`Archivo ${name} corrupto. Omitiendo.`, true);
-                            continue; // Omitir este archivo y continuar con el siguiente
-                        }
-                    }
-                    // Si skipSecurity es true, O si no hay hash (archivo antiguo), continuamos.
-                    // --- FIN DEL CAMBIO ---
-
-                    if (data.emb_nm && data.emb_ph && data.emb_dsc) {
+                    if (data.name && data.photo && data.descriptors) {
                         const decryptedData = {
-                            name: simpleDecrypt(data.emb_nm),
-                            comments: simpleDecrypt(data.emb_comx),
-                            photo: simpleDecrypt(data.emb_ph),
-                            filename: name 
+                            name: simpleDecrypt(data.name),
+                            comments: simpleDecrypt(data.comments),
+                            photo: simpleDecrypt(data.photo),
+                            filename: name // MODIFICACIÓN: Añadir el nombre del archivo
                         };
                         const label = JSON.stringify(decryptedData);
-                        
-                        for (const obfuscatedKey in data.emb_dsc) {
-                            if (data.emb_dsc[obfuscatedKey]) {
-                                const originalModelKey = REVERSE_MODEL_KEY_MAP[obfuscatedKey];
-                                if (originalModelKey) {
-                                    if (!allLabeledDescriptors[originalModelKey]) {
-                                        allLabeledDescriptors[originalModelKey] = [];
-                                    }
-                                    allLabeledDescriptors[originalModelKey].push(
-                                        new faceapi.LabeledFaceDescriptors(label, [new Float32Array(data.emb_dsc[obfuscatedKey])])
-                                    );
-                                }
+                        for (const key in data.descriptors) {
+                            if (data.descriptors[key]) {
+                                if (!allLabeledDescriptors[key]) allLabeledDescriptors[key] = [];
+                                allLabeledDescriptors[key].push(new faceapi.LabeledFaceDescriptors(label, [new Float32Array(data.descriptors[key])]));
                             }
                         }
                     }
@@ -820,19 +732,10 @@
             dom.loadingStatus.textContent = "Comparando rostros...";
 
             const bestMatches = [];
-            
-            const originalKeyQueryDescriptors = {};
-            for (const obfuscatedKey in queryDescriptors) {
-                const originalKey = REVERSE_MODEL_KEY_MAP[obfuscatedKey];
-                if (originalKey) {
-                    originalKeyQueryDescriptors[originalKey] = queryDescriptors[obfuscatedKey];
-                }
-            }
-
-            for (const key in originalKeyQueryDescriptors) {
-                if (originalKeyQueryDescriptors[key] && allLabeledDescriptors[key]?.length > 0) {
+            for (const key in queryDescriptors) {
+                if (queryDescriptors[key] && allLabeledDescriptors[key]?.length > 0) {
                     const faceMatcher = new faceapi.FaceMatcher(allLabeledDescriptors[key], 0.5);
-                    bestMatches.push(faceMatcher.findBestMatch(originalKeyQueryDescriptors[key]));
+                    bestMatches.push(faceMatcher.findBestMatch(queryDescriptors[key]));
                 }
             }
 
@@ -874,6 +777,7 @@
             const data = JSON.parse(match.label);
             const confidence = ((1 - match.distance) * 100).toFixed(2);
             const voteCount = votes[data.name] || 0;
+            // MODIFICACIÓN: Se añade el nombre del archivo a la tarjeta de resultados.
             dom.searchResults.innerHTML = `<div class="glass-card p-6 rounded-lg">
                 <h3 class="text-2xl font-bold text-green-400 mb-4 text-center">¡Coincidencia Encontrada!</h3>
                 <div class="flex flex-col md:flex-row items-center gap-6">
