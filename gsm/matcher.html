@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Matcher & Batch Finder</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom loader spinner */
+        .loader {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Custom styles for tabs */
+        .tab-btn {
+            padding: 0.75rem 1rem; /* Adjusted padding for 3 tabs */
+            font-semibold: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            color: #4b5563; /* text-gray-600 */
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+        }
+        .tab-btn:hover {
+            background-color: #f9fafb; /* bg-gray-50 */
+            border-bottom-color: #d1d5db; /* border-gray-300 */
+        }
+        .tab-btn.active {
+            color: #2563eb; /* text-blue-600 */
+            border-bottom-color: #2563eb; /* border-blue-600 */
+        }
+        
+        .tab-content {
+            padding-top: 1.5rem; /* pt-6 */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100 font-sans">
+
+    <div class="w-full max-w-4xl bg-white p-6 md:p-8 rounded-xl shadow-lg">
+        
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Image Matcher & Batch Finder</h1>
+            <p class="text-lg text-gray-600 mt-2">
+                Using OpenCV (ORB, AKAZE, BRISK, KAZE)
+            </p>
+        </header>
+
+        <!-- Status Message Area -->
+        <div id="status" class="text-center p-4 mb-4 bg-blue-50 text-blue-700 rounded-lg">
+            Loading OpenCV.js... Please wait. This may take a moment.
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loader" class="flex justify-center items-center h-24">
+            <div class="loader"></div>
+        </div>
+
+        <!-- Main App Content (hidden until OpenCV is loaded) -->
+        <main id="app" class="hidden">
+
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-gray-300">
+                <button id="tabPairwise" class="tab-btn active">Pairwise Matcher</button>
+                <button id="tabBatchImage" class="tab-btn">Batch Image Finder</button>
+                <button id="tabBatchHui" class="tab-btn">Batch .hui Finder</button>
+                <button id="tabCreateHui" class="tab-btn">Create .hui Files</button>
+            </div>
+
+            <!-- Tab 1: Pairwise Matcher Content -->
+            <div id="pairwiseMatcher" class="tab-content">
+                <!-- Image Upload Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Image 1 Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="imgInput1" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Query Image</label>
+                        <input type="file" id="imgInput1" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <img id="img1" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Query Image" />
+                    </div>
+                    
+                    <!-- Image 2 Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="imgInput2" class="text-lg font-semibold text-gray-700 mb-2">2. Upload Database Image</label>
+                        <input type="file" id="imgInput2" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                        <img id="img2" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Database Image" />
+                    </div>
+                </div>
+
+                <!-- Options Section -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Options</h3>
+                    <div class="flex flex-col md:flex-row flex-wrap justify-center items-center gap-4 md:gap-6">
+                        <!-- Algorithm Selection -->
+                        <div class="flex items-center">
+                            <label for="algorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
+                            <select id="algorithmSelect" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <option value="orb" selected>ORB (Feature Match)</option>
+                                <option value="akaze">AKAZE (Feature Match)</option>
+                                <option value="brisk">BRISK (Feature Match)</option>
+                                <option value="kaze">KAZE (Feature Match)</option>
+                            </select>
+                        </div>
+
+                        <!-- Show Lines -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="showLines" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" checked>
+                            <label for="showLines" class="ml-2 text-sm font-medium text-gray-700">Show Match Lines</label>
+                        </div>
+                        <!-- Show Circles -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="showCircles" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                            <label for="showCircles" class="ml-2 text-sm font-medium text-gray-700">Show Numbered Circles</label>
+                        </div>
+                        <!-- Show Unmatched -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="showUnmatched" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                            <label for="showUnmatched" class="ml-2 text-sm font-medium text-gray-700">Show Unmatched Keypoints</label>
+                        </div>
+                        <!-- Max Matches -->
+                        <div class="flex items-center">
+                            <label for="maxMatches" class="mr-2 text-sm font-medium text-gray-700">Max Matches:</label>
+                            <input type="number" id="maxMatches" value="10" min="1" class="w-20 p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Button -->
+                <div class="text-center mb-6">
+                    <button id="matchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
+                        Run Analysis
+                    </button>
+                </div>
+
+                <!-- Result Canvas -->
+                <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner mb-6">
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Pairwise Results</h2>
+                    <canvas id="outputCanvas" class="w-full h-auto rounded-md"></canvas>
+                </div>
+
+                <!-- NEW: Save Features Section -->
+                <div id="saveFeaturesSection" class="hidden w-full bg-gray-50 rounded-lg p-4 shadow-inner">
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Save Features</h2>
+                    <p class="text-center text-sm text-gray-600 mb-4">Save the calculated features as a .hui file for use in the ".hui Batch Finder" tab.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Save Image 1 -->
+                        <div class="flex flex-col items-center">
+                            <label for="saveFname1" class="text-sm font-medium text-gray-700 mb-2">Image 1 Filename:</label>
+                            <input type="text" id="saveFname1" value="image1.hui" class="w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-3">
+                            <label for="saveDesc1" class="text-sm font-medium text-gray-700 mb-2">Description:</label>
+                            <input type="text" id="saveDesc1" placeholder="Optional description..." class="w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-3">
+                            <button id="saveBtn1" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200">
+                                Save Image 1 Features
+                            </button>
+                        </div>
+                        <!-- Save Image 2 -->
+                        <div class="flex flex-col items-center">
+                            <label for="saveFname2" class="text-sm font-medium text-gray-700 mb-2">Image 2 Filename:</label>
+                            <input type="text" id="saveFname2" value="image2.hui" class="w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-3">
+                            <label for="saveDesc2" class="text-sm font-medium text-gray-700 mb-2">Description:</label>
+                            <input type="text" id="saveDesc2" placeholder="Optional description..." class="w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-3">
+                            <button id="saveBtn2" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200">
+                                Save Image 2 Features
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Batch Image Finder Content -->
+            <div id="batchImageFinder" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Query Image Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="queryImgInput" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Query Image</label>
+                        <input type="file" id="queryImgInput" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <img id="queryImgPreview" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Query Image" />
+                    </div>
+                    
+                    <!-- Database Images Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="databaseImgInput" class="text-lg font-semibold text-gray-700 mb-2">2. Upload Database Images</label>
+                        <input type="file" id="databaseImgInput" accept="image/*" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                        <div id="databaseFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
+                    </div>
+                </div>
+
+                <!-- Batch Options -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Batch Options</h3>
+                    <div class="flex justify-center">
+                        <div class="flex items-center">
+                            <label for="batchAlgorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
+                            <select id="batchAlgorithmSelect" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <option value="orb" selected>ORB</option>
+                                <option value="akaze">AKAZE</option>
+                                <option value="brisk">BRISK</option>
+                                <option value="kaze">KAZE</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Match Button -->
+                <div class="text-center mb-6">
+                    <button id="batchMatchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
+                        Run Batch Analysis
+                    </button>
+                </div>
+
+                <!-- Batch Result List -->
+                <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Batch Results</h2>
+                    <ul id="batchResultsList" class="divide-y divide-gray-200">
+                        <!-- Results will be populated here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab 3: Batch .hui Finder Content (NEW) -->
+            <div id="batchHuiFinder" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Query Image Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="queryImgInputHui" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Query Image</label>
+                        <input type="file" id="queryImgInputHui" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <img id="queryImgPreviewHui" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Query Image" />
+                    </div>
+                    
+                    <!-- Database .hui Files Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="databaseHuiInput" class="text-lg font-semibold text-gray-700 mb-2">2. Upload Database .hui Files</label>
+                        <input type="file" id="databaseHuiInput" accept=".hui" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                        <div id="databaseHuiFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
+                    </div>
+                </div>
+
+                <!-- Batch Options -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Batch Options</h3>
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="flex items-center">
+                            <label for="batchAlgorithmSelectHui" class="mr-2 text-sm font-medium text-gray-700">Query Image Algorithm:</label>
+                            <select id="batchAlgorithmSelectHui" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-100" disabled>
+                                <option value="brisk" selected>BRISK</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="forceAlgorithmMatch" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" checked>
+                            <label for="forceAlgorithmMatch" class="ml-2 text-sm font-medium text-gray-700">Only match files with same algorithm</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Match Button -->
+                <div class="text-center mb-6">
+                    <button id="batchMatchButtonHui" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
+                        Run .hui Batch Analysis
+                    </button>
+                </div>
+
+                <!-- Batch Result List -->
+                <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Batch Results</h2>
+                    <ul id="batchResultsListHui" class="divide-y divide-gray-200">
+                        <!-- Results will be populated here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab 4: Create .hui Content (NEW) -->
+            <div id="createHui" class="tab-content hidden">
+                <div class="flex flex-col items-center gap-6 mb-6">
+                    <!-- Database Images Upload -->
+                    <div class="flex flex-col items-center">
+                        <label for="huiCreatorInput" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Images to Convert</label>
+                        <input type="file" id="huiCreatorInput" accept="image/*" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                        <div id="huiCreatorFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
+                    </div>
+                    
+                    <!-- NEW: Description for single file -->
+                    <div id="huiCreatorDescriptionWrapper" class="flex flex-col items-center w-full max-w-xs hidden">
+                        <label for="huiCreatorDesc" class="text-sm font-medium text-gray-700 mb-2">Description (for single file):</label>
+                        <input type="text" id="huiCreatorDesc" placeholder="Optional description..." class="w-full p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <p class="text-sm text-gray-600">All images will be processed using the <strong>BRISK</strong> algorithm to create .hui files.</p>
+                </div>
+
+                <!-- Batch Match Button -->
+                <div class="text-center mb-6">
+                    <button id="createHuiButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
+                        Create .hui Files
+                    </button>
+                </div>
+
+                <!-- Batch Result List -->
+                <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Processing Results</h2>
+                    <ul id="huiCreatorResultsList" class="divide-y divide-gray-200">
+                        <!-- Results will be populated here -->
+                    </ul>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Zoom Magnifier -->
+    <div id="zoomContainer" class="hidden absolute top-0 left-0 z-50 bg-white shadow-xl rounded-lg overflow-hidden border-2 border-blue-500 pointer-events-none" style="width: 301px; height: 151px;">
+        <div class="flex flex-row">
+             <canvas id="zoomCanvas1" width="150" height="150"></canvas>
+             <!-- 1px Separator -->
+             <div class="bg-gray-300" style="width:1px; height: 150px;"></div>
+             <canvas id="zoomCanvas2" width="150" height="150"></canvas>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        /* ====================================================================
+         * GLOBAL VARIABLES
+         * ==================================================================== */
+        let img1 = null;
+        let img2 = null;
+        let cvLoaded = false;
+        
+        // --- Batch Image Finder Globals ---
+        let queryImg = null;
+        let databaseFiles = null;
+
+        // --- NEW: Batch .hui Finder Globals ---
+        let queryImgHui = null;
+        let databaseHuiFiles = null;
+
+        // --- NEW: Hui Creator Globals ---
+        let huiCreatorFiles = null;
+
+        // --- NEW: Pairwise Globals for saving features ---
+        let lastDes1 = null;
+        let lastDes2 = null;
+        let lastImg1Base64 = null;
+        let lastImg2Base64 = null;
+        let lastAlgorithm = 'orb';
+
+        // --- Global UI Elements ---
+        const statusEl = document.getElementById('status');
+        const loaderEl = document.getElementById('loader');
+        const appEl = document.getElementById('app');
+
+        // --- Tab UI Elements ---
+        const tabPairwise = document.getElementById('tabPairwise');
+        const tabBatchImage = document.getElementById('tabBatchImage'); // Renamed
+        const tabBatchHui = document.getElementById('tabBatchHui');     // New
+        const tabCreateHui = document.getElementById('tabCreateHui');   // New
+        const pairwiseMatcherEl = document.getElementById('pairwiseMatcher');
+        const batchImageFinderEl = document.getElementById('batchImageFinder'); // Renamed
+        const batchHuiFinderEl = document.getElementById('batchHuiFinder');   // New
+        const createHuiEl = document.getElementById('createHui');       // New
+
+        // --- Pairwise UI Elements ---
+        const imgInput1 = document.getElementById('imgInput1');
+        const imgInput2 = document.getElementById('imgInput2');
+        const imgEl1 = document.getElementById('img1');
+        const imgEl2 = document.getElementById('img2');
+        const matchButton = document.getElementById('matchButton');
+        const outputCanvas = document.getElementById('outputCanvas');
+        const algorithmSelect = document.getElementById('algorithmSelect');
+        const showLinesEl = document.getElementById('showLines');
+        const showCirclesEl = document.getElementById('showCircles');
+        const maxMatchesEl = document.getElementById('maxMatches');
+        const showUnmatchedEl = document.getElementById('showUnmatched');
+        // NEW: Save Feature UI
+        const saveFeaturesSection = document.getElementById('saveFeaturesSection');
+        const saveFname1 = document.getElementById('saveFname1');
+        const saveFname2 = document.getElementById('saveFname2');
+        const saveBtn1 = document.getElementById('saveBtn1');
+        const saveBtn2 = document.getElementById('saveBtn2');
+        // NEW: Description inputs
+        const saveDesc1 = document.getElementById('saveDesc1');
+        const saveDesc2 = document.getElementById('saveDesc2');
+
+        // --- Batch Image Finder UI Elements ---
+        const queryImgInput = document.getElementById('queryImgInput');
+        const queryImgPreview = document.getElementById('queryImgPreview');
+        const databaseImgInput = document.getElementById('databaseImgInput');
+        const databaseFileCount = document.getElementById('databaseFileCount');
+        const batchAlgorithmSelect = document.getElementById('batchAlgorithmSelect');
+        const batchMatchButton = document.getElementById('batchMatchButton');
+        const batchResultsList = document.getElementById('batchResultsList');
+
+        // --- NEW: Batch .hui Finder UI Elements ---
+        const queryImgInputHui = document.getElementById('queryImgInputHui');
+        const queryImgPreviewHui = document.getElementById('queryImgPreviewHui');
+        const databaseHuiInput = document.getElementById('databaseHuiInput');
+        const databaseHuiFileCount = document.getElementById('databaseHuiFileCount');
+        const batchAlgorithmSelectHui = document.getElementById('batchAlgorithmSelectHui');
+        const batchMatchButtonHui = document.getElementById('batchMatchButtonHui');
+        const batchResultsListHui = document.getElementById('batchResultsListHui');
+        const forceAlgorithmMatch = document.getElementById('forceAlgorithmMatch');
+
+        // --- NEW: Hui Creator UI Elements ---
+        const huiCreatorInput = document.getElementById('huiCreatorInput');
+        const huiCreatorFileCount = document.getElementById('huiCreatorFileCount');
+        const createHuiButton = document.getElementById('createHuiButton');
+        const huiCreatorResultsList = document.getElementById('huiCreatorResultsList');
+        const huiCreatorDescriptionWrapper = document.getElementById('huiCreatorDescriptionWrapper'); // NEW
+        const huiCreatorDesc = document.getElementById('huiCreatorDesc'); // NEW
+
+
+        // Group matching options for easy hiding
+        const matchingOptions = [
+            showLinesEl.parentElement,
+            showCirclesEl.parentElement,
+            showUnmatchedEl.parentElement,
+            maxMatchesEl.parentElement
+        ];
+        
+        // Toggle matching-specific options based on algorithm
+        algorithmSelect.addEventListener('change', (e) => {
+            const isFeatureMatcher = e.target.value === 'orb' || e.target.value === 'akaze' || e.target.value === 'brisk' || e.target.value === 'kaze';
+            matchingOptions.forEach(el => {
+                el.classList.toggle('hidden', !isFeatureMatcher);
+            });
+            if (!isFeatureMatcher) {
+                zoomContainer.style.display = 'none';
+            }
+        });
+
+        // Zoom UI Elements
+        const zoomContainer = document.getElementById('zoomContainer');
+        const zoomCanvas1 = document.getElementById('zoomCanvas1');
+        const zoomCanvas2 = document.getElementById('zoomCanvas2');
+        const ctxZoom1 = zoomCanvas1.getContext('2d');
+        const ctxZoom2 = zoomCanvas2.getContext('2d');
+
+        // Global data for zoom
+        let lastKp1Pts = [];
+        let lastKp2Pts = [];
+        let lastImg1Cols = 0;
+        let lastGoodMatchesList = [];
+
+        // Predefined colors for numbered circles
+        const circleColors = [
+            [255, 0, 0, 255],    // Red
+            [0, 255, 0, 255],    // Green
+            [0, 0, 255, 255],    // Blue
+            [255, 255, 0, 255],  // Yellow
+            [0, 255, 255, 255],  // Cyan
+            [255, 0, 255, 255],  // Magenta
+            [255, 128, 0, 255],  // Orange
+            [128, 0, 255, 255],  // Purple
+            [0, 128, 0, 255],    // Dark Green
+            [255, 192, 203, 255] // Pink
+        ];
+
+        /* ====================================================================
+         * NEW: HELPER FUNCTIONS (Save/Load/Convert)
+         * ==================================================================== */
+        
+        /**
+         * Converts an HTML Image element to a base64 data URL.
+         */
+        function getBase64FromImage(img) {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            // Use image/jpeg for smaller file sizes
+            return canvas.toDataURL('image/jpeg', 0.9); 
+        }
+
+        /**
+         * Converts a cv.Mat descriptor to a JSON-safe 2D array.
+         * Handles different data types (CV_8U for ORB/BRISK, CV_32F for AKAZE/KAZE).
+         */
+        function matToJSON(mat) {
+            if (!mat || mat.empty()) {
+                console.error("matToJSON: Input Mat is empty or invalid.");
+                return null;
+            }
+            const rows = mat.rows;
+            const cols = mat.cols;
+            const type = mat.type();
+            let data;
+            
+            // Get the correct data view based on Mat type
+            if (type === cv.CV_32F) {
+                data = mat.data32F;
+            } else if (type === cv.CV_8U) {
+                data = mat.data;
+            } else {
+                console.error(`matToJSON: Unsupported Mat type: ${type}`);
+                return null;
+            }
+
+            const result = [];
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    row.push(data[i * cols + j]);
+                }
+                result.push(row);
+            }
+            return result;
+        }
+
+        /**
+         * Triggers a browser download for the given JSON data.
+         */
+        function downloadJSON(data, filename) {
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        /**
+         * Main function to save features.
+         */
+        function saveFeatures(descriptorMat, base64Img, filename, algorithm, description = "", silent = false) {
+            if (!descriptorMat || descriptorMat.empty()) {
+                if (!silent) {
+                    statusEl.textContent = 'Error: No descriptors to save.';
+                    statusEl.classList.add('bg-red-50', 'text-red-700');
+                }
+                console.error("saveFeatures: No descriptors to save.");
+                return false;
+            }
+
+            if (!silent) statusEl.textContent = 'Converting descriptors...';
+            const descriptorsArray = matToJSON(descriptorMat);
+            if (!descriptorsArray) {
+                if (!silent) {
+                    statusEl.textContent = 'Error: Failed to convert descriptors.';
+                    statusEl.classList.add('bg-red-50', 'text-red-700');
+                }
+                console.error("saveFeatures: Failed to convert descriptors.");
+                return false;
+            }
+
+            /* REMOVED DUPLICATE BLOCK
+            statusEl.textContent = 'Converting descriptors...';
+            const descriptorsArray = matToJSON(descriptorMat);
+            if (!descriptorsArray) {
+                statusEl.textContent = 'Error: Failed to convert descriptors.';
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+                return;
+            }
+            */
+
+            const huiData = {
+                createdAtUTC: new Date().toISOString(), // <-- ADDED
+                algorithm: algorithm,
+                description: description || "", // <-- ADDED
+                rows: descriptorMat.rows,
+                cols: descriptorMat.cols,
+                type: descriptorMat.type(),
+                imageBase64: base64Img,
+                descriptors: descriptorsArray,
+            };
+
+            if (!silent) statusEl.textContent = 'Downloading...';
+            
+            // Ensure filename ends with .hui
+            if (!filename.toLowerCase().endsWith('.hui')) {
+                filename += '.hui';
+            }
+
+            downloadJSON(huiData, filename);
+            
+            if (!silent) {
+                statusEl.textContent = `Successfully saved ${filename}.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700', 'bg-red-50', 'text-red-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+            }
+            return true;
+        }
+
+
+        /* ====================================================================
+         * TAB SWITCHING LOGIC
+         * ==================================================================== */
+        
+        // --- NEW: Tab Switching Logic (3 Tabs) ---
+        tabPairwise.addEventListener('click', () => {
+            tabPairwise.classList.add('active');
+            tabBatchImage.classList.remove('active');
+            tabBatchHui.classList.remove('active');
+            pairwiseMatcherEl.classList.remove('hidden');
+            batchImageFinderEl.classList.add('hidden');
+            batchHuiFinderEl.classList.add('hidden');
+            createHuiEl.classList.add('hidden');
+        });
+
+        tabBatchImage.addEventListener('click', () => {
+            tabPairwise.classList.remove('active');
+            tabBatchImage.classList.add('active');
+            tabBatchHui.classList.remove('active');
+            pairwiseMatcherEl.classList.add('hidden');
+            batchImageFinderEl.classList.remove('hidden');
+            batchHuiFinderEl.classList.add('hidden');
+        });
+        
+        tabBatchHui.addEventListener('click', () => {
+            tabPairwise.classList.remove('active');
+            tabBatchImage.classList.remove('active');
+            tabBatchHui.classList.add('active');
+            pairwiseMatcherEl.classList.add('hidden');
+            batchImageFinderEl.classList.add('hidden');
+            batchHuiFinderEl.classList.remove('hidden');
+            createHuiEl.classList.add('hidden');
+        });
+
+        // NEW
+        tabCreateHui.addEventListener('click', () => {
+            tabPairwise.classList.remove('active');
+            tabBatchImage.classList.remove('active');
+            tabBatchHui.classList.remove('active');
+            tabCreateHui.classList.add('active');
+            pairwiseMatcherEl.classList.add('hidden');
+            batchImageFinderEl.classList.add('hidden');
+            batchHuiFinderEl.classList.add('hidden');
+            createHuiEl.classList.remove('hidden');
+        });
+
+        /* ====================================================================
+         * OPENCV LOAD & MAIN EVENT LISTENERS
+         * ==================================================================== */
+
+        // Function called once OpenCV.js is loaded
+        function onOpenCvReady() {
+            if (cv) {
+                console.log('OpenCV.js is ready.');
+                cvLoaded = true;
+                statusEl.textContent = 'OpenCV.js Loaded. Please select images.';
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+                loaderEl.classList.add('hidden');
+                appEl.classList.remove('hidden');
+                checkPairwiseMatchButton(); 
+                checkBatchMatchButton();
+                checkBatchHuiMatchButton(); // NEW
+                checkHuiCreatorButton(); // NEW
+            } else {
+                console.error('Failed to load OpenCV.js');
+                statusEl.textContent = 'Error: Failed to load OpenCV.js. Please refresh the page.';
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            }
+        }
+
+        // --- Pairwise Image Handlers ---
+        imgInput1.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imgEl1.src = event.target.result;
+                    imgEl1.classList.remove('hidden');
+                    img1 = imgEl1;
+                    checkPairwiseMatchButton();
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        imgInput2.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imgEl2.src = event.target.result;
+                    imgEl2.classList.remove('hidden');
+                    img2 = imgEl2;
+                    checkPairwiseMatchButton();
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        function checkPairwiseMatchButton() {
+            if (img1 && img2 && cvLoaded) {
+                matchButton.disabled = false;
+                matchButton.textContent = 'Run Analysis';
+            }
+        }
+
+        // --- Batch Image Handlers ---
+        queryImgInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    queryImgPreview.src = event.target.result;
+                    queryImgPreview.classList.remove('hidden');
+                    queryImg = queryImgPreview;
+                    checkBatchMatchButton();
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        databaseImgInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                databaseFiles = e.target.files;
+                databaseFileCount.textContent = `${databaseFiles.length} files selected`;
+                checkBatchMatchButton();
+            } else {
+                databaseFiles = null;
+                databaseFileCount.textContent = '0 files selected';
+            }
+        });
+        function checkBatchMatchButton() {
+            if (queryImg && databaseFiles && databaseFiles.length > 0 && cvLoaded) {
+                batchMatchButton.disabled = false;
+                batchMatchButton.textContent = 'Run Batch Analysis';
+            } else {
+                batchMatchButton.disabled = true;
+                batchMatchButton.textContent = 'Run Batch Analysis';
+            }
+        }
+
+        // --- NEW: Batch .hui Handlers ---
+        queryImgInputHui.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    queryImgPreviewHui.src = event.target.result;
+                    queryImgPreviewHui.classList.remove('hidden');
+                    queryImgHui = queryImgPreviewHui;
+                    checkBatchHuiMatchButton();
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        databaseHuiInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                databaseHuiFiles = e.target.files;
+                databaseHuiFileCount.textContent = `${databaseHuiFiles.length} .hui files selected`;
+                checkBatchHuiMatchButton();
+            } else {
+                databaseHuiFiles = null;
+                databaseHuiFileCount.textContent = '0 files selected';
+            }
+        });
+        function checkBatchHuiMatchButton() {
+            if (queryImgHui && databaseHuiFiles && databaseHuiFiles.length > 0 && cvLoaded) {
+                batchMatchButtonHui.disabled = false;
+                batchMatchButtonHui.textContent = 'Run .hui Batch Analysis';
+            } else {
+                batchMatchButtonHui.disabled = true;
+                batchMatchButtonHui.textContent = 'Run .hui Batch Analysis';
+            }
+        }
+
+        // --- NEW: .hui Creator Handlers ---
+        huiCreatorInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                huiCreatorFiles = e.target.files;
+                huiCreatorFileCount.textContent = `${huiCreatorFiles.length} files selected`;
+
+                // NEW logic for description box
+                if (huiCreatorFiles.length === 1) {
+                    huiCreatorDescriptionWrapper.classList.remove('hidden');
+                } else {
+                    huiCreatorDescriptionWrapper.classList.add('hidden');
+                    huiCreatorDesc.value = ''; // Clear description if not 1 file
+                }
+                
+                checkHuiCreatorButton();
+            } else {
+                huiCreatorFiles = null;
+                huiCreatorFileCount.textContent = '0 files selected';
+                
+                // NEW logic for description box
+                huiCreatorDescriptionWrapper.classList.add('hidden');
+                huiCreatorDesc.value = ''; // Clear description
+                
+                checkHuiCreatorButton();
+            }
+        });
+        function checkHuiCreatorButton() {
+            if (huiCreatorFiles && huiCreatorFiles.length > 0 && cvLoaded) {
+                createHuiButton.disabled = false;
+                createHuiButton.textContent = 'Create .hui Files';
+            } else {
+                createHuiButton.disabled = true;
+                createHuiButton.textContent = 'Create .hui Files';
+            }
+        }
+
+
+        // --- NEW: Save Feature Button Listeners ---
+        saveBtn1.addEventListener('click', () => {
+            const filename = saveFname1.value || 'image1.hui';
+            const description = saveDesc1.value || ''; // <-- ADDED
+            saveFeatures(lastDes1, lastImg1Base64, filename, lastAlgorithm, description); // <-- UPDATED
+        });
+        saveBtn2.addEventListener('click', () => {
+            const filename = saveFname2.value || 'image2.hui';
+            const description = saveDesc2.value || ''; // <-- ADDED
+            saveFeatures(lastDes2, lastImg2Base64, filename, lastAlgorithm, description); // <-- UPDATED
+        });
+
+        // --- Add click listener to the .hui creator button ---
+        createHuiButton.addEventListener('click', runHuiCreation);
+
+
+        // --- Zoom Function (Unchanged) ---
+        function updateZoom(event) {
+            const isFeatureMatcher = algorithmSelect.value === 'orb' || algorithmSelect.value === 'akaze' || algorithmSelect.value === 'brisk' || algorithmSelect.value === 'kaze';
+            if (!isFeatureMatcher) {
+                zoomContainer.style.display = 'none';
+                return;
+            }
+            ctxZoom1.imageSmoothingEnabled = false;
+            ctxZoom2.imageSmoothingEnabled = false;
+            const zoomLevel = 3;
+            const zoomWidth = 150; 
+            const zoomHeight = 150; 
+            const srcWidth = zoomWidth / zoomLevel;
+            const srcHeight = zoomHeight / zoomLevel;
+            const rect = outputCanvas.getBoundingClientRect();
+            const mouseElemX = event.clientX - rect.left;
+            const mouseElemY = event.clientY - rect.top;
+            const scaleX = outputCanvas.width / rect.width;
+            const scaleY = outputCanvas.height / rect.height;
+            const mouseX = mouseElemX * scaleX;
+            const mouseY = mouseElemY * scaleY;
+            const col1 = lastImg1Cols;
+            let sx1 = 0, sy1 = 0, sx2 = 0, sy2 = 0;
+            if (mouseX < col1) { 
+                sx1 = mouseX - srcWidth / 2;
+                sy1 = mouseY - srcHeight / 2;
+                let closestMatch = null;
+                let minDst = 15 * scaleX; 
+                for (const m of lastGoodMatchesList) {
+                    const pt1 = lastKp1Pts[m.queryIdx];
+                    if (!pt1) continue;
+                    const dst = Math.sqrt(Math.pow(pt1.x - mouseX, 2) + Math.pow(pt1.y - mouseY, 2));
+                    if (dst < minDst) {
+                        minDst = dst;
+                        closestMatch = m;
+                    }
+                }
+                if (closestMatch) {
+                    const pt2 = lastKp2Pts[closestMatch.trainIdx];
+                    sx2 = (pt2.x + col1) - srcWidth / 2;
+                    sy2 = pt2.y - srcHeight / 2;
+                } else {
+                    sx2 = (mouseX + col1) - srcWidth / 2;
+                    sy2 = sy1;
+                }
+            } else { 
+                const mouseX2 = mouseX - col1; 
+                sx2 = mouseX - srcWidth / 2;
+                sy2 = mouseY - srcHeight / 2;
+                let closestMatch = null;
+                let minDst = 15 * scaleX; 
+                for (const m of lastGoodMatchesList) {
+                    const pt2 = lastKp2Pts[m.trainIdx];
+                    if (!pt2) continue;
+                    const dst = Math.sqrt(Math.pow(pt2.x - mouseX2, 2) + Math.pow(pt2.y - mouseY, 2));
+                    if (dst < minDst) {
+                        minDst = dst;
+                        closestMatch = m;
+                    }
+                }
+                if (closestMatch) {
+                    const pt1 = lastKp1Pts[closestMatch.queryIdx];
+                    sx1 = pt1.x - srcWidth / 2;
+                    sy1 = pt1.y - srcHeight / 2;
+                } else {
+                    sx1 = mouseX2 - srcWidth / 2;
+                    sy1 = sy2;
+                }
+            }
+            ctxZoom1.fillStyle = '#fafafa';
+            ctxZoom1.fillRect(0, 0, zoomWidth, zoomHeight);
+            ctxZoom2.fillStyle = '#fafafa';
+            ctxZoom2.fillRect(0, 0, zoomWidth, zoomHeight);
+            ctxZoom1.drawImage(outputCanvas, sx1, sy1, srcWidth, srcHeight, 0, 0, zoomWidth, zoomHeight);
+            ctxZoom2.drawImage(outputCanvas, sx2, sy2, srcWidth, srcHeight, 0, 0, zoomWidth, zoomHeight);
+            ctxZoom1.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+            ctxZoom1.lineWidth = 1;
+            ctxZoom1.beginPath();
+            ctxZoom1.moveTo(zoomWidth / 2, 0); ctxZoom1.lineTo(zoomWidth / 2, zoomHeight);
+            ctxZoom1.moveTo(0, zoomHeight / 2); ctxZoom1.lineTo(zoomWidth, zoomHeight / 2);
+            ctxZoom1.stroke();
+            ctxZoom2.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+            ctxZoom2.lineWidth = 1;
+            ctxZoom2.beginPath();
+            ctxZoom2.moveTo(zoomWidth / 2, 0); ctxZoom2.lineTo(zoomWidth / 2, zoomHeight);
+            ctxZoom2.moveTo(0, zoomHeight / 2); ctxZoom2.lineTo(zoomWidth, zoomHeight / 2);
+            ctxZoom2.stroke();
+            let newLeft = event.pageX + 15;
+            let newTop = event.pageY + 15;
+            if (newLeft + zoomContainer.offsetWidth > window.innerWidth + window.scrollX) {
+                newLeft = event.pageX - zoomContainer.offsetWidth - 15;
+            }
+            if (newTop + zoomContainer.offsetHeight > window.innerHeight + window.scrollY) {
+                newTop = event.pageY - zoomContainer.offsetHeight - 15;
+            }
+            zoomContainer.style.left = `${newLeft}px`;
+            zoomContainer.style.top = `${newTop}px`;
+        }
+
+        /* ====================================================================
+         * PAIRWISE ANALYSIS
+         * ==================================================================== */
+
+        // Add click listener to the pairwise match button
+        matchButton.addEventListener('click', runPairwiseAnalysis);
+
+        // --- Main analysis function ---
+        async function runPairwiseAnalysis() {
+            if (!img1 || !img2 || !cvLoaded) {
+                statusEl.textContent = 'Please upload both images first.';
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+                return;
+            }
+
+            // Disable button and show loading state
+            matchButton.disabled = true;
+            matchButton.textContent = 'Processing...';
+            statusEl.textContent = 'Processing... This might take a moment.';
+            statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
+            statusEl.classList.add('bg-blue-50', 'text-blue-700');
+            
+            // Clear previous zoom data and hide save section
+            lastGoodMatchesList = [];
+            zoomContainer.style.display = 'none';
+            saveFeaturesSection.classList.add('hidden');
+
+            // NEW: Clear previously saved descriptors
+            if (lastDes1) { lastDes1.delete(); lastDes1 = null; }
+            if (lastDes2) { lastDes2.delete(); lastDes2 = null; }
+
+            lastAlgorithm = algorithmSelect.value;
+
+            if (lastAlgorithm === 'orb') {
+                setTimeout(performOrbMatching, 100);
+            } else if (lastAlgorithm === 'akaze') {
+                setTimeout(performAkazeMatching, 100);
+            } else if (lastAlgorithm === 'brisk') {
+                setTimeout(performBriskMatching, 100);
+            } else if (lastAlgorithm === 'kaze') { 
+                setTimeout(performKazeMatching, 100);
+            }
+        }
+        
+        /* ====================================================================
+         * NEW: .HUI CREATOR
+         * ==================================================================== */
+        
+        /**
+         * NEW: Helper function to process a single image for .hui creation
+         */
+        async function processImageForHui(file, description) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    const base64Img = e.target.result;
+                    img.onload = () => {
+                        let src = null, gray = null, kp = null, des = null;
+                        let detector = null, mask = null;
+                        
+                        try {
+                            src = cv.imread(img);
+                            if (src.empty()) {
+                                throw new Error("Could not read image file.");
+                            }
+                            gray = new cv.Mat();
+                            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                            kp = new cv.KeyPointVector();
+                            des = new cv.Mat();
+                            mask = new cv.Mat(); 
+                            detector = new cv.BRISK(); // Hardcoded to BRISK
+
+                            detector.detectAndCompute(gray, mask, kp, des); 
+
+                            if (des.rows < 2 || des.cols === 0) {
+                                throw new Error("Could not detect at least 2 keypoints.");
+                            }
+                            
+                            // Get filename without extension
+                            const filename = file.name.split('.').slice(0, -1).join('.') || file.name;
+
+                            // Save features (silently, with description)
+                            const success = saveFeatures(des, base64Img, filename + ".hui", "brisk", description, true); // <-- UPDATED
+
+                            if (success) {
+                                resolve({ filename: file.name, success: true, count: des.rows });
+                            } else {
+                                throw new Error("Failed to save features.");
+                            }
+
+                        } catch(err) {
+                            console.error(`Error processing ${file.name}:`, err.message || err);
+                            resolve({ filename: file.name, success: false, error: err.message || 'Processing error' });
+                        } finally {
+                            // Clean up all Mats for THIS loop
+                            if (src) src.delete();
+                            if (gray) gray.delete();
+                            if (kp) kp.delete();
+                            if (des) des.delete();
+                            if (detector) detector.delete();
+                            if (mask) mask.delete(); 
+                        }
+                    };
+                    img.onerror = () => {
+                         resolve({ filename: file.name, success: false, error: 'Could not load image.' });
+                    };
+                    img.src = base64Img;
+                };
+                reader.onerror = () => {
+                    console.error(`Error reading file ${file.name}`);
+                    resolve({ filename: file.name, success: false, error: 'File read error' });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        /**
+         * NEW: Main .Hui Creation Function
+         */
+        async function runHuiCreation() {
+            if (!huiCreatorFiles || huiCreatorFiles.length === 0 || !cvLoaded) {
+                statusEl.textContent = 'Please upload images to convert.';
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+                return;
+            }
+
+            createHuiButton.disabled = true;
+            createHuiButton.textContent = 'Processing...';
+            statusEl.textContent = 'Processing images...';
+            statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
+            statusEl.classList.add('bg-blue-50', 'text-blue-700');
+            huiCreatorResultsList.innerHTML = ''; // Clear previous results
+
+            let successCount = 0;
+            let failCount = 0;
+
+            // NEW: Get description
+            const singleFileDescription = (huiCreatorFiles.length === 1) ? huiCreatorDesc.value || '' : '';
+
+            try {
+                // 1. Loop through and process images
+                for (let i = 0; i < huiCreatorFiles.length; i++) {
+                    const file = huiCreatorFiles[i];
+                    statusEl.textContent = `Processing file ${i + 1} of ${huiCreatorFiles.length}: ${file.name}`;
+                    
+                    const result = await processImageForHui(file, singleFileDescription);
+                    
+                    // 2. Display result in list
+                    const li = document.createElement('li');
+                    if (result.success) {
+                        successCount++;
+                        li.className = 'flex items-center p-4 text-green-700';
+                        li.innerHTML = `
+                            <div class="flex-1">
+                                <span class="font-semibold">${result.filename}</span>
+                                <span class="text-sm text-gray-600 block">Success: Generated ${result.count} descriptors. File downloaded.</span>
+                            </div>
+                            <span class="text-sm font-bold">✓</span>
+                        `;
+                    } else {
+                        failCount++;
+                        li.className = 'flex items-center p-4 text-red-700';
+                        li.innerHTML = `
+                            <div class="flex-1">
+                                <span class="font-semibold">${result.filename}</span>
+                                <span class="text-sm text-red-600 block">Error: ${result.error}</span>
+                            </div>
+                            <span class="text-sm font-bold">✗</span>
+                        `;
+                    }
+                    huiCreatorResultsList.appendChild(li);
+                }
+
+                // 3. Display final status
+                statusEl.textContent = `Batch creation complete. ${successCount} successful, ${failCount} failed.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                if (failCount > 0) {
+                     statusEl.classList.add('bg-yellow-50', 'text-yellow-700');
+                } else {
+                    statusEl.classList.add('bg-green-50', 'text-green-700');
+                }
+
+            } catch (err) {
+                console.error(err.message || err);
+                statusEl.textContent = `An error occurred: ${err.message || err}.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                // Re-enable button
+                createHuiButton.disabled = false;
+                createHuiButton.textContent = 'Create .hui Files';
+            }
+        }
+
+
+        /* ====================================================================
+         * BATCH IMAGE FINDER
+         * ==================================================================== */
+
+        // --- Add click listener to the BATCH IMAGE button ---
+        batchMatchButton.addEventListener('click', runBatchAnalysis);
+
+        // --- Helper function to process a single file for the batch ---
+        async function processFileForBatch(file, queryKp, queryDes, algorithm) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.onload = () => {
+                        let src2 = null, gray2 = null, kp2 = null, des2 = null;
+                        let detector = null, bf = null, matches = null;
+                        let goodMatchesCount = 0;
+                        let mask = null; 
+                        
+                        try {
+                            src2 = cv.imread(img);
+                            if (src2.empty()) {
+                                throw new Error("Could not read image file (it might be corrupt).");
+                            }
+                            gray2 = new cv.Mat();
+                            cv.cvtColor(src2, gray2, cv.COLOR_RGBA2GRAY);
+                            kp2 = new cv.KeyPointVector();
+                            des2 = new cv.Mat();
+                            mask = new cv.Mat(); 
+
+                            // 1. Select and run detector
+                            if (algorithm === 'orb') detector = new cv.ORB();
+                            else if (algorithm === 'akaze') detector = new cv.AKAZE();
+                            else if (algorithm === 'brisk') detector = new cv.BRISK();
+                            else if (algorithm === 'kaze') detector = new cv.KAZE();
+                            else throw new Error('Unknown algorithm');
+
+                            detector.detectAndCompute(gray2, mask, kp2, des2); 
+
+                            // Check for valid descriptors
+                            if (queryDes.rows < 2 || queryDes.cols === 0 || des2.rows < 2 || des2.cols === 0) {
+                                resolve({ filename: file.name, goodMatches: 0, imgSrc: e.target.result });
+                                return;
+                            }
+
+                            // 2. Select matcher norm
+                            let norm = (algorithm === 'orb' || algorithm === 'brisk') ? cv.NORM_HAMMING : cv.NORM_L2;
+                            bf = new cv.BFMatcher(norm, false);
+                            matches = new cv.DMatchVectorVector();
+                            
+                            // 3. Perform matching
+                            bf.knnMatch(queryDes, des2, matches, 2);
+
+                            // 4. Apply Lowe's Ratio Test
+                            const ratioThresh = 0.75;
+                            for (let i = 0; i < matches.size(); ++i) {
+                                let match = matches.get(i);
+                                if (match.size() < 2) continue;
+                                let m = match.get(0);
+                                let n = match.get(1);
+                                if (m.distance < ratioThresh * n.distance) {
+                                    goodMatchesCount++;
+                                }
+                            }
+                            resolve({ filename: file.name, goodMatches: goodMatchesCount, imgSrc: e.target.result });
+
+                        } catch(err) {
+                            console.error(`Error processing ${file.name}:`, err.message || err);
+                            resolve({ filename: file.name, goodMatches: 0, imgSrc: e.target.result }); // Resolve with 0 on error
+                        } finally {
+                            // Clean up all Mats for THIS loop
+                            if (src2) src2.delete();
+                            if (gray2) gray2.delete();
+                            if (kp2) kp2.delete();
+                            if (des2) des2.delete();
+                            if (detector) detector.delete();
+                            if (bf) bf.delete();
+                            if (matches) matches.delete();
+                            if (mask) mask.delete(); 
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => {
+                    console.error(`Error reading file ${file.name}`);
+                    resolve({ filename: file.name, goodMatches: 0, imgSrc: null });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+
+        // --- Main Batch Image Analysis Function ---
+        async function runBatchAnalysis() {
+            if (!queryImg || !databaseFiles || databaseFiles.length === 0 || !cvLoaded) {
+                statusEl.textContent = 'Please upload a query image and database images.';
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+                return;
+            }
+
+            batchMatchButton.disabled = true;
+            batchMatchButton.textContent = 'Processing...';
+            statusEl.textContent = 'Processing Query Image...';
+            statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
+            statusEl.classList.add('bg-blue-50', 'text-blue-700');
+            batchResultsList.innerHTML = ''; // Clear previous results
+
+            let querySrc = null, queryGray = null, queryKp = null, queryDes = null;
+            let queryDetector = null;
+            let results = [];
+            const algorithm = batchAlgorithmSelect.value;
+            let mask = null; 
+
+            try {
+                // 1. Process the Query Image ONCE
+                querySrc = cv.imread(queryImg);
+                queryGray = new cv.Mat();
+                cv.cvtColor(querySrc, queryGray, cv.COLOR_RGBA2GRAY);
+                queryKp = new cv.KeyPointVector();
+                queryDes = new cv.Mat();
+                mask = new cv.Mat(); 
+                
+                if (algorithm === 'orb') queryDetector = new cv.ORB();
+                else if (algorithm === 'akaze') queryDetector = new cv.AKAZE();
+                else if (algorithm === 'brisk') queryDetector = new cv.BRISK();
+                else if (algorithm === 'kaze') queryDetector = new cv.KAZE();
+                else throw new Error('Unknown algorithm');
+                
+                queryDetector.detectAndCompute(queryGray, mask, queryKp, queryDes); 
+
+                if (queryDes.rows < 2 || queryDes.cols === 0) {
+                    throw new Error("Could not detect at least 2 keypoints in query image.");
+                }
+
+                // 2. Loop through and process database images
+                for (let i = 0; i < databaseFiles.length; i++) {
+                    const file = databaseFiles[i];
+                    statusEl.textContent = `Processing file ${i + 1} of ${databaseFiles.length}: ${file.name}`;
+                    const result = await processFileForBatch(file, queryKp, queryDes, algorithm);
+                    results.push(result);
+                }
+
+                // 3. Sort results
+                results.sort((a, b) => b.goodMatches - a.goodMatches);
+
+                // 4. Display results
+                statusEl.textContent = `Batch analysis complete. Found ${results.length} results.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+
+                if (results.length === 0) {
+                    batchResultsList.innerHTML = '<li class="p-4 text-center text-gray-500">No results found.</li>';
+                } else {
+                    results.forEach((result, index) => {
+                        const li = document.createElement('li');
+                        li.className = `flex items-center p-4 ${index === 0 ? 'bg-green-50' : ''}`;
+                        li.innerHTML = `
+                            <img src="${result.imgSrc}" class="w-16 h-16 object-contain rounded-md mr-4 bg-gray-100">
+                            <div class="flex-1">
+                                <span class="font-semibold text-gray-800">${index + 1}. ${result.filename}</span>
+                                <span class="text-sm text-gray-600 block">Good Matches: <strong>${result.goodMatches}</strong></span>
+                            </div>
+                            ${index === 0 ? '<span class="text-sm font-bold text-green-600">Best Match</span>' : ''}
+                        `;
+                        batchResultsList.appendChild(li);
+                    });
+                }
+
+            } catch (err) {
+                console.error(err.message || err);
+                statusEl.textContent = `An error occurred: ${err.message || err}.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                // Clean up query Mats
+                if (querySrc) querySrc.delete();
+                if (queryGray) queryGray.delete();
+                if (queryKp) queryKp.delete();
+                if (queryDes) queryDes.delete();
+                if (queryDetector) queryDetector.delete();
+                if (mask) mask.delete(); 
+                
+                // Re-enable button
+                batchMatchButton.disabled = false;
+                batchMatchButton.textContent = 'Run Batch Analysis';
+            }
+        }
+        
+        /* ====================================================================
+         * NEW: BATCH .HUI FINDER
+         * ==================================================================== */
+
+        // --- Add click listener to the BATCH .HUI button ---
+        batchMatchButtonHui.addEventListener('click', runBatchHuiAnalysis);
+
+        /**
+         * NEW: Helper function to process a single .hui file
+         */
+        async function processHuiFile(file, queryDes, queryAlgorithm) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let huiData;
+                    let des2 = null, bf = null, matches = null;
+                    let goodMatchesCount = 0;
+
+                    try {
+                        huiData = JSON.parse(e.target.result);
+                    } catch (err) {
+                        console.error(`Error parsing JSON from ${file.name}:`, err);
+                        resolve({ filename: file.name, goodMatches: -1, imgSrc: null, error: 'Invalid JSON', description: "" });
+                        return;
+                    }
+
+                    // Validate .hui data structure
+                    if (!huiData.descriptors || !huiData.algorithm || !huiData.rows || 
+                        huiData.cols === undefined || huiData.type === undefined || !huiData.imageBase64) {
+                        console.error(`Invalid .hui file ${file.name}: Missing properties.`);
+                        resolve({ filename: file.name, goodMatches: -1, imgSrc: null, error: 'Invalid .hui format', description: "" });
+                        return;
+                    }
+
+                    const huiAlgorithm = huiData.algorithm.toLowerCase();
+                    const doForceAlgorithmMatch = forceAlgorithmMatch.checked;
+
+                    if (doForceAlgorithmMatch && huiAlgorithm !== queryAlgorithm) {
+                        resolve({ filename: file.name, goodMatches: -1, imgSrc: huiData.imageBase64, error: `Algorithm mismatch (${huiAlgorithm})`, description: huiData.description || "" });
+                        return;
+                    }
+                    
+                    try {
+                        // 1. Rebuild descriptor Mat from JSON
+                        const flatDescriptors = huiData.descriptors.flat();
+                        des2 = cv.matFromArray(huiData.rows, huiData.cols, huiData.type, flatDescriptors);
+                        
+                        if (queryDes.rows < 2 || des2.rows < 2) {
+                            throw new Error("Not enough descriptors for matching.");
+                        }
+
+                        // 2. Select matcher norm. Note: This assumes algorithms are compatible if force-match is off!
+                        let norm = (queryAlgorithm === 'orb' || queryAlgorithm === 'brisk') ? cv.NORM_HAMMING : cv.NORM_L2;
+                        // If not forcing match, infer norm from .hui file
+                        if (!doForceAlgorithmMatch) {
+                             norm = (huiAlgorithm === 'orb' || huiAlgorithm === 'brisk') ? cv.NORM_HAMMING : cv.NORM_L2;
+                        }
+
+                        bf = new cv.BFMatcher(norm, false);
+                        matches = new cv.DMatchVectorVector();
+                        
+                        // 3. Perform matching
+                        bf.knnMatch(queryDes, des2, matches, 2);
+
+                        // 4. Apply Lowe's Ratio Test
+                        const ratioThresh = 0.75;
+                        for (let i = 0; i < matches.size(); ++i) {
+                            let match = matches.get(i);
+                            if (match.size() < 2) continue;
+                            let m = match.get(0);
+                            let n = match.get(1);
+                                if (m.distance < ratioThresh * n.distance) {
+                                    goodMatchesCount++;
+                                }
+                            }
+                            resolve({ filename: file.name, goodMatches: goodMatchesCount, imgSrc: huiData.imageBase64, description: huiData.description || "" });
+
+                    } catch (err) {
+                        console.error(`Error processing .hui file ${file.name}:`, err.message || err);
+                        resolve({ filename: file.name, goodMatches: -1, imgSrc: huiData.imageBase64, error: err.message || 'Processing error', description: huiData.description || "" });
+                    } finally {
+                        // Clean up Mats for THIS loop
+                        if (des2) des2.delete();
+                        if (bf) bf.delete();
+                        if (matches) matches.delete();
+                    }
+                };
+                reader.onerror = () => {
+                    console.error(`Error reading file ${file.name}`);
+                    resolve({ filename: file.name, goodMatches: -1, imgSrc: null, error: 'File read error', description: "" });
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        /**
+         * NEW: Main Batch .hui Analysis Function
+         */
+        async function runBatchHuiAnalysis() {
+            if (!queryImgHui || !databaseHuiFiles || databaseHuiFiles.length === 0 || !cvLoaded) {
+                statusEl.textContent = 'Please upload a query image and database .hui files.';
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+                return;
+            }
+
+            batchMatchButtonHui.disabled = true;
+            batchMatchButtonHui.textContent = 'Processing...';
+            statusEl.textContent = 'Processing Query Image...';
+            statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
+            statusEl.classList.add('bg-blue-50', 'text-blue-700');
+            batchResultsListHui.innerHTML = ''; // Clear previous results
+
+            let querySrc = null, queryGray = null, queryKp = null, queryDes = null;
+            let queryDetector = null;
+            let results = [];
+            const algorithm = 'brisk'; // Hardcoded as per user request
+            let mask = null; 
+
+            try {
+                // 1. Process the Query Image ONCE
+                querySrc = cv.imread(queryImgHui);
+                queryGray = new cv.Mat();
+                cv.cvtColor(querySrc, queryGray, cv.COLOR_RGBA2GRAY);
+                queryKp = new cv.KeyPointVector();
+                queryDes = new cv.Mat();
+                mask = new cv.Mat(); 
+                
+                if (algorithm === 'orb') queryDetector = new cv.ORB();
+                else if (algorithm === 'akaze') queryDetector = new cv.AKAZE();
+                else if (algorithm === 'brisk') queryDetector = new cv.BRISK();
+                else if (algorithm === 'kaze') queryDetector = new cv.KAZE();
+                else throw new Error('Unknown algorithm');
+                
+                queryDetector.detectAndCompute(queryGray, mask, queryKp, queryDes); 
+
+                if (queryDes.rows < 2 || queryDes.cols === 0) {
+                    throw new Error("Could not detect at least 2 keypoints in query image.");
+                }
+
+                // 2. Loop through and process database .hui files
+                for (let i = 0; i < databaseHuiFiles.length; i++) {
+                    const file = databaseHuiFiles[i];
+                    statusEl.textContent = `Processing file ${i + 1} of ${databaseHuiFiles.length}: ${file.name}`;
+                    const result = await processHuiFile(file, queryDes, algorithm);
+                    results.push(result);
+                }
+
+                // 3. Sort results
+                results.sort((a, b) => b.goodMatches - a.goodMatches);
+
+                // 4. Display results
+                statusEl.textContent = `Batch analysis complete. Processed ${results.length} .hui files.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+
+                if (results.length === 0) {
+                    batchResultsListHui.innerHTML = '<li class="p-4 text-center text-gray-500">No results found.</li>';
+                } else {
+                    results.forEach((result, index) => {
+                        const li = document.createElement('li');
+                        let errorText = '';
+                        if (result.error) {
+                            errorText = `<span class="text-sm text-red-600 block">Error: ${result.error}</span>`;
+                        }
+
+                        let descriptionText = '';
+                        if (result.description) {
+                            // Sanitize description
+                            const sanitizedDesc = result.description.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                            descriptionText = `<span class="text-sm text-gray-500 block italic">"${sanitizedDesc}"</span>`;
+                        }
+                        
+                        li.className = `flex items-center p-4 ${index === 0 && !result.error ? 'bg-green-50' : ''} ${result.error ? 'bg-red-50' : ''}`;
+                        li.innerHTML = `
+                            <img src="${result.imgSrc || 'https://placehold.co/64x64/eee/ccc?text=NoImg'}" class="w-16 h-16 object-contain rounded-md mr-4 bg-gray-100">
+                            <div class="flex-1">
+                                <span class="font-semibold text-gray-800">${index + 1}. ${result.filename}</span>
+                                <span class="text-sm text-gray-600 block">Good Matches: <strong>${result.goodMatches}</strong></span>
+                                ${descriptionText}
+                                ${errorText}
+                            </div>
+                            ${index === 0 && !result.error ? '<span class="text-sm font-bold text-green-600">Best Match</span>' : ''}
+                        `;
+                        batchResultsListHui.appendChild(li);
+                    });
+                }
+
+            } catch (err) {
+                console.error(err.message || err);
+                statusEl.textContent = `An error occurred: ${err.message || err}.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                // Clean up query Mats
+                if (querySrc) querySrc.delete();
+                if (queryGray) queryGray.delete();
+                if (queryKp) queryKp.delete();
+                if (queryDes) queryDes.delete();
+                if (queryDetector) queryDetector.delete();
+                if (mask) mask.delete(); 
+                
+                // Re-enable button
+                batchMatchButtonHui.disabled = false;
+                batchMatchButtonHui.textContent = 'Run .hui Batch Analysis';
+            }
+        }
+
+
+        /* ====================================================================
+         * PAIRWISE MATCHER ALGORITHMS
+         * ==================================================================== */
+        
+        // --- Event Listeners for Zoom ---
+        outputCanvas.addEventListener('mouseenter', () => {
+            const isFeatureMatcher = algorithmSelect.value === 'orb' || algorithmSelect.value === 'akaze' || algorithmSelect.value === 'brisk' || algorithmSelect.value === 'kaze';
+            if (img1 && img2 && lastGoodMatchesList.length > 0 && isFeatureMatcher) {
+                zoomContainer.style.display = 'block';
+            }
+        });
+        outputCanvas.addEventListener('mouseleave', () => {
+            zoomContainer.style.display = 'none';
+        });
+        outputCanvas.addEventListener('mousemove', (event) => {
+            if (zoomContainer.style.display === 'block') {
+                window.requestAnimationFrame(() => updateZoom(event));
+            }
+        });
+
+        
+        // --- KAZE Matching Function ---
+        function performKazeMatching() {
+            let src1 = null, src2 = null, gray1 = null, gray2 = null;
+            let kp1 = null, des1 = null, kp2 = null, des2 = null;
+            let bf = null, matches = null, goodMatches = null;
+            let imgMatches = null, M = null, corners = null, transformedCorners = null;
+            let srcMat = null, dstMat = null;
+            let kaze = null; 
+            let mask1 = null, mask2 = null; 
+            const showLines = showLinesEl.checked;
+            const showCircles = showCirclesEl.checked;
+            const maxMatches = parseInt(maxMatchesEl.value, 10) || 10;
+            const showUnmatched = showUnmatchedEl.checked; 
+
+            try {
+                console.log("--- Starting KAZE Matching ---"); 
+                src1 = cv.imread(img1);
+                src2 = cv.imread(img2);
+                gray1 = new cv.Mat();
+                gray2 = new cv.Mat();
+                cv.cvtColor(src1, gray1, cv.COLOR_RGBA2GRAY);
+                cv.cvtColor(src2, gray2, cv.COLOR_RGBA2GRAY);
+                kaze = new cv.KAZE(); 
+                mask1 = new cv.Mat(); 
+                mask2 = new cv.Mat(); 
+                kp1 = new cv.KeyPointVector();
+                des1 = new cv.Mat();
+                kp2 = new cv.KeyPointVector();
+                des2 = new cv.Mat();
+
+                console.log("Detecting keypoints and computing descriptors for Image 1..."); 
+                kaze.detectAndCompute(gray1, mask1, kp1, des1); 
+                console.log(`Image 1 (Query): Found ${kp1.size()} keypoints.`); 
+                
+                console.log("Detecting keypoints and computing descriptors for Image 2..."); 
+                kaze.detectAndCompute(gray2, mask2, kp2, des2); 
+                console.log(`Image 2 (Database): Found ${kp2.size()} keypoints.`); 
+                
+                // NEW: Save descriptors for potential download
+                lastDes1 = new cv.Mat(); des1.copyTo(lastDes1);
+                lastDes2 = new cv.Mat(); des2.copyTo(lastDes2);
+                lastImg1Base64 = getBase64FromImage(img1);
+                lastImg2Base64 = getBase64FromImage(img2);
+                
+                if (des1.rows < 2 || des1.cols === 0 || des2.rows < 2 || des2.cols === 0) {
+                    console.warn("Not enough descriptors to perform matching. Aborting."); 
+                    throw new Error("Could not detect at least 2 keypoints in one or both images.");
+                }
+                
+                bf = new cv.BFMatcher(cv.NORM_L2, false); // KAZE uses NORM_L2
+                matches = new cv.DMatchVectorVector();
+                const k = 2; // k for knnMatch
+                
+                console.log("Running k-NN matcher..."); 
+                bf.knnMatch(des1, des2, matches, k);
+                console.log(`Matcher found ${matches.size()} raw matches (before ratio test).`); 
+                
+                goodMatches = new cv.DMatchVector(); 
+                let goodMatchesList = [];
+                const ratioThresh = 0.75;
+                for (let i = 0; i < matches.size(); ++i) {
+                    let match = matches.get(i);
+                    if (match.size() < 2) continue; 
+                    let m = match.get(0);
+                    let n = match.get(1);
+                    if (m.distance < ratioThresh * n.distance) {
+                        goodMatchesList.push(m);
+                    }
+                }
+                console.log(`Found ${goodMatchesList.length} matches passing Lowe's ratio test (threshold: ${ratioThresh}).`); 
+
+                goodMatchesList.sort((a, b) => a.distance - b.distance);
+                goodMatchesList = goodMatchesList.slice(0, maxMatches);
+                let srcPts = [];
+                let dstPts = [];
+                for (const m of goodMatchesList) {
+                    goodMatches.push_back(m);
+                    srcPts.push(kp1.get(m.queryIdx).pt.x);
+                    srcPts.push(kp1.get(m.queryIdx).pt.y);
+                    dstPts.push(kp2.get(m.trainIdx).pt.x);
+                    dstPts.push(kp2.get(m.trainIdx).pt.y);
+                }
+                imgMatches = new cv.Mat();
+                const MIN_MATCH_COUNT = 10;
+                let col1 = src1.cols;
+                let row1 = src1.rows;
+                let col2 = src2.cols;
+                let row2 = src2.rows;
+                if (showCircles || !showLines || showUnmatched) {
+                    let height = Math.max(row1, row2);
+                    let width = col1 + col2;
+                    imgMatches = new cv.Mat.zeros(height, width, src1.type());
+                    let roi1 = imgMatches.roi(new cv.Rect(0, 0, col1, row1));
+                    let roi2 = imgMatches.roi(new cv.Rect(col1, 0, col2, row2));
+                    src1.copyTo(roi1);
+                    src2.copyTo(roi2);
+                    roi1.delete();
+                    roi2.delete();
+                    if (showUnmatched) {
+                        let unmatchedColor = new cv.Scalar(150, 150, 150, 255);
+                        let radius = 3;
+                        let thickness = -1;
+                        for (let i = 0; i < kp1.size(); i++) {
+                            let pt = kp1.get(i).pt;
+                            cv.circle(imgMatches, pt, radius, unmatchedColor, thickness);
+                        }
+                        for (let i = 0; i < kp2.size(); i++) {
+                            let pt = kp2.get(i).pt;
+                            let ptOffset = new cv.Point(pt.x + col1, pt.y);
+                            cv.circle(imgMatches, ptOffset, radius, unmatchedColor, thickness);
+                        }
+                    }
+                } else {
+                    let goodMatchColor = new cv.Scalar(0, 255, 0, 255);
+                    cv.drawMatches(src1, kp1, src2, kp2, goodMatches, imgMatches, goodMatchColor, goodMatchColor);
+                }
+                if (goodMatches.size() > MIN_MATCH_COUNT) {
+                    statusEl.textContent = `Found ${goodMatches.size()} good matches. Attempting to find object...`;
+                    console.log(`Sufficient matches found (${goodMatches.size()}). Attempting homography...`); 
+                    srcMat = cv.matFromArray(srcPts.length / 2, 1, cv.CV_32FC2, srcPts);
+                    dstMat = cv.matFromArray(dstPts.length / 2, 1, cv.CV_32FC2, dstPts);
+                    M = cv.findHomography(srcMat, dstMat, cv.RANSAC, 5.0);
+                    if (!M.empty()) {
+                        corners = new cv.Mat(4, 1, cv.CV_32FC2);
+                        corners.data32F[0] = 0; corners.data32F[1] = 0;
+                        corners.data32F[2] = col1; corners.data32F[3] = 0;
+                        corners.data32F[4] = col1; corners.data32F[5] = row1;
+                        corners.data32F[6] = 0; corners.data32F[7] = row1;
+                        transformedCorners = new cv.Mat();
+                        cv.perspectiveTransform(corners, transformedCorners, M);
+                        let pt1 = new cv.Point(transformedCorners.data32F[0] + col1, transformedCorners.data32F[1]);
+                        let pt2 = new cv.Point(transformedCorners.data32F[2] + col1, transformedCorners.data32F[3]);
+                        let pt3 = new cv.Point(transformedCorners.data32F[4] + col1, transformedCorners.data32F[5]);
+                        let pt4 = new cv.Point(transformedCorners.data32F[6] + col1, transformedCorners.data32F[7]);
+                        let boxColor = new cv.Scalar(255, 0, 0, 255);
+                        cv.line(imgMatches, pt1, pt2, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt2, pt3, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt3, pt4, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt4, pt1, boxColor, 3, cv.LINE_AA, 0);
+                        statusEl.textContent = `Object found! Drawing bounding box with ${goodMatches.size()} matches.`;
+                        console.log("Homography successful, drawing bounding box."); 
+                    } else {
+                         statusEl.textContent = `Found ${goodMatches.size()} matches, but could not calculate homography.`;
+                         console.warn("Could not calculate homography (M.empty() was true)."); 
+                    }
+                } else {
+                    statusEl.textContent = `Not enough good matches found: ${goodMatches.size()}/${MIN_MATCH_COUNT}.`;
+                    console.log(`Not enough good matches found: ${goodMatches.size()}/${MIN_MATCH_COUNT}.`); 
+                }
+                if (showCircles || !showLines) {
+                    for (let i = 0; i < goodMatchesList.length; ++i) {
+                        let m = goodMatchesList[i];
+                        let p1 = kp1.get(m.queryIdx).pt;
+                        let p2 = kp2.get(m.trainIdx).pt;
+                        let pt1 = new cv.Point(p1.x, p1.y);
+                        let pt2 = new cv.Point(p2.x + col1, p2.y);
+                        let colorData = circleColors[i % circleColors.length];
+                        let color = new cv.Scalar(colorData[0], colorData[1], colorData[2], colorData[3]);
+                        if (showLines) {
+                            cv.line(imgMatches, pt1, pt2, color, 1);
+                        }
+                        if (showCircles) {
+                            cv.circle(imgMatches, pt1, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt1.x + 5, pt1.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                            cv.circle(imgMatches, pt2, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt2.x + 5, pt2.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                        }
+                    }
+                }
+                cv.imshow('outputCanvas', imgMatches);
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+                lastKp1Pts = [];
+                for (let i = 0; i < kp1.size(); i++) lastKp1Pts.push(kp1.get(i).pt);
+                lastKp2Pts = [];
+                for (let i = 0; i < kp2.size(); i++) lastKp2Pts.push(kp2.get(i).pt);
+                lastImg1Cols = src1.cols;
+                lastGoodMatchesList = goodMatchesList;
+                console.log("--- KAZE Matching Finished Successfully ---"); 
+                // saveFeaturesSection.classList.remove('hidden'); // REMOVED: Only show for BRISK
+            } catch (err) {
+                // FIX: Log err.message if it exists for better diagnostics
+                statusEl.textContent = `An error occurred in KAZE: ${err.message || err}. Make sure images are valid.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                console.log("--- KAZE Finally Block: Cleaning up memory ---"); 
+                if (src1) src1.delete();
+                if (src2) src2.delete();
+                if (gray1) gray1.delete();
+                if (gray2) gray2.delete();
+                if (kp1) kp1.delete();
+                if (des1) des1.delete();
+                if (kp2) kp2.delete();
+                if (des2) des2.delete();
+                if (bf) bf.delete();
+                if (matches) matches.delete();
+                if (goodMatches) goodMatches.delete();
+                if (imgMatches) imgMatches.delete();
+                if (M) M.delete();
+                if (corners) corners.delete();
+                if (transformedCorners) transformedCorners.delete();
+                if (srcMat) srcMat.delete();
+                if (dstMat) dstMat.delete();
+                if (kaze) kaze.delete();
+                if (mask1) mask1.delete(); 
+                if (mask2) mask2.delete(); 
+                matchButton.disabled = false;
+                matchButton.textContent = 'Run Analysis';
+            }
+        }
+        
+        // --- AKAZE Matching Function ---
+        function performAkazeMatching() {
+            let src1 = null, src2 = null, gray1 = null, gray2 = null;
+            let kp1 = null, des1 = null, kp2 = null, des2 = null;
+            let bf = null, matches = null, goodMatches = null;
+            let imgMatches = null, M = null, corners = null, transformedCorners = null;
+            let srcMat = null, dstMat = null;
+            let akaze = null; 
+            let mask1 = null, mask2 = null; 
+            const showLines = showLinesEl.checked;
+            const showCircles = showCirclesEl.checked;
+            const maxMatches = parseInt(maxMatchesEl.value, 10) || 10;
+            const showUnmatched = showUnmatchedEl.checked; 
+            try {
+                console.log("--- Starting AKAZE Matching ---");
+                src1 = cv.imread(img1);
+                src2 = cv.imread(img2);
+                gray1 = new cv.Mat();
+                gray2 = new cv.Mat();
+                cv.cvtColor(src1, gray1, cv.COLOR_RGBA2GRAY);
+                cv.cvtColor(src2, gray2, cv.COLOR_RGBA2GRAY);
+                akaze = new cv.AKAZE(); 
+                mask1 = new cv.Mat(); 
+                mask2 = new cv.Mat(); 
+                kp1 = new cv.KeyPointVector();
+                des1 = new cv.Mat();
+                kp2 = new cv.KeyPointVector();
+                des2 = new cv.Mat();
+                akaze.detectAndCompute(gray1, mask1, kp1, des1); 
+                akaze.detectAndCompute(gray2, mask2, kp2, des2); 
+
+                // NEW: Save descriptors for potential download
+                lastDes1 = new cv.Mat(); des1.copyTo(lastDes1);
+                lastDes2 = new cv.Mat(); des2.copyTo(lastDes2);
+                lastImg1Base64 = getBase64FromImage(img1);
+                lastImg2Base64 = getBase64FromImage(img2);
+                
+                if (des1.rows < 2 || des1.cols === 0 || des2.rows < 2 || des2.cols === 0) {
+                    throw new Error("Could not detect at least 2 keypoints in one or both images.");
+                }
+                
+                bf = new cv.BFMatcher(cv.NORM_L2, false); // AKAZE uses NORM_L2
+                matches = new cv.DMatchVectorVector();
+                const k = 2; // k for knnMatch
+                
+                bf.knnMatch(des1, des2, matches, k);
+                
+                goodMatches = new cv.DMatchVector(); 
+                let goodMatchesList = [];
+                const ratioThresh = 0.75;
+                for (let i = 0; i < matches.size(); ++i) {
+                    let match = matches.get(i);
+                    if (match.size() < 2) continue; 
+                    let m = match.get(0);
+                    let n = match.get(1);
+                    if (m.distance < ratioThresh * n.distance) {
+                        goodMatchesList.push(m);
+                    }
+                }
+                goodMatchesList.sort((a, b) => a.distance - b.distance);
+                goodMatchesList = goodMatchesList.slice(0, maxMatches);
+                let srcPts = [];
+                let dstPts = [];
+                for (const m of goodMatchesList) {
+                    goodMatches.push_back(m);
+                    srcPts.push(kp1.get(m.queryIdx).pt.x);
+                    srcPts.push(kp1.get(m.queryIdx).pt.y);
+                    dstPts.push(kp2.get(m.trainIdx).pt.x);
+                    dstPts.push(kp2.get(m.trainIdx).pt.y);
+                }
+                imgMatches = new cv.Mat();
+                const MIN_MATCH_COUNT = 10;
+                let col1 = src1.cols;
+                let row1 = src1.rows;
+                let col2 = src2.cols;
+                let row2 = src2.rows;
+                if (showCircles || !showLines || showUnmatched) {
+                    let height = Math.max(row1, row2);
+                    let width = col1 + col2;
+                    imgMatches = new cv.Mat.zeros(height, width, src1.type());
+                    let roi1 = imgMatches.roi(new cv.Rect(0, 0, col1, row1));
+                    let roi2 = imgMatches.roi(new cv.Rect(col1, 0, col2, row2));
+                    src1.copyTo(roi1);
+                    src2.copyTo(roi2);
+                    roi1.delete();
+                    roi2.delete();
+                    if (showUnmatched) {
+                        let unmatchedColor = new cv.Scalar(150, 150, 150, 255);
+                        let radius = 3;
+                        let thickness = -1;
+                        for (let i = 0; i < kp1.size(); i++) {
+                            let pt = kp1.get(i).pt;
+                            cv.circle(imgMatches, pt, radius, unmatchedColor, thickness);
+                        }
+                        for (let i = 0; i < kp2.size(); i++) {
+                            let pt = kp2.get(i).pt;
+                            let ptOffset = new cv.Point(pt.x + col1, pt.y);
+                            cv.circle(imgMatches, ptOffset, radius, unmatchedColor, thickness);
+                        }
+                    }
+                } else {
+                    let goodMatchColor = new cv.Scalar(0, 255, 0, 255);
+                    cv.drawMatches(src1, kp1, src2, kp2, goodMatches, imgMatches, goodMatchColor, goodMatchColor);
+                }
+                if (goodMatches.size() > MIN_MATCH_COUNT) {
+                    statusEl.textContent = `Found ${goodMatches.size()} good matches. Attempting to find object...`;
+                    srcMat = cv.matFromArray(srcPts.length / 2, 1, cv.CV_32FC2, srcPts);
+                    dstMat = cv.matFromArray(dstPts.length / 2, 1, cv.CV_32FC2, dstPts);
+                    M = cv.findHomography(srcMat, dstMat, cv.RANSAC, 5.0);
+                    if (!M.empty()) {
+                        corners = new cv.Mat(4, 1, cv.CV_32FC2);
+                        corners.data32F[0] = 0; corners.data32F[1] = 0;
+                        corners.data32F[2] = col1; corners.data32F[3] = 0;
+                        corners.data32F[4] = col1; corners.data32F[5] = row1;
+                        corners.data32F[6] = 0; corners.data32F[7] = row1;
+                        transformedCorners = new cv.Mat();
+                        cv.perspectiveTransform(corners, transformedCorners, M);
+                        let pt1 = new cv.Point(transformedCorners.data32F[0] + col1, transformedCorners.data32F[1]);
+                        let pt2 = new cv.Point(transformedCorners.data32F[2] + col1, transformedCorners.data32F[3]);
+                        let pt3 = new cv.Point(transformedCorners.data32F[4] + col1, transformedCorners.data32F[5]);
+                        let pt4 = new cv.Point(transformedCorners.data32F[6] + col1, transformedCorners.data32F[7]);
+                        let boxColor = new cv.Scalar(255, 0, 0, 255);
+                        cv.line(imgMatches, pt1, pt2, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt2, pt3, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt3, pt4, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt4, pt1, boxColor, 3, cv.LINE_AA, 0);
+                        statusEl.textContent = `Object found! Drawing bounding box with ${goodMatches.size()} matches.`;
+                    } else {
+                         statusEl.textContent = `Found ${goodMatches.size()} matches, but could not calculate homography.`;
+                    }
+                } else {
+                    statusEl.textContent = `Not enough good matches found: ${goodMatches.size()}/${MIN_MATCH_COUNT}.`;
+                }
+                if (showCircles || !showLines) {
+                    for (let i = 0; i < goodMatchesList.length; ++i) {
+                        let m = goodMatchesList[i];
+                        let p1 = kp1.get(m.queryIdx).pt;
+                        let p2 = kp2.get(m.trainIdx).pt;
+                        let pt1 = new cv.Point(p1.x, p1.y);
+                        let pt2 = new cv.Point(p2.x + col1, p2.y);
+                        let colorData = circleColors[i % circleColors.length];
+                        let color = new cv.Scalar(colorData[0], colorData[1], colorData[2], colorData[3]);
+                        if (showLines) {
+                            cv.line(imgMatches, pt1, pt2, color, 1);
+                        }
+                        if (showCircles) {
+                            cv.circle(imgMatches, pt1, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt1.x + 5, pt1.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                            cv.circle(imgMatches, pt2, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt2.x + 5, pt2.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                        }
+                    }
+                }
+                cv.imshow('outputCanvas', imgMatches);
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+                lastKp1Pts = [];
+                for (let i = 0; i < kp1.size(); i++) lastKp1Pts.push(kp1.get(i).pt);
+                lastKp2Pts = [];
+                for (let i = 0; i < kp2.size(); i++) lastKp2Pts.push(kp2.get(i).pt);
+                lastImg1Cols = src1.cols;
+                lastGoodMatchesList = goodMatchesList;
+                // saveFeaturesSection.classList.remove('hidden'); // REMOVED: Only show for BRISK
+            } catch (err) {
+                console.error("!!! AKAZE Matching Failed !!!", err.message || err, err.stack || '');
+                statusEl.textContent = `An error occurred in AKAZE: ${err.message || err}. Make sure images are valid.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                if (src1) src1.delete();
+                if (src2) src2.delete();
+                if (gray1) gray1.delete();
+                if (gray2) gray2.delete();
+                if (kp1) kp1.delete();
+                if (des1) des1.delete();
+                if (kp2) kp2.delete();
+                if (des2) des2.delete();
+                if (bf) bf.delete();
+                if (matches) matches.delete();
+                if (goodMatches) goodMatches.delete();
+                if (imgMatches) imgMatches.delete();
+                if (M) M.delete();
+                if (corners) corners.delete();
+                if (transformedCorners) transformedCorners.delete();
+                if (srcMat) srcMat.delete();
+                if (dstMat) dstMat.delete();
+                if (akaze) akaze.delete(); 
+                if (mask1) mask1.delete(); 
+                if (mask2) mask2.delete(); 
+                matchButton.disabled = false;
+                matchButton.textContent = 'Run Analysis';
+            }
+        }
+
+        
+        
+        
+        /* --- BRISK Matching Function (NEW) --- */
+        function performBriskMatching() {
+            let src1 = null, src2 = null, gray1 = null, gray2 = null;
+            let kp1 = null, des1 = null, kp2 = null, des2 = null;
+            let bf = null, matches = null, goodMatches = null;
+            let imgMatches = null, M = null, corners = null, transformedCorners = null;
+            let srcMat = null, dstMat = null;
+            let brisk = null; 
+            let mask1 = null, mask2 = null; 
+            const showLines = showLinesEl.checked;
+            const showCircles = showCirclesEl.checked;
+            const maxMatches = parseInt(maxMatchesEl.value, 10) || 10;
+            const showUnmatched = showUnmatchedEl.checked; 
+            try {
+                console.log("--- Starting BRISK Matching ---");
+                src1 = cv.imread(img1);
+                src2 = cv.imread(img2);
+                gray1 = new cv.Mat();
+                gray2 = new cv.Mat();
+                cv.cvtColor(src1, gray1, cv.COLOR_RGBA2GRAY);
+                cv.cvtColor(src2, gray2, cv.COLOR_RGBA2GRAY);
+                brisk = new cv.BRISK(); 
+                mask1 = new cv.Mat(); 
+                mask2 = new cv.Mat(); 
+                kp1 = new cv.KeyPointVector();
+                des1 = new cv.Mat();
+                kp2 = new cv.KeyPointVector();
+                des2 = new cv.Mat();
+                
+                console.log("Detecting keypoints and computing descriptors for Image 1...");
+                brisk.detectAndCompute(gray1, mask1, kp1, des1); 
+                console.log(`Image 1 (Query): Found ${kp1.size()} keypoints.`);
+                
+                console.log("Detecting keypoints and computing descriptors for Image 2...");
+                brisk.detectAndCompute(gray2, mask2, kp2, des2); 
+                console.log(`Image 2 (Database): Found ${kp2.size()} keypoints.`);
+
+                // NEW: Save descriptors for potential download
+                lastDes1 = new cv.Mat(); des1.copyTo(lastDes1);
+                lastDes2 = new cv.Mat(); des2.copyTo(lastDes2);
+                lastImg1Base64 = getBase64FromImage(img1);
+                lastImg2Base64 = getBase64FromImage(img2);
+                
+                if (des1.rows < 2 || des1.cols === 0 || des2.rows < 2 || des2.cols === 0) {
+                    console.warn("Not enough descriptors to perform matching. Aborting.");
+                    throw new Error("Could not detect at least 2 keypoints in one or both images.");
+                }
+
+                bf = new cv.BFMatcher(cv.NORM_HAMMING, false); // BRISK uses NORM_HAMMING
+                matches = new cv.DMatchVectorVector();
+                const k = 2; // k for knnMatch
+                
+                console.log("Running k-NN matcher...");
+                bf.knnMatch(des1, des2, matches, k);
+                console.log(`Matcher found ${matches.size()} raw matches (before ratio test).`);
+                
+                goodMatches = new cv.DMatchVector();
+                let goodMatchesList = [];
+                const ratioThresh = 0.75;
+                for (let i = 0; i < matches.size(); ++i) {
+                    let match = matches.get(i);
+                    if (match.size() < 2) continue;
+                    let m = match.get(0);
+                    let n = match.get(1);
+                    if (m.distance < ratioThresh * n.distance) {
+                        goodMatchesList.push(m);
+                    }
+                }
+                console.log(`Found ${goodMatchesList.length} matches passing Lowe's ratio test (threshold: ${ratioThresh}).`);
+
+                goodMatchesList.sort((a, b) => a.distance - b.distance);
+                goodMatchesList = goodMatchesList.slice(0, maxMatches);
+                let srcPts = [];
+                let dstPts = [];
+                for (const m of goodMatchesList) {
+                    goodMatches.push_back(m);
+                    srcPts.push(kp1.get(m.queryIdx).pt.x);
+                    srcPts.push(kp1.get(m.queryIdx).pt.y);
+                    dstPts.push(kp2.get(m.trainIdx).pt.x);
+                    dstPts.push(kp2.get(m.trainIdx).pt.y);
+                }
+                imgMatches = new cv.Mat();
+                const MIN_MATCH_COUNT = 10;
+                let col1 = src1.cols;
+                let row1 = src1.rows;
+                let col2 = src2.cols;
+                let row2 = src2.rows;
+                if (showCircles || !showLines || showUnmatched) {
+                    let height = Math.max(row1, row2);
+                    let width = col1 + col2;
+                    imgMatches = new cv.Mat.zeros(height, width, src1.type());
+                    let roi1 = imgMatches.roi(new cv.Rect(0, 0, col1, row1));
+                    let roi2 = imgMatches.roi(new cv.Rect(col1, 0, col2, row2));
+                    src1.copyTo(roi1);
+                    src2.copyTo(roi2);
+                    roi1.delete();
+                    roi2.delete();
+                    if (showUnmatched) {
+                        let unmatchedColor = new cv.Scalar(150, 150, 150, 255);
+                        let radius = 3;
+                        let thickness = -1;
+                        for (let i = 0; i < kp1.size(); i++) {
+                            let pt = kp1.get(i).pt;
+                            cv.circle(imgMatches, pt, radius, unmatchedColor, thickness);
+                        }
+                        for (let i = 0; i < kp2.size(); i++) {
+                            let pt = kp2.get(i).pt;
+                            let ptOffset = new cv.Point(pt.x + col1, pt.y);
+                            cv.circle(imgMatches, ptOffset, radius, unmatchedColor, thickness);
+                        }
+                    }
+                } else {
+                    let goodMatchColor = new cv.Scalar(0, 255, 0, 255);
+                    cv.drawMatches(src1, kp1, src2, kp2, goodMatches, imgMatches, goodMatchColor, goodMatchColor);
+                }
+                if (goodMatches.size() > MIN_MATCH_COUNT) {
+                    statusEl.textContent = `Found ${goodMatches.size()} good matches. Attempting to find object...`;
+                    console.log(`Sufficient matches found (${goodMatches.size()}). Attempting homography...`);
+                    srcMat = cv.matFromArray(srcPts.length / 2, 1, cv.CV_32FC2, srcPts);
+                    dstMat = cv.matFromArray(dstPts.length / 2, 1, cv.CV_32FC2, dstPts);
+                    M = cv.findHomography(srcMat, dstMat, cv.RANSAC, 5.0);
+                    if (!M.empty()) {
+                        corners = new cv.Mat(4, 1, cv.CV_32FC2);
+                        corners.data32F[0] = 0; corners.data32F[1] = 0;
+                        corners.data32F[2] = col1; corners.data32F[3] = 0;
+                        corners.data32F[4] = col1; corners.data32F[5] = row1;
+                        corners.data32F[6] = 0; corners.data32F[7] = row1;
+                        transformedCorners = new cv.Mat();
+                        cv.perspectiveTransform(corners, transformedCorners, M);
+                        let pt1 = new cv.Point(transformedCorners.data32F[0] + col1, transformedCorners.data32F[1]);
+                        let pt2 = new cv.Point(transformedCorners.data32F[2] + col1, transformedCorners.data32F[3]);
+                        let pt3 = new cv.Point(transformedCorners.data32F[4] + col1, transformedCorners.data32F[5]);
+                        let pt4 = new cv.Point(transformedCorners.data32F[6] + col1, transformedCorners.data32F[7]);
+                        let boxColor = new cv.Scalar(255, 0, 0, 255);
+                        cv.line(imgMatches, pt1, pt2, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt2, pt3, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt3, pt4, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt4, pt1, boxColor, 3, cv.LINE_AA, 0);
+                        statusEl.textContent = `Object found! Drawing bounding box with ${goodMatches.size()} matches.`;
+                        console.log("Homography successful, drawing bounding box.");
+                    } else {
+                         statusEl.textContent = `Found ${goodMatches.size()} matches, but could not calculate homography.`;
+                         console.warn("Could not calculate homography (M.empty() was true).");
+                    }
+                } else {
+                    statusEl.textContent = `Not enough good matches found: ${goodMatches.size()}/${MIN_MATCH_COUNT}.`;
+                    console.log(`Not enough good matches found: ${goodMatches.size()}/${MIN_MATCH_COUNT}.`);
+                }
+                if (showCircles || !showLines) {
+                    for (let i = 0; i < goodMatchesList.length; ++i) {
+                        let m = goodMatchesList[i];
+                        let p1 = kp1.get(m.queryIdx).pt;
+                        let p2 = kp2.get(m.trainIdx).pt;
+                        let pt1 = new cv.Point(p1.x, p1.y);
+                        let pt2 = new cv.Point(p2.x + col1, p2.y);
+                        let colorData = circleColors[i % circleColors.length];
+                        let color = new cv.Scalar(colorData[0], colorData[1], colorData[2], colorData[3]);
+                        if (showLines) {
+                            cv.line(imgMatches, pt1, pt2, color, 1);
+                        }
+                        if (showCircles) {
+                            cv.circle(imgMatches, pt1, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt1.x + 5, pt1.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                            cv.circle(imgMatches, pt2, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt2.x + 5, pt2.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                        }
+                    }
+                }
+                cv.imshow('outputCanvas', imgMatches);
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+                lastKp1Pts = [];
+                for (let i = 0; i < kp1.size(); i++) lastKp1Pts.push(kp1.get(i).pt);
+                lastKp2Pts = [];
+                for (let i = 0; i < kp2.size(); i++) lastKp2Pts.push(kp2.get(i).pt);
+                lastImg1Cols = src1.cols;
+                lastGoodMatchesList = goodMatchesList;
+                console.log("--- BRISK Matching Finished Successfully ---");
+                saveFeaturesSection.classList.remove('hidden'); // KEPT: This is the correct algorithm
+            } catch (err) {
+                // FIX: Log err.message if it exists for better diagnostics
+                statusEl.textContent = `An error occurred in BRISK: ${err.message || err}. Make sure images are valid.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                console.log("--- BRISK Finally Block: Cleaning up memory ---");
+                if (src1) src1.delete();
+                if (src2) src2.delete();
+                if (gray1) gray1.delete();
+                if (gray2) gray2.delete();
+                if (kp1) kp1.delete();
+                if (des1) des1.delete();
+                if (kp2) kp2.delete();
+                if (des2) des2.delete();
+                if (bf) bf.delete();
+                if (matches) matches.delete();
+                if (goodMatches) goodMatches.delete();
+                if (imgMatches) imgMatches.delete();
+                if (M) M.delete();
+                if (corners) corners.delete();
+                if (transformedCorners) transformedCorners.delete();
+                if (srcMat) srcMat.delete();
+                if (dstMat) dstMat.delete();
+                if (brisk) brisk.delete(); 
+                if (mask1) mask1.delete(); 
+                if (mask2) mask2.delete(); 
+                matchButton.disabled = false;
+                matchButton.textContent = 'Run Analysis';
+            }
+        }
+        
+        
+        /* --- ORB Matching Function --- */
+        function performOrbMatching() {
+            let src1 = null, src2 = null, gray1 = null, gray2 = null;
+            let kp1 = null, des1 = null, kp2 = null, des2 = null;
+            let bf = null, matches = null, goodMatches = null;
+            let imgMatches = null, M = null, corners = null, transformedCorners = null;
+            let srcMat = null, dstMat = null;
+            let orb = null; 
+            let mask1 = null, mask2 = null; 
+            const showLines = showLinesEl.checked;
+            const showCircles = showCirclesEl.checked;
+            const maxMatches = parseInt(maxMatchesEl.value, 10) || 10;
+            const showUnmatched = showUnmatchedEl.checked; 
+            try {
+                console.log("--- Starting ORB Matching ---");
+                src1 = cv.imread(img1);
+                src2 = cv.imread(img2);
+                gray1 = new cv.Mat();
+                gray2 = new cv.Mat();
+                cv.cvtColor(src1, gray1, cv.COLOR_RGBA2GRAY);
+                cv.cvtColor(src2, gray2, cv.COLOR_RGBA2GRAY);
+                orb = new cv.ORB(); 
+                mask1 = new cv.Mat(); 
+                mask2 = new cv.Mat(); 
+                kp1 = new cv.KeyPointVector();
+                des1 = new cv.Mat();
+                kp2 = new cv.KeyPointVector();
+                des2 = new cv.Mat();
+                orb.detectAndCompute(gray1, mask1, kp1, des1); 
+                orb.detectAndCompute(gray2, mask2, kp2, des2); 
+                
+                // NEW: Save descriptors for potential download
+                lastDes1 = new cv.Mat(); des1.copyTo(lastDes1);
+                lastDes2 = new cv.Mat(); des2.copyTo(lastDes2);
+                lastImg1Base64 = getBase64FromImage(img1);
+                lastImg2Base64 = getBase64FromImage(img2);
+
+                if (des1.rows < 2 || des1.cols === 0 || des2.rows < 2 || des2.cols === 0) {
+                    throw new Error("Could not detect at least 2 keypoints in one or both images.");
+                }
+
+                bf = new cv.BFMatcher(cv.NORM_HAMMING, false); // ORB uses NORM_HAMMING
+                matches = new cv.DMatchVectorVector();
+                const k = 2; // k for knnMatch
+                
+                bf.knnMatch(des1, des2, matches, k);
+                
+                goodMatches = new cv.DMatchVector();
+                let goodMatchesList = [];
+                const ratioThresh = 0.75;
+                for (let i = 0; i < matches.size(); ++i) {
+                    let match = matches.get(i);
+                    if (match.size() < 2) continue;
+                    let m = match.get(0);
+                    let n = match.get(1);
+                    if (m.distance < ratioThresh * n.distance) {
+                        goodMatchesList.push(m);
+                    }
+                }
+                goodMatchesList.sort((a, b) => a.distance - b.distance);
+                goodMatchesList = goodMatchesList.slice(0, maxMatches);
+                let srcPts = [];
+                let dstPts = [];
+                for (const m of goodMatchesList) {
+                    goodMatches.push_back(m);
+                    srcPts.push(kp1.get(m.queryIdx).pt.x);
+                    srcPts.push(kp1.get(m.queryIdx).pt.y);
+                    dstPts.push(kp2.get(m.trainIdx).pt.x);
+                    dstPts.push(kp2.get(m.trainIdx).pt.y);
+                }
+                imgMatches = new cv.Mat();
+                const MIN_MATCH_COUNT = 10;
+                let col1 = src1.cols;
+                let row1 = src1.rows;
+                let col2 = src2.cols;
+                let row2 = src2.rows;
+                if (showCircles || !showLines || showUnmatched) {
+                    let height = Math.max(row1, row2);
+                    let width = col1 + col2;
+                    imgMatches = new cv.Mat.zeros(height, width, src1.type());
+                    let roi1 = imgMatches.roi(new cv.Rect(0, 0, col1, row1));
+                    let roi2 = imgMatches.roi(new cv.Rect(col1, 0, col2, row2));
+                    src1.copyTo(roi1);
+                    src2.copyTo(roi2);
+                    roi1.delete();
+                    roi2.delete();
+                    if (showUnmatched) {
+                        let unmatchedColor = new cv.Scalar(150, 150, 150, 255);
+                        let radius = 3;
+                        let thickness = -1;
+                        for (let i = 0; i < kp1.size(); i++) {
+                            let pt = kp1.get(i).pt;
+                            cv.circle(imgMatches, pt, radius, unmatchedColor, thickness);
+                        }
+                        for (let i = 0; i < kp2.size(); i++) {
+                            let pt = kp2.get(i).pt;
+                            let ptOffset = new cv.Point(pt.x + col1, pt.y);
+                            cv.circle(imgMatches, ptOffset, radius, unmatchedColor, thickness);
+                        }
+                    }
+                } else {
+                    let goodMatchColor = new cv.Scalar(0, 255, 0, 255);
+                    cv.drawMatches(src1, kp1, src2, kp2, goodMatches, imgMatches, goodMatchColor, goodMatchColor);
+                }
+                if (goodMatches.size() > MIN_MATCH_COUNT) {
+                    statusEl.textContent = `Found ${goodMatches.size()} good matches. Attempting to find object...`;
+                    srcMat = cv.matFromArray(srcPts.length / 2, 1, cv.CV_32FC2, srcPts);
+                    dstMat = cv.matFromArray(dstPts.length / 2, 1, cv.CV_32FC2, dstPts);
+                    M = cv.findHomography(srcMat, dstMat, cv.RANSAC, 5.0);
+                    if (!M.empty()) {
+                        corners = new cv.Mat(4, 1, cv.CV_32FC2);
+                        corners.data32F[0] = 0; corners.data32F[1] = 0;
+                        corners.data32F[2] = col1; corners.data32F[3] = 0;
+                        corners.data32F[4] = col1; corners.data32F[5] = row1;
+                        corners.data32F[6] = 0; corners.data32F[7] = row1;
+                        transformedCorners = new cv.Mat();
+                        cv.perspectiveTransform(corners, transformedCorners, M);
+                        let pt1 = new cv.Point(transformedCorners.data32F[0] + col1, transformedCorners.data32F[1]);
+                        let pt2 = new cv.Point(transformedCorners.data32F[2] + col1, transformedCorners.data32F[3]);
+                        let pt3 = new cv.Point(transformedCorners.data32F[4] + col1, transformedCorners.data32F[5]);
+                        let pt4 = new cv.Point(transformedCorners.data32F[6] + col1, transformedCorners.data32F[7]);
+                        let boxColor = new cv.Scalar(255, 0, 0, 255);
+                        cv.line(imgMatches, pt1, pt2, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt2, pt3, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt3, pt4, boxColor, 3, cv.LINE_AA, 0);
+                        cv.line(imgMatches, pt4, pt1, boxColor, 3, cv.LINE_AA, 0);
+                        statusEl.textContent = `Object found! Drawing bounding box with ${goodMatches.size()} matches.`;
+                    } else {
+                         statusEl.textContent = `Found ${goodMatches.size()} matches, but could not calculate homography.`;
+                    }
+                } else {
+                    statusEl.textContent = `Not enough good matches found: ${goodMatches.size()}/${MIN_MATCH_COUNT}.`;
+                }
+                if (showCircles || !showLines) {
+                    for (let i = 0; i < goodMatchesList.length; ++i) {
+                        let m = goodMatchesList[i];
+                        let p1 = kp1.get(m.queryIdx).pt;
+                        let p2 = kp2.get(m.trainIdx).pt;
+                        let pt1 = new cv.Point(p1.x, p1.y);
+                        let pt2 = new cv.Point(p2.x + col1, p2.y);
+                        let colorData = circleColors[i % circleColors.length];
+                        let color = new cv.Scalar(colorData[0], colorData[1], colorData[2], colorData[3]);
+                        if (showLines) {
+                            cv.line(imgMatches, pt1, pt2, color, 1);
+                        }
+                        if (showCircles) {
+                            cv.circle(imgMatches, pt1, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt1.x + 5, pt1.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                            cv.circle(imgMatches, pt2, 5, color, 2);
+                            cv.putText(imgMatches, `${i + 1}`, new cv.Point(pt2.x + 5, pt2.y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+                        }
+                    }
+                }
+                cv.imshow('outputCanvas', imgMatches);
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-green-50', 'text-green-700');
+                lastKp1Pts = [];
+                for (let i = 0; i < kp1.size(); i++) lastKp1Pts.push(kp1.get(i).pt);
+                lastKp2Pts = [];
+                for (let i = 0; i < kp2.size(); i++) lastKp2Pts.push(kp2.get(i).pt);
+                lastImg1Cols = src1.cols;
+                lastGoodMatchesList = goodMatchesList;
+                // saveFeaturesSection.classList.remove('hidden'); // REMOVED: Only show for BRISK
+            } catch (err) {
+                console.error("!!! ORB Matching Failed !!!", err.message || err, err.stack || '');
+                statusEl.textContent = `An error occurred in ORB: ${err.message || err}. Make sure images are valid.`;
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-700');
+            } finally {
+                if (src1) src1.delete();
+                if (src2) src2.delete();
+                if (gray1) gray1.delete();
+                if (gray2) gray2.delete();
+                if (kp1) kp1.delete();
+                if (des1) des1.delete();
+                if (kp2) kp2.delete();
+                if (des2) des2.delete();
+                if (bf) bf.delete();
+                if (matches) matches.delete();
+                if (goodMatches) goodMatches.delete();
+                if (imgMatches) imgMatches.delete();
+                if (M) M.delete();
+                if (corners) corners.delete();
+                if (transformedCorners) transformedCorners.delete();
+                if (srcMat) srcMat.delete();
+                if (dstMat) dstMat.delete();
+                if (orb) orb.delete(); 
+                if (mask1) mask1.delete(); 
+                if (mask2) mask2.delete(); 
+                matchButton.disabled = false;
+                matchButton.textContent = 'Run Analysis';
+            }
+        }
+    </script>
+    
+    <!-- Load OpenCV.js -->
+    <script src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvReady();"></script>
+</body>
+</html>
