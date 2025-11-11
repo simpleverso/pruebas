@@ -589,7 +589,7 @@
             } catch (error) {
                 outputTextarea.textContent = 'Error: Failed to process. ' + error.message;
                 if (selectedTool === 'textDecode') {
-                     outputTextarea.textContent = 'Error: Invalid Base6A4 string. ' + error.message;
+                     outputTextarea.textContent = 'Error: Invalid Base64 string. ' + error.message;
                 }
             }
         }
@@ -810,8 +810,7 @@
                 return;
             }
 
-            // --- MODIFICATION START ---
-            // Helper function to check for non-printable chars (excluding tab, newline, cr)
+            // --- Helper function to check for non-printable chars (excluding tab, newline, cr) ---
             const isPrintable = (text) => !/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text);
 
             // --- Base64 Detection ---
@@ -864,57 +863,62 @@
                     convertedEpochMap.set(tsString, date.toUTCString());
                 }
             }
-            // --- MODIFICATION END ---
 
-
+            // --- AWS Resource Regex Definitions ---
             const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
             const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
             const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
-            // --- MODIFICATION START ---
-            // Added regex for ENIs
             const eniRegex = /(eni-[0-9a-fA-F]{8,17})/g;
-            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Added generic ARN regex ---
+            // Generic ARN regex. This will match all ARNs, including roles.
+            // This regex matches 'arn:' followed by common ARN characters.
+            const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
+            // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- MODIFICATION END ---
+
             // Regex for request IDs
             const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
             const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
             // New Regex for UUID-style Request IDs (e.g., from API Gateway, Lambda)
-            // The prefix group (?:...) is now optional with the final '?'
             const uuidRequestIdRegex = /(?:x-amzn-RequestId:?\s*|[Rr]equestId:?\s*)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gi;
 
+            // --- Extract Resources ---
             const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
             const subnets = [...new Set(inputText.match(subnetRegex) || [])];
             const sgs = [...new Set(inputText.match(sgRegex) || [])];
-            // --- MODIFICATION START ---
-            // Extract ENIs
             const enis = [...new Set(inputText.match(eniRegex) || [])];
-            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Extract and filter ARNs ---
+            // Extract all ARNs
+            const allArns = [...new Set(inputText.match(arnRegex) || [])];
+            // Extract just roles (using the more specific regex)
             const roles = [...new Set(inputText.match(roleRegex) || [])];
+            // Filter out roles from the main ARN list to avoid duplication in the output
+            const otherArns = allArns.filter(arn => !roles.includes(arn));
+            // --- MODIFICATION END ---
             
             // Find request IDs
             const requestIds = [...inputText.matchAll(requestIdRegex)];
             const id2s = [...inputText.matchAll(id2Regex)];
-            const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; // Added this line
+            const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; 
 
             const allRequestIds = new Set();
             requestIds.forEach(match => allRequestIds.add(match[1])); // S3 style
             id2s.forEach(match => allRequestIds.add(match[1])); // S3 style
-            // Capture group is now 1 because the (optional) prefix group is non-capturing (?:...)
-            uuidRequestIds.forEach(match => allRequestIds.add(match[1])); // UUID style (now 1st capture group)
+            uuidRequestIds.forEach(match => allRequestIds.add(match[1])); // UUID style
 
+            // --- Build Output String ---
             let output = "";
             const cliOutput = [];
 
             if (vpcs.length > 0) {
                 output += `VPCs (${vpcs.length}):\n${vpcs.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-vpcs --vpc-ids ${vpcs.join(' ')}`);
-                
-                // --- MODIFICATION START ---
-                // Add describe-vpc-endpoints command for each VPC
                 vpcs.forEach(vpcId => {
                     cliOutput.push(`aws ec2 describe-vpc-endpoints --filters Name=vpc-id,Values=${vpcId}`);
                 });
-                // --- MODIFICATION END ---
             }
             if (subnets.length > 0) {
                 output += `Subnets (${subnets.length}):\n${subnets.join('\n')}\n\n`;
@@ -924,13 +928,12 @@
                 output += `Security Groups (${sgs.length}):\n${sgs.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-security-groups --group-ids ${sgs.join(' ')}`);
             }
-            // --- MODIFICATION START ---
-            // Add ENIs to output and CLI command list
             if (enis.length > 0) {
                 output += `Network Interfaces (ENIs) (${enis.length}):\n${enis.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-network-interfaces --network-interface-ids ${enis.join(' ')}`);
             }
-            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Add ARNs to output ---
             if (roles.length > 0) {
                 output += `Execution Roles (IAM) (${roles.length}):\n${roles.join('\n')}\n\n`;
                 
@@ -946,13 +949,17 @@
                     cliOutput.push(...roleCommands);
                 }
             }
+            // Add other ARNs to output
+            if (otherArns.length > 0) {
+                output += `Other AWS ARNs (${otherArns.length}):\n${otherArns.join('\n')}\n\n`;
+            }
+            // --- MODIFICATION END ---
 
             // Add request IDs to output
             if (allRequestIds.size > 0) {
                 output += `AWS Request IDs (${allRequestIds.size}):\n${Array.from(allRequestIds).join('\n')}\n\n`;
             }
 
-            // --- MODIFICATION START ---
             // Add Decoded Base64 to output
             if (decodedBase64Map.size > 0) {
                 output += `Decoded Base64 Strings (${decodedBase64Map.size}):\n`;
@@ -970,13 +977,11 @@
                 });
                 output += "\n";
             }
-            // --- MODIFICATION END ---
 
-
+            // --- Finalize Output ---
             if (output === "") {
-                // --- MODIFICATION START ---
-                // Updated "no resources found" message
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, Execution Roles, Request IDs, Base64 strings, or Epoch timestamps found.";
+                // --- MODIFICATION START: Updated "no resources found" message ---
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, Request IDs, Base64 strings, or Epoch timestamps found.";
                 // --- MODIFICATION END ---
             } else {
                 if (cliOutput.length > 0) {
@@ -988,35 +993,7 @@
         }
 
         // --- AWS Request ID Extractor Function ---
-        /* This function is now merged into extractAwsResources()
-        function extractAwsRequestIds() {
-            const inputText = inputTextarea.value;
-            jsonValidationResult.style.display = 'none';
-
-            if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot extract IDs.";
-                return;
-            }
-
-            // Regex for x-amz-request-id: typically 16+ uppercase hex chars
-            const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
-            // Regex for x-amz-id-2: typically 40+ Base64 chars
-            const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
-
-            const requestIds = [...inputText.matchAll(requestIdRegex)];
-            const id2s = [...inputText.matchAll(id2Regex)];
-
-            const allIds = new Set();
-            requestIds.forEach(match => allIds.add(match[1])); // Add the captured group (the ID)
-            id2s.forEach(match => allIds.add(match[1])); // Add the captured group (the ID)
-
-            if (allIds.size === 0) {
-                outputTextarea.textContent = "No 'x-amz-request-id' or 'x-amz-id-2' values found meeting criteria (16+ hex for request-id, 40+ base64 for id-2).";
-            } else {
-                outputTextarea.textContent = Array.from(allIds).join('\n');
-            }
-        }
-        */
+        /* This function is now merged into extractAwsResources() */
 
         // --- Utility Functions ---
 
@@ -1058,6 +1035,7 @@
             textarea.select();
             
             try {
+                // Use execCommand as a fallback for environments where clipboard API might be restricted
                 document.execCommand('copy');
                 copyButton.textContent = 'Copied!';
             } catch (err) {
