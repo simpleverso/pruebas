@@ -837,32 +837,44 @@
             }
 
             // --- Epoch Detection ---
-            const epochRegex = /\b(\d{10}|\d{13})\b/g;
-            const convertedEpochMap = new Map();
+            // const epochRegex = /\b(\d{10}|\d{13})\b/g;
+            // const convertedEpochMap = new Map();
+            const lines = inputText.split('\n');
+            const epochRegex = /\b(\d{10}|\d{13})\b/g; // Regex to find *all* timestamps *within* a line
+            const convertedEpochList = []; // Use a list of objects
             // Min date: 2001-01-01. Max date: 1 year in the future.
             const minDate = new Date('2001-01-01T00:00:00Z').getTime();
             const maxDate = new Date().getTime() + (1000 * 60 * 60 * 24 * 365); 
-            let epochMatch;
+            // let epochMatch; // Declared in loop
+            
+            lines.forEach(line => {
+                let epochMatch;
+                // Reset lastIndex for each new line because we are using exec() with the /g flag
+                epochRegex.lastIndex = 0; 
+                while ((epochMatch = epochRegex.exec(line)) !== null) {
+                    const tsString = epochMatch[0]; // The timestamp string (e.g., '1223324589738')
 
-            while ((epochMatch = epochRegex.exec(inputText)) !== null) {
-                const tsString = epochMatch[0];
-                if (convertedEpochMap.has(tsString)) continue;
-                // Avoid matching AWS Account IDs (12 digits)
-                if (tsString.length === 12) continue; 
+                    // Avoid matching AWS Account IDs (12 digits)
+                    if (tsString.length === 12) continue; 
+                    
+                    const timestampNum = Number(tsString);
+                    let date;
 
-                const timestampNum = Number(tsString);
-                let date;
+                    if (tsString.length === 10) {
+                        date = new Date(timestampNum * 1000); // seconds
+                    } else {
+                        date = new Date(timestampNum); // milliseconds
+                    }
 
-                if (tsString.length === 10) {
-                    date = new Date(timestampNum * 1000); // seconds
-                } else {
-                    date = new Date(timestampNum); // milliseconds
+                    if (date.getTime() >= minDate && date.getTime() <= maxDate) {
+                        convertedEpochList.push({
+                            line: line.trim(),
+                            timestamp: tsString,
+                            utcDate: date.toUTCString()
+                        });
+                    }
                 }
-
-                if (date.getTime() >= minDate && date.getTime() <= maxDate) {
-                    convertedEpochMap.set(tsString, date.toUTCString());
-                }
-            }
+            });
 
             // --- AWS Resource Regex Definitions ---
             const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
@@ -876,6 +888,11 @@
             const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
             // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+            
+            // --- MODIFICATION START: Added SageMaker regexes ---
+            const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
+            const smEndpointRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smEndpointConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint-config\/([\w\+\=\,\.\@\-\/]+)/g;
             // --- MODIFICATION END ---
 
             // Regex for request IDs
@@ -895,8 +912,26 @@
             const allArns = [...new Set(inputText.match(arnRegex) || [])];
             // Extract just roles (using the more specific regex)
             const roles = [...new Set(inputText.match(roleRegex) || [])];
+            
+            // --- MODIFICATION START: Extract SageMaker resources ---
+            // Use matchAll to get capture groups
+            const smDomains = [...inputText.matchAll(smDomainRegex)];
+            const smEndpoints = [...inputText.matchAll(smEndpointRegex)];
+            const smEndpointConfigs = [...inputText.matchAll(smEndpointConfigRegex)];
+
+            // Get the full ARNs from the matches to filter them from the 'otherArns' list
+            const smDomainArns = smDomains.map(match => match[0]);
+            const smEndpointArns = smEndpoints.map(match => match[0]);
+            const smEndpointConfigArns = smEndpointConfigs.map(match => match[0]);
+            // --- MODIFICATION END ---
+
             // Filter out roles from the main ARN list to avoid duplication in the output
-            const otherArns = allArns.filter(arn => !roles.includes(arn));
+            const otherArns = allArns.filter(arn => 
+                !roles.includes(arn) &&
+                !smDomainArns.includes(arn) &&
+                !smEndpointArns.includes(arn) &&
+                !smEndpointConfigArns.includes(arn)
+            );
             // --- MODIFICATION END ---
             
             // Find request IDs
@@ -949,6 +984,41 @@
                     cliOutput.push(...roleCommands);
                 }
             }
+
+            // --- MODIFICATION START: Add SageMaker resources to output and CLI ---
+            if (smDomains.length > 0) {
+                // Get unique ARNs
+                const uniqueArns = [...new Set(smDomainArns)];
+                // Get unique IDs from capture group 1
+                const domainIds = [...new Set(smDomains.map(match => match[1]))]; 
+                output += `SageMaker Domains (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                domainIds.forEach(id => {
+                    cliOutput.push(`aws sagemaker describe-domain --domain-id ${id}`);
+                });
+            }
+    
+            if (smEndpoints.length > 0) {
+                const uniqueArns = [...new Set(smEndpointArns)];
+                const endpointNames = [...new Set(smEndpoints.map(match => match[1]))]; 
+                output += `SageMaker Endpoints (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                endpointNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-endpoint --endpoint-name ${name}`);
+                });
+            }
+    
+            if (smEndpointConfigs.length > 0) {
+                const uniqueArns = [...new Set(smEndpointConfigArns)];
+                const configNames = [...new Set(smEndpointConfigs.map(match => match[1]))]; 
+                output += `SageMaker Endpoint Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                configNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-endpoint-config --endpoint-config-name ${name}`);
+                });
+            }
+            // --- MODIFICATION END ---
+
             // Add other ARNs to output
             if (otherArns.length > 0) {
                 output += `Other AWS ARNs (${otherArns.length}):\n${otherArns.join('\n')}\n\n`;
@@ -970,10 +1040,22 @@
             }
 
             // Add Converted Epoch Timestamps to output
-            if (convertedEpochMap.size > 0) {
-                output += `Converted Epoch Timestamps (${convertedEpochMap.size}):\n`;
-                convertedEpochMap.forEach((utcDate, originalTs) => {
-                    output += `${originalTs}  =>  ${utcDate}\n`;
+            // if (convertedEpochMap.size > 0) {
+            //     output += `Converted Epoch Timestamps (${convertedEpochMap.size}):\n`;
+            //     convertedEpochMap.forEach((utcDate, originalTs) => {
+            //         output += `${originalTs}  =>  ${utcDate}\n`;
+            //     });
+            //     output += "\n";
+            // }
+            if (convertedEpochList.length > 0) {
+                // Get unique items based on the combination of line, timestamp, and date
+                const uniqueEntries = new Set(convertedEpochList.map(e => JSON.stringify(e)));
+                const uniqueEpochList = Array.from(uniqueEntries).map(s => JSON.parse(s));
+
+                output += `Converted Epoch Timestamps (${uniqueEpochList.length}):\n`;
+                uniqueEpochList.forEach(entry => {
+                    // Format: "line content" ===> timestamp ===> UTC Date
+                    output += `"${entry.line}" ===> ${entry.timestamp} ===> ${entry.utcDate}\n`;
                 });
                 output += "\n";
             }
@@ -981,7 +1063,7 @@
             // --- Finalize Output ---
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, Request IDs, Base64 strings, or Epoch timestamps found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources, Request IDs, Base64 strings, or Epoch timestamps found.";
                 // --- MODIFICATION END ---
             } else {
                 if (cliOutput.length > 0) {
