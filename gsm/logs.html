@@ -893,8 +893,44 @@
             const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
             const smEndpointRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint\/([\w\+\=\,\.\@\-\/]+)/g;
             const smEndpointConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint-config\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- USER REQUESTED ADDITIONS START ---
+            const smNotebookLifecycleConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:notebook-instance-lifecycle-config\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smNotebookInstanceRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:notebook-instance\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smTransformJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:transform-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smTrainingJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:training-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smPipelineRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:pipeline\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smStudioLifecycleConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:studio-lifecycle-config\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smProcessingJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:processing-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- USER REQUESTED ADDITIONS END ---
             // --- MODIFICATION END ---
             
+            // --- USER REQUESTED ADDITION (AutoML Job) ---
+            const smAutoMLJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:auto-ml-job\/([\w\+\=\,\.\@\-\/]+)/g; // v1
+            const smAutoMLJobV2Regex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:automl-job\/([\w\+\=\,\.\@\-\/]+)/g; // v2
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            const smImageRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:image\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Added Personalize regexes ---
+            const psAlgorithmRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:algorithm\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psBatchInferenceJobRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:batch-inference-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psCampaignRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:campaign\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psDatasetRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:dataset\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psDatasetGroupRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:dataset-group\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psFilterRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:filter\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psRecipeRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:recipe\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psRecommenderRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:recommender\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psSchemaRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:schema\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psSolutionRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:solution\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psSolutionVersionRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:solution-version\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            const smPipelineExecutionRegex = /(arn:[^:]+:sagemaker:[^:]*:[^:]*:pipeline\/[\w\+\=\,\.\@\-\/]+\/execution\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
             // --- MODIFICATION START: Added Bedrock regexes ---
             const brGuardrailRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:guardrail\/([\w]+)/g;
             const brInferenceProfileRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:inference-profile\/([\w]+)/g;
@@ -949,12 +985,84 @@
             const smDomains = [...inputText.matchAll(smDomainRegex)];
             const smEndpoints = [...inputText.matchAll(smEndpointRegex)];
             const smEndpointConfigs = [...inputText.matchAll(smEndpointConfigRegex)];
+            // --- USER REQUESTED ADDITIONS START ---
+            const smNotebookLifecycleConfigs = [...inputText.matchAll(smNotebookLifecycleConfigRegex)];
+            const smNotebookInstances = [...inputText.matchAll(smNotebookInstanceRegex)];
+            const smTransformJobs = [...inputText.matchAll(smTransformJobRegex)];
+            const smTrainingJobs = [...inputText.matchAll(smTrainingJobRegex)];
+            const smPipelines = [...inputText.matchAll(smPipelineRegex)];
+            const smStudioLifecycleConfigs = [...inputText.matchAll(smStudioLifecycleConfigRegex)];
+            const smProcessingJobs = [...inputText.matchAll(smProcessingJobRegex)];
+            // --- USER REQUESTED ADDITIONS END ---
+
 
             // Get the full ARNs from the matches to filter them from the 'otherArns' list
             const smDomainArns = smDomains.map(match => match[0]);
             const smEndpointArns = smEndpoints.map(match => match[0]);
             const smEndpointConfigArns = smEndpointConfigs.map(match => match[0]);
+            // --- USER REQUESTED ADDITIONS START ---
+            const smNotebookLifecycleConfigArns = smNotebookLifecycleConfigs.map(match => match[0]);
+            const smNotebookInstanceArns = smNotebookInstances.map(match => match[0]);
+            const smTransformJobArns = smTransformJobs.map(match => match[0]);
+            const smTrainingJobArns = smTrainingJobs.map(match => match[0]);
+            const smPipelineArns = smPipelines.map(match => match[0]);
+            const smStudioLifecycleConfigArns = smStudioLifecycleConfigs.map(match => match[0]);
+            const smProcessingJobArns = smProcessingJobs.map(match => match[0]);
+            // --- USER REQUESTED ADDITIONS END ---
             
+            // --- MODIFICATION START: Extract Personalize ARNs ---
+            const psAlgorithms = [...inputText.matchAll(psAlgorithmRegex)];
+            const psBatchInferenceJobs = [...inputText.matchAll(psBatchInferenceJobRegex)];
+            const psCampaigns = [...inputText.matchAll(psCampaignRegex)];
+            const psDatasets = [...inputText.matchAll(psDatasetRegex)];
+            const psDatasetGroups = [...inputText.matchAll(psDatasetGroupRegex)];
+            const psFilters = [...inputText.matchAll(psFilterRegex)];
+            const psRecipes = [...inputText.matchAll(psRecipeRegex)];
+            const psRecommenders = [...inputText.matchAll(psRecommenderRegex)];
+            const psSchemas = [...inputText.matchAll(psSchemaRegex)];
+            const psSolutions = [...inputText.matchAll(psSolutionRegex)];
+            const psSolutionVersions = [...inputText.matchAll(psSolutionVersionRegex)];
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            const smPipelineExecutions = [...inputText.matchAll(smPipelineExecutionRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (AutoML Job) ---
+            const smAutoMLJobs = [...inputText.matchAll(smAutoMLJobRegex)]; // v1
+            const smAutoMLJobV2s = [...inputText.matchAll(smAutoMLJobV2Regex)]; // v2
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            const smImages = [...inputText.matchAll(smImageRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            const psAlgorithmArns = psAlgorithms.map(match => match[0]);
+            const psBatchInferenceJobArns = psBatchInferenceJobs.map(match => match[0]);
+            const psCampaignArns = psCampaigns.map(match => match[0]);
+            const psDatasetArns = psDatasets.map(match => match[0]);
+            const psDatasetGroupArns = psDatasetGroups.map(match => match[0]);
+            const psFilterArns = psFilters.map(match => match[0]);
+            const psRecipeArns = psRecipes.map(match => match[0]);
+            const psRecommenderArns = psRecommenders.map(match => match[0]);
+            const psSchemaArns = psSchemas.map(match => match[0]);
+            const psSolutionArns = psSolutions.map(match => match[0]);
+            const psSolutionVersionArns = psSolutionVersions.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            // match[0] is the full ARN, which is what we need.
+            const smPipelineExecutionArns = smPipelineExecutions.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (AutoML Job) ---
+            const smAutoMLJobArns = smAutoMLJobs.map(match => match[0]);
+            const smAutoMLJobV2Arns = smAutoMLJobV2s.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            const smImageArns = smImages.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
             // --- MODIFICATION START: Extract Bedrock resources ---
             const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
             const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
@@ -1005,19 +1113,51 @@
                 !smDomainArns.includes(arn) &&
                 !smEndpointArns.includes(arn) &&
                 !smEndpointConfigArns.includes(arn) &&
-                // --- MODIFICATION START: Filter Bedrock ARNs ---
-                !brGuardrailArns.includes(arn) &&
-                !brInferenceProfileArns.includes(arn) &&
+                // --- USER REQUESTED ADDITIONS START ---
+                !smNotebookLifecycleConfigArns.includes(arn) &&
+                !smNotebookInstanceArns.includes(arn) &&
+                !smTransformJobArns.includes(arn) &&
+                !smTrainingJobArns.includes(arn) &&
+                !smPipelineArns.includes(arn) &&
+                !smStudioLifecycleConfigArns.includes(arn) &&
+                !smProcessingJobArns.includes(arn) &&
+                // --- USER REQUESTED ADDITIONS END ---
+                // --- MODIFICATION START: Filter Personalize ARNs ---
+                !psAlgorithmArns.includes(arn) &&
+                !psBatchInferenceJobArns.includes(arn) &&
+                !psCampaignArns.includes(arn) &&
+                !psDatasetArns.includes(arn) &&
+                !psDatasetGroupArns.includes(arn) &&
+                !psFilterArns.includes(arn) &&
+                !psRecipeArns.includes(arn) &&
+                !psRecommenderArns.includes(arn) &&
+                !psSchemaArns.includes(arn) &&
+                !psSolutionArns.includes(arn) &&
+                !psSolutionVersionArns.includes(arn) &&
                 // --- MODIFICATION END ---
-                // --- MODIFICATION START: Filter Comprehend ARNs ---
-                !compDatasetArns.includes(arn) &&
+                
+                // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+                !smPipelineExecutionArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (AutoML Job) ---
+                !smAutoMLJobArns.includes(arn) &&
+                !smAutoMLJobV2Arns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (Image) ---
+                !smImageArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- MODIFICATION START: Filter Bedrock ARNs ---
+                !brGuardrails.includes(arn) &&
                 !compEndpointArns.includes(arn) &&
                 // --- MODIFICATION END ---
                 // --- MODIFICATION START: Filter DataZone ARNs ---
                 !dzDomainArns.includes(arn) &&
                 !dzProjectArns.includes(arn) &&
                 !dzEnvironmentArns.includes(arn) &&
-                !dzDataSourceArns.includes(arn) &&
+                !dzDataSources.includes(arn) &&
                 // --- MODIFICATION END ---
                 // --- MODIFICATION START: Filter EFS ARNs ---
                 !efsArnList.includes(arn) &&
@@ -1116,6 +1256,191 @@
                 });
             }
             
+            // --- USER REQUESTED ADDITIONS START ---
+            if (smNotebookLifecycleConfigs.length > 0) {
+                const uniqueArns = [...new Set(smNotebookLifecycleConfigArns)];
+                const configNames = [...new Set(smNotebookLifecycleConfigs.map(match => match[1]))]; 
+                output += `SageMaker Notebook Lifecycle Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                configNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-notebook-instance-lifecycle-config --notebook-instance-lifecycle-config-name ${name}`);
+                });
+            }
+
+            if (smNotebookInstances.length > 0) {
+                const uniqueArns = [...new Set(smNotebookInstanceArns)];
+                const instanceNames = [...new Set(smNotebookInstances.map(match => match[1]))]; 
+                output += `SageMaker Notebook Instances (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                instanceNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-notebook-instance --notebook-instance-name ${name}`);
+                });
+            }
+
+            if (smTransformJobs.length > 0) {
+                const uniqueArns = [...new Set(smTransformJobArns)];
+                const jobNames = [...new Set(smTransformJobs.map(match => match[1]))]; 
+                output += `SageMaker Transform Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                jobNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-transform-job --transform-job-name ${name}`);
+                });
+            }
+
+            if (smTrainingJobs.length > 0) {
+                const uniqueArns = [...new Set(smTrainingJobArns)];
+                const jobNames = [...new Set(smTrainingJobs.map(match => match[1]))]; 
+                output += `SageMaker Training Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                jobNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-training-job --training-job-name ${name}`);
+                });
+            }
+
+            if (smPipelines.length > 0) {
+                const uniqueArns = [...new Set(smPipelineArns)];
+                const pipelineNames = [...new Set(smPipelines.map(match => match[1]))]; 
+                output += `SageMaker Pipelines (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                pipelineNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-pipeline --pipeline-name ${name}`);
+                });
+            }
+
+            if (smStudioLifecycleConfigs.length > 0) {
+                const uniqueArns = [...new Set(smStudioLifecycleConfigArns)];
+                const configNames = [...new Set(smStudioLifecycleConfigs.map(match => match[1]))]; 
+                output += `SageMaker Studio Lifecycle Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                configNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-studio-lifecycle-config --studio-lifecycle-config-name ${name}`);
+                });
+            }
+
+            if (smProcessingJobs.length > 0) {
+                const uniqueArns = [...new Set(smProcessingJobArns)];
+                const jobNames = [...new Set(smProcessingJobs.map(match => match[1]))]; 
+                output += `SageMaker Processing Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                jobNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-processing-job --processing-job-name ${name}`);
+                });
+            }
+            // --- USER REQUESTED ADDITIONS END ---
+
+            // --- MODIFICATION START: Add Personalize resources to output and CLI ---
+            if (psAlgorithms.length > 0) {
+                const uniqueArns = [...new Set(psAlgorithmArns)];
+                output += `Personalize Algorithms (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-algorithm --algorithm-arn ${arn}`);
+                });
+            }
+
+            if (psBatchInferenceJobs.length > 0) {
+                const uniqueArns = [...new Set(psBatchInferenceJobArns)];
+                output += `Personalize Batch Inference Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-batch-inference-job --batch-inference-job-arn ${arn}`);
+                });
+            }
+
+            if (psCampaigns.length > 0) {
+                const uniqueArns = [...new Set(psCampaignArns)];
+                output += `Personalize Campaigns (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-campaign --campaign-arn ${arn}`);
+                });
+            }
+
+            if (psDatasets.length > 0) {
+                const uniqueArns = [...new Set(psDatasetArns)];
+                output += `Personalize Datasets (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-dataset --dataset-arn ${arn}`);
+                });
+            }
+
+            if (psDatasetGroups.length > 0) {
+                const uniqueArns = [...new Set(psDatasetGroupArns)];
+                output += `Personalize Dataset Groups (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-dataset-group --dataset-group-arn ${arn}`);
+                });
+            }
+
+            if (psFilters.length > 0) {
+                const uniqueArns = [...new Set(psFilterArns)];
+                output += `Personalize Filters (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-filter --filter-arn ${arn}`);
+                });
+            }
+
+            if (psRecipes.length > 0) {
+                const uniqueArns = [...new Set(psRecipeArns)];
+                output += `Personalize Recipes (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-recipe --recipe-arn ${arn}`);
+                });
+            }
+
+            if (psRecommenders.length > 0) {
+                const uniqueArns = [...new Set(psRecommenderArns)];
+                output += `Personalize Recommenders (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-recommender --recommender-arn ${arn}`);
+                });
+            }
+
+            if (psSchemas.length > 0) {
+                const uniqueArns = [...new Set(psSchemaArns)];
+                output += `Personalize Schemas (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-schema --schema-arn ${arn}`);
+                });
+            }
+
+            if (psSolutions.length > 0) {
+                const uniqueArns = [...new Set(psSolutionArns)];
+                output += `Personalize Solutions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-solution --solution-arn ${arn}`);
+                });
+            }
+
+            if (psSolutionVersions.length > 0) {
+                const uniqueArns = [...new Set(psSolutionVersionArns)];
+                output += `Personalize Solution Versions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws personalize describe-solution-version --solution-version-arn ${arn}`);
+                });
+            }
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            if (smPipelineExecutions.length > 0) {
+                const uniqueArns = [...new Set(smPipelineExecutionArns)];
+                output += `SageMaker Pipeline Executions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    cliOutput.push(`aws sagemaker describe-pipeline-execution --pipeline-execution-arn ${arn}`);
+                    cliOutput.push(`aws sagemaker describe-pipeline-definition-for-execution --pipeline-execution-arn ${arn}`);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            if (smImages.length > 0) {
+                const uniqueArns = [...new Set(smImageArns)];
+                const imageNames = [...new Set(smImages.map(match => match[1]))]; 
+                output += `SageMaker Images (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                imageNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-image --image-name ${name}`);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
             // --- MODIFICATION START: Add Bedrock resources to output and CLI ---
             if (brGuardrails.length > 0) {
                 const uniqueArns = [...new Set(brGuardrailArns)];
@@ -1197,7 +1522,9 @@
             // --- Finalize Output ---
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources, Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Request IDs, Base64 strings, or Epoch timestamps found.";
+                // --- USER REQUESTED UPDATE ---
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, or Epoch timestamps found.";
+                // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
                 if (cliOutput.length > 0) {
