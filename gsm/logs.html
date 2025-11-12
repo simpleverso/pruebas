@@ -894,6 +894,37 @@
             const smEndpointRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint\/([\w\+\=\,\.\@\-\/]+)/g;
             const smEndpointConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint-config\/([\w\+\=\,\.\@\-\/]+)/g;
             // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Added Bedrock regexes ---
+            const brGuardrailRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:guardrail\/([\w]+)/g;
+            const brInferenceProfileRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:inference-profile\/([\w]+)/g;
+            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Added Comprehend regexes ---
+            const compDatasetRegex = /(arn:[^:]+:comprehend:[^:]*:[^:]*:dataset\/[\w\+\=\,\.\@\-\/]+)/g;
+            const compEndpointRegex = /(arn:[^:]+:comprehend:[^:]*:[^:]*:endpoint\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added DataZone regexes ---
+            // These regexes capture the domain ID and the specific resource ID
+            const dzDomainRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)/g;
+            const dzProjectRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/project\/([\w-]+)/g;
+            const dzEnvironmentRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/environment\/([\w-]+)/g;
+            const dzDataSourceRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/dataSource\/([\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added EFS regex ---
+            const efsRegex = /arn:[^:]+:elasticfilesystem:[^:]*:[^:]*:file-system\/(fs-[\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added Textract regexes ---
+            const textractAdapterRegex = /arn:[^:]+:textract:[^:]*:[^:]*:adapter\/([\w-]+)(?!\/adapter-version)/g;
+            const textractAdapterVersionRegex = /arn:[^:]+:textract:[^:]*:[^:]*:adapter\/([\w-]+)\/adapter-version\/([\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added KMS regex ---
+            const kmsKeyRegex = /arn:[^:]+:kms:[^:]*:[^:]*:key\/([\w-]+)/g;
+            // --- MODIFICATION END ---
 
             // Regex for request IDs
             const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
@@ -923,6 +954,49 @@
             const smDomainArns = smDomains.map(match => match[0]);
             const smEndpointArns = smEndpoints.map(match => match[0]);
             const smEndpointConfigArns = smEndpointConfigs.map(match => match[0]);
+            
+            // --- MODIFICATION START: Extract Bedrock resources ---
+            const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
+            const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
+
+            const brGuardrailArns = brGuardrails.map(match => match[0]);
+            const brInferenceProfileArns = brInferenceProfiles.map(match => match[0]);
+            
+            // --- MODIFICATION START: Extract Comprehend resources ---
+            const compDatasets = [...inputText.matchAll(compDatasetRegex)];
+            const compEndpoints = [...inputText.matchAll(compEndpointRegex)];
+
+            const compDatasetArns = compDatasets.map(match => match[0]);
+            const compEndpointArns = compEndpoints.map(match => match[0]);
+            
+            // --- MODIFICATION START: Extract DataZone resources ---
+            const dzDomains = [...inputText.matchAll(dzDomainRegex)];
+            const dzProjects = [...inputText.matchAll(dzProjectRegex)];
+            const dzEnvironments = [...inputText.matchAll(dzEnvironmentRegex)];
+            const dzDataSources = [...inputText.matchAll(dzDataSourceRegex)];
+
+            const dzDomainArns = dzDomains.map(match => match[0]);
+            const dzProjectArns = dzProjects.map(match => match[0]);
+            const dzEnvironmentArns = dzEnvironments.map(match => match[0]);
+            const dzDataSourceArns = dzDataSources.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Extract EFS resources ---
+            const efsFileSystems = [...inputText.matchAll(efsRegex)];
+            const efsArnList = efsFileSystems.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Extract Textract resources ---
+            const textractAdapters = [...inputText.matchAll(textractAdapterRegex)];
+            const textractAdapterVersions = [...inputText.matchAll(textractAdapterVersionRegex)];
+
+            const textractAdapterArns = textractAdapters.map(match => match[0]);
+            const textractAdapterVersionArns = textractAdapterVersions.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Extract KMS resources ---
+            const kmsKeys = [...inputText.matchAll(kmsKeyRegex)];
+            const kmsKeyArns = kmsKeys.map(match => match[0]);
             // --- MODIFICATION END ---
 
             // Filter out roles from the main ARN list to avoid duplication in the output
@@ -930,7 +1004,31 @@
                 !roles.includes(arn) &&
                 !smDomainArns.includes(arn) &&
                 !smEndpointArns.includes(arn) &&
-                !smEndpointConfigArns.includes(arn)
+                !smEndpointConfigArns.includes(arn) &&
+                // --- MODIFICATION START: Filter Bedrock ARNs ---
+                !brGuardrailArns.includes(arn) &&
+                !brInferenceProfileArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter Comprehend ARNs ---
+                !compDatasetArns.includes(arn) &&
+                !compEndpointArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter DataZone ARNs ---
+                !dzDomainArns.includes(arn) &&
+                !dzProjectArns.includes(arn) &&
+                !dzEnvironmentArns.includes(arn) &&
+                !dzDataSourceArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter EFS ARNs ---
+                !efsArnList.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter Textract ARNs ---
+                !textractAdapterArns.includes(arn) &&
+                !textractAdapterVersionArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter KMS ARNs ---
+                !kmsKeyArns.includes(arn)
+                // --- MODIFICATION END ---
             );
             // --- MODIFICATION END ---
             
@@ -1017,6 +1115,42 @@
                     cliOutput.push(`aws sagemaker describe-endpoint-config --endpoint-config-name ${name}`);
                 });
             }
+            
+            // --- MODIFICATION START: Add Bedrock resources to output and CLI ---
+            if (brGuardrails.length > 0) {
+                const uniqueArns = [...new Set(brGuardrailArns)];
+                const guardrailIds = [...new Set(brGuardrails.map(match => match[1]))]; 
+                output += `Bedrock Guardrails (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                guardrailIds.forEach(id => {
+                    // Note: The CLI uses the ID, not the full ARN
+                    cliOutput.push(`aws bedrock get-guardrail --guardrail-identifier ${id}`);
+                });
+            }
+
+            if (brInferenceProfiles.length > 0) {
+                const uniqueArns = [...new Set(brInferenceProfileArns)];
+                const profileIds = [...new Set(brInferenceProfiles.map(match => match[1]))]; 
+                output += `Bedrock Inference Profiles (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                profileIds.forEach(id => {
+                    // Note: The CLI uses the ID, not the full ARN
+                    cliOutput.push(`aws bedrock get-inference-profile --inference-profile-identifier ${id}`);
+                });
+            }
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Add KMS resources to output and CLI ---
+            if (kmsKeys.length > 0) {
+                const uniqueArns = [...new Set(kmsKeyArns)];
+                const keyIds = [...new Set(kmsKeys.map(match => match[1]))]; 
+                output += `KMS Keys (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                keyIds.forEach(id => {
+                    cliOutput.push(`aws kms describe-key --key-id ${id}`);
+                    cliOutput.push(`aws kms get-key-policy --key-id ${id} --policy-name default`);
+                });
+            }
             // --- MODIFICATION END ---
 
             // Add other ARNs to output
@@ -1063,7 +1197,7 @@
             // --- Finalize Output ---
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources, Request IDs, Base64 strings, or Epoch timestamps found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources, Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Request IDs, Base64 strings, or Epoch timestamps found.";
                 // --- MODIFICATION END ---
             } else {
                 if (cliOutput.length > 0) {
