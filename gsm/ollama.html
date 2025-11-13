@@ -417,7 +417,8 @@
                 const messageBubble = document.createElement('div');
                 const messageContent = document.createElement('p');
                 
-                messageWrapper.classList.add('flex');
+                // Use flex, items-start (to align bubble and copy button), and gap
+                messageWrapper.classList.add('flex', 'items-start', 'gap-2');
                 messageBubble.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'sm:max-w-md');
                 messageContent.classList.add('text-sm');
 
@@ -439,19 +440,154 @@
 
                 // Add text content if it exists, or if it's a model bubble (for streaming)
                 if (content) {
-                    messageContent.textContent = content;
+                    // OLD: messageContent.textContent = content;
+                    messageContent.innerHTML = mdToHtml(content); // NEW: Format as HTML
                     messageBubble.appendChild(messageContent);
                 } else if (role === 'model') {
-                    messageContent.textContent = '...'; // For '...' typing bubble
+                    // OLD: messageContent.textContent = '...'; // For '...' typing bubble
+                    // NEW: Use an animated span
+                    messageContent.innerHTML = '<span class="animate-pulse">...</span>';
                     messageBubble.appendChild(messageContent);
                 }
                 // If content is empty but dataUrl exists, the <p> is just not added. This is correct.
 
+                // Always append the bubble first
                 messageWrapper.appendChild(messageBubble);
+
+                // --- NEW: Add Copy Button for Model Responses ---
+                if (role === 'model') {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.classList.add(
+                        'flex-shrink-0', 'p-1.5', 'mt-1', 'bg-gray-600', 'text-gray-300', 
+                        'rounded-full', 'hover:bg-gray-500', 'transition', 'focus:outline-none',
+                        'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800'
+                    );
+                    
+                    const copyIconSVG = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>`;
+                    const checkIconSVG = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>`;
+                    
+                    copyBtn.innerHTML = copyIconSVG;
+                    copyBtn.title = 'Copy response';
+
+                    copyBtn.addEventListener('click', () => {
+                        const textToCopy = messageContent.textContent;
+                        if (!textToCopy) return;
+
+                        const textarea = document.createElement('textarea');
+                        textarea.value = textToCopy;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = 0;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        try {
+                            document.execCommand('copy');
+                            copyBtn.innerHTML = checkIconSVG;
+                            copyBtn.title = 'Copied!';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = copyIconSVG;
+                                copyBtn.title = 'Copy response';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy text: ', err);
+                            copyBtn.title = 'Failed to copy';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = copyIconSVG;
+                                copyBtn.title = 'Copy response';
+                            }, 2000);
+                        }
+                        document.body.removeChild(textarea);
+                    });
+
+                    messageWrapper.appendChild(copyBtn); // Append button to the wrapper
+                }
+                // --- END NEW ---
+
                 historyElement.appendChild(messageWrapper);
                 historyElement.scrollTop = historyElement.scrollHeight;
 
                 return messageContent; // Return the p tag for streaming updates
+            }
+
+
+            // --- NEW: Markdown to HTML conversion ---
+            
+            /**
+             * Safely converts markdown-like text to HTML for display.
+             * It sanitizes all HTML first, then applies formatting.
+             * @param {string} text - The raw text from the model.
+             * @returns {string} - Safe HTML.
+             */
+            function mdToHtml(text) {
+                if (!text) return '';
+                // 1. Sanitize: escape all HTML tags
+                let safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                // 2. Format block elements (code)
+                // We split by ``` to find code blocks
+                const parts = safeText.split('```');
+                let html = '';
+                
+                for (let i = 0; i < parts.length; i++) {
+                    let part = parts[i];
+                    if (i % 2 === 0) {
+                        // This is a "text" part (outside a code block)
+                        
+                        // Handle inline code (`)
+                        part = part.replace(/`([^`]+?)`/g, 
+                            '<code class="bg-gray-700 text-cyan-300 px-1.5 py-0.5 rounded-md">$1</code>');
+                        
+                        // Bold (**)
+                        part = part.replace(/\*\*([^\s].*?[^\s])\*\*/g, '<strong>$1</strong>');
+                        
+                        // Italic (*)
+                        part = part.replace(/\*([^\s].*?[^\s])\*/g, '<em>$1</em>');
+
+                        // Handle lists (simple)
+                        part = part.replace(/^\s*\*\s+(.*)/gm, '<li class="ml-5 list-disc">$1</li>');
+                        part = part.replace(/^\s*\d+\.\s+(.*)/gm, '<li class="ml-5 list-decimal">$1</li>');
+
+                        // Finally, convert newlines to <br>
+                        html += part.replace(/\n/g, '<br>');
+
+                    } else {
+                        // This is a "code" part (inside a code block)
+                        // It might have a language hint at the start
+                        let lang = 'plaintext';
+                        let code = part;
+                        
+                        const newlineIndex = part.indexOf('\n');
+                        if (newlineIndex === 0) {
+                            // No language hint
+                            code = part.substring(1); // remove leading \n
+                        } else {
+                            const firstLine = part.substring(0, newlineIndex).trim();
+                            if (firstLine.length > 0 && !firstLine.includes(' ')) { // Simple check for lang
+                                lang = firstLine;
+                                code = part.substring(newlineIndex + 1);
+                            } else {
+                                // No lang, just code
+                                code = part;
+                            }
+                        }
+                        // The code is already sanitized (all < > are &lt; &gt;)
+                        html += `<pre class="bg-gray-950 p-3 my-2 rounded-lg overflow-x-auto"><code class_="language-${lang}">${code.trim()}</code></pre>`;
+                    }
+                }
+
+                // Clean up extra <br> tags
+                html = html.replace(/<br><pre/g, '<pre');
+                html = html.replace(/<\/pre><br>/g, '</pre>');
+                html = html.replace(/(<br>\s*){2,}/g, '<br><br>'); // Max two newlines
+                html = html.replace(/<br><li/g, '<li');
+                html = html.replace(/<\/li><br>/g, '</li>');
+
+                return html;
             }
 
 
@@ -929,13 +1065,15 @@
                 let fullResponse = '';
                 const onStreamChunk = (chunk) => {
                     fullResponse += chunk;
-                    typingBubble.textContent = fullResponse;
+                    // OLD: typingBubble.textContent = fullResponse;
+                    typingBubble.innerHTML = mdToHtml(fullResponse); // NEW
                     historyEl.scrollTop = historyEl.scrollHeight;
                 };
 
                 const onStreamEnd = (finalResponse) => {
-                    typingBubble.classList.remove('animate-pulse');
-                    typingBubble.textContent = finalResponse;
+                    // OLD: typingBubble.classList.remove('animate-pulse');
+                    // OLD: typingBubble.textContent = finalResponse;
+                    typingBubble.innerHTML = mdToHtml(finalResponse); // NEW
                     
                     // Add model response to state
                     chat.messages.push({ role: 'assistant', content: finalResponse });
