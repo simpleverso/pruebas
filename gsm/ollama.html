@@ -70,6 +70,13 @@
                 </div>
             </div>
 
+            <!-- NEW: Test Connection Button -->
+            <div class="mt-4 flex justify-start">
+                <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                    Test Connection & Reload Models
+                </button>
+            </div>
+
             <!-- System Prompt -->
             <div class="mt-4">
                 <label for="system-prompt" class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt (Optional)</label>
@@ -265,6 +272,7 @@
             const modelSelect = document.getElementById('model-select');
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
+            const testConnectionBtn = document.getElementById('test-connection-btn'); // <-- NEW
 
             // Analysis Elements
             const analysisInput = document.getElementById('analysis-input');
@@ -526,7 +534,7 @@
                         let chatName = chat.name;
                         if (!chatName && chat.messages.length > 0) {
                              const firstUserMsg = chat.messages.find(m => m.role === 'user');
-                             if (firstUserMsg) {
+                             if (firstUserMsg && firstUserMsg.content) {
                                 chatName = `Chat: ${firstUserMsg.content.substring(0, 30)}...`;
                              }
                         }
@@ -879,8 +887,9 @@
                     chat.messages.push({ role: 'assistant', content: finalResponse });
                     
                     // Update chat name if it's the first user message
-                    if (chat.messages.filter(m => m.role === 'user').length === 1) {
-                        chat.name = `Chat: ${chat.messages[0].content.substring(0, 30)}...`;
+                    const userMessages = chat.messages.filter(m => m.role === 'user');
+                    if (userMessages.length === 1 && userMessages[0].content) {
+                        chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`;
                         renderChatListDropdowns();
                     }
                     saveChats(); // Save updated messages and name
@@ -952,11 +961,18 @@
             copyInputBtn.addEventListener('click', () => copyToClipboard(analysisInput.value, copyInputBtn));
             copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
 
+            // NEW: Test Connection Button
+            testConnectionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showMessage('Testing connection...', 'success');
+                checkConnectionAndLoadModels();
+            });
+
             // 4. Local Storage Savers
             ollamaEndpoint.addEventListener('change', () => {
                 localStorage.setItem(STORAGE_KEY_ENDPOINT, ollamaEndpoint.value);
-                showMessage('Endpoint saved. Re-checking connection...', 'success');
-                checkConnectionAndLoadModels();
+                showMessage('Endpoint saved. Click "Test Connection" to apply.', 'success');
+                // checkConnectionAndLoadModels(); // Removed - now manual
             });
             systemPrompt.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
             analysisInput.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
@@ -964,20 +980,18 @@
                 const newModel = modelSelect.value;
                 localStorage.setItem(STORAGE_KEY_MODEL, newModel);
                 savedModel = newModel;
-                showMessage(`Model selection saved: ${newModel}`, 'success');
+                showMessage(`Global default model saved: ${newModel}`, 'success');
             });
 
-            // 5. Chat Session Listeners
+            // 5. NEW: Chat Session Listeners
             newChatBtn.addEventListener('click', () => {
-                const newChat = createNewChat(true); // Create and save
-                switchChat('a', newChat.id); // Load in Panel A
-                chatSelectA.value = newChat.id; // Update dropdown selection
-                showMessage('New chat created in Panel A.', 'success');
+                const newChat = createNewChat();
+                // Make the new chat active in Panel A
+                switchChat('a', newChat.id);
+                renderChatListDropdowns(); // Re-render to show it
             });
-            
             deleteChatBtnA.addEventListener('click', () => deleteChat(activeChatIdA));
             deleteChatBtnB.addEventListener('click', () => deleteChat(activeChatIdB));
-
             chatSelectA.addEventListener('change', (e) => switchChat('a', e.target.value));
             chatSelectB.addEventListener('change', (e) => switchChat('b', e.target.value));
 
@@ -1007,10 +1021,16 @@
 
             async function checkConnectionAndLoadModels() {
                 const endpoint = ollamaEndpoint.value;
-                if (!endpoint) return;
+                if (!endpoint) {
+                    showMessage('Ollama API endpoint is not set.', 'error');
+                    return;
+                }
                 
+                const url = new URL(endpoint);
+                url.pathname = '/api/tags';
+
                 try {
-                    const response = await fetch(new URL(endpoint + '/api/tags'));
+                    const response = await fetch(url.toString());
                     if (response.ok) {
                         showMessage('Connected to Ollama. Fetching models...', 'success');
                         
@@ -1047,9 +1067,9 @@
             }
 
             // --- Run Initial Load ---
-            checkConnectionAndLoadModels();
-            loadChats(); // Load all chat sessions
-
+            loadChats(); // Load chats first to get active IDs
+            checkConnectionAndLoadModels(); // Now check connection and load models
+            
         });
     </script>
 </body>
