@@ -47,44 +47,7 @@
         </header>
 
         <!-- Configuration Section -->
-        <section class="bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuration</h2>
-            
-            <!-- CORS Warning -->
-            <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4" role="alert">
-                <strong class="font-bold">Important!</strong>
-                <span class="block sm:inline">For this client to work, you must start your Ollama server with the `OLLAMA_ORIGINS=*` environment variable. (e.g., `OLLAMA_ORIGINS='*' ollama serve`)</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="sm:col-span-2">
-                    <label for="ollama-endpoint" class="block text-sm font-medium text-gray-300 mb-2">Ollama API Endpoint</label>
-                    <input type="text" id="ollama-endpoint" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" value="http://localhost:11434">
-                </div>
-                <div>
-                    <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Model</label>
-                    <select id="model-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
-                        <option value="" disabled>Loading models...</option>
-                    </select>
-                    <p class="text-xs text-gray-500 mt-1">Models installed in Ollama will appear here.</p>
-                </div>
-            </div>
-
-            <!-- NEW: Test Connection Button -->
-            <div class="mt-4 flex justify-start">
-                <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-                    Test Connection & Reload Models
-                </button>
-            </div>
-
-            <!-- System Prompt -->
-            <div class="mt-4">
-                <label for="system-prompt" class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt (Optional)</label>
-                <textarea id="system-prompt" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful assistant. Respond in JSON. (Applied to all chats)"></textarea>
-            </div>
-            
-            <div id="connection-status" class="mt-4 text-sm"></div>
-        </section>
+        <!-- MOVED: This section has been moved into the "Text Analysis" tab -->
 
         <!-- Tab Navigation -->
         <div class="mb-4 border-b border-gray-700">
@@ -129,7 +92,15 @@
                             <!-- Local System Prompt A -->
                             <div class="flex flex-col">
                                 <label for="chat-system-prompt-a" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
-                                <textarea id="chat-system-prompt-a" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a pirate."></textarea>
+                                <div class="flex gap-2"> <!-- NEW Wrapper -->
+                                    <textarea id="chat-system-prompt-a" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a pirate."></textarea>
+                                    <!-- NEW Save Button A -->
+                                    <button id="save-prompt-btn-a" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <!-- Session Control A -->
                             <div class="flex gap-2">
@@ -163,6 +134,12 @@
                                         <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
+                                <!-- NEW: Clear Chat Button A -->
+                                <button id="chat-clear-btn-a" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
                                 <button id="chat-send-btn-a" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800">Send</button>
                             </div>
                         </div>
@@ -180,7 +157,15 @@
                             <!-- Local System Prompt B -->
                             <div class="flex flex-col">
                                 <label for="chat-system-prompt-b" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
-                                <textarea id="chat-system-prompt-b" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful C++ expert."></textarea>
+                                <div class="flex gap-2"> <!-- NEW Wrapper -->
+                                    <textarea id="chat-system-prompt-b" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful C++ expert."></textarea>
+                                    <!-- NEW Save Button B -->
+                                    <button id="save-prompt-btn-b" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <!-- Session Control B -->
                             <div class="flex gap-2">
@@ -214,6 +199,12 @@
                                         <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
+                                <!-- NEW: Clear Chat Button B -->
+                                <button id="chat-clear-btn-b" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
                                 <button id="chat-send-btn-b" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800">Send</button>
                             </div>
                         </div>
@@ -225,7 +216,48 @@
             <!-- Analysis Panel (Default Hidden) -->
             <div id="panel-analysis" role="tabpanel" aria-labelledby="tab-analysis" class="hidden">
                 <section class="bg-gray-800 rounded-xl shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Text Analysis</h2>
+                    
+                    <!-- START: Moved Configuration Section -->
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuration & Analysis Setup</h2>
+            
+                    <!-- CORS Warning -->
+                    <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4" role="alert">
+                        <strong class="font-bold">Important!</strong>
+                        <span class="block sm:inline">For this client to work, you must start your Ollama server with the `OLLAMA_ORIGINS=*` environment variable. (e.g., `OLLAMA_ORIGINS='*' ollama serve`)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="ollama-endpoint" class="block text-sm font-medium text-gray-300 mb-2">Ollama API Endpoint</label>
+                            <input type="text" id="ollama-endpoint" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" value="http://localhost:11434">
+                        </div>
+                        <div>
+                            <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Default Model</label>
+                            <select id="model-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                <option value="" disabled>Loading models...</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Used for Analysis & as default for new chats.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-start">
+                        <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                            Test Connection & Reload Models
+                        </button>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="system-prompt" class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt (Optional)</label>
+                        <textarea id="system-prompt" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful assistant. (Used for Analysis & as default for new chats)"></textarea>
+                    </div>
+                    
+                    <div id="connection-status" class="mt-4 text-sm"></div>
+                    <!-- END: Moved Configuration Section -->
+                    
+                    <!-- Divider -->
+                    <hr class="border-t border-gray-700 my-6">
+
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Text to Analyze</h2>
                     <div class="flex flex-col gap-4">
                         <!-- Input Text -->
                         <div>
@@ -287,7 +319,9 @@
             const chatHistoryA = document.getElementById('chat-history-a');
             const chatInputA = document.getElementById('chat-input-a');
             const chatSendBtnA = document.getElementById('chat-send-btn-a');
+            const chatClearBtnA = document.getElementById('chat-clear-btn-a'); // <-- NEW
             const chatSystemPromptA = document.getElementById('chat-system-prompt-a');
+            const savePromptBtnA = document.getElementById('save-prompt-btn-a'); // <-- NEW
             // NEW: Image Elements A
             const chatAttachBtnA = document.getElementById('chat-attach-btn-a');
             const chatFileInputA = document.getElementById('chat-file-input-a');
@@ -303,7 +337,9 @@
             const chatHistoryB = document.getElementById('chat-history-b');
             const chatInputB = document.getElementById('chat-input-b');
             const chatSendBtnB = document.getElementById('chat-send-btn-b');
+            const chatClearBtnB = document.getElementById('chat-clear-btn-b'); // <-- NEW
             const chatSystemPromptB = document.getElementById('chat-system-prompt-b');
+            const savePromptBtnB = document.getElementById('save-prompt-btn-b'); // <-- NEW
             // NEW: Image Elements B
             const chatAttachBtnB = document.getElementById('chat-attach-btn-b');
             const chatFileInputB = document.getElementById('chat-file-input-b');
@@ -663,6 +699,24 @@
                 loadChatHistory(panelSuffix, newChatId);
             }
 
+            /**
+             * Clears the message history for the active chat in a given panel.
+             * @param {'a' | 'b'} panelSuffix - The panel to clear.
+             */
+            function clearChatHistory(panelSuffix) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                if (!activeChatId || !allChats[activeChatId]) {
+                    showMessage(`No active chat to clear for Panel ${panelSuffix}.`, 'error');
+                    return;
+                }
+
+                const chat = allChats[activeChatId];
+                chat.messages = []; // Clear the messages
+                saveChats(); // Save the change
+                loadChatHistory(panelSuffix, activeChatId); // Reload the UI
+                showMessage(`Chat history cleared for Panel ${panelSuffix}.`, 'success');
+            }
+
 
             // --- Tab Logic ---
             const activeTabClasses = ['border-cyan-500', 'text-cyan-400'];
@@ -903,18 +957,28 @@
 
             // --- Panel A Listeners ---
             chatSendBtnA.addEventListener('click', () => handleChatSend('a'));
+            chatClearBtnA.addEventListener('click', () => clearChatHistory('a')); // <-- NEW
             chatInputA.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleChatSend('a');
                 }
             });
-            chatSystemPromptA.addEventListener('input', () => {
+            
+            // REMOVED old listener
+            // chatSystemPromptA.addEventListener('input', () => { ... });
+
+            // NEW click listener
+            savePromptBtnA.addEventListener('click', () => {
                 if (allChats[activeChatIdA]) {
                     allChats[activeChatIdA].systemPrompt = chatSystemPromptA.value;
                     saveChats();
+                    showMessage('Panel A system prompt saved.', 'success');
+                } else {
+                    showMessage('No active chat in Panel A.', 'error');
                 }
             });
+
             // NEW: Model listener A
             chatModelSelectA.addEventListener('change', () => {
                 if (allChats[activeChatIdA]) {
@@ -931,18 +995,28 @@
 
             // --- Panel B Listeners ---
             chatSendBtnB.addEventListener('click', () => handleChatSend('b'));
+            chatClearBtnB.addEventListener('click', () => clearChatHistory('b')); // <-- NEW
             chatInputB.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleChatSend('b');
                 }
             });
-            chatSystemPromptB.addEventListener('input', () => {
+            
+            // REMOVED old listener
+            // chatSystemPromptB.addEventListener('input', () => { ... });
+
+            // NEW click listener
+            savePromptBtnB.addEventListener('click', () => {
                 if (allChats[activeChatIdB]) {
                     allChats[activeChatIdB].systemPrompt = chatSystemPromptB.value;
                     saveChats();
+                    showMessage('Panel B system prompt saved.', 'success');
+                } else {
+                    showMessage('No active chat in Panel B.', 'error');
                 }
             });
+
             // NEW: Model listener B
             chatModelSelectB.addEventListener('change', () => {
                 if (allChats[activeChatIdB]) {
