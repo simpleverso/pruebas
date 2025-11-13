@@ -1,1660 +1,1150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Updated Title -->
-    <title>Text, JSON & Base64 Tools</title>
+    <title>Ollama Web Client</title>
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // 'media' or 'class'
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        /* Custom scrollbar for chat history */
+        .chat-history::-webkit-scrollbar {
+            width: 8px;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 700px;
-        }
-        h1 {
-            color: #1a1a1a;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        p {
-            text-align: center;
-            color: #555;
-            margin-bottom: 2rem;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .label-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-        }
-        .label-group h2, .label-group label {
-            margin-bottom: 0;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        textarea, input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            box-sizing: border-box; 
-        }
-        textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        /* --- New Base64 Tool Styles --- */
-        .tool-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-        .tool-selector label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .tool-selector input[type="radio"] {
-            width: auto;
-        }
-        #imagePreview {
-            display: none; /* Hidden by default */
-            margin-top: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 0.5rem;
-            background-color: #fdfdfd;
-        }
-        #imagePreview img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
+        .chat-history::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
             border-radius: 4px;
         }
-        /* --- End New Base64 Styles --- */
-
-
-        /* Epoch section styles */
-        .epoch-container {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
+        .chat-history::-webkit-scrollbar-thumb {
+            background: #4b5563; /* bg-gray-600 */
+            border-radius: 4px;
         }
-        .epoch-input-field {
-            flex-grow: 1; /* Input takes available space */
-            width: auto; /* Override default 100% */
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
         }
-        .epoch-button-group {
-            display: flex;
-            gap: 0.5rem;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
-        }
-        .epoch-specific-button {
-            width: auto; /* Override default 100% width from 'button' rule */
-            padding: 12px 15px; /* Adjust padding to match input height */
-            font-size: 0.9rem; /* Slightly smaller text to fit */
-        }
-
-        /* Drag and Drop & File Input Styles */
-        .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            color: #aaa;
-            cursor: pointer;
-            transition: border-color 0.3s, background-color 0.3s;
-            margin-bottom: 1rem;
-        }
-        /* Will be toggled by JS */
-        .drop-zone.hidden {
-            display: none;
-        }
-
-        .drop-zone--over {
-            border-color: #007bff;
-            background-color: #f0f8ff;
-        }
-        .drop-zone__input {
-            display: none;
-        }
-        .drop-zone__prompt {
-            font-weight: 500;
-        }
-        .options {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            gap: 10px; /* space between checkbox and label */
-        }
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-        }
-        .button-group {
-            display: grid;
-            /* Updated to 3 columns for better layout */
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            border: none;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .primary-button {
-             background: linear-gradient(45deg, #007bff, #0056b3);
-        }
-         .secondary-button {
-            background: linear-gradient(45deg, #6c757d, #5a6268);
-        }
-        .tertiary-button {
-            background: linear-gradient(45deg, #28a745, #218838);
-        }
-        .quaternary-button {
-            background: linear-gradient(45deg, #fd7e14, #d35400); /* Orange gradient */
-        }
-        .quinary-button {
-            background: linear-gradient(45deg, #6f42c1, #4a148c); /* Purple gradient */
-        }
-        .senary-button {
-            background: linear-gradient(45deg, #20c997, #00796b); /* Teal gradient */
-        }
-        .septenary-button {
-            background: linear-gradient(45deg, #dc3545, #b02a37); /* Red gradient */
-        }
-        /* New button style for Base64 */
-        .octonary-button {
-            background: linear-gradient(45deg, #d946ef, #a21caf); /* Fuchsia gradient */
-        }
-        /* New button style for AWS Request IDs */
-        .nonary-button {
-            background: linear-gradient(45deg, #0dcaf0, #08a5c7); /* Cyan gradient */
-        }
-
-        .epoch-button-gmt {
-            background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
-        }
-        .epoch-button-utc {
-            background: linear-gradient(45deg, #ffc107, #d39e00); /* Warning/Yellow gradient */
-        }
-        .utility-button {
-            padding: 5px 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            background: #e9ecef;
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .utility-button:hover {
-            background-color: #d8dde1;
-            transform: none;
-            box-shadow: none;
-        }
-        .validation-message {
-            text-align: center;
-            margin: 1rem 0 0 0;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            display: none; /* Hidden by default */
-        }
-        .validation-message.valid {
-            color: #155724;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-        .validation-message.invalid {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
-        #output {
-            margin-top: 1.5rem;
-        }
-        pre {
-            background-color: #e9ecef;
-            padding: 1rem;
-            border-radius: 8px;
-            white-space: pre-wrap; 
-            word-wrap: break-word; 
-            min-height: 150px;
-            border: 1px solid #ddd;
-            font-size: 1rem;
-        }
-        .result-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .download-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-left: auto; /* Pushes download to the right */
-        }
-        #xmlOptions {
-            display: none; /* Hidden by default */
-            margin-top: 1rem;
-            padding: 1rem;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        #xmlOptions.visible {
-            display: block;
-        }
-
     </style>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
 
-    <div class="container">
-        <h1>Text, JSON & Base64 Tools</h1>
-        <p>A versatile tool to format text, validate JSON, convert Epoch time, and encode/decode Base64.</p>
-        
-        <div class="form-group">
-            <label for="delimiter">Delimiter (for new line insertion):</label>
-            <input type="text" id="delimiter" value="," placeholder="e.g., , or ; or word">
+    <!-- Changed max-w-4xl to max-w-7xl to accommodate two chats -->
+    <div class="container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+
+        <header class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Ollama Web Client</h1>
+            <p class="text-lg text-gray-400 mt-2">Analyze text and chat with your local models.</p>
+        </header>
+
+        <!-- Configuration Section -->
+        <!-- MOVED: This section has been moved into the "Text Analysis" tab -->
+
+        <!-- Tab Navigation -->
+        <div class="mb-4 border-b border-gray-700">
+            <nav class="-mb-px flex space-x-8" role="tablist" aria-label="Tabs">
+                <button id="tab-chat" role="tab" aria-selected="true"
+                    class="border-cyan-500 text-cyan-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Chat
+                </button>
+                <button id="tab-analysis" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Text Analysis
+                </button>
+            </nav>
         </div>
 
-        <!-- Epoch Input Section -->
-        <div class="form-group">
-            <label for="epochInput">Epoch Timestamp (seconds or ms):</label>
-            <div class="epoch-container">
-                <input type="text" id="epochInput" class="epoch-input-field" placeholder="e.g., 1678886400 or 1678886400000">
-                <div class="epoch-button-group">
-                    <button onclick="convertEpochToGmtMinus6()" class="epoch-button-gmt epoch-specific-button">GMT-6</button>
-                    <button onclick="convertEpochToUtc()" class="epoch-button-utc epoch-specific-button">UTC</button>
-                </div>
-            </div>
-        </div>
+        <!-- Tab Content -->
+        <div>
+            <!-- Chat Panel (Default Visible) -->
+            <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat">
+                <section class="flex flex-col gap-6">
+                    <!-- NEW: Global Chat Management -->
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-3xl font-bold text-cyan-400">Multi-Chat</h2>
+                        <button id="new-chat-btn" class="px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                            New Chat
+                        </button>
+                    </div>
+                    
+                    <!-- NEW: 2-Column Chat Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- New Base64 Tool Selector -->
-        <div class="form-group">
-            <label>Base64 Tools:</label>
-            <div class="tool-selector">
-                <label>
-                    <input type="radio" name="base64tool" value="textEncode" onchange="updateToolMode()"> Text Encode
-                </label>
-                <label>
-                    <input type="radio" name="base64tool" value="textDecode" onchange="updateToolMode()"> Text Decode
-                </label>
-                <label>
-                    <input type="radio" name="base64tool" value="imgEncode" onchange="updateToolMode()"> Image Encode
-                </label>
-                <label>
-                    <input type="radio" name="base64tool" value="imgDecode" onchange="updateToolMode()"> Image Decode
-                </label>
-            </div>
-        </div>
+                        <!-- Panel A -->
+                        <div id="chat-panel-a" class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
+                            <h3 class="text-xl font-semibold text-gray-300">Panel A</h3>
+                            <!-- NEW: Per-Chat Model Select A -->
+                            <div class="flex flex-col">
+                                <label for="chat-model-select-a" class="text-sm font-medium text-gray-300 mb-1">Model</label>
+                                <select id="chat-model-select-a" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                    <option>Loading models...</option>
+                                </select>
+                            </div>
+                            <!-- Local System Prompt A -->
+                            <div class="flex flex-col">
+                                <label for="chat-system-prompt-a" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
+                                <div class="flex gap-2"> <!-- NEW Wrapper -->
+                                    <textarea id="chat-system-prompt-a" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a pirate."></textarea>
+                                    <!-- NEW Save Button A -->
+                                    <button id="save-prompt-btn-a" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Session Control A -->
+                            <div class="flex gap-2">
+                                <label for="chat-select-a" class="flex-shrink-0 text-sm font-medium text-gray-300 py-2">Session:</label>
+                                <select id="chat-select-a" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition text-sm">
+                                    <option>Loading...</option>
+                                </select>
+                                <button id="delete-chat-btn-a" class="flex-shrink-0 px-3 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Delete Selected Chat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 4a1 1 0 100 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- History A -->
+                            <div id="chat-history-a" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto flex flex-col gap-4">
+                                <!-- Messages for A -->
+                            </div>
+                            <!-- NEW: Image Preview A -->
+                            <div id="chat-image-preview-a" class="hidden relative w-24 h-24 mb-2">
+                                <img id="preview-img-a" src="" class="w-full h-full object-cover rounded-lg border border-gray-600">
+                                <button id="remove-img-btn-a" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-0 w-6 h-6 flex items-center justify-center text-lg font-bold leading-none focus:outline-none">&times;</button>
+                            </div>
+                            <!-- Input A -->
+                            <div class="flex gap-2">
+                                <input id="chat-input-a" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Type message for Panel A...">
+                                <!-- NEW: Hidden file input -->
+                                <input type="file" id="chat-file-input-a" class="hidden" accept="image/*">
+                                <!-- NEW: Image attach button -->
+                                <button id="chat-attach-btn-a" class="px-4 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Attach Image">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <!-- NEW: Clear Chat Button A -->
+                                <button id="chat-clear-btn-a" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button id="chat-send-btn-a" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800">Send</button>
+                            </div>
+                        </div>
 
-        <div class="form-group">
-            <div class="label-group">
-                <!-- This label will be updated by JS -->
-                <label for="inputText" id="inputLabel">Input Text (for Text/JSON tools):</label>
-                <button onclick="clearInput()" class="utility-button">Clear</button>
+                        <!-- Panel B -->
+                        <div id="chat-panel-b" class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
+                            <h3 class="text-xl font-semibold text-gray-300">Panel B</h3>
+                            <!-- NEW: Per-Chat Model Select B -->
+                            <div class="flex flex-col">
+                                <label for="chat-model-select-b" class="text-sm font-medium text-gray-300 mb-1">Model</label>
+                                <select id="chat-model-select-b" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                    <option>Loading models...</option>
+                                </select>
+                            </div>
+                            <!-- Local System Prompt B -->
+                            <div class="flex flex-col">
+                                <label for="chat-system-prompt-b" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
+                                <div class="flex gap-2"> <!-- NEW Wrapper -->
+                                    <textarea id="chat-system-prompt-b" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful C++ expert."></textarea>
+                                    <!-- NEW Save Button B -->
+                                    <button id="save-prompt-btn-b" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Session Control B -->
+                            <div class="flex gap-2">
+                                <label for="chat-select-b" class="flex-shrink-0 text-sm font-medium text-gray-300 py-2">Session:</label>
+                                <select id="chat-select-b" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition text-sm">
+                                    <option>Loading...</option>
+                                </select>
+                                <button id="delete-chat-btn-b" class="flex-shrink-0 px-3 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Delete Selected Chat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 4a1 1 0 100 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- History B -->
+                            <div id="chat-history-b" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto flex flex-col gap-4">
+                                <!-- Messages for B -->
+                            </div>
+                            <!-- NEW: Image Preview B -->
+                            <div id="chat-image-preview-b" class="hidden relative w-24 h-24 mb-2">
+                                <img id="preview-img-b" src="" class="w-full h-full object-cover rounded-lg border border-gray-600">
+                                <button id="remove-img-btn-b" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-0 w-6 h-6 flex items-center justify-center text-lg font-bold leading-none focus:outline-none">&times;</button>
+                            </div>
+                            <!-- Input B -->
+                            <div class="flex gap-2">
+                                <input id="chat-input-b" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Type message for Panel B...">
+                                <!-- NEW: Hidden file input -->
+                                <input type="file" id="chat-file-input-b" class="hidden" accept="image/*">
+                                <!-- NEW: Image attach button -->
+                                <button id="chat-attach-btn-b" class="px-4 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Attach Image">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <!-- NEW: Clear Chat Button B -->
+                                <button id="chat-clear-btn-b" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button id="chat-send-btn-b" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800">Send</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
             </div>
-             <!-- File Drop Zone - now accepts images -->
-            <div id="dropZone" class="drop-zone">
-                <span class="drop-zone__prompt" id="dropZonePrompt">Drag & drop a file here or click to select a file (.txt, .csv, .json)</span>
-                <input type="file" id="fileInput" class="drop-zone__input" accept=".txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp">
-            </div>
-            <!-- Textarea will be hidden/shown by JS -->
-            <textarea id="inputText" placeholder="Your file content, pasted text, or Base64 string will appear here..."></textarea>
+
+            <!-- Analysis Panel (Default Hidden) -->
+            <div id="panel-analysis" role="tabpanel" aria-labelledby="tab-analysis" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    
+                    <!-- START: Moved Configuration Section -->
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuration & Analysis Setup</h2>
             
-            <!-- New Image Preview Area -->
-            <div id="imagePreview">
-                <img id="previewImageTag" src="" alt="Image Preview">
+                    <!-- CORS Warning -->
+                    <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4" role="alert">
+                        <strong class="font-bold">Important!</strong>
+                        <span class="block sm:inline">For this client to work, you must start your Ollama server with the `OLLAMA_ORIGINS=*` environment variable. (e.g., `OLLAMA_ORIGINS='*' ollama serve`)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="ollama-endpoint" class="block text-sm font-medium text-gray-300 mb-2">Ollama API Endpoint</label>
+                            <input type="text" id="ollama-endpoint" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" value="http://localhost:11434">
+                        </div>
+                        <div>
+                            <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Default Model</label>
+                            <select id="model-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                <option value="" disabled>Loading models...</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Used for Analysis & as default for new chats.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-start">
+                        <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                            Test Connection & Reload Models
+                        </button>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="system-prompt" class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt (Optional)</label>
+                        <textarea id="system-prompt" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful assistant. (Used for Analysis & as default for new chats)"></textarea>
+                    </div>
+                    
+                    <div id="connection-status" class="mt-4 text-sm"></div>
+                    <!-- END: Moved Configuration Section -->
+                    
+                    <!-- Divider -->
+                    <hr class="border-t border-gray-700 my-6">
+
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Text to Analyze</h2>
+                    <div class="flex flex-col gap-4">
+                        <!-- Input Text -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="analysis-input" class="block text-sm font-medium text-gray-300">Text to Analyze</label>
+                                <button id="copy-input-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
+                            </div>
+                            <textarea id="analysis-input" rows="8" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your text here..."></textarea>
+                        </div>
+        
+                        <!-- Analyze Button -->
+                        <button id="analyze-btn" class="w-full sm:w-auto self-center px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                            Analyze Text
+                        </button>
+        
+                        <!-- Output Text -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="analysis-output" class="block text-sm font-medium text-gray-300">Analysis Result</label>
+                                <button id="copy-output-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
+                            </div>
+                            <textarea id="analysis-output" rows="8" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Analysis will appear here..." readonly></textarea>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
 
-        <div class="options">
-             <input type="checkbox" id="removeDelimiterCheckbox">
-             <label for="removeDelimiterCheckbox">Remove the delimiter from the result</label>
-        </div>
-        
-        <div class="button-group">
-            <!-- New Base64 Button -->
-            <button onclick="runBase64Tool()" class="octonary-button">Run Base64 Tool</button>
-            <!-- Existing Buttons -->
-            <button onclick="addNewLines()" class="primary-button">Convert Text</button>
-            <button onclick="validateJson()" class="secondary-button">Validate JSON</button>
-            <button onclick="formatJson()" class="tertiary-button">Format JSON</button>
-            <button onclick="anonymizeAwsArns()" class="quaternary-button">Anonymize account ARNs</button>
-            <button onclick="anonymizeAwsBuckets()" class="quinary-button">Anonymize Buckets ARNs</button>
-            <button onclick="anonymizeAwsRoles()" class="senary-button">Anonymize Role ARNs</button>
-            <button onclick="extractAwsResources()" class="septenary-button">Extract AWS Infra, CLI & IDs</button>
-            <!-- New AWS Request ID Button -->
-            <!-- <button onclick="extractAwsRequestIds()" class="nonary-button">Extract AWS Request IDs</button> --> <!-- This button is now merged -->
-        </div>
-        
-        <p id="jsonValidationResult" class="validation-message"></p>
-        
-        <div id="output">
-             <div class="label-group">
-                <h2>Result:</h2>
-                <div class="result-controls">
-                     <button onclick="copyResult(this)" class="utility-button">Copy</button>
-                     <div class="download-controls">
-                        <select id="downloadFormat" onchange="toggleXmlOptions()">
-                            <option value="txt">.txt</option>
-                            <option value="csv">.csv</option>
-                            <option value="json">.json</option>
-                            <option value="xml">.xml</option>
-                        </select>
-                        <button onclick="downloadResult()" class="utility-button">Download</button>
-                     </div>
-                </div>
-            </div>
-             <div id="xmlOptions">
-                <label for="xmlRoot">XML Root Tag:</label>
-                <input type="text" id="xmlRoot" placeholder="e.g., data">
-                <label for="xmlChild">XML Child Tag (for each line):</label>
-                <input type="text" id="xmlChild" placeholder="e.g., item">
-            </div>
-            <pre id="outputText">Your formatted text will appear here.</pre>
-        </div>
     </div>
 
     <script>
-        // --- Global Element References ---
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const inputTextarea = document.getElementById('inputText');
-        const outputTextarea = document.getElementById('outputText');
-        const inputLabel = document.getElementById('inputLabel');
-        const dropZonePrompt = document.getElementById('dropZonePrompt');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImageTag = document.getElementById('previewImageTag');
-        const jsonValidationResult = document.getElementById('jsonValidationResult');
-        
-        // --- Page Load Initializer ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Set initial state
-            updateToolMode();
-        });
+            // --- Storage Keys ---
+            const STORAGE_KEY_ENDPOINT = 'ollama_endpoint';
+            const STORAGE_KEY_MODEL = 'ollama_model';
+            const STORAGE_KEY_SYSTEM_PROMPT = 'ollama_system_prompt';
+            const STORAGE_KEY_ANALYSIS_INPUT = 'ollama_analysis_input';
+            const STORAGE_KEY_CHAT_SESSIONS = 'ollama_chat_sessions';
+            const STORAGE_KEY_ACTIVE_CHAT_A = 'ollama_active_chat_a';
+            const STORAGE_KEY_ACTIVE_CHAT_B = 'ollama_active_chat_b';
+
+            // --- DOM Elements ---
+            const ollamaEndpoint = document.getElementById('ollama-endpoint');
+            const modelSelect = document.getElementById('model-select');
+            const connectionStatus = document.getElementById('connection-status');
+            const systemPrompt = document.getElementById('system-prompt');
+            const testConnectionBtn = document.getElementById('test-connection-btn'); // <-- NEW
+
+            // Analysis Elements
+            const analysisInput = document.getElementById('analysis-input');
+            const analysisOutput = document.getElementById('analysis-output');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const copyInputBtn = document.getElementById('copy-input-btn');
+            const copyOutputBtn = document.getElementById('copy-output-btn');
+
+            // --- Chat Elements (Panel A) ---
+            const chatSelectA = document.getElementById('chat-select-a');
+            const deleteChatBtnA = document.getElementById('delete-chat-btn-a');
+            const chatHistoryA = document.getElementById('chat-history-a');
+            const chatInputA = document.getElementById('chat-input-a');
+            const chatSendBtnA = document.getElementById('chat-send-btn-a');
+            const chatClearBtnA = document.getElementById('chat-clear-btn-a'); // <-- NEW
+            const chatSystemPromptA = document.getElementById('chat-system-prompt-a');
+            const savePromptBtnA = document.getElementById('save-prompt-btn-a'); // <-- NEW
+            // NEW: Image Elements A
+            const chatAttachBtnA = document.getElementById('chat-attach-btn-a');
+            const chatFileInputA = document.getElementById('chat-file-input-a');
+            const chatImagePreviewA = document.getElementById('chat-image-preview-a');
+            const previewImgA = document.getElementById('preview-img-a');
+            const removeImgBtnA = document.getElementById('remove-img-btn-a');
+            const chatModelSelectA = document.getElementById('chat-model-select-a'); // <-- NEW
 
 
-        // --- Drag and Drop & File Input Logic ---
-        dropZone.addEventListener('click', () => fileInput.click());
+            // --- Chat Elements (Panel B) ---
+            const chatSelectB = document.getElementById('chat-select-b');
+            const deleteChatBtnB = document.getElementById('delete-chat-btn-b');
+            const chatHistoryB = document.getElementById('chat-history-b');
+            const chatInputB = document.getElementById('chat-input-b');
+            const chatSendBtnB = document.getElementById('chat-send-btn-b');
+            const chatClearBtnB = document.getElementById('chat-clear-btn-b'); // <-- NEW
+            const chatSystemPromptB = document.getElementById('chat-system-prompt-b');
+            const savePromptBtnB = document.getElementById('save-prompt-btn-b'); // <-- NEW
+            // NEW: Image Elements B
+            const chatAttachBtnB = document.getElementById('chat-attach-btn-b');
+            const chatFileInputB = document.getElementById('chat-file-input-b');
+            const chatImagePreviewB = document.getElementById('chat-image-preview-b');
+            const previewImgB = document.getElementById('preview-img-b');
+            const removeImgBtnB = document.getElementById('remove-img-btn-b');
+            const chatModelSelectB = document.getElementById('chat-model-select-b'); // <-- NEW
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                handleFile(e.target.files[0]);
+            // --- Global Chat Elements ---
+            const newChatBtn = document.getElementById('new-chat-btn');
+
+            // Tab Elements
+            const tabChat = document.getElementById('tab-chat');
+            const tabAnalysis = document.getElementById('tab-analysis');
+            const panelChat = document.getElementById('panel-chat');
+            const panelAnalysis = document.getElementById('panel-analysis');
+
+            // --- State ---
+            let allChats = {}; // Object to store all chat sessions
+            let activeChatIdA = null;
+            let activeChatIdB = null;
+            let savedModel = localStorage.getItem(STORAGE_KEY_MODEL);
+            // NEW: Staged images state
+            let stagedImageA = null; // Will store { dataUrl, base64 }
+            let stagedImageB = null; // Will store { dataUrl, base64 }
+
+            // --- Load Saved Values ---
+            const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
+            if (savedEndpoint) ollamaEndpoint.value = savedEndpoint;
+
+            const savedSystemPrompt = localStorage.getItem(STORAGE_KEY_SYSTEM_PROMPT);
+            if (savedSystemPrompt) systemPrompt.value = savedSystemPrompt;
+
+            const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
+            if (savedAnalysisInput) analysisInput.value = savedAnalysisInput;
+
+            // --- Helper Functions ---
+
+            function copyToClipboard(text, buttonEl) {
+                if (!text) return;
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = 0;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = buttonEl.textContent;
+                    buttonEl.textContent = 'Copied!';
+                    setTimeout(() => { buttonEl.textContent = originalText; }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    showMessage('Failed to copy text.', 'error');
+                }
+                document.body.removeChild(textarea);
             }
-        });
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-zone--over'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-zone--over'), false);
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const file = dt.files[0];
-            handleFile(file);
-        }, false);
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function handleFile(file) {
-            const reader = new FileReader();
-            const selectedTool = document.querySelector('input[name="base64tool"]:checked')?.value;
-
-            if (selectedTool === 'imgEncode' && file.type.startsWith('image/')) {
-                reader.onload = (e) => {
-                    // Show image in preview
-                    previewImageTag.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                    // Put the Base64 string in the output
-                    outputTextarea.textContent = e.target.result;
-                    jsonValidationResult.style.display = 'none';
-                };
-                reader.readAsDataURL(file); // Reads as Base64 Data URL
-            } else {
-                // Default behavior: read as text
-                reader.onload = (e) => {
-                    inputTextarea.value = e.target.result;
-                };
-                reader.readAsText(file);
+            function showMessage(message, type = 'error') {
+                connectionStatus.textContent = message;
+                connectionStatus.classList.remove(type === 'error' ? 'text-green-400' : 'text-red-400');
+                connectionStatus.classList.add(type === 'error' ? 'text-red-400' : 'text-green-400');
             }
-        }
 
-        // --- New Base64 Tool Logic ---
-        function getSelectedTool() {
-            const selected = document.querySelector('input[name="base64tool"]:checked');
-            return selected ? selected.value : null;
-        }
+            /**
+             * Adds a message bubble to a specific chat history UI.
+             * @param {HTMLElement} historyElement - The chat history element (e.g., chatHistoryA).
+             * @param {'user' | 'model'} role - Who sent the message.
+             * @param {string} content - The text content of the message.
+             * @param {string | null} dataUrl - The data URL of an image to display.
+             * @returns {HTMLElement} - The p element created for the message.
+             */
+            function addMessageToChatUI(historyElement, role, content, dataUrl = null) {
+                const messageWrapper = document.createElement('div');
+                const messageBubble = document.createElement('div');
+                const messageContent = document.createElement('p');
+                
+                messageWrapper.classList.add('flex');
+                messageBubble.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'sm:max-w-md');
+                messageContent.classList.add('text-sm');
 
-        function updateToolMode() {
-            const selectedTool = getSelectedTool();
+                if (role === 'user') {
+                    messageWrapper.classList.add('justify-end');
+                    messageBubble.classList.add('bg-gray-700', 'text-gray-100');
+                } else {
+                    messageWrapper.classList.add('justify-start');
+                    messageBubble.classList.add('bg-cyan-800', 'text-cyan-100');
+                }
+
+                // NEW: Add image if it exists
+                if (dataUrl) {
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.classList.add('w-full', 'max-w-xs', 'rounded-lg', 'mb-2');
+                    messageBubble.appendChild(img);
+                }
+
+                // Add text content if it exists, or if it's a model bubble (for streaming)
+                if (content) {
+                    messageContent.textContent = content;
+                    messageBubble.appendChild(messageContent);
+                } else if (role === 'model') {
+                    messageContent.textContent = '...'; // For '...' typing bubble
+                    messageBubble.appendChild(messageContent);
+                }
+                // If content is empty but dataUrl exists, the <p> is just not added. This is correct.
+
+                messageWrapper.appendChild(messageBubble);
+                historyElement.appendChild(messageWrapper);
+                historyElement.scrollTop = historyElement.scrollHeight;
+
+                return messageContent; // Return the p tag for streaming updates
+            }
+
+
+            // --- NEW: Image Handling Functions ---
             
-            // Default state
-            inputTextarea.style.display = 'block';
-            dropZone.classList.remove('hidden'); // <-- CHANGED: Show drop zone by default
-            imagePreview.style.display = 'none';
-            inputLabel.textContent = 'Input Text (for Text/JSON tools):';
-            dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
-            fileInput.accept = '.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp'; // <-- Accept all types by default
+            /**
+             * Handles file selection from the input.
+             * @param {'a' | 'b'} panelSuffix - The panel to handle the upload for.
+             * @param {Event} event - The file input change event.
+             */
+            function handleImageUpload(panelSuffix, event) {
+                const file = event.target.files[0];
+                if (!file || !file.type.startsWith('image/')) {
+                    return;
+                }
 
-            switch (selectedTool) {
-                case 'textEncode':
-                    inputLabel.textContent = 'Text to Encode:';
-                    dropZonePrompt.textContent = 'Drag & drop a file or click to select (.txt, .csv, .json)';
-                    fileInput.accept = '.txt,.csv,.json';
-                    break;
-                case 'textDecode':
-                    inputLabel.textContent = 'Base64 to Decode:';
-                    dropZonePrompt.textContent = 'Drag & drop a file or click to select (.txt)';
-                    fileInput.accept = '.txt';
-                    break;
-                case 'imgEncode':
-                    inputTextarea.style.display = 'none';
-                    dropZone.classList.remove('hidden');
-                    inputLabel.textContent = 'Image to Encode:';
-                    dropZonePrompt.textContent = 'Drag & drop an image or click to select (.png, .jpg, .gif, .webp)';
-                    fileInput.accept = '.png,.jpg,.jpeg,.gif,.webp';
-                    break;
-                case 'imgDecode':
-                    inputLabel.textContent = 'Base64 to Decode:';
-                    imagePreview.style.display = 'block';
-                    dropZone.classList.add('hidden'); // <-- ADDED: Hide drop zone for this mode
-                    break;
-                default: // Default case (no tool selected)
-                    inputLabel.textContent = 'Input Text (for Text/JSON tools):';
-                    dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
-                    fileInput.accept = '.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp';
-            }
-        }
-
-        function runBase64Tool() {
-            const selectedTool = getSelectedTool();
-            const input = inputTextarea.value;
-            jsonValidationResult.style.display = 'none';
-            
-            if (!selectedTool) {
-                outputTextarea.textContent = 'Error: Please select a Base64 tool first.';
-                return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target.result;
+                    const base64 = dataUrl.split(',')[1];
+                    
+                    if (panelSuffix === 'a') {
+                        stagedImageA = { dataUrl, base64 };
+                        previewImgA.src = dataUrl;
+                        chatImagePreviewA.classList.remove('hidden');
+                    } else {
+                        stagedImageB = { dataUrl, base64 };
+                        previewImgB.src = dataUrl;
+                        chatImagePreviewB.classList.remove('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+                
+                // Clear the file input's value
+                event.target.value = null;
             }
 
-            try {
-                switch (selectedTool) {
-                    case 'textEncode':
-                        if (!input) {
-                            outputTextarea.textContent = 'Error: No text provided to encode.';
-                            return;
+            /**
+             * Clears the staged image for a specific panel.
+             * @param {'a' | 'b'} panelSuffix - The panel to clear.
+             */
+            function clearStagedImage(panelSuffix) {
+                if (panelSuffix === 'a') {
+                    stagedImageA = null;
+                    previewImgA.src = '';
+                    chatImagePreviewA.classList.add('hidden');
+                    chatFileInputA.value = null; // Clear file input
+                } else {
+                    stagedImageB = null;
+                    previewImgB.src = '';
+                    chatImagePreviewB.classList.add('hidden');
+                    chatFileInputB.value = null; // Clear file input
+                }
+            }
+
+
+            // --- Chat Session Management Functions ---
+
+            /**
+             * Loads all chats from localStorage and initializes the chat panels.
+             */
+            function loadChats() {
+                const savedChats = localStorage.getItem(STORAGE_KEY_CHAT_SESSIONS);
+                allChats = savedChats ? JSON.parse(savedChats) : {};
+                
+                activeChatIdA = localStorage.getItem(STORAGE_KEY_ACTIVE_CHAT_A);
+                activeChatIdB = localStorage.getItem(STORAGE_KEY_ACTIVE_CHAT_B);
+
+                if (Object.keys(allChats).length === 0) {
+                    // Create two default chats if none exist
+                    const newChatA = createNewChat(false); // don't save yet
+                    const newChatB = createNewChat(false); // don't save yet
+                    activeChatIdA = newChatA.id;
+                    activeChatIdB = newChatB.id;
+                    saveChats();
+                }
+
+                // Ensure active chat IDs are valid
+                if (!allChats[activeChatIdA]) {
+                    activeChatIdA = Object.keys(allChats)[0];
+                    localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_A, activeChatIdA);
+                }
+                if (!allChats[activeChatIdB]) {
+                    activeChatIdB = Object.keys(allChats)[0] || activeChatIdA; // Default to first or A's chat
+                    localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_B, activeChatIdB);
+                }
+
+                renderChatListDropdowns();
+                loadChatHistory('a', activeChatIdA);
+                loadChatHistory('b', activeChatIdB);
+            }
+
+            /**
+             * Saves all chat sessions and active IDs to localStorage.
+             */
+            function saveChats() {
+                localStorage.setItem(STORAGE_KEY_CHAT_SESSIONS, JSON.stringify(allChats));
+                localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_A, activeChatIdA);
+                localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_B, activeChatIdB);
+            }
+
+            /**
+             * Populates both chat session dropdowns with all available chats.
+             */
+            function renderChatListDropdowns() {
+                const selects = [chatSelectA, chatSelectB];
+                const sortedChatIds = Object.keys(allChats).sort((a, b) => (allChats[b].createdAt || 0) - (allChats[a].createdAt || 0));
+                
+                selects.forEach(select => {
+                    select.innerHTML = ''; // Clear options
+                    for (const chatId of sortedChatIds) {
+                        const chat = allChats[chatId];
+                        const option = document.createElement('option');
+                        option.value = chatId;
+                        // Use first user message as name, or a default
+                        let chatName = chat.name;
+                        if (!chatName && chat.messages.length > 0) {
+                             const firstUserMsg = chat.messages.find(m => m.role === 'user');
+                             if (firstUserMsg && firstUserMsg.content) {
+                                chatName = `Chat: ${firstUserMsg.content.substring(0, 30)}...`;
+                             }
                         }
-                        // Use btoa() to encode
-                        // Handle Unicode characters correctly
-                        const utf8Bytes = new TextEncoder().encode(input);
-                        const base64String = btoa(String.fromCharCode.apply(null, utf8Bytes));
-                        outputTextarea.textContent = base64String;
-                        break;
+                        if (!chatName) chatName = `Chat ${chatId.substring(0, 8)}`;
+                        chat.name = chatName; // Save back to object
                         
-                    case 'textDecode':
-                        if (!input) {
-                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
-                            return;
-                        }
-                        // Use atob() to decode
-                        const decodedBytes = atob(input).split('').map(c => c.charCodeAt(0));
-                        const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
-                        outputTextarea.textContent = decodedText;
-                        break;
+                        option.textContent = chatName;
+                        select.appendChild(option);
+                    }
+                });
 
-                    case 'imgEncode':
-                        // This is handled by handleFile()
-                        // This button click is a bit redundant, but we'll check
-                        if (previewImageTag.src && outputTextarea.textContent.startsWith('data:image')) {
-                             jsonValidationResult.textContent = 'Success: Image encoded. Base64 string is in the result box.';
-                             jsonValidationResult.className = 'validation-message valid';
-                        } else {
-                            outputTextarea.textContent = 'Error: Please drop or select an image file using the area above.';
-                        }
-                        break;
+                chatSelectA.value = activeChatIdA;
+                chatSelectB.value = activeChatIdB;
+            }
 
-                    case 'imgDecode':
-                        if (!input) {
-                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
-                            return;
-                        }
-                        // Check if it's a valid Data URL
-                        if (input.startsWith('data:image')) {
-                            previewImageTag.src = input;
-                            imagePreview.style.display = 'block';
-                            outputTextarea.textContent = 'Preview updated. You can copy the Base64 string from the input.';
-                        } else {
-                            outputTextarea.textContent = 'Error: Invalid Base64 string. Expected format: "data:image/png;base64,..."';
-                        }
-                        break;
+            /**
+             * Loads and displays the messages for a given chat panel.
+             * @param {'a' | 'b'} panelSuffix - The panel to load history for.
+             * @param {string} chatId - The ID of the chat to load.
+             */
+            function loadChatHistory(panelSuffix, chatId) {
+                const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
+                const systemPromptEl = (panelSuffix === 'a') ? chatSystemPromptA : chatSystemPromptB;
+                const modelSelectEl = (panelSuffix === 'a') ? chatModelSelectA : chatModelSelectB; // <-- NEW
+                historyEl.innerHTML = '';
+                const chat = allChats[chatId];
+
+                if (!chat) {
+                    console.error(`Chat not found: ${chatId}`);
+                    const firstChatId = Object.keys(allChats)[0];
+                    if (firstChatId) {
+                        switchChat(panelSuffix, firstChatId);
+                    }
+                    return;
                 }
-            } catch (error) {
-                outputTextarea.textContent = 'Error: Failed to process. ' + error.message;
-                if (selectedTool === 'textDecode') {
-                     outputTextarea.textContent = 'Error: Invalid Base64 string. ' + error.message;
-                }
-            }
-        }
 
+                systemPromptEl.value = chat.systemPrompt || '';
 
-        // --- Epoch Conversion Logic ---
-        function getEpochDate() {
-            const epochInput = document.getElementById('epochInput').value.trim();
-            // Clear any previous JSON validation messages
-            jsonValidationResult.style.display = 'none';
-
-            if (!epochInput) {
-                outputTextarea.textContent = "Error: Please enter an Epoch timestamp.";
-                return null;
-            }
-
-            let timestamp = Number(epochInput);
-
-            if (isNaN(timestamp)) {
-                outputTextarea.textContent = "Error: Invalid timestamp. Please enter numbers only.";
-                return null;
-            }
-
-            if (timestamp < 3000000000) {
-                timestamp *= 1000; // Convert seconds to milliseconds
-            }
-
-            return new Date(timestamp);
-        }
-
-        function convertEpochToGmtMinus6() {
-            const date = getEpochDate();
-            if (!date) return; 
-
-            const options = {
-                timeZone: 'Etc/GMT+6', 
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false,
-                timeZoneName: 'short'
-            };
-
-            try {
-                const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-                outputTextarea.textContent = `GMT-6: ${formattedDate}`;
-            } catch (e) {
-                outputTextarea.textContent = `Error formatting date: ${e.message}`;
-            }
-        }
-
-        function convertEpochToUtc() {
-            const date = getEpochDate();
-            if (!date) return; 
-            outputTextarea.textContent = `UTC: ${date.toUTCString()}`;
-        }
-
-
-        // --- Core Tool Logic ---
-        function addNewLines() {
-            const delimiter = document.getElementById('delimiter').value;
-            const inputText = inputTextarea.value;
-            const shouldRemoveDelimiter = document.getElementById('removeDelimiterCheckbox').checked;
-            
-            jsonValidationResult.style.display = 'none';
-
-            if (!delimiter) {
-                outputTextarea.textContent = "Error: Please enter a delimiter to convert text.";
-                return;
-            }
-
-            const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(escapedDelimiter, 'g');
-            const replacement = shouldRemoveDelimiter ? '\n' : delimiter + '\n';
-            const formattedText = inputText.replace(regex, replacement);
-            outputTextarea.textContent = formattedText;
-        }
-        
-        function validateJson() {
-            const inputText = inputTextarea.value;
-            outputTextarea.textContent = "Your formatted text will appear here.";
-            
-            if (!inputText.trim()) {
-                jsonValidationResult.textContent = 'Input is empty. Cannot validate.';
-                jsonValidationResult.className = 'validation-message invalid';
-                return;
-            }
-
-            try {
-                JSON.parse(inputText);
-                jsonValidationResult.textContent = 'Success: Valid JSON structure!';
-                jsonValidationResult.className = 'validation-message valid';
-            } catch (error) {
-                jsonValidationResult.textContent = 'Error: Invalid JSON. ' + error.message;
-                jsonValidationResult.className = 'validation-message invalid';
-            }
-        }
-        
-        function formatJson() {
-            const inputText = inputTextarea.value;
-            outputTextarea.textContent = "Your formatted text will appear here.";
-
-            if (!inputText.trim()) {
-                jsonValidationResult.textContent = 'Input is empty. Cannot format.';
-                jsonValidationResult.className = 'validation-message invalid';
-                return;
-            }
-
-            try {
-                const jsonObject = JSON.parse(inputText);
-                const formattedJson = JSON.stringify(jsonObject, null, 2); 
-                outputTextarea.textContent = formattedJson;
-                jsonValidationResult.textContent = 'Success: JSON formatted!';
-                jsonValidationResult.className = 'validation-message valid';
-            } catch (error) {
-                jsonValidationResult.textContent = 'Error: Invalid JSON. Cannot format. ' + error.message;
-                jsonValidationResult.className = 'validation-message invalid';
-            }
-        }
-
-        // --- ARN Anonymizer Function ---
-        function anonymizeAwsArns() {
-            const inputText = inputTextarea.value;
-            jsonValidationResult.style.display = 'none';
-
-            if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
-                return;
-            }
-
-            const arnRegex = /(arn:[^:]+:[^:]+:[^:]+:)(\d{12})(:.*)/g;
-            const accountMap = new Map();
-            let accountCounter = 1;
-
-            const anonymizedText = inputText.replace(arnRegex, (match, prefix, accountId, suffix) => {
-                let newId;
-                if (accountMap.has(accountId)) {
-                    newId = accountMap.get(accountId);
+                // <-- NEW: Load chat-specific model
+                if (chat.model) {
+                    modelSelectEl.value = chat.model;
                 } else {
-                    newId = '09999999' + accountCounter;
-                    accountMap.set(accountId, newId);
-                    accountCounter++;
+                    // Default to global model if chat has no model saved
+                    modelSelectEl.value = modelSelect.value;
+                    chat.model = modelSelectEl.value; // Save default back to chat
                 }
-                return prefix + newId + suffix;
-            });
 
-            outputTextarea.textContent = anonymizedText;
-        }
-        
-        // --- Bucket Anonymizer Function ---
-        function anonymizeAwsBuckets() {
-            const inputText = inputTextarea.value;
-            jsonValidationResult.style.display = 'none';
-        
-            if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
-                return;
-            }
-        
-            const bucketArnRegex = /(arn:[^:]+:s3:::)([^/]+)(.*)/g;
-            const bucketMap = new Map();
-            let bucketCounter = 1;
-        
-            const anonymizedText = inputText.replace(bucketArnRegex, (match, prefix, bucketName, suffix) => {
-                let newId;
-                if (bucketMap.has(bucketName)) {
-                    newId = bucketMap.get(bucketName);
+                if (chat.messages.length > 0) {
+                    chat.messages.forEach(msg => {
+                        // NEW: Re-create dataUrl from saved base64 for display
+                        let dataUrl = null;
+                        if (msg.role === 'user' && msg.images && msg.images[0]) {
+                            // Assume JPEG/PNG. This is a safe way to display base64 data.
+                            dataUrl = `data:image/jpeg;base64,${msg.images[0]}`;
+                        }
+                        addMessageToChatUI(historyEl, msg.role, msg.content, dataUrl);
+                    });
                 } else {
-                    newId = 'bucket999' + bucketCounter;
-                    bucketMap.set(bucketName, newId);
-                    bucketCounter++;
+                    addMessageToChatUI(historyEl, 'model', 'New chat. Say hello!', null);
                 }
-                return prefix + newId + suffix;
-            });
-        
-            outputTextarea.textContent = anonymizedText;
-        }
-
-        // --- Role Anonymizer Function ---
-        function anonymizeAwsRoles() {
-            const inputText = inputTextarea.value;
-            jsonValidationResult.style.display = 'none';
-        
-            if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
-                return;
+                historyEl.scrollTop = historyEl.scrollHeight;
             }
-        
-            const roleArnRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/)([\w\+\=\,\.\@\-\/]+)/g;
-            const roleMap = new Map();
-            let roleCounter = 1;
-        
-            const anonymizedText = inputText.replace(roleArnRegex, (match, prefix, roleName) => {
-                let newId;
-                if (roleMap.has(roleName)) {
-                    newId = roleMap.get(roleName);
+
+            /**
+             * Creates a new chat session.
+             * @param {boolean} doSave - Whether to save to localStorage immediately.
+             * @returns {object} The new chat object.
+             */
+            function createNewChat(doSave = true) {
+                const newChatId = crypto.randomUUID();
+                const newChat = {
+                    id: newChatId,
+                    name: `New Chat ${new Date().toLocaleTimeString()}`,
+                    messages: [],
+                    createdAt: Date.now(),
+                    systemPrompt: "",
+                    model: modelSelect.value // <-- NEW: Default to global model
+                };
+                allChats[newChatId] = newChat;
+                
+                if (doSave) {
+                    saveChats();
+                    renderChatListDropdowns();
+                }
+                return newChat;
+            }
+
+            /**
+             * Deletes a chat session by its ID.
+             * @param {string} chatIdToDelete - The ID of the chat to delete.
+             */
+            function deleteChat(chatIdToDelete) {
+                if (Object.keys(allChats).length <= 1) {
+                    showMessage('Cannot delete the last chat session.', 'error');
+                    return;
+                }
+
+                delete allChats[chatIdToDelete];
+                
+                const fallbackChatId = Object.keys(allChats)[0];
+
+                if (activeChatIdA === chatIdToDelete) {
+                    switchChat('a', fallbackChatId);
+                }
+                if (activeChatIdB === chatIdToDelete) {
+                    switchChat('b', fallbackChatId);
+                }
+
+                saveChats();
+                renderChatListDropdowns();
+                showMessage('Chat session deleted.', 'success');
+            }
+
+            /**
+             * Switches the active chat for a specific panel.
+             * @param {'a' | 'b'} panelSuffix - The panel to switch.
+             * @param {string} newChatId - The ID of the new chat.
+             */
+            function switchChat(panelSuffix, newChatId) {
+                if (panelSuffix === 'a') {
+                    activeChatIdA = newChatId;
                 } else {
-                    newId = 'role999' + roleCounter;
-                    roleMap.set(roleName, newId);
-                    roleCounter++;
+                    activeChatIdB = newChatId;
                 }
-                return prefix + newId;
-            });
-        
-            outputTextarea.textContent = anonymizedText;
-        }
-
-        // --- AWS Resource Extractor Function ---
-        function extractAwsResources() {
-            const inputText = inputTextarea.value;
-            jsonValidationResult.style.display = 'none';
-
-            if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot extract resources.";
-                return;
+                saveChats();
+                loadChatHistory(panelSuffix, newChatId);
             }
 
-            // --- Helper function to check for non-printable chars (excluding tab, newline, cr) ---
-            const isPrintable = (text) => !/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text);
-
-            // --- Base64 Detection ---
-            const base64Regex = /\b[A-Za-z0-9+/=]{20,}\b/g;
-            const decodedBase64Map = new Map();
-            let b64Match;
-            while ((b64Match = base64Regex.exec(inputText)) !== null) {
-                const potentialB64 = b64Match[0];
-                if (potentialB64.length % 4 !== 0 || !/^[A-Za-z0-9+/]*=?=?$/.test(potentialB64)) {
-                    continue; // Not a likely Base64 string
+            /**
+             * Clears the message history for the active chat in a given panel.
+             * @param {'a' | 'b'} panelSuffix - The panel to clear.
+             */
+            function clearChatHistory(panelSuffix) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                if (!activeChatId || !allChats[activeChatId]) {
+                    showMessage(`No active chat to clear for Panel ${panelSuffix}.`, 'error');
+                    return;
                 }
-                if (decodedBase64Map.has(potentialB64)) continue; // Already processed
+
+                const chat = allChats[activeChatId];
+                chat.messages = []; // Clear the messages
+                saveChats(); // Save the change
+                loadChatHistory(panelSuffix, activeChatId); // Reload the UI
+                showMessage(`Chat history cleared for Panel ${panelSuffix}.`, 'success');
+            }
+
+
+            // --- Tab Logic ---
+            const activeTabClasses = ['border-cyan-500', 'text-cyan-400'];
+            const inactiveTabClasses = ['border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300'];
+
+            function switchTab(newTab, newPanel) {
+                // Deactivate Chat
+                tabChat.setAttribute('aria-selected', 'false');
+                tabChat.classList.remove(...activeTabClasses);
+                tabChat.classList.add(...inactiveTabClasses);
+                panelChat.classList.add('hidden');
+
+                // Deactivate Analysis
+                tabAnalysis.setAttribute('aria-selected', 'false');
+                tabAnalysis.classList.remove(...activeTabClasses);
+                tabAnalysis.classList.add(...inactiveTabClasses);
+                panelAnalysis.classList.add('hidden');
+
+                // Activate New Tab/Panel
+                newTab.setAttribute('aria-selected', 'true');
+                newTab.classList.add(...activeTabClasses);
+                newTab.classList.remove(...inactiveTabClasses);
+                newPanel.classList.remove('hidden');
+            }
+
+            tabChat.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabChat, panelChat); });
+            tabAnalysis.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabAnalysis, panelAnalysis); });
+
+
+            /**
+             * Generic function to call the Ollama API.
+             */
+            async function callOllama(apiPath, body, onStreamChunk, onStreamEnd) {
+                const endpoint = ollamaEndpoint.value;
+                if (!endpoint) {
+                    showMessage('Ollama API endpoint is not set.', 'error');
+                    return null;
+                }
+                if (!body.model) {
+                    showMessage('No model selected. Check Configuration.', 'error');
+                    return null;
+                }
+
+                const url = new URL(endpoint);
+                url.pathname = apiPath;
 
                 try {
-                    const decodedBytes = atob(potentialB64).split('').map(c => c.charCodeAt(0));
-                    const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
-                    
-                    if (isPrintable(decodedText) && decodedText.trim().length > 0) { 
-                        decodedBase64Map.set(potentialB64, decodedText);
+                    const response = await fetch(url.toString(), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ error: `HTTP error! status: ${response.status}` }));
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                     }
-                } catch (e) {
-                    // Not valid Base64, ignore
+
+                    // Handle STREAMING response
+                    if (body.stream && response.body) {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+                        let buffer = '';
+                        let fullResponse = '';
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop(); // Keep potential partial line
+
+                            for (const line of lines) {
+                                if (line.trim() === '') continue;
+                                try {
+                                    const chunk = JSON.parse(line);
+                                    let contentChunk = '';
+                                    if (apiPath === '/api/chat') contentChunk = chunk.message?.content || '';
+                                    else contentChunk = chunk.response || '';
+
+                                    if (contentChunk) {
+                                        fullResponse += contentChunk;
+                                        if (onStreamChunk) onStreamChunk(contentChunk);
+                                    }
+                                    if (chunk.done) {
+                                        if (onStreamEnd) onStreamEnd(fullResponse);
+                                        return null; // Stream finished
+                                    }
+                                } catch (e) {
+                                    console.warn('Failed to parse stream line:', line, e);
+                                }
+                            }
+                        }
+                        if (onStreamEnd) onStreamEnd(fullResponse); // End of stream
+                        return null;
+                    }
+                    
+                    // Handle NON-STREAMING response
+                    return await response.json();
+
+                } catch (err) {
+                    console.error('Ollama API call failed:', err);
+                    let errorMessage = 'Failed to connect to Ollama. ';
+                    if (err.message.includes('Failed to fetch')) {
+                        errorMessage += 'Is the server running? Check CORS (OLLAMA_ORIGINS).';
+                    } else {
+                        errorMessage += err.message;
+                    }
+                    showMessage(errorMessage, 'error');
+                    return null;
                 }
             }
 
-            // --- Epoch Detection ---
-            // const epochRegex = /\b(\d{10}|\d{13})\b/g;
-            // const convertedEpochMap = new Map();
-            const lines = inputText.split('\n');
-            const epochRegex = /\b(\d{10}|\d{13})\b/g; // Regex to find *all* timestamps *within* a line
-            const convertedEpochList = []; // Use a list of objects
-            // Min date: 2001-01-01. Max date: 1 year in the future.
-            const minDate = new Date('2001-01-01T00:00:00Z').getTime();
-            const maxDate = new Date().getTime() + (1000 * 60 * 60 * 24 * 365); 
-            // let epochMatch; // Declared in loop
-            
-            lines.forEach(line => {
-                let epochMatch;
-                // Reset lastIndex for each new line because we are using exec() with the /g flag
-                epochRegex.lastIndex = 0; 
-                while ((epochMatch = epochRegex.exec(line)) !== null) {
-                    const tsString = epochMatch[0]; // The timestamp string (e.g., '1223324589738')
 
-                    // Avoid matching AWS Account IDs (12 digits)
-                    if (tsString.length === 12) continue; 
+            // --- Event Listeners ---
+
+            // 1. Analyze Button
+            analyzeBtn.addEventListener('click', async () => {
+                const prompt = analysisInput.value;
+                if (!prompt) return;
+
+                const model = modelSelect.value;
+                const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
+                const userSystemPrompt = systemPrompt.value.trim();
+                
+                analysisOutput.value = 'Analyzing...';
+                analysisOutput.classList.add('animate-pulse');
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'Analyzing...';
+                
+                const payload = {
+                    model: model,
+                    prompt: `Text:\n"""\n${prompt}\n"""\n\nAnalysis:`,
+                    system: userSystemPrompt || analysisSystemPrompt,
+                    stream: false 
+                };
+
+                const data = await callOllama('/api/generate', payload);
+
+                if (data && data.response) {
+                    analysisOutput.value = data.response.trim();
+                    showMessage(`Analysis complete with ${model}.`, 'success');
+                } else {
+                    analysisOutput.value = 'Error: Could not get analysis.';
+                }
+                
+                analysisOutput.classList.remove('animate-pulse');
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Text';
+            });
+
+            // 2. Chat Send Handlers (for both panels)
+            /**
+             * Handles sending a chat message for a specific panel.
+             * @param {'a' | 'b'} panelSuffix - The panel sending the message.
+             */
+            async function handleChatSend(panelSuffix) {
+                const inputEl = (panelSuffix === 'a') ? chatInputA : chatInputB;
+                const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
+                const sendBtnEl = (panelSuffix === 'a') ? chatSendBtnA : chatSendBtnB;
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                const stagedImage = (panelSuffix === 'a') ? stagedImageA : stagedImageB;
+                
+                const message = inputEl.value.trim();
+                if (!message && !stagedImage) return; // Don't send if empty
+
+                const globalSystemPrompt = systemPrompt.value.trim();
+                const chat = allChats[activeChatId];
+                
+                if (!chat) {
+                    showMessage(`Error: No active chat found for panel ${panelSuffix}.`, 'error');
+                    return;
+                }
+
+                const model = chat.model; // <-- NEW: Use chat-specific model
+                const localSystemPrompt = chat.systemPrompt ? chat.systemPrompt.trim() : '';
+                const finalSystemPrompt = localSystemPrompt || globalSystemPrompt;
+
+                // Add user message to UI
+                addMessageToChatUI(historyEl, 'user', message, stagedImage ? stagedImage.dataUrl : null);
+                
+                // Add user message to state (with API-ready base64)
+                const userMessage = { role: 'user', content: message };
+                if (stagedImage) {
+                    userMessage.images = [stagedImage.base64];
+                }
+                chat.messages.push(userMessage);
+                
+                // Clear input and staged image
+                inputEl.value = '';
+                clearStagedImage(panelSuffix);
+
+                // Add "typing" bubble
+                const typingBubble = addMessageToChatUI(historyEl, 'model', '...');
+                sendBtnEl.disabled = true;
+
+                // Prepare messages for API call
+                let messagesForApi = [...chat.messages];
+                if (finalSystemPrompt) {
+                    messagesForApi.unshift({ role: 'system', content: finalSystemPrompt });
+                }
+
+                const payload = {
+                    model: model,
+                    messages: messagesForApi,
+                    stream: true
+                };
+
+                let fullResponse = '';
+                const onStreamChunk = (chunk) => {
+                    fullResponse += chunk;
+                    typingBubble.textContent = fullResponse;
+                    historyEl.scrollTop = historyEl.scrollHeight;
+                };
+
+                const onStreamEnd = (finalResponse) => {
+                    typingBubble.classList.remove('animate-pulse');
+                    typingBubble.textContent = finalResponse;
                     
-                    const timestampNum = Number(tsString);
-                    let date;
-
-                    if (tsString.length === 10) {
-                        date = new Date(timestampNum * 1000); // seconds
-                    } else {
-                        date = new Date(timestampNum); // milliseconds
+                    // Add model response to state
+                    chat.messages.push({ role: 'assistant', content: finalResponse });
+                    
+                    // Update chat name if it's the first user message
+                    const userMessages = chat.messages.filter(m => m.role === 'user');
+                    if (userMessages.length === 1 && userMessages[0].content) {
+                        chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`;
+                        renderChatListDropdowns();
                     }
+                    saveChats(); // Save updated messages and name
+                    
+                    sendBtnEl.disabled = false;
+                    showMessage(`Chat response complete with ${model}.`, 'success');
+                };
+                
+                await callOllama('/api/chat', payload, onStreamChunk, onStreamEnd);
+            }
 
-                    if (date.getTime() >= minDate && date.getTime() <= maxDate) {
-                        convertedEpochList.push({
-                            line: line.trim(),
-                            timestamp: tsString,
-                            utcDate: date.toUTCString()
-                        });
-                    }
+            // --- Panel A Listeners ---
+            chatSendBtnA.addEventListener('click', () => handleChatSend('a'));
+            chatClearBtnA.addEventListener('click', () => clearChatHistory('a')); // <-- NEW
+            chatInputA.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleChatSend('a');
+                }
+            });
+            
+            // REMOVED old listener
+            // chatSystemPromptA.addEventListener('input', () => { ... });
+
+            // NEW click listener
+            savePromptBtnA.addEventListener('click', () => {
+                if (allChats[activeChatIdA]) {
+                    allChats[activeChatIdA].systemPrompt = chatSystemPromptA.value;
+                    saveChats();
+                    showMessage('Panel A system prompt saved.', 'success');
+                } else {
+                    showMessage('No active chat in Panel A.', 'error');
                 }
             });
 
-            // --- AWS Resource Regex Definitions ---
-            const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
-            const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
-            const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
-            const eniRegex = /(eni-[0-9a-fA-F]{8,17})/g;
-            
-            // --- MODIFICATION START: Added generic ARN regex ---
-            // Generic ARN regex. This will match all ARNs, including roles.
-            // This regex matches 'arn:' followed by common ARN characters.
-            const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
-            // Specific regex for IAM roles (already present, to be used for CLI generation)
-            const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
-            
-            // --- MODIFICATION START: Added SageMaker regexes ---
-            const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
-            const smEndpointRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smEndpointConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint-config\/([\w\+\=\,\.\@\-\/]+)/g;
-            // --- USER REQUESTED ADDITIONS START ---
-            const smNotebookLifecycleConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:notebook-instance-lifecycle-config\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smNotebookInstanceRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:notebook-instance\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smTransformJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:transform-job\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smTrainingJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:training-job\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smPipelineRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:pipeline\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smStudioLifecycleConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:studio-lifecycle-config\/([\w\+\=\,\.\@\-\/]+)/g;
-            const smProcessingJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:processing-job\/([\w\+\=\,\.\@\-\/]+)/g;
-            // --- USER REQUESTED ADDITIONS END ---
-            // --- MODIFICATION END ---
-            
-            // --- USER REQUESTED ADDITION (AutoML Job) ---
-            const smAutoMLJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:auto-ml-job\/([\w\+\=\,\.\@\-\/]+)/g; // v1
-            const smAutoMLJobV2Regex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:automl-job\/([\w\+\=\,\.\@\-\/]+)/g; // v2
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- USER REQUESTED ADDITION (Image) ---
-            const smImageRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:image\/([\w\+\=\,\.\@\-\/]+)/g;
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- MODIFICATION START: Added Personalize regexes ---
-            const psAlgorithmRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:algorithm\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psBatchInferenceJobRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:batch-inference-job\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psCampaignRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:campaign\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psDatasetRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:dataset\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psDatasetGroupRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:dataset-group\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psFilterRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:filter\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psRecipeRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:recipe\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psRecommenderRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:recommender\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psSchemaRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:schema\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psSolutionRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:solution\/([\w\+\=\,\.\@\-\/]+)/g;
-            const psSolutionVersionRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:solution-version\/([\w\+\=\,\.\@\-\/]+)/g;
-            // --- MODIFICATION END ---
-
-            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
-            const smPipelineExecutionRegex = /(arn:[^:]+:sagemaker:[^:]*:[^:]*:pipeline\/[\w\+\=\,\.\@\-\/]+\/execution\/[\w\+\=\,\.\@\-\/]+)/g;
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- MODIFICATION START: Added Bedrock regexes ---
-            const brGuardrailRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:guardrail\/([\w]+)/g;
-            const brInferenceProfileRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:inference-profile\/([\w]+)/g;
-            // --- MODIFICATION END ---
-            
-            // --- MODIFICATION START: Added Comprehend regexes ---
-            const compDatasetRegex = /(arn:[^:]+:comprehend:[^:]*:[^:]*:dataset\/[\w\+\=\,\.\@\-\/]+)/g;
-            const compEndpointRegex = /(arn:[^:]+:comprehend:[^:]*:[^:]*:endpoint\/[\w\+\=\,\.\@\-\/]+)/g;
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Added DataZone regexes ---
-            // These regexes capture the domain ID and the specific resource ID
-            const dzDomainRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)/g;
-            const dzProjectRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/project\/([\w-]+)/g;
-            const dzEnvironmentRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/environment\/([\w-]+)/g;
-            const dzDataSourceRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/dataSource\/([\w-]+)/g;
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Added EFS regex ---
-            const efsRegex = /arn:[^:]+:elasticfilesystem:[^:]*:[^:]*:file-system\/(fs-[\w-]+)/g;
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Added Textract regexes ---
-            const textractAdapterRegex = /arn:[^:]+:textract:[^:]*:[^:]*:adapter\/([\w-]+)(?!\/adapter-version)/g;
-            const textractAdapterVersionRegex = /arn:[^:]+:textract:[^:]*:[^:]*:adapter\/([\w-]+)\/adapter-version\/([\w-]+)/g;
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Added KMS regex ---
-            const kmsKeyRegex = /arn:[^:]+:kms:[^:]*:[^:]*:key\/([\w-]+)/g;
-            // --- MODIFICATION END ---
-
-            // Regex for request IDs
-            const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
-            const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
-            // New Regex for UUID-style Request IDs (e.g., from API Gateway, Lambda)
-            const uuidRequestIdRegex = /(?:x-amzn-RequestId:?\s*|[Rr]equestId:?\s*)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gi;
-
-            // --- Extract Resources ---
-            const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
-            const subnets = [...new Set(inputText.match(subnetRegex) || [])];
-            const sgs = [...new Set(inputText.match(sgRegex) || [])];
-            const enis = [...new Set(inputText.match(eniRegex) || [])];
-            
-            // --- MODIFICATION START: Extract and filter ARNs ---
-            // Extract all ARNs
-            const allArns = [...new Set(inputText.match(arnRegex) || [])];
-            // Extract just roles (using the more specific regex)
-            const roles = [...new Set(inputText.match(roleRegex) || [])];
-            
-            // --- MODIFICATION START: Extract SageMaker resources ---
-            // Use matchAll to get capture groups
-            const smDomains = [...inputText.matchAll(smDomainRegex)];
-            const smEndpoints = [...inputText.matchAll(smEndpointRegex)];
-            const smEndpointConfigs = [...inputText.matchAll(smEndpointConfigRegex)];
-            // --- USER REQUESTED ADDITIONS START ---
-            const smNotebookLifecycleConfigs = [...inputText.matchAll(smNotebookLifecycleConfigRegex)];
-            const smNotebookInstances = [...inputText.matchAll(smNotebookInstanceRegex)];
-            const smTransformJobs = [...inputText.matchAll(smTransformJobRegex)];
-            const smTrainingJobs = [...inputText.matchAll(smTrainingJobRegex)];
-            const smPipelines = [...inputText.matchAll(smPipelineRegex)];
-            const smStudioLifecycleConfigs = [...inputText.matchAll(smStudioLifecycleConfigRegex)];
-            const smProcessingJobs = [...inputText.matchAll(smProcessingJobRegex)];
-            // --- USER REQUESTED ADDITIONS END ---
-
-
-            // Get the full ARNs from the matches to filter them from the 'otherArns' list
-            const smDomainArns = smDomains.map(match => match[0]);
-            const smEndpointArns = smEndpoints.map(match => match[0]);
-            const smEndpointConfigArns = smEndpointConfigs.map(match => match[0]);
-            // --- USER REQUESTED ADDITIONS START ---
-            const smNotebookLifecycleConfigArns = smNotebookLifecycleConfigs.map(match => match[0]);
-            const smNotebookInstanceArns = smNotebookInstances.map(match => match[0]);
-            const smTransformJobArns = smTransformJobs.map(match => match[0]);
-            const smTrainingJobArns = smTrainingJobs.map(match => match[0]);
-            const smPipelineArns = smPipelines.map(match => match[0]);
-            const smStudioLifecycleConfigArns = smStudioLifecycleConfigs.map(match => match[0]);
-            const smProcessingJobArns = smProcessingJobs.map(match => match[0]);
-            // --- USER REQUESTED ADDITIONS END ---
-            
-            // --- MODIFICATION START: Extract Personalize ARNs ---
-            const psAlgorithms = [...inputText.matchAll(psAlgorithmRegex)];
-            const psBatchInferenceJobs = [...inputText.matchAll(psBatchInferenceJobRegex)];
-            const psCampaigns = [...inputText.matchAll(psCampaignRegex)];
-            const psDatasets = [...inputText.matchAll(psDatasetRegex)];
-            const psDatasetGroups = [...inputText.matchAll(psDatasetGroupRegex)];
-            const psFilters = [...inputText.matchAll(psFilterRegex)];
-            const psRecipes = [...inputText.matchAll(psRecipeRegex)];
-            const psRecommenders = [...inputText.matchAll(psRecommenderRegex)];
-            const psSchemas = [...inputText.matchAll(psSchemaRegex)];
-            const psSolutions = [...inputText.matchAll(psSolutionRegex)];
-            const psSolutionVersions = [...inputText.matchAll(psSolutionVersionRegex)];
-
-            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
-            const smPipelineExecutions = [...inputText.matchAll(smPipelineExecutionRegex)];
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- USER REQUESTED ADDITION (AutoML Job) ---
-            const smAutoMLJobs = [...inputText.matchAll(smAutoMLJobRegex)]; // v1
-            const smAutoMLJobV2s = [...inputText.matchAll(smAutoMLJobV2Regex)]; // v2
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- USER REQUESTED ADDITION (Image) ---
-            const smImages = [...inputText.matchAll(smImageRegex)];
-            // --- END USER REQUESTED ADDITION ---
-
-            const psAlgorithmArns = psAlgorithms.map(match => match[0]);
-            const psBatchInferenceJobArns = psBatchInferenceJobs.map(match => match[0]);
-            const psCampaignArns = psCampaigns.map(match => match[0]);
-            const psDatasetArns = psDatasets.map(match => match[0]);
-            const psDatasetGroupArns = psDatasetGroups.map(match => match[0]);
-            const psFilterArns = psFilters.map(match => match[0]);
-            const psRecipeArns = psRecipes.map(match => match[0]);
-            const psRecommenderArns = psRecommenders.map(match => match[0]);
-            const psSchemaArns = psSchemas.map(match => match[0]);
-            const psSolutionArns = psSolutions.map(match => match[0]);
-            const psSolutionVersionArns = psSolutionVersions.map(match => match[0]);
-            // --- MODIFICATION END ---
-
-            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
-            // match[0] is the full ARN, which is what we need.
-            const smPipelineExecutionArns = smPipelineExecutions.map(match => match[0]);
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- USER REQUESTED ADDITION (AutoML Job) ---
-            const smAutoMLJobArns = smAutoMLJobs.map(match => match[0]);
-            const smAutoMLJobV2Arns = smAutoMLJobV2s.map(match => match[0]);
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- USER REQUESTED ADDITION (Image) ---
-            const smImageArns = smImages.map(match => match[0]);
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- MODIFICATION START: Extract Bedrock resources ---
-            const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
-            const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
-
-            const brGuardrailArns = brGuardrails.map(match => match[0]);
-            const brInferenceProfileArns = brInferenceProfiles.map(match => match[0]);
-            
-            // --- MODIFICATION START: Extract Comprehend resources ---
-            const compDatasets = [...inputText.matchAll(compDatasetRegex)];
-            const compEndpoints = [...inputText.matchAll(compEndpointRegex)];
-
-            const compDatasetArns = compDatasets.map(match => match[0]);
-            const compEndpointArns = compEndpoints.map(match => match[0]);
-            
-            // --- MODIFICATION START: Extract DataZone resources ---
-            const dzDomains = [...inputText.matchAll(dzDomainRegex)];
-            const dzProjects = [...inputText.matchAll(dzProjectRegex)];
-            const dzEnvironments = [...inputText.matchAll(dzEnvironmentRegex)];
-            const dzDataSources = [...inputText.matchAll(dzDataSourceRegex)];
-
-            const dzDomainArns = dzDomains.map(match => match[0]);
-            const dzProjectArns = dzProjects.map(match => match[0]);
-            const dzEnvironmentArns = dzEnvironments.map(match => match[0]);
-            const dzDataSourceArns = dzDataSources.map(match => match[0]);
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Extract EFS resources ---
-            const efsFileSystems = [...inputText.matchAll(efsRegex)];
-            const efsArnList = efsFileSystems.map(match => match[0]);
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Extract Textract resources ---
-            const textractAdapters = [...inputText.matchAll(textractAdapterRegex)];
-            const textractAdapterVersions = [...inputText.matchAll(textractAdapterVersionRegex)];
-
-            const textractAdapterArns = textractAdapters.map(match => match[0]);
-            const textractAdapterVersionArns = textractAdapterVersions.map(match => match[0]);
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Extract KMS resources ---
-            const kmsKeys = [...inputText.matchAll(kmsKeyRegex)];
-            const kmsKeyArns = kmsKeys.map(match => match[0]);
-            // --- MODIFICATION END ---
-
-            // Filter out roles from the main ARN list to avoid duplication in the output
-            const otherArns = allArns.filter(arn => 
-                !roles.includes(arn) &&
-                !smDomainArns.includes(arn) &&
-                !smEndpointArns.includes(arn) &&
-                !smEndpointConfigArns.includes(arn) &&
-                // --- USER REQUESTED ADDITIONS START ---
-                !smNotebookLifecycleConfigArns.includes(arn) &&
-                !smNotebookInstanceArns.includes(arn) &&
-                !smTransformJobArns.includes(arn) &&
-                !smTrainingJobArns.includes(arn) &&
-                !smPipelineArns.includes(arn) &&
-                !smStudioLifecycleConfigArns.includes(arn) &&
-                !smProcessingJobArns.includes(arn) &&
-                // --- USER REQUESTED ADDITIONS END ---
-                // --- MODIFICATION START: Filter Personalize ARNs ---
-                !psAlgorithmArns.includes(arn) &&
-                !psBatchInferenceJobArns.includes(arn) &&
-                !psCampaignArns.includes(arn) &&
-                !psDatasetArns.includes(arn) &&
-                !psDatasetGroupArns.includes(arn) &&
-                !psFilterArns.includes(arn) &&
-                !psRecipeArns.includes(arn) &&
-                !psRecommenderArns.includes(arn) &&
-                !psSchemaArns.includes(arn) &&
-                !psSolutionArns.includes(arn) &&
-                !psSolutionVersionArns.includes(arn) &&
-                // --- MODIFICATION END ---
-                
-                // --- USER REQUESTED ADDITION (Pipeline Execution) ---
-                !smPipelineExecutionArns.includes(arn) &&
-                // --- END USER REQUESTED ADDITION ---
-
-                // --- USER REQUESTED ADDITION (AutoML Job) ---
-                !smAutoMLJobArns.includes(arn) &&
-                !smAutoMLJobV2Arns.includes(arn) &&
-                // --- END USER REQUESTED ADDITION ---
-
-                // --- USER REQUESTED ADDITION (Image) ---
-                !smImageArns.includes(arn) &&
-                // --- END USER REQUESTED ADDITION ---
-
-                // --- MODIFICATION START: Filter Bedrock ARNs ---
-                !brGuardrails.includes(arn) &&
-                !compEndpointArns.includes(arn) &&
-                // --- MODIFICATION END ---
-                // --- MODIFICATION START: Filter DataZone ARNs ---
-                !dzDomainArns.includes(arn) &&
-                !dzProjectArns.includes(arn) &&
-                !dzEnvironmentArns.includes(arn) &&
-                !dzDataSources.includes(arn) &&
-                // --- MODIFICATION END ---
-                // --- MODIFICATION START: Filter EFS ARNs ---
-                !efsArnList.includes(arn) &&
-                // --- MODIFICATION END ---
-                // --- MODIFICATION START: Filter Textract ARNs ---
-                !textractAdapterArns.includes(arn) &&
-                !textractAdapterVersionArns.includes(arn) &&
-                // --- MODIFICATION END ---
-                // --- MODIFICATION START: Filter KMS ARNs ---
-                !kmsKeyArns.includes(arn)
-                // --- MODIFICATION END ---
-            );
-            // --- MODIFICATION END ---
-            
-            // Find request IDs
-            const requestIds = [...inputText.matchAll(requestIdRegex)];
-            const id2s = [...inputText.matchAll(id2Regex)];
-            const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; 
-
-            const allRequestIds = new Set();
-            requestIds.forEach(match => allRequestIds.add(match[1])); // S3 style
-            id2s.forEach(match => allRequestIds.add(match[1])); // S3 style
-            uuidRequestIds.forEach(match => allRequestIds.add(match[1])); // UUID style
-
-            // --- Build Output String ---
-            let output = "";
-            const cliOutput = [];
-
-            if (vpcs.length > 0) {
-                output += `VPCs (${vpcs.length}):\n${vpcs.join('\n')}\n\n`;
-                cliOutput.push(`aws ec2 describe-vpcs --vpc-ids ${vpcs.join(' ')}`);
-                vpcs.forEach(vpcId => {
-                    cliOutput.push(`aws ec2 describe-vpc-endpoints --filters Name=vpc-id,Values=${vpcId}`);
-                });
-            }
-            if (subnets.length > 0) {
-                output += `Subnets (${subnets.length}):\n${subnets.join('\n')}\n\n`;
-                cliOutput.push(`aws ec2 describe-subnets --subnet-ids ${subnets.join(' ')}`);
-            }
-            if (sgs.length > 0) {
-                output += `Security Groups (${sgs.length}):\n${sgs.join('\n')}\n\n`;
-                cliOutput.push(`aws ec2 describe-security-groups --group-ids ${sgs.join(' ')}`);
-            }
-            if (enis.length > 0) {
-                output += `Network Interfaces (ENIs) (${enis.length}):\n${enis.join('\n')}\n\n`;
-                cliOutput.push(`aws ec2 describe-network-interfaces --network-interface-ids ${enis.join(' ')}`);
-            }
-            
-            // --- MODIFICATION START: Add ARNs to output ---
-            if (roles.length > 0) {
-                output += `Execution Roles (IAM) (${roles.length}):\n${roles.join('\n')}\n\n`;
-                
-                const roleCommands = roles.map(role => {
-                    const roleNameMatch = role.match(/role\/(.+)/);
-                    if (roleNameMatch && roleNameMatch[1]) {
-                        return `aws iam get-role --role-name ${roleNameMatch[1]}`;
-                    }
-                    return null;
-                }).filter(Boolean); 
-
-                if (roleCommands.length > 0) {
-                    cliOutput.push(...roleCommands);
+            // NEW: Model listener A
+            chatModelSelectA.addEventListener('change', () => {
+                if (allChats[activeChatIdA]) {
+                    allChats[activeChatIdA].model = chatModelSelectA.value;
+                    saveChats();
+                    showMessage(`Panel A model set to ${chatModelSelectA.value}`, 'success');
                 }
-            }
+            });
+            // NEW: Image listeners A
+            chatAttachBtnA.addEventListener('click', () => chatFileInputA.click());
+            chatFileInputA.addEventListener('change', (e) => handleImageUpload('a', e));
+            removeImgBtnA.addEventListener('click', () => clearStagedImage('a'));
 
-            // --- MODIFICATION START: Add SageMaker resources to output and CLI ---
-            if (smDomains.length > 0) {
-                // Get unique ARNs
-                const uniqueArns = [...new Set(smDomainArns)];
-                // Get unique IDs from capture group 1
-                const domainIds = [...new Set(smDomains.map(match => match[1]))]; 
-                output += `SageMaker Domains (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                
-                domainIds.forEach(id => {
-                    cliOutput.push(`aws sagemaker describe-domain --domain-id ${id}`);
-                });
-            }
-    
-            if (smEndpoints.length > 0) {
-                const uniqueArns = [...new Set(smEndpointArns)];
-                const endpointNames = [...new Set(smEndpoints.map(match => match[1]))]; 
-                output += `SageMaker Endpoints (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                endpointNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-endpoint --endpoint-name ${name}`);
-                });
-            }
-    
-            if (smEndpointConfigs.length > 0) {
-                const uniqueArns = [...new Set(smEndpointConfigArns)];
-                const configNames = [...new Set(smEndpointConfigs.map(match => match[1]))]; 
-                output += `SageMaker Endpoint Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                configNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-endpoint-config --endpoint-config-name ${name}`);
-                });
-            }
-            
-            // --- USER REQUESTED ADDITIONS START ---
-            if (smNotebookLifecycleConfigs.length > 0) {
-                const uniqueArns = [...new Set(smNotebookLifecycleConfigArns)];
-                const configNames = [...new Set(smNotebookLifecycleConfigs.map(match => match[1]))]; 
-                output += `SageMaker Notebook Lifecycle Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                configNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-notebook-instance-lifecycle-config --notebook-instance-lifecycle-config-name ${name}`);
-                });
-            }
 
-            if (smNotebookInstances.length > 0) {
-                const uniqueArns = [...new Set(smNotebookInstanceArns)];
-                const instanceNames = [...new Set(smNotebookInstances.map(match => match[1]))]; 
-                output += `SageMaker Notebook Instances (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                instanceNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-notebook-instance --notebook-instance-name ${name}`);
-                });
-            }
-
-            if (smTransformJobs.length > 0) {
-                const uniqueArns = [...new Set(smTransformJobArns)];
-                const jobNames = [...new Set(smTransformJobs.map(match => match[1]))]; 
-                output += `SageMaker Transform Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                jobNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-transform-job --transform-job-name ${name}`);
-                });
-            }
-
-            if (smTrainingJobs.length > 0) {
-                const uniqueArns = [...new Set(smTrainingJobArns)];
-                const jobNames = [...new Set(smTrainingJobs.map(match => match[1]))]; 
-                output += `SageMaker Training Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                jobNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-training-job --training-job-name ${name}`);
-                });
-            }
-
-            if (smPipelines.length > 0) {
-                const uniqueArns = [...new Set(smPipelineArns)];
-                const pipelineNames = [...new Set(smPipelines.map(match => match[1]))]; 
-                output += `SageMaker Pipelines (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                pipelineNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-pipeline --pipeline-name ${name}`);
-                });
-            }
-
-            if (smStudioLifecycleConfigs.length > 0) {
-                const uniqueArns = [...new Set(smStudioLifecycleConfigArns)];
-                const configNames = [...new Set(smStudioLifecycleConfigs.map(match => match[1]))]; 
-                output += `SageMaker Studio Lifecycle Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                configNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-studio-lifecycle-config --studio-lifecycle-config-name ${name}`);
-                });
-            }
-
-            if (smProcessingJobs.length > 0) {
-                const uniqueArns = [...new Set(smProcessingJobArns)];
-                const jobNames = [...new Set(smProcessingJobs.map(match => match[1]))]; 
-                output += `SageMaker Processing Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                jobNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-processing-job --processing-job-name ${name}`);
-                });
-            }
-            // --- USER REQUESTED ADDITIONS END ---
-
-            // --- MODIFICATION START: Add Personalize resources to output and CLI ---
-            if (psAlgorithms.length > 0) {
-                const uniqueArns = [...new Set(psAlgorithmArns)];
-                output += `Personalize Algorithms (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-algorithm --algorithm-arn ${arn}`);
-                });
-            }
-
-            if (psBatchInferenceJobs.length > 0) {
-                const uniqueArns = [...new Set(psBatchInferenceJobArns)];
-                output += `Personalize Batch Inference Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-batch-inference-job --batch-inference-job-arn ${arn}`);
-                });
-            }
-
-            if (psCampaigns.length > 0) {
-                const uniqueArns = [...new Set(psCampaignArns)];
-                output += `Personalize Campaigns (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-campaign --campaign-arn ${arn}`);
-                });
-            }
-
-            if (psDatasets.length > 0) {
-                const uniqueArns = [...new Set(psDatasetArns)];
-                output += `Personalize Datasets (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-dataset --dataset-arn ${arn}`);
-                });
-            }
-
-            if (psDatasetGroups.length > 0) {
-                const uniqueArns = [...new Set(psDatasetGroupArns)];
-                output += `Personalize Dataset Groups (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-dataset-group --dataset-group-arn ${arn}`);
-                });
-            }
-
-            if (psFilters.length > 0) {
-                const uniqueArns = [...new Set(psFilterArns)];
-                output += `Personalize Filters (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-filter --filter-arn ${arn}`);
-                });
-            }
-
-            if (psRecipes.length > 0) {
-                const uniqueArns = [...new Set(psRecipeArns)];
-                output += `Personalize Recipes (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-recipe --recipe-arn ${arn}`);
-                });
-            }
-
-            if (psRecommenders.length > 0) {
-                const uniqueArns = [...new Set(psRecommenderArns)];
-                output += `Personalize Recommenders (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-recommender --recommender-arn ${arn}`);
-                });
-            }
-
-            if (psSchemas.length > 0) {
-                const uniqueArns = [...new Set(psSchemaArns)];
-                output += `Personalize Schemas (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-schema --schema-arn ${arn}`);
-                });
-            }
-
-            if (psSolutions.length > 0) {
-                const uniqueArns = [...new Set(psSolutionArns)];
-                output += `Personalize Solutions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-solution --solution-arn ${arn}`);
-                });
-            }
-
-            if (psSolutionVersions.length > 0) {
-                const uniqueArns = [...new Set(psSolutionVersionArns)];
-                output += `Personalize Solution Versions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws personalize describe-solution-version --solution-version-arn ${arn}`);
-                });
-            }
-            // --- MODIFICATION END ---
-
-            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
-            if (smPipelineExecutions.length > 0) {
-                const uniqueArns = [...new Set(smPipelineExecutionArns)];
-                output += `SageMaker Pipeline Executions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                uniqueArns.forEach(arn => {
-                    cliOutput.push(`aws sagemaker describe-pipeline-execution --pipeline-execution-arn ${arn}`);
-                    cliOutput.push(`aws sagemaker describe-pipeline-definition-for-execution --pipeline-execution-arn ${arn}`);
-                });
-            }
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- USER REQUESTED ADDITION (Image) ---
-            if (smImages.length > 0) {
-                const uniqueArns = [...new Set(smImageArns)];
-                const imageNames = [...new Set(smImages.map(match => match[1]))]; 
-                output += `SageMaker Images (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-    
-                imageNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-image --image-name ${name}`);
-                });
-            }
-            // --- END USER REQUESTED ADDITION ---
-
-            // --- MODIFICATION START: Add Bedrock resources to output and CLI ---
-            if (brGuardrails.length > 0) {
-                const uniqueArns = [...new Set(brGuardrailArns)];
-                const guardrailIds = [...new Set(brGuardrails.map(match => match[1]))]; 
-                output += `Bedrock Guardrails (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                
-                guardrailIds.forEach(id => {
-                    // Note: The CLI uses the ID, not the full ARN
-                    cliOutput.push(`aws bedrock get-guardrail --guardrail-identifier ${id}`);
-                });
-            }
-
-            if (brInferenceProfiles.length > 0) {
-                const uniqueArns = [...new Set(brInferenceProfileArns)];
-                const profileIds = [...new Set(brInferenceProfiles.map(match => match[1]))]; 
-                output += `Bedrock Inference Profiles (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                
-                profileIds.forEach(id => {
-                    // Note: The CLI uses the ID, not the full ARN
-                    cliOutput.push(`aws bedrock get-inference-profile --inference-profile-identifier ${id}`);
-                });
-            }
-            // --- MODIFICATION END ---
-
-            // --- MODIFICATION START: Add KMS resources to output and CLI ---
-            if (kmsKeys.length > 0) {
-                const uniqueArns = [...new Set(kmsKeyArns)];
-                const keyIds = [...new Set(kmsKeys.map(match => match[1]))]; 
-                output += `KMS Keys (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
-                
-                keyIds.forEach(id => {
-                    cliOutput.push(`aws kms describe-key --key-id ${id}`);
-                    cliOutput.push(`aws kms get-key-policy --key-id ${id} --policy-name default`);
-                });
-            }
-            // --- MODIFICATION END ---
-
-            // Add other ARNs to output
-            if (otherArns.length > 0) {
-                output += `Other AWS ARNs (${otherArns.length}):\n${otherArns.join('\n')}\n\n`;
-            }
-            // --- MODIFICATION END ---
-
-            // Add request IDs to output
-            if (allRequestIds.size > 0) {
-                output += `AWS Request IDs (${allRequestIds.size}):\n${Array.from(allRequestIds).join('\n')}\n\n`;
-            }
-
-            // Add Decoded Base64 to output
-            if (decodedBase64Map.size > 0) {
-                output += `Decoded Base64 Strings (${decodedBase64Map.size}):\n`;
-                decodedBase64Map.forEach((decodedText, originalB64) => {
-                    output += `--- ${originalB64.substring(0, 20)}... ---\n${decodedText}\n---\n`;
-                });
-                output += "\n";
-            }
-
-            // Add Converted Epoch Timestamps to output
-            // if (convertedEpochMap.size > 0) {
-            //     output += `Converted Epoch Timestamps (${convertedEpochMap.size}):\n`;
-            //     convertedEpochMap.forEach((utcDate, originalTs) => {
-            //         output += `${originalTs}  =>  ${utcDate}\n`;
-            //     });
-            //     output += "\n";
-            // }
-            if (convertedEpochList.length > 0) {
-                // Get unique items based on the combination of line, timestamp, and date
-                const uniqueEntries = new Set(convertedEpochList.map(e => JSON.stringify(e)));
-                const uniqueEpochList = Array.from(uniqueEntries).map(s => JSON.parse(s));
-
-                output += `Converted Epoch Timestamps (${uniqueEpochList.length}):\n`;
-                uniqueEpochList.forEach(entry => {
-                    // Format: "line content" ===> timestamp ===> UTC Date
-                    output += `"${entry.line}" ===> ${entry.timestamp} ===> ${entry.utcDate}\n`;
-                });
-                output += "\n";
-            }
-
-            // --- Finalize Output ---
-            if (output === "") {
-                // --- MODIFICATION START: Updated "no resources found" message ---
-                // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, or Epoch timestamps found.";
-                // --- END USER REQUESTED UPDATE ---
-                // --- MODIFICATION END ---
-            } else {
-                if (cliOutput.length > 0) {
-                    output += "--- AWS CLI Describe Commands ---\n";
-                    output += cliOutput.join('\n');
+            // --- Panel B Listeners ---
+            chatSendBtnB.addEventListener('click', () => handleChatSend('b'));
+            chatClearBtnB.addEventListener('click', () => clearChatHistory('b')); // <-- NEW
+            chatInputB.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleChatSend('b');
                 }
-                outputTextarea.textContent = output.trim();
-            }
-        }
-
-        // --- AWS Request ID Extractor Function ---
-        /* This function is now merged into extractAwsResources() */
-
-        // --- Utility Functions ---
-
-        function clearInput() {
-            inputTextarea.value = '';
-            document.getElementById('epochInput').value = ''; 
-            outputTextarea.textContent = 'Your formatted text will appear here.';
-            jsonValidationResult.style.display = 'none';
-            fileInput.value = ''; // Clear file input selection
+            });
             
-            // Clear Base64 radio buttons
-            const radios = document.getElementsByName('base64tool');
-            radios.forEach(radio => radio.checked = false);
+            // REMOVED old listener
+            // chatSystemPromptB.addEventListener('input', () => { ... });
+
+            // NEW click listener
+            savePromptBtnB.addEventListener('click', () => {
+                if (allChats[activeChatIdB]) {
+                    allChats[activeChatIdB].systemPrompt = chatSystemPromptB.value;
+                    saveChats();
+                    showMessage('Panel B system prompt saved.', 'success');
+                } else {
+                    showMessage('No active chat in Panel B.', 'error');
+                }
+            });
+
+            // NEW: Model listener B
+            chatModelSelectB.addEventListener('change', () => {
+                if (allChats[activeChatIdB]) {
+                    allChats[activeChatIdB].model = chatModelSelectB.value;
+                    saveChats();
+                    showMessage(`Panel B model set to ${chatModelSelectB.value}`, 'success');
+                }
+            });
+            // NEW: Image listeners B
+            chatAttachBtnB.addEventListener('click', () => chatFileInputB.click());
+            chatFileInputB.addEventListener('change', (e) => handleImageUpload('b', e));
+            removeImgBtnB.addEventListener('click', () => clearStagedImage('b'));
+
+
+            // 3. Copy Buttons
+            copyInputBtn.addEventListener('click', () => copyToClipboard(analysisInput.value, copyInputBtn));
+            copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
+
+            // NEW: Test Connection Button
+            testConnectionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showMessage('Testing connection...', 'success');
+                checkConnectionAndLoadModels();
+            });
+
+            // 4. Local Storage Savers
+            ollamaEndpoint.addEventListener('change', () => {
+                localStorage.setItem(STORAGE_KEY_ENDPOINT, ollamaEndpoint.value);
+                showMessage('Endpoint saved. Click "Test Connection" to apply.', 'success');
+                // checkConnectionAndLoadModels(); // Removed - now manual
+            });
+            systemPrompt.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
+            analysisInput.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
+            modelSelect.addEventListener('change', () => {
+                const newModel = modelSelect.value;
+                localStorage.setItem(STORAGE_KEY_MODEL, newModel);
+                savedModel = newModel;
+                showMessage(`Global default model saved: ${newModel}`, 'success');
+            });
+
+            // 5. NEW: Chat Session Listeners
+            newChatBtn.addEventListener('click', () => {
+                const newChat = createNewChat();
+                // Make the new chat active in Panel A
+                switchChat('a', newChat.id);
+                renderChatListDropdowns(); // Re-render to show it
+            });
+            deleteChatBtnA.addEventListener('click', () => deleteChat(activeChatIdA));
+            deleteChatBtnB.addEventListener('click', () => deleteChat(activeChatIdB));
+            chatSelectA.addEventListener('change', (e) => switchChat('a', e.target.value));
+            chatSelectB.addEventListener('change', (e) => switchChat('b', e.target.value));
+
+
+            // --- Initial Check Function ---
             
-            // Clear image preview
-            previewImageTag.src = '';
-            imagePreview.style.display = 'none';
-
-            // Reset tool mode to default
-            updateToolMode();
-        }
-
-        function copyResult(copyButton) {
-            const outputText = outputTextarea.textContent;
-
-            if (outputText === 'Your formatted text will appear here.' || !outputText.trim()) {
-                copyButton.textContent = 'Nothing to copy!';
-                setTimeout(() => {
-                    copyButton.textContent = 'Copy';
-                }, 2000);
-                return;
-            }
-
-            const textarea = document.createElement('textarea');
-            textarea.value = outputText;
-            textarea.style.position = 'fixed'; 
-            textarea.style.opacity = 0;
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                // Use execCommand as a fallback for environments where clipboard API might be restricted
-                document.execCommand('copy');
-                copyButton.textContent = 'Copied!';
-            } catch (err) {
-                copyButton.textContent = 'Failed!';
-                console.error('Failed to copy text: ', err);
-            }
-            
-            document.body.removeChild(textarea);
-
-            setTimeout(() => {
-                copyButton.textContent = 'Copy';
-            }, 2000);
-        }
-
-        function toggleXmlOptions() {
-            const format = document.getElementById('downloadFormat').value;
-            const xmlOptions = document.getElementById('xmlOptions');
-            if (format === 'xml') {
-                xmlOptions.classList.add('visible');
-            } else {
-                xmlOptions.classList.remove('visible');
-            }
-        }
-
-        function downloadResult() {
-            let content = outputTextarea.textContent;
-            const format = document.getElementById('downloadFormat').value;
-            let mimeType = 'text/plain';
-            let filename = `result.${format}`;
-
-            if (content === 'Your formatted text will appear here.' || !content.trim()) {
-                const downloadBtn = event.target;
-                const originalText = downloadBtn.textContent;
-                downloadBtn.textContent = 'No content!';
-                setTimeout(() => { downloadBtn.textContent = originalText; }, 2000);
-                return;
-            }
-
-            switch(format) {
-                case 'csv':
-                    mimeType = 'text/csv';
-                    break;
-                case 'json':
-                    mimeType = 'application/json';
-                    break;
-                case 'xml':
-                    mimeType = 'application/xml';
-                    const rootTag = document.getElementById('xmlRoot').value || 'root';
-                    const childTag = document.getElementById('xmlChild').value || 'item';
-                    const lines = content.trim().split('\n');
-                    const xmlLines = lines.map(line => {
-                        const escapedLine = line.replace(/&/g, '&amp;')
-                                                .replace(/</g, '&lt;')
-                                                .replace(/>/g, '&gt;')
-                                                .replace(/"/g, '&quot;')
-                                                .replace(/'/g, '&apos;');
-                        return `  <${childTag}>${escapedLine}</${childTag}>`;
+            // NEW: Helper to populate a select element
+            function populateModelSelect(selectElement, models) {
+                const currentValue = selectElement.value; // Preserve current selection if possible
+                selectElement.innerHTML = ''; // Clear
+                
+                if (models && models.length > 0) {
+                    models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.name;
+                        option.textContent = model.name;
+                        selectElement.appendChild(option);
                     });
-                    content = `<?xml version="1.0" encoding="UTF-8"?>\n<${rootTag}>\n${xmlLines.join('\n')}\n</${rootTag}>`;
-                    break;
-                case 'txt':
-                default:
-                    mimeType = 'text/plain';
-                    break;
+
+                    if (currentValue && models.some(m => m.name === currentValue)) {
+                        selectElement.value = currentValue;
+                    }
+                } else {
+                    selectElement.innerHTML = '<option value="" disabled>No models found</option>';
+                }
             }
 
-            const blob = new Blob([content], { type: mimeType });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
-        }
-    </script>
+            async function checkConnectionAndLoadModels() {
+                const endpoint = ollamaEndpoint.value;
+                if (!endpoint) {
+                    showMessage('Ollama API endpoint is not set.', 'error');
+                    return;
+                }
+                
+                const url = new URL(endpoint);
+                url.pathname = '/api/tags';
 
+                try {
+                    const response = await fetch(url.toString());
+                    if (response.ok) {
+                        showMessage('Connected to Ollama. Fetching models...', 'success');
+                        
+                        const data = await response.json();
+                        
+                        // NEW: Populate all three model selects
+                        populateModelSelect(modelSelect, data.models);
+                        populateModelSelect(chatModelSelectA, data.models);
+                        populateModelSelect(chatModelSelectB, data.models);
+
+                        if (data.models && data.models.length > 0) {
+                            if (savedModel && Array.from(modelSelect.options).some(opt => opt.value === savedModel)) {
+                                modelSelect.value = savedModel;
+                            } else {
+                                modelSelect.selectedIndex = 0;
+                                const newDefaultModel = modelSelect.value;
+                                localStorage.setItem(STORAGE_KEY_MODEL, newDefaultModel);
+                                savedModel = newDefaultModel;
+                            }
+                            showMessage('Connected and models loaded.', 'success');
+                        } else {
+                            modelSelect.innerHTML = '<option value="" disabled>No models found</option>'; // Keep this for the global one
+                            showMessage('Connected, but no models found. Pull a model (e.g., `ollama pull llama3`).', 'error');
+                        }
+                    } else {
+                        throw new Error(`Status ${response.status}`);
+                    }
+                } catch (err) {
+                    showMessage('Failed to connect to Ollama. Check endpoint and CORS.', 'error');
+                    // NEW: Clear all selects
+                    const allSelects = [modelSelect, chatModelSelectA, chatModelSelectB];
+                    allSelects.forEach(sel => sel.innerHTML = '<option value="" disabled>Connection failed</option>');
+                }
+            }
+
+            // --- Run Initial Load ---
+            loadChats(); // Load chats first to get active IDs
+            checkConnectionAndLoadModels(); // Now check connection and load models
+            
+        });
+    </script>
 </body>
 </html>
