@@ -885,11 +885,13 @@
             // --- USER REQUESTED ADDITION (EC2 Instance) ---
             const instanceRegex = /(i-[0-9a-fA-F]{8,17})/g;
             // --- END USER REQUESTED ADDITION ---
-            
-            // --- USER REQUESTED ADDITION (NACL / RTB) ---
+
+            // --- MODIFICATION START: Added Network ACL and Route Table Regexes ---
             const naclRegex = /(acl-[0-9a-fA-F]{8,17})/g;
-            const rtbRegex = /(rtb-[0-9a-fA-F]{8,17})/g;
-            // --- END USER REQUESTED ADDITION ---
+            const routeTableRegex = /(rtb-[0-9a-fA-F]{8,17})/g;
+            const naclArnRegex = /(arn:[^:]+:ec2:[^:]*:[^:]*:network-acl\/acl-[\w-]+)/g;
+            const routeTableArnRegex = /(arn:[^:]+:ec2:[^:]*:[^:]*:route-table\/rtb-[\w-]+)/g;
+            // --- MODIFICATION END ---
             
             // --- MODIFICATION START: Added generic ARN regex ---
             // Generic ARN regex. This will match all ARNs, including roles.
@@ -897,11 +899,6 @@
             const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
             // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
-            
-            // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
-            const naclArnRegex = /arn:[^:]+:ec2:[^:]*:[^:]*:network-acl\/(acl-[0-9a-fA-F]{8,17})/g;
-            const rtbArnRegex = /arn:[^:]+:ec2:[^:]*:[^:]*:route-table\/(rtb-[0-9a-fA-F]{8,17})/g;
-            // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Added SageMaker regexes ---
             const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
@@ -1003,11 +1000,13 @@
             // --- USER REQUESTED ADDITION (EC2 Instance) ---
             const instances = [...new Set(inputText.match(instanceRegex) || [])];
             // --- END USER REQUESTED ADDITION ---
-            
-            // --- USER REQUESTED ADDITION (NACL / RTB) ---
-            const standaloneNacls = [...new Set(inputText.match(naclRegex) || [])];
-            const standaloneRtbs = [...new Set(inputText.match(rtbRegex) || [])];
-            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Extract Network ACLs and Route Tables ---
+            const naclIds = [...new Set(inputText.match(naclRegex) || [])];
+            const routeTableIds = [...new Set(inputText.match(routeTableRegex) || [])];
+            const naclArns = [...new Set(inputText.match(naclArnRegex) || [])];
+            const routeTableArns = [...new Set(inputText.match(routeTableArnRegex) || [])];
+            // --- MODIFICATION END ---
             
             // --- USER REQUESTED ADDITION (URL) ---
             const urls = [...new Set(inputText.match(urlRegex) || [])];
@@ -1022,11 +1021,6 @@
             const allArns = [...new Set(inputText.match(arnRegex) || [])];
             // Extract just roles (using the more specific regex)
             const roles = [...new Set(inputText.match(roleRegex) || [])];
-            
-            // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
-            const naclArnMatches = [...inputText.matchAll(naclArnRegex)];
-            const rtbArnMatches = [...inputText.matchAll(rtbArnRegex)];
-            // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Extract SageMaker resources ---
             // Use matchAll to get capture groups
@@ -1119,14 +1113,14 @@
             const smClusterArns = smClusters.map(match => match[0]);
             // --- END USER REQUESTED ADDITION ---
 
-            // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
-            const naclArnList = naclArnMatches.map(match => match[0]); // Full ARNs
-            const rtbArnList = rtbArnMatches.map(match => match[0]); // Full ARNs
-            const naclIdsFromArns = naclArnMatches.map(match => match[1]); // Just IDs
-            const rtbIdsFromArns = rtbArnMatches.map(match => match[1]); // Just IDs
-            // --- END USER REQUESTED ADDITION ---
+            // --- MODIFICATION START: Extract Bedrock resources ---
+            const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
+            const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
 
-            // --- MODIFICATION START: Extract Personalize ARNs ---
+            const brGuardrailArns = brGuardrails.map(match => match[0]);
+            const brInferenceProfileArns = brInferenceProfiles.map(match => match[0]);
+            
+            // --- MODIFICATION START: Extract Comprehend resources ---
             const compDatasets = [...inputText.matchAll(compDatasetRegex)];
             const compEndpoints = [...inputText.matchAll(compEndpointRegex)];
 
@@ -1162,12 +1156,6 @@
             const kmsKeys = [...inputText.matchAll(kmsKeyRegex)];
             const kmsKeyArns = kmsKeys.map(match => match[0]);
             // --- MODIFICATION END ---
-
-            // --- USER REQUESTED ADDITION (NACL / RTB) ---
-            // Combine all found IDs (standalone + from ARNs)
-            const allNaclIds = [...new Set([...standaloneNacls, ...naclIdsFromArns])];
-            const allRtbIds = [...new Set([...standaloneRtbs, ...rtbIdsFromArns])];
-            // --- END USER REQUESTED ADDITION ---
 
             // Filter out roles from the main ARN list to avoid duplication in the output
             const otherArns = allArns.filter(arn => 
@@ -1215,11 +1203,6 @@
                 !smClusterArns.includes(arn) &&
                 // --- END USER REQUESTED ADDITION ---
 
-                // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
-                !naclArnList.includes(arn) &&
-                !rtbArnList.includes(arn) &&
-                // --- END USER REQUESTED ADDITION ---
-
                 // --- MODIFICATION START: Filter Bedrock ARNs ---
                 !brGuardrails.includes(arn) &&
                 !compEndpointArns.includes(arn) &&
@@ -1238,7 +1221,11 @@
                 !textractAdapterVersionArns.includes(arn) &&
                 // --- MODIFICATION END ---
                 // --- MODIFICATION START: Filter KMS ARNs ---
-                !kmsKeyArns.includes(arn)
+                !kmsKeyArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter Network ACL and Route Table ARNs ---
+                !naclArns.includes(arn) &&
+                !routeTableArns.includes(arn)
                 // --- MODIFICATION END ---
             );
             // --- MODIFICATION END ---
@@ -1283,28 +1270,25 @@
                 cliOutput.push(`aws ec2 describe-instances --instance-ids ${instances.join(' ')}`);
             }
             // --- END USER REQUESTED ADDITION ---
-            
-            // --- USER REQUESTED ADDITION (NACL / RTB) ---
-            const uniqueNaclArns = [...new Set(naclArnList)];
-            if (uniqueNaclArns.length > 0) {
-                 output += `Network ACL ARNs (${uniqueNaclArns.length}):\n${uniqueNaclArns.join('\n')}\n\n`;
-            }
-            
-            if (allNaclIds.length > 0) {
-                output += `Network ACL IDs (All unique IDs found) (${allNaclIds.length}):\n${allNaclIds.join('\n')}\n\n`;
-                cliOutput.push(`aws ec2 describe-network-acls --network-acl-ids ${allNaclIds.join(' ')}`);
-            }
 
-            const uniqueRtbArns = [...new Set(rtbArnList)];
-            if (uniqueRtbArns.length > 0) {
-                output += `Route Table ARNs (${uniqueRtbArns.length}):\n${uniqueRtbArns.join('\n')}\n\n`;
+            // --- MODIFICATION START: Add Network ACLs and Route Tables to output ---
+            if (naclIds.length > 0) {
+                output += `Network ACL IDs (${naclIds.length}):\n${naclIds.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-network-acls --network-acl-ids ${naclIds.join(' ')}`);
             }
-            
-            if (allRtbIds.length > 0) {
-                output += `Route Table IDs (All unique IDs found) (${allRtbIds.length}):\n${allRtbIds.join('\n')}\n\n`;
-                cliOutput.push(`aws ec2 describe-route-tables --route-table-ids ${allRtbIds.join(' ')}`);
+            if (naclArns.length > 0) {
+                output += `Network ACL ARNs (${naclArns.length}):\n${naclArns.join('\n')}\n\n`;
+                // CLI commands are already generated from the IDs
             }
-            // --- END USER REQUESTED ADDITION ---
+            if (routeTableIds.length > 0) {
+                output += `Route Table IDs (${routeTableIds.length}):\n${routeTableIds.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-route-tables --route-table-ids ${routeTableIds.join(' ')}`);
+            }
+            if (routeTableArns.length > 0) {
+                output += `Route Table ARNs (${routeTableArns.length}):\n${routeTableArns.join('\n')}\n\n`;
+                // CLI commands are already generated from the IDs
+            }
+            // --- MODIFICATION END ---
             
             // --- MODIFICATION START: Add ARNs to output ---
             if (roles.length > 0) {
