@@ -886,12 +886,22 @@
             const instanceRegex = /(i-[0-9a-fA-F]{8,17})/g;
             // --- END USER REQUESTED ADDITION ---
             
+            // --- USER REQUESTED ADDITION (NACL / RTB) ---
+            const naclRegex = /(acl-[0-9a-fA-F]{8,17})/g;
+            const rtbRegex = /(rtb-[0-9a-fA-F]{8,17})/g;
+            // --- END USER REQUESTED ADDITION ---
+            
             // --- MODIFICATION START: Added generic ARN regex ---
             // Generic ARN regex. This will match all ARNs, including roles.
             // This regex matches 'arn:' followed by common ARN characters.
             const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
             // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+            
+            // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
+            const naclArnRegex = /arn:[^:]+:ec2:[^:]*:[^:]*:network-acl\/(acl-[0-9a-fA-F]{8,17})/g;
+            const rtbArnRegex = /arn:[^:]+:ec2:[^:]*:[^:]*:route-table\/(rtb-[0-9a-fA-F]{8,17})/g;
+            // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Added SageMaker regexes ---
             const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
@@ -994,6 +1004,11 @@
             const instances = [...new Set(inputText.match(instanceRegex) || [])];
             // --- END USER REQUESTED ADDITION ---
             
+            // --- USER REQUESTED ADDITION (NACL / RTB) ---
+            const standaloneNacls = [...new Set(inputText.match(naclRegex) || [])];
+            const standaloneRtbs = [...new Set(inputText.match(rtbRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+            
             // --- USER REQUESTED ADDITION (URL) ---
             const urls = [...new Set(inputText.match(urlRegex) || [])];
             // --- END USER REQUESTED ADDITION ---
@@ -1007,6 +1022,11 @@
             const allArns = [...new Set(inputText.match(arnRegex) || [])];
             // Extract just roles (using the more specific regex)
             const roles = [...new Set(inputText.match(roleRegex) || [])];
+            
+            // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
+            const naclArnMatches = [...inputText.matchAll(naclArnRegex)];
+            const rtbArnMatches = [...inputText.matchAll(rtbArnRegex)];
+            // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Extract SageMaker resources ---
             // Use matchAll to get capture groups
@@ -1099,14 +1119,14 @@
             const smClusterArns = smClusters.map(match => match[0]);
             // --- END USER REQUESTED ADDITION ---
 
-            // --- MODIFICATION START: Extract Bedrock resources ---
-            const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
-            const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
+            // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
+            const naclArnList = naclArnMatches.map(match => match[0]); // Full ARNs
+            const rtbArnList = rtbArnMatches.map(match => match[0]); // Full ARNs
+            const naclIdsFromArns = naclArnMatches.map(match => match[1]); // Just IDs
+            const rtbIdsFromArns = rtbArnMatches.map(match => match[1]); // Just IDs
+            // --- END USER REQUESTED ADDITION ---
 
-            const brGuardrailArns = brGuardrails.map(match => match[0]);
-            const brInferenceProfileArns = brInferenceProfiles.map(match => match[0]);
-            
-            // --- MODIFICATION START: Extract Comprehend resources ---
+            // --- MODIFICATION START: Extract Personalize ARNs ---
             const compDatasets = [...inputText.matchAll(compDatasetRegex)];
             const compEndpoints = [...inputText.matchAll(compEndpointRegex)];
 
@@ -1142,6 +1162,12 @@
             const kmsKeys = [...inputText.matchAll(kmsKeyRegex)];
             const kmsKeyArns = kmsKeys.map(match => match[0]);
             // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (NACL / RTB) ---
+            // Combine all found IDs (standalone + from ARNs)
+            const allNaclIds = [...new Set([...standaloneNacls, ...naclIdsFromArns])];
+            const allRtbIds = [...new Set([...standaloneRtbs, ...rtbIdsFromArns])];
+            // --- END USER REQUESTED ADDITION ---
 
             // Filter out roles from the main ARN list to avoid duplication in the output
             const otherArns = allArns.filter(arn => 
@@ -1187,6 +1213,11 @@
 
                 // --- USER REQUESTED ADDITION (SM Cluster) ---
                 !smClusterArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (NACL / RTB ARNs) ---
+                !naclArnList.includes(arn) &&
+                !rtbArnList.includes(arn) &&
                 // --- END USER REQUESTED ADDITION ---
 
                 // --- MODIFICATION START: Filter Bedrock ARNs ---
@@ -1250,6 +1281,28 @@
             if (instances.length > 0) {
                 output += `EC2 Instances (${instances.length}):\n${instances.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-instances --instance-ids ${instances.join(' ')}`);
+            }
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION (NACL / RTB) ---
+            const uniqueNaclArns = [...new Set(naclArnList)];
+            if (uniqueNaclArns.length > 0) {
+                 output += `Network ACL ARNs (${uniqueNaclArns.length}):\n${uniqueNaclArns.join('\n')}\n\n`;
+            }
+            
+            if (allNaclIds.length > 0) {
+                output += `Network ACL IDs (All unique IDs found) (${allNaclIds.length}):\n${allNaclIds.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-network-acls --network-acl-ids ${allNaclIds.join(' ')}`);
+            }
+
+            const uniqueRtbArns = [...new Set(rtbArnList)];
+            if (uniqueRtbArns.length > 0) {
+                output += `Route Table ARNs (${uniqueRtbArns.length}):\n${uniqueRtbArns.join('\n')}\n\n`;
+            }
+            
+            if (allRtbIds.length > 0) {
+                output += `Route Table IDs (All unique IDs found) (${allRtbIds.length}):\n${allRtbIds.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-route-tables --route-table-ids ${allRtbIds.join(' ')}`);
             }
             // --- END USER REQUESTED ADDITION ---
             
@@ -1582,7 +1635,7 @@
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
                 // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
                 // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
