@@ -882,6 +882,10 @@
             const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
             const eniRegex = /(eni-[0-9a-fA-F]{8,17})/g;
             
+            // --- USER REQUESTED ADDITION (EC2 Instance) ---
+            const instanceRegex = /(i-[0-9a-fA-F]{8,17})/g;
+            // --- END USER REQUESTED ADDITION ---
+            
             // --- MODIFICATION START: Added generic ARN regex ---
             // Generic ARN regex. This will match all ARNs, including roles.
             // This regex matches 'arn:' followed by common ARN characters.
@@ -911,6 +915,10 @@
 
             // --- USER REQUESTED ADDITION (Image) ---
             const smImageRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:image\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            const smClusterRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:cluster\/([\w\+\=\,\.\@\-\/]+)/g;
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Added Personalize regexes ---
@@ -962,6 +970,14 @@
             const kmsKeyRegex = /arn:[^:]+:kms:[^:]*:[^:]*:key\/([\w-]+)/g;
             // --- MODIFICATION END ---
 
+            // --- USER REQUESTED ADDITION (URL) ---
+            const urlRegex = /(https?:\/\/[^\s"']+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Email) ---
+            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+            // --- END USER REQUESTED ADDITION ---
+
             // Regex for request IDs
             const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
             const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
@@ -973,6 +989,18 @@
             const subnets = [...new Set(inputText.match(subnetRegex) || [])];
             const sgs = [...new Set(inputText.match(sgRegex) || [])];
             const enis = [...new Set(inputText.match(eniRegex) || [])];
+            
+            // --- USER REQUESTED ADDITION (EC2 Instance) ---
+            const instances = [...new Set(inputText.match(instanceRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION (URL) ---
+            const urls = [...new Set(inputText.match(urlRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION (Email) ---
+            const emails = [...new Set(inputText.match(emailRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Extract and filter ARNs ---
             // Extract all ARNs
@@ -1036,6 +1064,10 @@
             const smImages = [...inputText.matchAll(smImageRegex)];
             // --- END USER REQUESTED ADDITION ---
 
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            const smClusters = [...inputText.matchAll(smClusterRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
             const psAlgorithmArns = psAlgorithms.map(match => match[0]);
             const psBatchInferenceJobArns = psBatchInferenceJobs.map(match => match[0]);
             const psCampaignArns = psCampaigns.map(match => match[0]);
@@ -1061,6 +1093,10 @@
 
             // --- USER REQUESTED ADDITION (Image) ---
             const smImageArns = smImages.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            const smClusterArns = smClusters.map(match => match[0]);
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Extract Bedrock resources ---
@@ -1149,6 +1185,10 @@
                 !smImageArns.includes(arn) &&
                 // --- END USER REQUESTED ADDITION ---
 
+                // --- USER REQUESTED ADDITION (SM Cluster) ---
+                !smClusterArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
                 // --- MODIFICATION START: Filter Bedrock ARNs ---
                 !brGuardrails.includes(arn) &&
                 !compEndpointArns.includes(arn) &&
@@ -1205,6 +1245,13 @@
                 output += `Network Interfaces (ENIs) (${enis.length}):\n${enis.join('\n')}\n\n`;
                 cliOutput.push(`aws ec2 describe-network-interfaces --network-interface-ids ${enis.join(' ')}`);
             }
+            
+            // --- USER REQUESTED ADDITION (EC2 Instance) ---
+            if (instances.length > 0) {
+                output += `EC2 Instances (${instances.length}):\n${instances.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-instances --instance-ids ${instances.join(' ')}`);
+            }
+            // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Add ARNs to output ---
             if (roles.length > 0) {
@@ -1429,14 +1476,14 @@
             }
             // --- END USER REQUESTED ADDITION ---
 
-            // --- USER REQUESTED ADDITION (Image) ---
-            if (smImages.length > 0) {
-                const uniqueArns = [...new Set(smImageArns)];
-                const imageNames = [...new Set(smImages.map(match => match[1]))]; 
-                output += `SageMaker Images (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            if (smClusters.length > 0) {
+                const uniqueArns = [...new Set(smClusterArns)];
+                const clusterNames = [...new Set(smClusters.map(match => match[1]))]; 
+                output += `SageMaker Clusters (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
     
-                imageNames.forEach(name => {
-                    cliOutput.push(`aws sagemaker describe-image --image-name ${name}`);
+                clusterNames.forEach(name => {
+                    cliOutput.push(`aws sagemaker describe-cluster --cluster-name ${name}`);
                 });
             }
             // --- END USER REQUESTED ADDITION ---
@@ -1489,6 +1536,18 @@
                 output += `AWS Request IDs (${allRequestIds.size}):\n${Array.from(allRequestIds).join('\n')}\n\n`;
             }
 
+            // --- USER REQUESTED ADDITION (URL) ---
+            if (urls.length > 0) {
+                output += `Found URLs (${urls.length}):\n${urls.join('\n')}\n\n`;
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Email) ---
+            if (emails.length > 0) {
+                output += `Found Emails (${emails.length}):\n${emails.join('\n')}\n\n`;
+            }
+            // --- END USER REQUESTED ADDITION ---
+
             // Add Decoded Base64 to output
             if (decodedBase64Map.size > 0) {
                 output += `Decoded Base64 Strings (${decodedBase64Map.size}):\n`;
@@ -1523,7 +1582,7 @@
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
                 // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, Network Interfaces, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, or Epoch timestamps found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
                 // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
