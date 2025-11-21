@@ -214,6 +214,10 @@
         .nonary-button {
             background: linear-gradient(45deg, #0dcaf0, #08a5c7); /* Cyan gradient */
         }
+        /* New button style for WebLLM */
+        .denary-button {
+            background: linear-gradient(45deg, #4e54c8, #8f94fb); /* Indigo gradient */
+        }
 
         .epoch-button-gmt {
             background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
@@ -373,6 +377,8 @@
             <button onclick="extractAwsResources()" class="septenary-button">Extract AWS Infra, CLI & IDs</button>
             <!-- New AWS Request ID Button -->
             <!-- <button onclick="extractAwsRequestIds()" class="nonary-button">Extract AWS Request IDs</button> --> <!-- This button is now merged -->
+            
+            <button onclick="window.open('https://chat.webllm.ai', '_blank')" class="denary-button">WebLLM local</button>
         </div>
         
         <p id="jsonValidationResult" class="validation-message"></p>
@@ -899,6 +905,9 @@
             const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
             // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- USER REQUESTED ADDITION: IAM User Regex ---
+            const userRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:user\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
             
             // --- USER REQUESTED ADDITION: STS Assumed Roles ---
             const assumedRoleRegex = /arn:[^:]+:sts::[^:]+:assumed-role\/([\w\+\=\,\.\@\-\/]+)/g;
@@ -995,6 +1004,25 @@
             // New Regex for UUID-style Request IDs (e.g., from API Gateway, Lambda)
             const uuidRequestIdRegex = /(?:x-amzn-RequestId:?\s*|[Rr]equestId:?\s*)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gi;
 
+            // --- USER REQUESTED ADDITION: Access Error Regex ---
+            // Pattern 1: User: ARN is not authorized to perform: Action with an explicit/implicit deny in a source
+            const accessErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+([a-zA-Z0-9\s]+)/gi;
+            
+            // Pattern 2: User: ARN is not authorized to perform: Action because no service control policy allows the Action action
+            const scpImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+service\s+control\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+
+            // Pattern 3: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a resource control policy
+            // FIXED: Added '*' inside the character class [a-zA-Z0-9:._/+=,*-] to allow wildcards within the ARN string
+            // MODIFIED: Added (?!VPC\s+endpoint\s+policy) to exclude VPC endpoint policies which are now handled by Pattern 5
+            const resourcePolicyErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!VPC\s+endpoint\s+policy)([a-zA-Z0-9\s]+)/gi;
+
+            // Pattern 4: User: ARN is not authorized to perform: Action because no VPC endpoint policy allows the Action action
+            const vpcEndpointErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+VPC\s+endpoint\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+
+            // Pattern 5: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a VPC endpoint policy
+            const vpcEndpointExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+VPC\s+endpoint\s+policy/gi;
+            // --- END USER REQUESTED ADDITION ---
+
             // --- Extract Resources ---
             const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
             const subnets = [...new Set(inputText.match(subnetRegex) || [])];
@@ -1025,6 +1053,9 @@
             const allArns = [...new Set(inputText.match(arnRegex) || [])];
             // Extract just roles (using the more specific regex)
             const roles = [...new Set(inputText.match(roleRegex) || [])];
+            // --- USER REQUESTED ADDITION: Extract IAM Users ---
+            const iamUsers = [...new Set(inputText.match(userRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
             
             // --- USER REQUESTED ADDITION: STS Assumed Roles ---
             const assumedRoles = [...inputText.matchAll(assumedRoleRegex)];
@@ -1169,6 +1200,9 @@
             // Filter out roles from the main ARN list to avoid duplication in the output
             const otherArns = allArns.filter(arn => 
                 !roles.includes(arn) &&
+                // --- USER REQUESTED ADDITION: Filter IAM Users ---
+                !iamUsers.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
                 // --- USER REQUESTED ADDITION: STS Assumed Roles ---
                 !assumedRoleArns.includes(arn) &&
                 // --- END USER REQUESTED ADDITION ---
@@ -1247,6 +1281,14 @@
             const id2s = [...inputText.matchAll(id2Regex)];
             const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; 
 
+            // --- USER REQUESTED ADDITION: Access Error Matches ---
+            const accessErrorMatches = [...inputText.matchAll(accessErrorRegex)];
+            const scpImplicitDenyMatches = [...inputText.matchAll(scpImplicitDenyRegex)];
+            const resourcePolicyErrorMatches = [...inputText.matchAll(resourcePolicyErrorRegex)];
+            const vpcEndpointErrorMatches = [...inputText.matchAll(vpcEndpointErrorRegex)];
+            const vpcEndpointExplicitDenyMatches = [...inputText.matchAll(vpcEndpointExplicitDenyRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
             const allRequestIds = new Set();
             requestIds.forEach(match => allRequestIds.add(match[1])); // S3 style
             id2s.forEach(match => allRequestIds.add(match[1])); // S3 style
@@ -1255,6 +1297,73 @@
             // --- Build Output String ---
             let output = "";
             const cliOutput = [];
+
+            // --- USER REQUESTED ADDITION: Output Access Errors ---
+            if (accessErrorMatches.length > 0) {
+                accessErrorMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: explicit/implicit deny, match[4]: source
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  ${match[3]}\n`;
+                    output += `From: ${match[4].trim()}\n\n`;
+                });
+            }
+            
+            if (scpImplicitDenyMatches.length > 0) {
+                scpImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission listed\n`;
+                    output += `From: service control policy\n\n`;
+                });
+            }
+
+            if (resourcePolicyErrorMatches.length > 0) {
+                resourcePolicyErrorMatches.forEach(match => {
+                    // match[1]: ARN
+                    // match[2]: Action
+                    // match[3]: Resource
+                    // match[4]: explicit/implicit deny
+                    // match[5]: source (e.g., resource control policy)
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: ${match[5].trim()}\n\n`;
+                });
+            }
+
+            if (vpcEndpointErrorMatches.length > 0) {
+                vpcEndpointErrorMatches.forEach(match => {
+                    // match[1]: ARN
+                    // match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: VPC endpoint policy\n\n`;
+                });
+            }
+
+            if (vpcEndpointExplicitDenyMatches.length > 0) {
+                vpcEndpointExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN
+                    // match[2]: Action
+                    // match[3]: Resource
+                    // match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: VPC endpoint policy\n\n`;
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
 
             if (vpcs.length > 0) {
                 output += `VPCs (${vpcs.length}):\n${vpcs.join('\n')}\n\n`;
@@ -1318,6 +1427,24 @@
                     cliOutput.push(...roleCommands);
                 }
             }
+
+            // --- USER REQUESTED ADDITION: IAM Users Output & CLI ---
+            if (iamUsers.length > 0) {
+                output += `IAM Users (${iamUsers.length}):\n${iamUsers.join('\n')}\n\n`;
+                
+                const userCommands = iamUsers.map(userArn => {
+                    const userNameMatch = userArn.match(/user\/(.+)/);
+                    if (userNameMatch && userNameMatch[1]) {
+                        return `aws iam get-user --user-name ${userNameMatch[1]}`;
+                    }
+                    return null;
+                }).filter(Boolean); 
+
+                if (userCommands.length > 0) {
+                    cliOutput.push(...userCommands);
+                }
+            }
+            // --- END USER REQUESTED ADDITION ---
             
             // --- USER REQUESTED ADDITION: STS Assumed Roles ---
             if (assumedRoles.length > 0) {
@@ -1652,7 +1779,7 @@
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
                 // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, Access Errors, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
                 // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
