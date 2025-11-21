@@ -240,10 +240,15 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 flex justify-start">
+                    <div class="mt-4 flex flex-wrap items-center gap-4">
                         <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
                             Test Connection & Reload Models
                         </button>
+                        <!-- NEW: Debug Mode Toggle -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="debug-mode-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2 focus:ring-offset-gray-800">
+                            <label for="debug-mode-checkbox" class="ml-2 text-sm font-medium text-gray-300">Show raw request payloads (Debug Mode)</label>
+                        </div>
                     </div>
 
                     <div class="mt-4">
@@ -298,6 +303,7 @@
             const STORAGE_KEY_CHAT_SESSIONS = 'ollama_chat_sessions';
             const STORAGE_KEY_ACTIVE_CHAT_A = 'ollama_active_chat_a';
             const STORAGE_KEY_ACTIVE_CHAT_B = 'ollama_active_chat_b';
+            const STORAGE_KEY_DEBUG_MODE = 'ollama_debug_mode';
 
             // --- DOM Elements ---
             const ollamaEndpoint = document.getElementById('ollama-endpoint');
@@ -305,6 +311,7 @@
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
             const testConnectionBtn = document.getElementById('test-connection-btn'); // <-- NEW
+            const debugModeCheckbox = document.getElementById('debug-mode-checkbox'); // <-- NEW
 
             // Analysis Elements
             const analysisInput = document.getElementById('analysis-input');
@@ -376,6 +383,12 @@
             const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
             if (savedAnalysisInput) analysisInput.value = savedAnalysisInput;
 
+            // Load Debug Mode
+            const savedDebugMode = localStorage.getItem(STORAGE_KEY_DEBUG_MODE);
+            if (savedDebugMode === 'true') {
+                debugModeCheckbox.checked = true;
+            }
+
             // --- Helper Functions ---
 
             function copyToClipboard(text, buttonEl) {
@@ -407,7 +420,7 @@
             /**
              * Adds a message bubble to a specific chat history UI.
              * @param {HTMLElement} historyElement - The chat history element (e.g., chatHistoryA).
-             * @param {'user' | 'model'} role - Who sent the message.
+             * @param {'user' | 'model' | 'debug'} role - Who sent the message.
              * @param {string} content - The text content of the message.
              * @param {string | null} dataUrl - The data URL of an image to display.
              * @returns {HTMLElement} - The p element created for the message.
@@ -419,6 +432,32 @@
                 
                 // Use flex, items-start (to align bubble and copy button), and gap
                 messageWrapper.classList.add('flex', 'items-start', 'gap-2');
+                
+                if (role === 'debug') {
+                    // Special styling for Debug messages
+                    messageWrapper.classList.add('justify-center', 'w-full', 'my-2');
+                    messageBubble.classList.add('bg-gray-800', 'border', 'border-gray-600', 'rounded-lg', 'p-2', 'w-full', 'max-w-2xl', 'text-xs');
+                    
+                    const details = document.createElement('details');
+                    const summary = document.createElement('summary');
+                    summary.textContent = 'Debug: Request Payload';
+                    summary.classList.add('cursor-pointer', 'font-bold', 'text-cyan-500', 'uppercase', 'mb-1');
+                    
+                    const pre = document.createElement('pre');
+                    pre.classList.add('overflow-x-auto', 'whitespace-pre-wrap', 'font-mono', 'text-gray-400', 'p-2', 'bg-gray-900', 'rounded');
+                    pre.textContent = content;
+                    
+                    details.appendChild(summary);
+                    details.appendChild(pre);
+                    messageBubble.appendChild(details);
+
+                    messageWrapper.appendChild(messageBubble);
+                    historyElement.appendChild(messageWrapper);
+                    historyElement.scrollTop = historyElement.scrollHeight;
+                    return details; // Return details instead of p
+                }
+
+                // Standard messages
                 messageBubble.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'sm:max-w-md');
                 messageContent.classList.add('text-sm');
 
@@ -979,7 +1018,6 @@
                 const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
                 const userSystemPrompt = systemPrompt.value.trim();
                 
-                analysisOutput.value = 'Analyzing...';
                 analysisOutput.classList.add('animate-pulse');
                 analyzeBtn.disabled = true;
                 analyzeBtn.textContent = 'Analyzing...';
@@ -991,13 +1029,28 @@
                     stream: false 
                 };
 
+                // DEBUG: Prepend request if debug mode is on
+                if (debugModeCheckbox.checked) {
+                    const debugInfo = `--- DEBUG REQUEST ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\n`;
+                    analysisOutput.value = debugInfo + 'Analyzing...';
+                } else {
+                    analysisOutput.value = 'Analyzing...';
+                }
+
                 const data = await callOllama('/api/generate', payload);
 
                 if (data && data.response) {
-                    analysisOutput.value = data.response.trim();
+                    // DEBUG: Keep debug info if it was there
+                    if (debugModeCheckbox.checked) {
+                         const debugInfo = `--- DEBUG REQUEST ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\n`;
+                         analysisOutput.value = debugInfo + data.response.trim();
+                    } else {
+                        analysisOutput.value = data.response.trim();
+                    }
                     showMessage(`Analysis complete with ${model}.`, 'success');
                 } else {
-                    analysisOutput.value = 'Error: Could not get analysis.';
+                    // Don't overwrite debug info completely on error if possible, but simple is better
+                    analysisOutput.value += '\n\nError: Could not get analysis.';
                 }
                 
                 analysisOutput.classList.remove('animate-pulse');
@@ -1046,10 +1099,6 @@
                 inputEl.value = '';
                 clearStagedImage(panelSuffix);
 
-                // Add "typing" bubble
-                const typingBubble = addMessageToChatUI(historyEl, 'model', '...');
-                sendBtnEl.disabled = true;
-
                 // Prepare messages for API call
                 let messagesForApi = [...chat.messages];
                 if (finalSystemPrompt) {
@@ -1061,6 +1110,16 @@
                     messages: messagesForApi,
                     stream: true
                 };
+
+                // --- DEBUG: Show Request Payload ---
+                if (debugModeCheckbox.checked) {
+                    addMessageToChatUI(historyEl, 'debug', JSON.stringify(payload, null, 2));
+                }
+                // -----------------------------------
+
+                // Add "typing" bubble
+                const typingBubble = addMessageToChatUI(historyEl, 'model', '...');
+                sendBtnEl.disabled = true;
 
                 let fullResponse = '';
                 const onStreamChunk = (chunk) => {
@@ -1193,6 +1252,10 @@
                 localStorage.setItem(STORAGE_KEY_MODEL, newModel);
                 savedModel = newModel;
                 showMessage(`Global default model saved: ${newModel}`, 'success');
+            });
+            // NEW: Debug Mode Saver
+            debugModeCheckbox.addEventListener('change', () => {
+                localStorage.setItem(STORAGE_KEY_DEBUG_MODE, debugModeCheckbox.checked);
             });
 
             // 5. NEW: Chat Session Listeners
