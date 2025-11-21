@@ -1188,18 +1188,26 @@
                             if (result && result.response) {
                                 row[rule.outputCol] = result.response.trim();
                             } else {
-                                row[rule.outputCol] = "Error";
+                                throw new Error("Model returned empty or invalid response");
                             }
                         } catch (err) {
                             // Debug Logging - Error
                             if (batchDebugCheckbox.checked) {
                                 const logEntryErr = document.createElement('div');
-                                logEntryErr.className = 'mb-4 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800';
+                                logEntryErr.className = 'mb-2 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800';
                                 logEntryErr.innerHTML = `<div class="text-red-400 font-bold text-xs">Row ${i + 1} [Error]</div><div class="text-gray-500 text-[10px]">${err.message}</div>`;
                                 batchDebugLog.appendChild(logEntryErr);
+                                
+                                // Log Skip Notice
+                                const logEntrySkip = document.createElement('div');
+                                logEntrySkip.className = 'mb-4 border-l-2 border-orange-600 pl-2 pb-2 border-b border-gray-800';
+                                logEntrySkip.innerHTML = `<div class="text-orange-400 font-bold text-xs">Row ${i + 1} [Skipped]</div><div class="text-gray-500 text-[10px]">Aborting remaining rules for this row due to error.</div>`;
+                                batchDebugLog.appendChild(logEntrySkip);
                                 batchDebugLog.scrollTop = batchDebugLog.scrollHeight;
                             }
+                            
                             row[rule.outputCol] = "Error: " + err.message;
+                            break; // STOP processing remaining rules for this row, continue to next row (outer loop)
                         }
                     }
 
@@ -1212,10 +1220,16 @@
                 // Finish
                 stopBatchBtn.classList.add('hidden');
                 startBatchBtn.classList.remove('hidden');
+                
+                // Always show download button (allows saving partial work if stopped)
+                downloadBatchBtn.classList.remove('hidden');
+
                 if (!batchStopRequested) {
                     batchStatus.textContent = 'Processing Complete!';
-                    downloadBatchBtn.classList.remove('hidden');
+                } else {
+                    batchStatus.textContent = 'Stopped by user. Partial results available for download.';
                 }
+                
                 renderBatchPreview(); // Show new columns
             });
 
@@ -1465,11 +1479,29 @@
 
                         while (true) {
                             const { done, value } = await reader.read();
-                            if (done) break;
+                            if (done) {
+                                // FIX: Process any remaining buffer content before exiting
+                                if (buffer.trim()) {
+                                    try {
+                                        const chunk = JSON.parse(buffer);
+                                        let contentChunk = '';
+                                        if (apiPath === '/api/chat') contentChunk = chunk.message?.content || '';
+                                        else contentChunk = chunk.response || '';
+
+                                        if (contentChunk) {
+                                            fullResponse += contentChunk;
+                                            if (onStreamChunk) onStreamChunk(contentChunk);
+                                        }
+                                    } catch (e) {
+                                        console.warn('Failed to parse final buffer line:', buffer, e);
+                                    }
+                                }
+                                break;
+                            }
                             
                             buffer += decoder.decode(value, { stream: true });
                             const lines = buffer.split('\n');
-                            buffer = lines.pop(); 
+                            buffer = lines.pop(); // Keep potential partial line
 
                             for (const line of lines) {
                                 if (line.trim() === '') continue;
@@ -1485,14 +1517,14 @@
                                     }
                                     if (chunk.done) {
                                         if (onStreamEnd) onStreamEnd(fullResponse);
-                                        return null; 
+                                        return null; // Stream finished
                                     }
                                 } catch (e) {
                                     console.warn('Failed to parse stream line:', line, e);
                                 }
                             }
                         }
-                        if (onStreamEnd) onStreamEnd(fullResponse); 
+                        if (onStreamEnd) onStreamEnd(fullResponse); // End of stream
                         return null;
                     }
                     
