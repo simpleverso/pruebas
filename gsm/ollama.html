@@ -6,6 +6,8 @@
     <title>Ollama Web Client</title>
     <!-- Load Tailwind CSS from CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load SheetJS for Excel/CSV processing -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class', // 'media' or 'class'
@@ -43,11 +45,8 @@
 
         <header class="text-center">
             <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Ollama Web Client</h1>
-            <p class="text-lg text-gray-400 mt-2">Analyze text and chat with your local models.</p>
+            <p class="text-lg text-gray-400 mt-2">Analyze text, chat, and batch process files with local models.</p>
         </header>
-
-        <!-- Configuration Section -->
-        <!-- MOVED: This section has been moved into the "Text Analysis" tab -->
 
         <!-- Tab Navigation -->
         <div class="mb-4 border-b border-gray-700">
@@ -60,6 +59,11 @@
                     class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
                     Text Analysis
                 </button>
+                <!-- NEW: Batch Processing Tab -->
+                <button id="tab-batch" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Excel/CSV Batch
+                </button>
             </nav>
         </div>
 
@@ -68,7 +72,7 @@
             <!-- Chat Panel (Default Visible) -->
             <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat">
                 <section class="flex flex-col gap-6">
-                    <!-- NEW: Global Chat Management -->
+                    <!-- Global Chat Management -->
                     <div class="flex justify-between items-center">
                         <h2 class="text-3xl font-bold text-cyan-400">Multi-Chat</h2>
                         <button id="new-chat-btn" class="px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900">
@@ -76,13 +80,13 @@
                         </button>
                     </div>
                     
-                    <!-- NEW: 2-Column Chat Layout -->
+                    <!-- 2-Column Chat Layout -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                         <!-- Panel A -->
                         <div id="chat-panel-a" class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
                             <h3 class="text-xl font-semibold text-gray-300">Panel A</h3>
-                            <!-- NEW: Per-Chat Model Select A -->
+                            <!-- Per-Chat Model Select A -->
                             <div class="flex flex-col">
                                 <label for="chat-model-select-a" class="text-sm font-medium text-gray-300 mb-1">Model</label>
                                 <select id="chat-model-select-a" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
@@ -92,9 +96,8 @@
                             <!-- Local System Prompt A -->
                             <div class="flex flex-col">
                                 <label for="chat-system-prompt-a" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
-                                <div class="flex gap-2"> <!-- NEW Wrapper -->
+                                <div class="flex gap-2"> 
                                     <textarea id="chat-system-prompt-a" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a pirate."></textarea>
-                                    <!-- NEW Save Button A -->
                                     <button id="save-prompt-btn-a" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                           <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -118,7 +121,7 @@
                             <div id="chat-history-a" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto flex flex-col gap-4">
                                 <!-- Messages for A -->
                             </div>
-                            <!-- NEW: Image Preview A -->
+                            <!-- Image Preview A -->
                             <div id="chat-image-preview-a" class="hidden relative w-24 h-24 mb-2">
                                 <img id="preview-img-a" src="" class="w-full h-full object-cover rounded-lg border border-gray-600">
                                 <button id="remove-img-btn-a" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-0 w-6 h-6 flex items-center justify-center text-lg font-bold leading-none focus:outline-none">&times;</button>
@@ -126,15 +129,12 @@
                             <!-- Input A -->
                             <div class="flex gap-2">
                                 <input id="chat-input-a" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Type message for Panel A...">
-                                <!-- NEW: Hidden file input -->
                                 <input type="file" id="chat-file-input-a" class="hidden" accept="image/*">
-                                <!-- NEW: Image attach button -->
                                 <button id="chat-attach-btn-a" class="px-4 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Attach Image">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
-                                <!-- NEW: Clear Chat Button A -->
                                 <button id="chat-clear-btn-a" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -147,7 +147,7 @@
                         <!-- Panel B -->
                         <div id="chat-panel-b" class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
                             <h3 class="text-xl font-semibold text-gray-300">Panel B</h3>
-                            <!-- NEW: Per-Chat Model Select B -->
+                            <!-- Per-Chat Model Select B -->
                             <div class="flex flex-col">
                                 <label for="chat-model-select-b" class="text-sm font-medium text-gray-300 mb-1">Model</label>
                                 <select id="chat-model-select-b" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
@@ -157,9 +157,8 @@
                             <!-- Local System Prompt B -->
                             <div class="flex flex-col">
                                 <label for="chat-system-prompt-b" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
-                                <div class="flex gap-2"> <!-- NEW Wrapper -->
+                                <div class="flex gap-2"> 
                                     <textarea id="chat-system-prompt-b" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful C++ expert."></textarea>
-                                    <!-- NEW Save Button B -->
                                     <button id="save-prompt-btn-b" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                           <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -183,7 +182,7 @@
                             <div id="chat-history-b" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto flex flex-col gap-4">
                                 <!-- Messages for B -->
                             </div>
-                            <!-- NEW: Image Preview B -->
+                            <!-- Image Preview B -->
                             <div id="chat-image-preview-b" class="hidden relative w-24 h-24 mb-2">
                                 <img id="preview-img-b" src="" class="w-full h-full object-cover rounded-lg border border-gray-600">
                                 <button id="remove-img-btn-b" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-0 w-6 h-6 flex items-center justify-center text-lg font-bold leading-none focus:outline-none">&times;</button>
@@ -191,15 +190,12 @@
                             <!-- Input B -->
                             <div class="flex gap-2">
                                 <input id="chat-input-b" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Type message for Panel B...">
-                                <!-- NEW: Hidden file input -->
                                 <input type="file" id="chat-file-input-b" class="hidden" accept="image/*">
-                                <!-- NEW: Image attach button -->
                                 <button id="chat-attach-btn-b" class="px-4 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Attach Image">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
-                                <!-- NEW: Clear Chat Button B -->
                                 <button id="chat-clear-btn-b" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -217,7 +213,7 @@
             <div id="panel-analysis" role="tabpanel" aria-labelledby="tab-analysis" class="hidden">
                 <section class="bg-gray-800 rounded-xl shadow-lg p-6">
                     
-                    <!-- START: Moved Configuration Section -->
+                    <!-- Configuration Section -->
                     <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuration & Analysis Setup</h2>
             
                     <!-- CORS Warning -->
@@ -244,7 +240,7 @@
                         <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
                             Test Connection & Reload Models
                         </button>
-                        <!-- NEW: Debug Mode Toggle -->
+                        <!-- Debug Mode Toggle -->
                         <div class="flex items-center">
                             <input type="checkbox" id="debug-mode-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2 focus:ring-offset-gray-800">
                             <label for="debug-mode-checkbox" class="ml-2 text-sm font-medium text-gray-300">Show raw request payloads (Debug Mode)</label>
@@ -257,7 +253,6 @@
                     </div>
                     
                     <div id="connection-status" class="mt-4 text-sm"></div>
-                    <!-- END: Moved Configuration Section -->
                     
                     <!-- Divider -->
                     <hr class="border-t border-gray-700 my-6">
@@ -289,6 +284,77 @@
                     </div>
                 </section>
             </div>
+
+            <!-- NEW: Batch Processing Panel -->
+            <div id="panel-batch" role="tabpanel" aria-labelledby="tab-batch" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Excel/CSV Batch Processing</h2>
+                    <p class="text-sm text-gray-400 mb-6">Upload a file, map columns to variables, and define rules to process each row with Ollama.</p>
+
+                    <!-- Step 1: Upload -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">1. Upload File (.xlsx, .xls, .csv)</label>
+                        <input type="file" id="batch-file-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-sm text-gray-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-cyan-600 file:text-white
+                            hover:file:bg-cyan-700
+                        "/>
+                    </div>
+
+                    <!-- Step 2: Preview & Headers -->
+                    <div id="batch-preview-container" class="hidden mb-6">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">2. File Preview (First 3 Rows)</h3>
+                        <div class="overflow-x-auto bg-gray-900 rounded-lg p-2 border border-gray-700">
+                            <table id="batch-preview-table" class="w-full text-sm text-left text-gray-400">
+                                <!-- JS will populate this -->
+                            </table>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">Detected Headers: <span id="batch-headers-list" class="text-cyan-400 font-mono"></span></div>
+                    </div>
+
+                    <!-- Step 3: Rules -->
+                    <div id="batch-rules-wrapper" class="hidden mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-300">3. Processing Rules</h3>
+                            <button id="add-rule-btn" class="px-3 py-1 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700 transition">
+                                + Add Rule
+                            </button>
+                        </div>
+                        
+                        <div id="rules-container" class="flex flex-col gap-4">
+                            <!-- Rules will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Process & Download -->
+                    <div id="batch-actions-wrapper" class="hidden border-t border-gray-700 pt-6">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-4">
+                                <button id="start-batch-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Start Processing
+                                </button>
+                                <button id="stop-batch-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    Stop
+                                </button>
+                            </div>
+
+                            <!-- Progress -->
+                            <div id="batch-progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 dark:bg-gray-700">
+                                <div id="batch-progress-bar" class="bg-cyan-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div id="batch-status" class="text-sm text-gray-400 font-mono"></div>
+
+                            <!-- Download -->
+                            <button id="download-batch-btn" class="hidden w-full sm:w-auto self-start px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-lg">
+                                Download Processed File
+                            </button>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
         </div>
 
     </div>
@@ -310,8 +376,8 @@
             const modelSelect = document.getElementById('model-select');
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
-            const testConnectionBtn = document.getElementById('test-connection-btn'); // <-- NEW
-            const debugModeCheckbox = document.getElementById('debug-mode-checkbox'); // <-- NEW
+            const testConnectionBtn = document.getElementById('test-connection-btn');
+            const debugModeCheckbox = document.getElementById('debug-mode-checkbox');
 
             // Analysis Elements
             const analysisInput = document.getElementById('analysis-input');
@@ -320,22 +386,39 @@
             const copyInputBtn = document.getElementById('copy-input-btn');
             const copyOutputBtn = document.getElementById('copy-output-btn');
 
+            // Batch Elements
+            const tabBatch = document.getElementById('tab-batch');
+            const panelBatch = document.getElementById('panel-batch');
+            const batchFileInput = document.getElementById('batch-file-input');
+            const batchPreviewContainer = document.getElementById('batch-preview-container');
+            const batchPreviewTable = document.getElementById('batch-preview-table');
+            const batchHeadersList = document.getElementById('batch-headers-list');
+            const batchRulesWrapper = document.getElementById('batch-rules-wrapper');
+            const rulesContainer = document.getElementById('rules-container');
+            const addRuleBtn = document.getElementById('add-rule-btn');
+            const batchActionsWrapper = document.getElementById('batch-actions-wrapper');
+            const startBatchBtn = document.getElementById('start-batch-btn');
+            const stopBatchBtn = document.getElementById('stop-batch-btn');
+            const batchProgressContainer = document.getElementById('batch-progress-container');
+            const batchProgressBar = document.getElementById('batch-progress-bar');
+            const batchStatus = document.getElementById('batch-status');
+            const downloadBatchBtn = document.getElementById('download-batch-btn');
+
             // --- Chat Elements (Panel A) ---
             const chatSelectA = document.getElementById('chat-select-a');
             const deleteChatBtnA = document.getElementById('delete-chat-btn-a');
             const chatHistoryA = document.getElementById('chat-history-a');
             const chatInputA = document.getElementById('chat-input-a');
             const chatSendBtnA = document.getElementById('chat-send-btn-a');
-            const chatClearBtnA = document.getElementById('chat-clear-btn-a'); // <-- NEW
+            const chatClearBtnA = document.getElementById('chat-clear-btn-a');
             const chatSystemPromptA = document.getElementById('chat-system-prompt-a');
-            const savePromptBtnA = document.getElementById('save-prompt-btn-a'); // <-- NEW
-            // NEW: Image Elements A
+            const savePromptBtnA = document.getElementById('save-prompt-btn-a');
             const chatAttachBtnA = document.getElementById('chat-attach-btn-a');
             const chatFileInputA = document.getElementById('chat-file-input-a');
             const chatImagePreviewA = document.getElementById('chat-image-preview-a');
             const previewImgA = document.getElementById('preview-img-a');
             const removeImgBtnA = document.getElementById('remove-img-btn-a');
-            const chatModelSelectA = document.getElementById('chat-model-select-a'); // <-- NEW
+            const chatModelSelectA = document.getElementById('chat-model-select-a');
 
 
             // --- Chat Elements (Panel B) ---
@@ -344,16 +427,15 @@
             const chatHistoryB = document.getElementById('chat-history-b');
             const chatInputB = document.getElementById('chat-input-b');
             const chatSendBtnB = document.getElementById('chat-send-btn-b');
-            const chatClearBtnB = document.getElementById('chat-clear-btn-b'); // <-- NEW
+            const chatClearBtnB = document.getElementById('chat-clear-btn-b');
             const chatSystemPromptB = document.getElementById('chat-system-prompt-b');
-            const savePromptBtnB = document.getElementById('save-prompt-btn-b'); // <-- NEW
-            // NEW: Image Elements B
+            const savePromptBtnB = document.getElementById('save-prompt-btn-b');
             const chatAttachBtnB = document.getElementById('chat-attach-btn-b');
             const chatFileInputB = document.getElementById('chat-file-input-b');
             const chatImagePreviewB = document.getElementById('chat-image-preview-b');
             const previewImgB = document.getElementById('preview-img-b');
             const removeImgBtnB = document.getElementById('remove-img-btn-b');
-            const chatModelSelectB = document.getElementById('chat-model-select-b'); // <-- NEW
+            const chatModelSelectB = document.getElementById('chat-model-select-b');
 
             // --- Global Chat Elements ---
             const newChatBtn = document.getElementById('new-chat-btn');
@@ -365,13 +447,19 @@
             const panelAnalysis = document.getElementById('panel-analysis');
 
             // --- State ---
-            let allChats = {}; // Object to store all chat sessions
+            let allChats = {}; 
             let activeChatIdA = null;
             let activeChatIdB = null;
             let savedModel = localStorage.getItem(STORAGE_KEY_MODEL);
-            // NEW: Staged images state
-            let stagedImageA = null; // Will store { dataUrl, base64 }
-            let stagedImageB = null; // Will store { dataUrl, base64 }
+            let stagedImageA = null; 
+            let stagedImageB = null;
+            
+            // Batch State
+            let currentWorkbook = null;
+            let currentSheetName = null;
+            let currentData = []; // Array of objects
+            let currentHeaders = [];
+            let batchStopRequested = false;
 
             // --- Load Saved Values ---
             const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
@@ -419,22 +507,15 @@
 
             /**
              * Adds a message bubble to a specific chat history UI.
-             * @param {HTMLElement} historyElement - The chat history element (e.g., chatHistoryA).
-             * @param {'user' | 'model' | 'debug'} role - Who sent the message.
-             * @param {string} content - The text content of the message.
-             * @param {string | null} dataUrl - The data URL of an image to display.
-             * @returns {HTMLElement} - The p element created for the message.
              */
             function addMessageToChatUI(historyElement, role, content, dataUrl = null) {
                 const messageWrapper = document.createElement('div');
                 const messageBubble = document.createElement('div');
                 const messageContent = document.createElement('p');
                 
-                // Use flex, items-start (to align bubble and copy button), and gap
                 messageWrapper.classList.add('flex', 'items-start', 'gap-2');
                 
                 if (role === 'debug') {
-                    // Special styling for Debug messages
                     messageWrapper.classList.add('justify-center', 'w-full', 'my-2');
                     messageBubble.classList.add('bg-gray-800', 'border', 'border-gray-600', 'rounded-lg', 'p-2', 'w-full', 'max-w-2xl', 'text-xs');
                     
@@ -454,10 +535,9 @@
                     messageWrapper.appendChild(messageBubble);
                     historyElement.appendChild(messageWrapper);
                     historyElement.scrollTop = historyElement.scrollHeight;
-                    return details; // Return details instead of p
+                    return details; 
                 }
 
-                // Standard messages
                 messageBubble.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'sm:max-w-md');
                 messageContent.classList.add('text-sm');
 
@@ -469,7 +549,6 @@
                     messageBubble.classList.add('bg-cyan-800', 'text-cyan-100');
                 }
 
-                // NEW: Add image if it exists
                 if (dataUrl) {
                     const img = document.createElement('img');
                     img.src = dataUrl;
@@ -477,23 +556,16 @@
                     messageBubble.appendChild(img);
                 }
 
-                // Add text content if it exists, or if it's a model bubble (for streaming)
                 if (content) {
-                    // OLD: messageContent.textContent = content;
-                    messageContent.innerHTML = mdToHtml(content); // NEW: Format as HTML
+                    messageContent.innerHTML = mdToHtml(content); 
                     messageBubble.appendChild(messageContent);
                 } else if (role === 'model') {
-                    // OLD: messageContent.textContent = '...'; // For '...' typing bubble
-                    // NEW: Use an animated span
                     messageContent.innerHTML = '<span class="animate-pulse">...</span>';
                     messageBubble.appendChild(messageContent);
                 }
-                // If content is empty but dataUrl exists, the <p> is just not added. This is correct.
 
-                // Always append the bubble first
                 messageWrapper.appendChild(messageBubble);
 
-                // --- NEW: Add Copy Button for Model Responses ---
                 if (role === 'model') {
                     const copyBtn = document.createElement('button');
                     copyBtn.classList.add(
@@ -502,14 +574,8 @@
                         'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800'
                     );
                     
-                    const copyIconSVG = `
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>`;
-                    const checkIconSVG = `
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>`;
+                    const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`;
+                    const checkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
                     
                     copyBtn.innerHTML = copyIconSVG;
                     copyBtn.title = 'Copy response';
@@ -517,131 +583,70 @@
                     copyBtn.addEventListener('click', () => {
                         const textToCopy = messageContent.textContent;
                         if (!textToCopy) return;
-
                         const textarea = document.createElement('textarea');
                         textarea.value = textToCopy;
-                        textarea.style.position = 'fixed';
-                        textarea.style.opacity = 0;
                         document.body.appendChild(textarea);
                         textarea.select();
                         try {
                             document.execCommand('copy');
                             copyBtn.innerHTML = checkIconSVG;
-                            copyBtn.title = 'Copied!';
-                            setTimeout(() => {
-                                copyBtn.innerHTML = copyIconSVG;
-                                copyBtn.title = 'Copy response';
-                            }, 2000);
-                        } catch (err) {
-                            console.error('Failed to copy text: ', err);
-                            copyBtn.title = 'Failed to copy';
-                            setTimeout(() => {
-                                copyBtn.innerHTML = copyIconSVG;
-                                copyBtn.title = 'Copy response';
-                            }, 2000);
-                        }
+                            setTimeout(() => { copyBtn.innerHTML = copyIconSVG; }, 2000);
+                        } catch (err) { console.error('Copy failed', err); }
                         document.body.removeChild(textarea);
                     });
 
-                    messageWrapper.appendChild(copyBtn); // Append button to the wrapper
+                    messageWrapper.appendChild(copyBtn);
                 }
-                // --- END NEW ---
 
                 historyElement.appendChild(messageWrapper);
                 historyElement.scrollTop = historyElement.scrollHeight;
 
-                return messageContent; // Return the p tag for streaming updates
+                return messageContent;
             }
 
-
-            // --- NEW: Markdown to HTML conversion ---
-            
-            /**
-             * Safely converts markdown-like text to HTML for display.
-             * It sanitizes all HTML first, then applies formatting.
-             * @param {string} text - The raw text from the model.
-             * @returns {string} - Safe HTML.
-             */
+            // --- Markdown to HTML ---
             function mdToHtml(text) {
                 if (!text) return '';
-                // 1. Sanitize: escape all HTML tags
                 let safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-                // 2. Format block elements (code)
-                // We split by ``` to find code blocks
                 const parts = safeText.split('```');
                 let html = '';
                 
                 for (let i = 0; i < parts.length; i++) {
                     let part = parts[i];
                     if (i % 2 === 0) {
-                        // This is a "text" part (outside a code block)
-                        
-                        // Handle inline code (`)
-                        part = part.replace(/`([^`]+?)`/g, 
-                            '<code class="bg-gray-700 text-cyan-300 px-1.5 py-0.5 rounded-md">$1</code>');
-                        
-                        // Bold (**)
+                        part = part.replace(/`([^`]+?)`/g, '<code class="bg-gray-700 text-cyan-300 px-1.5 py-0.5 rounded-md">$1</code>');
                         part = part.replace(/\*\*([^\s].*?[^\s])\*\*/g, '<strong>$1</strong>');
-                        
-                        // Italic (*)
                         part = part.replace(/\*([^\s].*?[^\s])\*/g, '<em>$1</em>');
-
-                        // Handle lists (simple)
                         part = part.replace(/^\s*\*\s+(.*)/gm, '<li class="ml-5 list-disc">$1</li>');
                         part = part.replace(/^\s*\d+\.\s+(.*)/gm, '<li class="ml-5 list-decimal">$1</li>');
-
-                        // Finally, convert newlines to <br>
                         html += part.replace(/\n/g, '<br>');
-
                     } else {
-                        // This is a "code" part (inside a code block)
-                        // It might have a language hint at the start
                         let lang = 'plaintext';
                         let code = part;
-                        
                         const newlineIndex = part.indexOf('\n');
                         if (newlineIndex === 0) {
-                            // No language hint
-                            code = part.substring(1); // remove leading \n
+                            code = part.substring(1); 
                         } else {
                             const firstLine = part.substring(0, newlineIndex).trim();
-                            if (firstLine.length > 0 && !firstLine.includes(' ')) { // Simple check for lang
+                            if (firstLine.length > 0 && !firstLine.includes(' ')) {
                                 lang = firstLine;
                                 code = part.substring(newlineIndex + 1);
                             } else {
-                                // No lang, just code
                                 code = part;
                             }
                         }
-                        // The code is already sanitized (all < > are &lt; &gt;)
                         html += `<pre class="bg-gray-950 p-3 my-2 rounded-lg overflow-x-auto"><code class_="language-${lang}">${code.trim()}</code></pre>`;
                     }
                 }
-
-                // Clean up extra <br> tags
-                html = html.replace(/<br><pre/g, '<pre');
-                html = html.replace(/<\/pre><br>/g, '</pre>');
-                html = html.replace(/(<br>\s*){2,}/g, '<br><br>'); // Max two newlines
-                html = html.replace(/<br><li/g, '<li');
-                html = html.replace(/<\/li><br>/g, '</li>');
-
+                html = html.replace(/<br><pre/g, '<pre').replace(/<\/pre><br>/g, '</pre>').replace(/(<br>\s*){2,}/g, '<br><br>').replace(/<br><li/g, '<li').replace(/<\/li><br>/g, '</li>');
                 return html;
             }
 
 
-            // --- NEW: Image Handling Functions ---
-            
-            /**
-             * Handles file selection from the input.
-             * @param {'a' | 'b'} panelSuffix - The panel to handle the upload for.
-             * @param {Event} event - The file input change event.
-             */
+            // --- Image Handling ---
             function handleImageUpload(panelSuffix, event) {
                 const file = event.target.files[0];
-                if (!file || !file.type.startsWith('image/')) {
-                    return;
-                }
+                if (!file || !file.type.startsWith('image/')) return;
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -659,35 +664,276 @@
                     }
                 };
                 reader.readAsDataURL(file);
-                
-                // Clear the file input's value
                 event.target.value = null;
             }
 
-            /**
-             * Clears the staged image for a specific panel.
-             * @param {'a' | 'b'} panelSuffix - The panel to clear.
-             */
             function clearStagedImage(panelSuffix) {
                 if (panelSuffix === 'a') {
                     stagedImageA = null;
                     previewImgA.src = '';
                     chatImagePreviewA.classList.add('hidden');
-                    chatFileInputA.value = null; // Clear file input
+                    chatFileInputA.value = null; 
                 } else {
                     stagedImageB = null;
                     previewImgB.src = '';
                     chatImagePreviewB.classList.add('hidden');
-                    chatFileInputB.value = null; // Clear file input
+                    chatFileInputB.value = null; 
                 }
             }
 
 
+            // --- Batch Processing Functions ---
+
+            // 1. File Upload & Parse
+            batchFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    currentWorkbook = XLSX.read(data, {type: 'array'});
+                    
+                    // Use first sheet
+                    currentSheetName = currentWorkbook.SheetNames[0];
+                    const worksheet = currentWorkbook.Sheets[currentSheetName];
+                    
+                    // Parse to JSON
+                    currentData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    // Get Headers from the sheet directly to ensure we catch all (sheet_to_json uses keys of first object, which might skip empty cols)
+                    // But simplified: use keys of first row
+                    if (currentData.length > 0) {
+                        currentHeaders = Object.keys(currentData[0]);
+                    } else {
+                        currentHeaders = [];
+                    }
+
+                    // Update UI
+                    renderBatchPreview();
+                    batchPreviewContainer.classList.remove('hidden');
+                    batchRulesWrapper.classList.remove('hidden');
+                    batchActionsWrapper.classList.remove('hidden');
+                    
+                    // Reset rules
+                    rulesContainer.innerHTML = '';
+                    addBatchRuleUI(); // Add one empty rule
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            function renderBatchPreview() {
+                batchPreviewTable.innerHTML = '';
+                if (currentData.length === 0) return;
+
+                // Header Row
+                const thead = document.createElement('thead');
+                const trHead = document.createElement('tr');
+                trHead.className = 'bg-gray-800 text-xs uppercase';
+                currentHeaders.forEach(h => {
+                    const th = document.createElement('th');
+                    th.className = 'px-4 py-2 font-medium text-cyan-500';
+                    th.textContent = h;
+                    trHead.appendChild(th);
+                });
+                thead.appendChild(trHead);
+                batchPreviewTable.appendChild(thead);
+
+                // Body Rows (First 3)
+                const tbody = document.createElement('tbody');
+                currentData.slice(0, 3).forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-gray-800 hover:bg-gray-800/50';
+                    currentHeaders.forEach(h => {
+                        const td = document.createElement('td');
+                        td.className = 'px-4 py-2 truncate max-w-xs';
+                        td.textContent = row[h] || '';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                batchPreviewTable.appendChild(tbody);
+
+                // Show available variables
+                batchHeadersList.textContent = currentHeaders.map(h => `{{${h}}}`).join(', ');
+            }
+
+            // 2. Rules UI
+            function addBatchRuleUI() {
+                const ruleId = Date.now();
+                const div = document.createElement('div');
+                div.className = 'bg-gray-700 p-4 rounded-lg border border-gray-600 relative flex flex-col gap-4';
+                div.dataset.ruleId = ruleId;
+
+                div.innerHTML = `
+                    <button class="absolute top-2 right-2 text-red-400 hover:text-red-300 text-sm font-bold delete-rule-btn">&times;</button>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                         <!-- Variable Definition Section -->
+                        <div class="sm:col-span-3">
+                             <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step A: Define Variable (Read Cell)</h4>
+                             <div class="flex flex-wrap items-end gap-2 text-sm">
+                                <span class="text-gray-300 py-2">Map Column</span>
+                                <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-gray-200 rule-var-col">
+                                    ${currentHeaders.map(h => `<option value="${h}">${h}</option>`).join('')}
+                                </select>
+                                <span class="text-gray-300 py-2">to Variable Name</span>
+                                <input type="text" class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-cyan-400 font-mono w-32 rule-var-name" placeholder="my_var" value="var_${ruleId}">
+                                <span class="text-xs text-gray-500 py-2">(Use <code>{{name}}</code> in prompt)</span>
+                             </div>
+                        </div>
+
+                        <!-- Prompt Section -->
+                        <div class="sm:col-span-2">
+                             <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step B: Write Prompt</h4>
+                            <label class="block text-xs text-gray-500 mb-1">Prompt Template</label>
+                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-prompt" rows="3" placeholder="Analyze this: {{var_${ruleId}}}"></textarea>
+                        </div>
+
+                        <!-- Output Section -->
+                        <div>
+                             <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step C: Output</h4>
+                            <label class="block text-xs text-gray-500 mb-1">Save Response To Column</label>
+                            <input type="text" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-output-col" placeholder="New Column Name">
+                            
+                            <label class="block text-xs text-gray-500 mt-3 mb-1">Model</label>
+                            <select class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 rule-model">
+                                <option value="" disabled>Loading...</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                rulesContainer.appendChild(div);
+
+                // Populate model select for this rule
+                const ruleModelSelect = div.querySelector('.rule-model');
+                // Copy options from global model select
+                Array.from(modelSelect.options).forEach(opt => {
+                    ruleModelSelect.appendChild(opt.cloneNode(true));
+                });
+                ruleModelSelect.value = modelSelect.value; // Default to global
+
+                // Delete handler
+                div.querySelector('.delete-rule-btn').addEventListener('click', () => {
+                    div.remove();
+                });
+            }
+
+            addRuleBtn.addEventListener('click', addBatchRuleUI);
+
+
+            // 3. Run Batch
+            startBatchBtn.addEventListener('click', async () => {
+                // Gather rules
+                const ruleDivs = document.querySelectorAll('#rules-container > div');
+                const rules = [];
+                
+                ruleDivs.forEach(div => {
+                    const varCol = div.querySelector('.rule-var-col').value;
+                    const varName = div.querySelector('.rule-var-name').value.trim();
+                    const promptTemplate = div.querySelector('.rule-prompt').value;
+                    const outputCol = div.querySelector('.rule-output-col').value.trim();
+                    const model = div.querySelector('.rule-model').value;
+
+                    if (outputCol && promptTemplate) {
+                        rules.push({ varCol, varName, promptTemplate, outputCol, model });
+                    }
+                });
+
+                if (rules.length === 0) {
+                    showMessage('Please add at least one valid rule with a Prompt and Output Column.', 'error');
+                    return;
+                }
+
+                // UI Updates
+                startBatchBtn.classList.add('hidden');
+                stopBatchBtn.classList.remove('hidden');
+                batchProgressContainer.classList.remove('hidden');
+                downloadBatchBtn.classList.add('hidden');
+                batchStopRequested = false;
+                batchStatus.textContent = 'Starting...';
+                batchProgressBar.style.width = '0%';
+
+                // Process Loop
+                const total = currentData.length;
+                for (let i = 0; i < total; i++) {
+                    if (batchStopRequested) {
+                        batchStatus.textContent = 'Stopped by user.';
+                        break;
+                    }
+
+                    const row = currentData[i];
+                    
+                    // Process each rule for this row
+                    for (const rule of rules) {
+                        // 1. Get variable value
+                        // We prioritize the mapped variable name, but also allow raw {{Header}} access
+                        const varValue = row[rule.varCol] || '';
+                        
+                        // 2. Construct prompt
+                        let prompt = rule.promptTemplate;
+                        
+                        // Replace defined variable
+                        // Check if user wrapped it in {{}} in the input, if not, we assume they did in the template
+                        // Logic: Replace {{varName}} with varValue
+                        prompt = prompt.replace(new RegExp(`{{${rule.varName}}}`, 'g'), varValue);
+
+                        // Also replace any other {{Header}} standard placeholders
+                        currentHeaders.forEach(h => {
+                            prompt = prompt.replace(new RegExp(`{{${h}}}`, 'g'), row[h] || '');
+                        });
+
+                        // 3. Call Ollama
+                        const payload = {
+                            model: rule.model,
+                            prompt: prompt,
+                            stream: false
+                        };
+
+                        try {
+                            const result = await callOllama('/api/generate', payload);
+                            if (result && result.response) {
+                                row[rule.outputCol] = result.response.trim();
+                            } else {
+                                row[rule.outputCol] = "Error";
+                            }
+                        } catch (err) {
+                            row[rule.outputCol] = "Error: " + err.message;
+                        }
+                    }
+
+                    // Update Progress
+                    const percent = Math.round(((i + 1) / total) * 100);
+                    batchProgressBar.style.width = `${percent}%`;
+                    batchStatus.textContent = `Processing row ${i + 1} of ${total}...`;
+                }
+
+                // Finish
+                stopBatchBtn.classList.add('hidden');
+                startBatchBtn.classList.remove('hidden');
+                if (!batchStopRequested) {
+                    batchStatus.textContent = 'Processing Complete!';
+                    downloadBatchBtn.classList.remove('hidden');
+                }
+                renderBatchPreview(); // Show new columns
+            });
+
+            stopBatchBtn.addEventListener('click', () => {
+                batchStopRequested = true;
+            });
+
+            // 4. Download
+            downloadBatchBtn.addEventListener('click', () => {
+                const newWs = XLSX.utils.json_to_sheet(currentData);
+                const newWb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(newWb, newWs, "Processed");
+                XLSX.writeFile(newWb, "ollama_processed_result.xlsx");
+            });
+
+
             // --- Chat Session Management Functions ---
 
-            /**
-             * Loads all chats from localStorage and initializes the chat panels.
-             */
             function loadChats() {
                 const savedChats = localStorage.getItem(STORAGE_KEY_CHAT_SESSIONS);
                 allChats = savedChats ? JSON.parse(savedChats) : {};
@@ -696,21 +942,19 @@
                 activeChatIdB = localStorage.getItem(STORAGE_KEY_ACTIVE_CHAT_B);
 
                 if (Object.keys(allChats).length === 0) {
-                    // Create two default chats if none exist
-                    const newChatA = createNewChat(false); // don't save yet
-                    const newChatB = createNewChat(false); // don't save yet
+                    const newChatA = createNewChat(false); 
+                    const newChatB = createNewChat(false); 
                     activeChatIdA = newChatA.id;
                     activeChatIdB = newChatB.id;
                     saveChats();
                 }
 
-                // Ensure active chat IDs are valid
                 if (!allChats[activeChatIdA]) {
                     activeChatIdA = Object.keys(allChats)[0];
                     localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_A, activeChatIdA);
                 }
                 if (!allChats[activeChatIdB]) {
-                    activeChatIdB = Object.keys(allChats)[0] || activeChatIdA; // Default to first or A's chat
+                    activeChatIdB = Object.keys(allChats)[0] || activeChatIdA; 
                     localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_B, activeChatIdB);
                 }
 
@@ -719,29 +963,22 @@
                 loadChatHistory('b', activeChatIdB);
             }
 
-            /**
-             * Saves all chat sessions and active IDs to localStorage.
-             */
             function saveChats() {
                 localStorage.setItem(STORAGE_KEY_CHAT_SESSIONS, JSON.stringify(allChats));
                 localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_A, activeChatIdA);
                 localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_B, activeChatIdB);
             }
 
-            /**
-             * Populates both chat session dropdowns with all available chats.
-             */
             function renderChatListDropdowns() {
                 const selects = [chatSelectA, chatSelectB];
                 const sortedChatIds = Object.keys(allChats).sort((a, b) => (allChats[b].createdAt || 0) - (allChats[a].createdAt || 0));
                 
                 selects.forEach(select => {
-                    select.innerHTML = ''; // Clear options
+                    select.innerHTML = ''; 
                     for (const chatId of sortedChatIds) {
                         const chat = allChats[chatId];
                         const option = document.createElement('option');
                         option.value = chatId;
-                        // Use first user message as name, or a default
                         let chatName = chat.name;
                         if (!chatName && chat.messages.length > 0) {
                              const firstUserMsg = chat.messages.find(m => m.role === 'user');
@@ -750,8 +987,7 @@
                              }
                         }
                         if (!chatName) chatName = `Chat ${chatId.substring(0, 8)}`;
-                        chat.name = chatName; // Save back to object
-                        
+                        chat.name = chatName; 
                         option.textContent = chatName;
                         select.appendChild(option);
                     }
@@ -761,15 +997,10 @@
                 chatSelectB.value = activeChatIdB;
             }
 
-            /**
-             * Loads and displays the messages for a given chat panel.
-             * @param {'a' | 'b'} panelSuffix - The panel to load history for.
-             * @param {string} chatId - The ID of the chat to load.
-             */
             function loadChatHistory(panelSuffix, chatId) {
                 const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
                 const systemPromptEl = (panelSuffix === 'a') ? chatSystemPromptA : chatSystemPromptB;
-                const modelSelectEl = (panelSuffix === 'a') ? chatModelSelectA : chatModelSelectB; // <-- NEW
+                const modelSelectEl = (panelSuffix === 'a') ? chatModelSelectA : chatModelSelectB; 
                 historyEl.innerHTML = '';
                 const chat = allChats[chatId];
 
@@ -784,21 +1015,17 @@
 
                 systemPromptEl.value = chat.systemPrompt || '';
 
-                // <-- NEW: Load chat-specific model
                 if (chat.model) {
                     modelSelectEl.value = chat.model;
                 } else {
-                    // Default to global model if chat has no model saved
                     modelSelectEl.value = modelSelect.value;
-                    chat.model = modelSelectEl.value; // Save default back to chat
+                    chat.model = modelSelectEl.value; 
                 }
 
                 if (chat.messages.length > 0) {
                     chat.messages.forEach(msg => {
-                        // NEW: Re-create dataUrl from saved base64 for display
                         let dataUrl = null;
                         if (msg.role === 'user' && msg.images && msg.images[0]) {
-                            // Assume JPEG/PNG. This is a safe way to display base64 data.
                             dataUrl = `data:image/jpeg;base64,${msg.images[0]}`;
                         }
                         addMessageToChatUI(historyEl, msg.role, msg.content, dataUrl);
@@ -809,11 +1036,6 @@
                 historyEl.scrollTop = historyEl.scrollHeight;
             }
 
-            /**
-             * Creates a new chat session.
-             * @param {boolean} doSave - Whether to save to localStorage immediately.
-             * @returns {object} The new chat object.
-             */
             function createNewChat(doSave = true) {
                 const newChatId = crypto.randomUUID();
                 const newChat = {
@@ -822,7 +1044,7 @@
                     messages: [],
                     createdAt: Date.now(),
                     systemPrompt: "",
-                    model: modelSelect.value // <-- NEW: Default to global model
+                    model: modelSelect.value 
                 };
                 allChats[newChatId] = newChat;
                 
@@ -833,10 +1055,6 @@
                 return newChat;
             }
 
-            /**
-             * Deletes a chat session by its ID.
-             * @param {string} chatIdToDelete - The ID of the chat to delete.
-             */
             function deleteChat(chatIdToDelete) {
                 if (Object.keys(allChats).length <= 1) {
                     showMessage('Cannot delete the last chat session.', 'error');
@@ -859,11 +1077,6 @@
                 showMessage('Chat session deleted.', 'success');
             }
 
-            /**
-             * Switches the active chat for a specific panel.
-             * @param {'a' | 'b'} panelSuffix - The panel to switch.
-             * @param {string} newChatId - The ID of the new chat.
-             */
             function switchChat(panelSuffix, newChatId) {
                 if (panelSuffix === 'a') {
                     activeChatIdA = newChatId;
@@ -874,10 +1087,6 @@
                 loadChatHistory(panelSuffix, newChatId);
             }
 
-            /**
-             * Clears the message history for the active chat in a given panel.
-             * @param {'a' | 'b'} panelSuffix - The panel to clear.
-             */
             function clearChatHistory(panelSuffix) {
                 const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
                 if (!activeChatId || !allChats[activeChatId]) {
@@ -886,9 +1095,9 @@
                 }
 
                 const chat = allChats[activeChatId];
-                chat.messages = []; // Clear the messages
-                saveChats(); // Save the change
-                loadChatHistory(panelSuffix, activeChatId); // Reload the UI
+                chat.messages = []; 
+                saveChats(); 
+                loadChatHistory(panelSuffix, activeChatId); 
                 showMessage(`Chat history cleared for Panel ${panelSuffix}.`, 'success');
             }
 
@@ -898,17 +1107,13 @@
             const inactiveTabClasses = ['border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300'];
 
             function switchTab(newTab, newPanel) {
-                // Deactivate Chat
-                tabChat.setAttribute('aria-selected', 'false');
-                tabChat.classList.remove(...activeTabClasses);
-                tabChat.classList.add(...inactiveTabClasses);
-                panelChat.classList.add('hidden');
-
-                // Deactivate Analysis
-                tabAnalysis.setAttribute('aria-selected', 'false');
-                tabAnalysis.classList.remove(...activeTabClasses);
-                tabAnalysis.classList.add(...inactiveTabClasses);
-                panelAnalysis.classList.add('hidden');
+                // Deactivate all tabs and panels
+                [tabChat, tabAnalysis, tabBatch].forEach(t => {
+                    t.setAttribute('aria-selected', 'false');
+                    t.classList.remove(...activeTabClasses);
+                    t.classList.add(...inactiveTabClasses);
+                });
+                [panelChat, panelAnalysis, panelBatch].forEach(p => p.classList.add('hidden'));
 
                 // Activate New Tab/Panel
                 newTab.setAttribute('aria-selected', 'true');
@@ -919,6 +1124,7 @@
 
             tabChat.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabChat, panelChat); });
             tabAnalysis.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabAnalysis, panelAnalysis); });
+            tabBatch.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabBatch, panelBatch); });
 
 
             /**
@@ -963,7 +1169,7 @@
                             
                             buffer += decoder.decode(value, { stream: true });
                             const lines = buffer.split('\n');
-                            buffer = lines.pop(); // Keep potential partial line
+                            buffer = lines.pop(); 
 
                             for (const line of lines) {
                                 if (line.trim() === '') continue;
@@ -979,14 +1185,14 @@
                                     }
                                     if (chunk.done) {
                                         if (onStreamEnd) onStreamEnd(fullResponse);
-                                        return null; // Stream finished
+                                        return null; 
                                     }
                                 } catch (e) {
                                     console.warn('Failed to parse stream line:', line, e);
                                 }
                             }
                         }
-                        if (onStreamEnd) onStreamEnd(fullResponse); // End of stream
+                        if (onStreamEnd) onStreamEnd(fullResponse); 
                         return null;
                     }
                     
@@ -1015,7 +1221,7 @@
                 if (!prompt) return;
 
                 const model = modelSelect.value;
-                const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
+                //const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
                 const userSystemPrompt = systemPrompt.value.trim();
                 
                 analysisOutput.classList.add('animate-pulse');
@@ -1024,12 +1230,11 @@
                 
                 const payload = {
                     model: model,
-                    prompt: `Text:\n"""\n${prompt}\n"""\n\nAnalysis:`,
-                    system: userSystemPrompt || analysisSystemPrompt,
+                    prompt: `Text:\n"""\n${prompt}\n"""\n:`,
+                    system: userSystemPrompt,
                     stream: false 
                 };
 
-                // DEBUG: Prepend request if debug mode is on
                 if (debugModeCheckbox.checked) {
                     const debugInfo = `--- DEBUG REQUEST ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\n`;
                     analysisOutput.value = debugInfo + 'Analyzing...';
@@ -1040,7 +1245,6 @@
                 const data = await callOllama('/api/generate', payload);
 
                 if (data && data.response) {
-                    // DEBUG: Keep debug info if it was there
                     if (debugModeCheckbox.checked) {
                          const debugInfo = `--- DEBUG REQUEST ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\n`;
                          analysisOutput.value = debugInfo + data.response.trim();
@@ -1049,7 +1253,6 @@
                     }
                     showMessage(`Analysis complete with ${model}.`, 'success');
                 } else {
-                    // Don't overwrite debug info completely on error if possible, but simple is better
                     analysisOutput.value += '\n\nError: Could not get analysis.';
                 }
                 
@@ -1059,10 +1262,6 @@
             });
 
             // 2. Chat Send Handlers (for both panels)
-            /**
-             * Handles sending a chat message for a specific panel.
-             * @param {'a' | 'b'} panelSuffix - The panel sending the message.
-             */
             async function handleChatSend(panelSuffix) {
                 const inputEl = (panelSuffix === 'a') ? chatInputA : chatInputB;
                 const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
@@ -1071,7 +1270,7 @@
                 const stagedImage = (panelSuffix === 'a') ? stagedImageA : stagedImageB;
                 
                 const message = inputEl.value.trim();
-                if (!message && !stagedImage) return; // Don't send if empty
+                if (!message && !stagedImage) return; 
 
                 const globalSystemPrompt = systemPrompt.value.trim();
                 const chat = allChats[activeChatId];
@@ -1081,25 +1280,21 @@
                     return;
                 }
 
-                const model = chat.model; // <-- NEW: Use chat-specific model
+                const model = chat.model; 
                 const localSystemPrompt = chat.systemPrompt ? chat.systemPrompt.trim() : '';
                 const finalSystemPrompt = localSystemPrompt || globalSystemPrompt;
 
-                // Add user message to UI
                 addMessageToChatUI(historyEl, 'user', message, stagedImage ? stagedImage.dataUrl : null);
                 
-                // Add user message to state (with API-ready base64)
                 const userMessage = { role: 'user', content: message };
                 if (stagedImage) {
                     userMessage.images = [stagedImage.base64];
                 }
                 chat.messages.push(userMessage);
                 
-                // Clear input and staged image
                 inputEl.value = '';
                 clearStagedImage(panelSuffix);
 
-                // Prepare messages for API call
                 let messagesForApi = [...chat.messages];
                 if (finalSystemPrompt) {
                     messagesForApi.unshift({ role: 'system', content: finalSystemPrompt });
@@ -1111,39 +1306,31 @@
                     stream: true
                 };
 
-                // --- DEBUG: Show Request Payload ---
                 if (debugModeCheckbox.checked) {
                     addMessageToChatUI(historyEl, 'debug', JSON.stringify(payload, null, 2));
                 }
-                // -----------------------------------
 
-                // Add "typing" bubble
                 const typingBubble = addMessageToChatUI(historyEl, 'model', '...');
                 sendBtnEl.disabled = true;
 
                 let fullResponse = '';
                 const onStreamChunk = (chunk) => {
                     fullResponse += chunk;
-                    // OLD: typingBubble.textContent = fullResponse;
-                    typingBubble.innerHTML = mdToHtml(fullResponse); // NEW
+                    typingBubble.innerHTML = mdToHtml(fullResponse); 
                     historyEl.scrollTop = historyEl.scrollHeight;
                 };
 
                 const onStreamEnd = (finalResponse) => {
-                    // OLD: typingBubble.classList.remove('animate-pulse');
-                    // OLD: typingBubble.textContent = finalResponse;
-                    typingBubble.innerHTML = mdToHtml(finalResponse); // NEW
+                    typingBubble.innerHTML = mdToHtml(finalResponse); 
                     
-                    // Add model response to state
                     chat.messages.push({ role: 'assistant', content: finalResponse });
                     
-                    // Update chat name if it's the first user message
                     const userMessages = chat.messages.filter(m => m.role === 'user');
                     if (userMessages.length === 1 && userMessages[0].content) {
                         chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`;
                         renderChatListDropdowns();
                     }
-                    saveChats(); // Save updated messages and name
+                    saveChats(); 
                     
                     sendBtnEl.disabled = false;
                     showMessage(`Chat response complete with ${model}.`, 'success');
@@ -1152,9 +1339,8 @@
                 await callOllama('/api/chat', payload, onStreamChunk, onStreamEnd);
             }
 
-            // --- Panel A Listeners ---
             chatSendBtnA.addEventListener('click', () => handleChatSend('a'));
-            chatClearBtnA.addEventListener('click', () => clearChatHistory('a')); // <-- NEW
+            chatClearBtnA.addEventListener('click', () => clearChatHistory('a')); 
             chatInputA.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1162,10 +1348,6 @@
                 }
             });
             
-            // REMOVED old listener
-            // chatSystemPromptA.addEventListener('input', () => { ... });
-
-            // NEW click listener
             savePromptBtnA.addEventListener('click', () => {
                 if (allChats[activeChatIdA]) {
                     allChats[activeChatIdA].systemPrompt = chatSystemPromptA.value;
@@ -1176,7 +1358,6 @@
                 }
             });
 
-            // NEW: Model listener A
             chatModelSelectA.addEventListener('change', () => {
                 if (allChats[activeChatIdA]) {
                     allChats[activeChatIdA].model = chatModelSelectA.value;
@@ -1184,15 +1365,13 @@
                     showMessage(`Panel A model set to ${chatModelSelectA.value}`, 'success');
                 }
             });
-            // NEW: Image listeners A
             chatAttachBtnA.addEventListener('click', () => chatFileInputA.click());
             chatFileInputA.addEventListener('change', (e) => handleImageUpload('a', e));
             removeImgBtnA.addEventListener('click', () => clearStagedImage('a'));
 
 
-            // --- Panel B Listeners ---
             chatSendBtnB.addEventListener('click', () => handleChatSend('b'));
-            chatClearBtnB.addEventListener('click', () => clearChatHistory('b')); // <-- NEW
+            chatClearBtnB.addEventListener('click', () => clearChatHistory('b')); 
             chatInputB.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1200,10 +1379,6 @@
                 }
             });
             
-            // REMOVED old listener
-            // chatSystemPromptB.addEventListener('input', () => { ... });
-
-            // NEW click listener
             savePromptBtnB.addEventListener('click', () => {
                 if (allChats[activeChatIdB]) {
                     allChats[activeChatIdB].systemPrompt = chatSystemPromptB.value;
@@ -1214,7 +1389,6 @@
                 }
             });
 
-            // NEW: Model listener B
             chatModelSelectB.addEventListener('change', () => {
                 if (allChats[activeChatIdB]) {
                     allChats[activeChatIdB].model = chatModelSelectB.value;
@@ -1222,7 +1396,6 @@
                     showMessage(`Panel B model set to ${chatModelSelectB.value}`, 'success');
                 }
             });
-            // NEW: Image listeners B
             chatAttachBtnB.addEventListener('click', () => chatFileInputB.click());
             chatFileInputB.addEventListener('change', (e) => handleImageUpload('b', e));
             removeImgBtnB.addEventListener('click', () => clearStagedImage('b'));
@@ -1232,7 +1405,7 @@
             copyInputBtn.addEventListener('click', () => copyToClipboard(analysisInput.value, copyInputBtn));
             copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
 
-            // NEW: Test Connection Button
+            // Test Connection Button
             testConnectionBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 showMessage('Testing connection...', 'success');
@@ -1243,7 +1416,6 @@
             ollamaEndpoint.addEventListener('change', () => {
                 localStorage.setItem(STORAGE_KEY_ENDPOINT, ollamaEndpoint.value);
                 showMessage('Endpoint saved. Click "Test Connection" to apply.', 'success');
-                // checkConnectionAndLoadModels(); // Removed - now manual
             });
             systemPrompt.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
             analysisInput.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
@@ -1253,17 +1425,15 @@
                 savedModel = newModel;
                 showMessage(`Global default model saved: ${newModel}`, 'success');
             });
-            // NEW: Debug Mode Saver
             debugModeCheckbox.addEventListener('change', () => {
                 localStorage.setItem(STORAGE_KEY_DEBUG_MODE, debugModeCheckbox.checked);
             });
 
-            // 5. NEW: Chat Session Listeners
+            // 5. Chat Session Listeners
             newChatBtn.addEventListener('click', () => {
                 const newChat = createNewChat();
-                // Make the new chat active in Panel A
                 switchChat('a', newChat.id);
-                renderChatListDropdowns(); // Re-render to show it
+                renderChatListDropdowns(); 
             });
             deleteChatBtnA.addEventListener('click', () => deleteChat(activeChatIdA));
             deleteChatBtnB.addEventListener('click', () => deleteChat(activeChatIdB));
@@ -1273,10 +1443,9 @@
 
             // --- Initial Check Function ---
             
-            // NEW: Helper to populate a select element
             function populateModelSelect(selectElement, models) {
-                const currentValue = selectElement.value; // Preserve current selection if possible
-                selectElement.innerHTML = ''; // Clear
+                const currentValue = selectElement.value; 
+                selectElement.innerHTML = ''; 
                 
                 if (models && models.length > 0) {
                     models.forEach(model => {
@@ -1311,10 +1480,13 @@
                         
                         const data = await response.json();
                         
-                        // NEW: Populate all three model selects
                         populateModelSelect(modelSelect, data.models);
                         populateModelSelect(chatModelSelectA, data.models);
                         populateModelSelect(chatModelSelectB, data.models);
+
+                        // Batch rule models
+                        const ruleModelSelects = document.querySelectorAll('.rule-model');
+                        ruleModelSelects.forEach(el => populateModelSelect(el, data.models));
 
                         if (data.models && data.models.length > 0) {
                             if (savedModel && Array.from(modelSelect.options).some(opt => opt.value === savedModel)) {
@@ -1327,7 +1499,7 @@
                             }
                             showMessage('Connected and models loaded.', 'success');
                         } else {
-                            modelSelect.innerHTML = '<option value="" disabled>No models found</option>'; // Keep this for the global one
+                            modelSelect.innerHTML = '<option value="" disabled>No models found</option>'; 
                             showMessage('Connected, but no models found. Pull a model (e.g., `ollama pull llama3`).', 'error');
                         }
                     } else {
@@ -1335,15 +1507,14 @@
                     }
                 } catch (err) {
                     showMessage('Failed to connect to Ollama. Check endpoint and CORS.', 'error');
-                    // NEW: Clear all selects
-                    const allSelects = [modelSelect, chatModelSelectA, chatModelSelectB];
+                    const allSelects = [modelSelect, chatModelSelectA, chatModelSelectB, ...document.querySelectorAll('.rule-model')];
                     allSelects.forEach(sel => sel.innerHTML = '<option value="" disabled>Connection failed</option>');
                 }
             }
 
             // --- Run Initial Load ---
-            loadChats(); // Load chats first to get active IDs
-            checkConnectionAndLoadModels(); // Now check connection and load models
+            loadChats(); 
+            checkConnectionAndLoadModels(); 
             
         });
     </script>
