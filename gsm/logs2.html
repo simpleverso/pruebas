@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Updated Title -->
+    <title>Text, JSON & Base64 Tools</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+        h1 {
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        p {
+            text-align: center;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .label-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+        .label-group h2, .label-group label {
+            margin-bottom: 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        textarea, input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            box-sizing: border-box; 
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        /* --- New Base64 Tool Styles --- */
+        .tool-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .tool-selector label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .tool-selector input[type="radio"] {
+            width: auto;
+        }
+        #imagePreview {
+            display: none; /* Hidden by default */
+            margin-top: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0.5rem;
+            background-color: #fdfdfd;
+        }
+        #imagePreview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+        /* --- End New Base64 Styles --- */
+
+
+        /* Epoch section styles */
+        .epoch-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .epoch-input-field {
+            flex-grow: 1; /* Input takes available space */
+            width: auto; /* Override default 100% */
+        }
+        .epoch-button-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0; /* Prevent buttons from shrinking */
+        }
+        .epoch-specific-button {
+            width: auto; /* Override default 100% width from 'button' rule */
+            padding: 12px 15px; /* Adjust padding to match input height */
+            font-size: 0.9rem; /* Slightly smaller text to fit */
+        }
+
+        /* Drag and Drop & File Input Styles */
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            color: #aaa;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+            margin-bottom: 1rem;
+        }
+        /* Will be toggled by JS */
+        .drop-zone.hidden {
+            display: none;
+        }
+
+        .drop-zone--over {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        .drop-zone__input {
+            display: none;
+        }
+        .drop-zone__prompt {
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 10px; /* space between checkbox and label */
+        }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .button-group {
+            display: grid;
+            /* Updated to 3 columns for better layout */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .primary-button {
+             background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+         .secondary-button {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+        }
+        .tertiary-button {
+            background: linear-gradient(45deg, #28a745, #218838);
+        }
+        .quaternary-button {
+            background: linear-gradient(45deg, #fd7e14, #d35400); /* Orange gradient */
+        }
+        .quinary-button {
+            background: linear-gradient(45deg, #6f42c1, #4a148c); /* Purple gradient */
+        }
+        .senary-button {
+            background: linear-gradient(45deg, #20c997, #00796b); /* Teal gradient */
+        }
+        .septenary-button {
+            background: linear-gradient(45deg, #dc3545, #b02a37); /* Red gradient */
+        }
+        /* New button style for Base64 */
+        .octonary-button {
+            background: linear-gradient(45deg, #d946ef, #a21caf); /* Fuchsia gradient */
+        }
+        /* New button style for AWS Request IDs */
+        .nonary-button {
+            background: linear-gradient(45deg, #0dcaf0, #08a5c7); /* Cyan gradient */
+        }
+        /* New button style for WebLLM */
+        .denary-button {
+            background: linear-gradient(45deg, #4e54c8, #8f94fb); /* Indigo gradient */
+        }
+
+        .epoch-button-gmt {
+            background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
+        }
+        .epoch-button-utc {
+            background: linear-gradient(45deg, #ffc107, #d39e00); /* Warning/Yellow gradient */
+        }
+        .utility-button {
+            padding: 5px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: #e9ecef;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .utility-button:hover {
+            background-color: #d8dde1;
+            transform: none;
+            box-shadow: none;
+        }
+        .validation-message {
+            text-align: center;
+            margin: 1rem 0 0 0;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* Hidden by default */
+        }
+        .validation-message.valid {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .validation-message.invalid {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        #output {
+            margin-top: 1.5rem;
+        }
+        pre {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            min-height: 150px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        .result-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .download-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto; /* Pushes download to the right */
+        }
+        #xmlOptions {
+            display: none; /* Hidden by default */
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        #xmlOptions.visible {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Text, JSON & Base64 Tools</h1>
+        <p>A versatile tool to format text, validate JSON, convert Epoch time, and encode/decode Base64.</p>
+        
+        <div class="form-group">
+            <label for="delimiter">Delimiter (for new line insertion):</label>
+            <input type="text" id="delimiter" value="," placeholder="e.g., , or ; or word">
+        </div>
+
+        <!-- Epoch Input Section -->
+        <div class="form-group">
+            <label for="epochInput">Epoch Timestamp (seconds or ms):</label>
+            <div class="epoch-container">
+                <input type="text" id="epochInput" class="epoch-input-field" placeholder="e.g., 1678886400 or 1678886400000">
+                <div class="epoch-button-group">
+                    <button onclick="convertEpochToGmtMinus6()" class="epoch-button-gmt epoch-specific-button">GMT-6</button>
+                    <button onclick="convertEpochToUtc()" class="epoch-button-utc epoch-specific-button">UTC</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Base64 Tool Selector -->
+        <div class="form-group">
+            <label>Base64 Tools:</label>
+            <div class="tool-selector">
+                <label>
+                    <input type="radio" name="base64tool" value="textEncode" onchange="updateToolMode()"> Text Encode
+                </label>
+                <label>
+                    <input type="radio" name="base64tool" value="textDecode" onchange="updateToolMode()"> Text Decode
+                </label>
+                <label>
+                    <input type="radio" name="base64tool" value="imgEncode" onchange="updateToolMode()"> Image Encode
+                </label>
+                <label>
+                    <input type="radio" name="base64tool" value="imgDecode" onchange="updateToolMode()"> Image Decode
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="label-group">
+                <!-- This label will be updated by JS -->
+                <label for="inputText" id="inputLabel">Input Text (for Text/JSON tools):</label>
+                <button onclick="clearInput()" class="utility-button">Clear</button>
+            </div>
+             <!-- File Drop Zone - now accepts images -->
+            <div id="dropZone" class="drop-zone">
+                <span class="drop-zone__prompt" id="dropZonePrompt">Drag & drop a file here or click to select a file (.txt, .csv, .json)</span>
+                <input type="file" id="fileInput" class="drop-zone__input" accept=".txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp">
+            </div>
+            <!-- Textarea will be hidden/shown by JS -->
+            <textarea id="inputText" placeholder="Your file content, pasted text, or Base64 string will appear here..."></textarea>
+            
+            <!-- New Image Preview Area -->
+            <div id="imagePreview">
+                <img id="previewImageTag" src="" alt="Image Preview">
+            </div>
+        </div>
+
+        <div class="options">
+             <input type="checkbox" id="removeDelimiterCheckbox">
+             <label for="removeDelimiterCheckbox">Remove the delimiter from the result</label>
+        </div>
+        
+        <div class="button-group">
+            <!-- New Base64 Button -->
+            <button onclick="runBase64Tool()" class="octonary-button">Run Base64 Tool</button>
+            <!-- Existing Buttons -->
+            <button onclick="addNewLines()" class="primary-button">Convert Text</button>
+            <button onclick="validateJson()" class="secondary-button">Validate JSON</button>
+            <button onclick="formatJson()" class="tertiary-button">Format JSON</button>
+            <button onclick="anonymizeAwsArns()" class="quaternary-button">Anonymize account ARNs</button>
+            <button onclick="anonymizeAwsBuckets()" class="quinary-button">Anonymize Buckets ARNs</button>
+            <button onclick="anonymizeAwsRoles()" class="senary-button">Anonymize Role ARNs</button>
+            <button onclick="extractAwsResources()" class="septenary-button">Extract AWS Infra, CLI & IDs</button>
+            <!-- New AWS Request ID Button -->
+            <!-- <button onclick="extractAwsRequestIds()" class="nonary-button">Extract AWS Request IDs</button> --> <!-- This button is now merged -->
+            
+            <button onclick="window.open('https://chat.webllm.ai', '_blank')" class="denary-button">WebLLM local</button>
+        </div>
+        
+        <p id="jsonValidationResult" class="validation-message"></p>
+        
+        <div id="output">
+             <div class="label-group">
+                <h2>Result:</h2>
+                <div class="result-controls">
+                     <button onclick="copyResult(this)" class="utility-button">Copy</button>
+                     <div class="download-controls">
+                        <select id="downloadFormat" onchange="toggleXmlOptions()">
+                            <option value="txt">.txt</option>
+                            <option value="csv">.csv</option>
+                            <option value="json">.json</option>
+                            <option value="xml">.xml</option>
+                        </select>
+                        <button onclick="downloadResult()" class="utility-button">Download</button>
+                     </div>
+                </div>
+            </div>
+             <div id="xmlOptions">
+                <label for="xmlRoot">XML Root Tag:</label>
+                <input type="text" id="xmlRoot" placeholder="e.g., data">
+                <label for="xmlChild">XML Child Tag (for each line):</label>
+                <input type="text" id="xmlChild" placeholder="e.g., item">
+            </div>
+            <pre id="outputText">Your formatted text will appear here.</pre>
+        </div>
+    </div>
+
+    <script>
+        // --- Global Element References ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const inputTextarea = document.getElementById('inputText');
+        const outputTextarea = document.getElementById('outputText');
+        const inputLabel = document.getElementById('inputLabel');
+        const dropZonePrompt = document.getElementById('dropZonePrompt');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImageTag = document.getElementById('previewImageTag');
+        const jsonValidationResult = document.getElementById('jsonValidationResult');
+        
+        // --- Page Load Initializer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial state
+            updateToolMode();
+        });
+
+
+        // --- Drag and Drop & File Input Logic ---
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-zone--over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-zone--over'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            handleFile(file);
+        }, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            const selectedTool = document.querySelector('input[name="base64tool"]:checked')?.value;
+
+            if (selectedTool === 'imgEncode' && file.type.startsWith('image/')) {
+                reader.onload = (e) => {
+                    // Show image in preview
+                    previewImageTag.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    // Put the Base64 string in the output
+                    outputTextarea.textContent = e.target.result;
+                    jsonValidationResult.style.display = 'none';
+                };
+                reader.readAsDataURL(file); // Reads as Base64 Data URL
+            } else {
+                // Default behavior: read as text
+                reader.onload = (e) => {
+                    inputTextarea.value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // --- New Base64 Tool Logic ---
+        function getSelectedTool() {
+            const selected = document.querySelector('input[name="base64tool"]:checked');
+            return selected ? selected.value : null;
+        }
+
+        function updateToolMode() {
+            const selectedTool = getSelectedTool();
+            
+            // Default state
+            inputTextarea.style.display = 'block';
+            dropZone.classList.remove('hidden'); // <-- CHANGED: Show drop zone by default
+            imagePreview.style.display = 'none';
+            inputLabel.textContent = 'Input Text (for Text/JSON tools):';
+            dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
+            fileInput.accept = '.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp'; // <-- Accept all types by default
+
+            switch (selectedTool) {
+                case 'textEncode':
+                    inputLabel.textContent = 'Text to Encode:';
+                    dropZonePrompt.textContent = 'Drag & drop a file or click to select (.txt, .csv, .json)';
+                    fileInput.accept = '.txt,.csv,.json';
+                    break;
+                case 'textDecode':
+                    inputLabel.textContent = 'Base64 to Decode:';
+                    dropZonePrompt.textContent = 'Drag & drop a file or click to select (.txt)';
+                    fileInput.accept = '.txt';
+                    break;
+                case 'imgEncode':
+                    inputTextarea.style.display = 'none';
+                    dropZone.classList.remove('hidden');
+                    inputLabel.textContent = 'Image to Encode:';
+                    dropZonePrompt.textContent = 'Drag & drop an image or click to select (.png, .jpg, .gif, .webp)';
+                    fileInput.accept = '.png,.jpg,.jpeg,.gif,.webp';
+                    break;
+                case 'imgDecode':
+                    inputLabel.textContent = 'Base64 to Decode:';
+                    imagePreview.style.display = 'block';
+                    dropZone.classList.add('hidden'); // <-- ADDED: Hide drop zone for this mode
+                    break;
+                default: // Default case (no tool selected)
+                    inputLabel.textContent = 'Input Text (for Text/JSON tools):';
+                    dropZonePrompt.textContent = 'Drag & drop a file here or click to select a file (.txt, .csv, .json)';
+                    fileInput.accept = '.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp';
+            }
+        }
+
+        function runBase64Tool() {
+            const selectedTool = getSelectedTool();
+            const input = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+            
+            if (!selectedTool) {
+                outputTextarea.textContent = 'Error: Please select a Base64 tool first.';
+                return;
+            }
+
+            try {
+                switch (selectedTool) {
+                    case 'textEncode':
+                        if (!input) {
+                            outputTextarea.textContent = 'Error: No text provided to encode.';
+                            return;
+                        }
+                        // Use btoa() to encode
+                        // Handle Unicode characters correctly
+                        const utf8Bytes = new TextEncoder().encode(input);
+                        const base64String = btoa(String.fromCharCode.apply(null, utf8Bytes));
+                        outputTextarea.textContent = base64String;
+                        break;
+                        
+                    case 'textDecode':
+                        if (!input) {
+                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
+                            return;
+                        }
+                        // Use atob() to decode
+                        const decodedBytes = atob(input).split('').map(c => c.charCodeAt(0));
+                        const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
+                        outputTextarea.textContent = decodedText;
+                        break;
+
+                    case 'imgEncode':
+                        // This is handled by handleFile()
+                        // This button click is a bit redundant, but we'll check
+                        if (previewImageTag.src && outputTextarea.textContent.startsWith('data:image')) {
+                             jsonValidationResult.textContent = 'Success: Image encoded. Base64 string is in the result box.';
+                             jsonValidationResult.className = 'validation-message valid';
+                        } else {
+                            outputTextarea.textContent = 'Error: Please drop or select an image file using the area above.';
+                        }
+                        break;
+
+                    case 'imgDecode':
+                        if (!input) {
+                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
+                            return;
+                        }
+                        // Check if it's a valid Data URL
+                        if (input.startsWith('data:image')) {
+                            previewImageTag.src = input;
+                            imagePreview.style.display = 'block';
+                            outputTextarea.textContent = 'Preview updated. You can copy the Base64 string from the input.';
+                        } else {
+                            outputTextarea.textContent = 'Error: Invalid Base64 string. Expected format: "data:image/png;base64,..."';
+                        }
+                        break;
+                }
+            } catch (error) {
+                outputTextarea.textContent = 'Error: Failed to process. ' + error.message;
+                if (selectedTool === 'textDecode') {
+                     outputTextarea.textContent = 'Error: Invalid Base64 string. ' + error.message;
+                }
+            }
+        }
+
+
+        // --- Epoch Conversion Logic ---
+        function getEpochDate() {
+            const epochInput = document.getElementById('epochInput').value.trim();
+            // Clear any previous JSON validation messages
+            jsonValidationResult.style.display = 'none';
+
+            if (!epochInput) {
+                outputTextarea.textContent = "Error: Please enter an Epoch timestamp.";
+                return null;
+            }
+
+            let timestamp = Number(epochInput);
+
+            if (isNaN(timestamp)) {
+                outputTextarea.textContent = "Error: Invalid timestamp. Please enter numbers only.";
+                return null;
+            }
+
+            if (timestamp < 3000000000) {
+                timestamp *= 1000; // Convert seconds to milliseconds
+            }
+
+            return new Date(timestamp);
+        }
+
+        function convertEpochToGmtMinus6() {
+            const date = getEpochDate();
+            if (!date) return; 
+
+            const options = {
+                timeZone: 'Etc/GMT+6', 
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZoneName: 'short'
+            };
+
+            try {
+                const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+                outputTextarea.textContent = `GMT-6: ${formattedDate}`;
+            } catch (e) {
+                outputTextarea.textContent = `Error formatting date: ${e.message}`;
+            }
+        }
+
+        function convertEpochToUtc() {
+            const date = getEpochDate();
+            if (!date) return; 
+            outputTextarea.textContent = `UTC: ${date.toUTCString()}`;
+        }
+
+
+        // --- Core Tool Logic ---
+        function addNewLines() {
+            const delimiter = document.getElementById('delimiter').value;
+            const inputText = inputTextarea.value;
+            const shouldRemoveDelimiter = document.getElementById('removeDelimiterCheckbox').checked;
+            
+            jsonValidationResult.style.display = 'none';
+
+            if (!delimiter) {
+                outputTextarea.textContent = "Error: Please enter a delimiter to convert text.";
+                return;
+            }
+
+            const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escapedDelimiter, 'g');
+            const replacement = shouldRemoveDelimiter ? '\n' : delimiter + '\n';
+            const formattedText = inputText.replace(regex, replacement);
+            outputTextarea.textContent = formattedText;
+        }
+        
+        function validateJson() {
+            const inputText = inputTextarea.value;
+            outputTextarea.textContent = "Your formatted text will appear here.";
+            
+            if (!inputText.trim()) {
+                jsonValidationResult.textContent = 'Input is empty. Cannot validate.';
+                jsonValidationResult.className = 'validation-message invalid';
+                return;
+            }
+
+            try {
+                JSON.parse(inputText);
+                jsonValidationResult.textContent = 'Success: Valid JSON structure!';
+                jsonValidationResult.className = 'validation-message valid';
+            } catch (error) {
+                jsonValidationResult.textContent = 'Error: Invalid JSON. ' + error.message;
+                jsonValidationResult.className = 'validation-message invalid';
+            }
+        }
+        
+        function formatJson() {
+            const inputText = inputTextarea.value;
+            outputTextarea.textContent = "Your formatted text will appear here.";
+
+            if (!inputText.trim()) {
+                jsonValidationResult.textContent = 'Input is empty. Cannot format.';
+                jsonValidationResult.className = 'validation-message invalid';
+                return;
+            }
+
+            try {
+                const jsonObject = JSON.parse(inputText);
+                const formattedJson = JSON.stringify(jsonObject, null, 2); 
+                outputTextarea.textContent = formattedJson;
+                jsonValidationResult.textContent = 'Success: JSON formatted!';
+                jsonValidationResult.className = 'validation-message valid';
+            } catch (error) {
+                jsonValidationResult.textContent = 'Error: Invalid JSON. Cannot format. ' + error.message;
+                jsonValidationResult.className = 'validation-message invalid';
+            }
+        }
+
+        // --- ARN Anonymizer Function ---
+        function anonymizeAwsArns() {
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+
+            if (!inputText.trim()) {
+                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
+                return;
+            }
+
+            const arnRegex = /(arn:[^:]+:[^:]+:[^:]+:)(\d{12})(:.*)/g;
+            const accountMap = new Map();
+            let accountCounter = 1;
+
+            const anonymizedText = inputText.replace(arnRegex, (match, prefix, accountId, suffix) => {
+                let newId;
+                if (accountMap.has(accountId)) {
+                    newId = accountMap.get(accountId);
+                } else {
+                    newId = '09999999' + accountCounter;
+                    accountMap.set(accountId, newId);
+                    accountCounter++;
+                }
+                return prefix + newId + suffix;
+            });
+
+            outputTextarea.textContent = anonymizedText;
+        }
+        
+        // --- Bucket Anonymizer Function ---
+        function anonymizeAwsBuckets() {
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+        
+            if (!inputText.trim()) {
+                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
+                return;
+            }
+        
+            const bucketArnRegex = /(arn:[^:]+:s3:::)([^/]+)(.*)/g;
+            const bucketMap = new Map();
+            let bucketCounter = 1;
+        
+            const anonymizedText = inputText.replace(bucketArnRegex, (match, prefix, bucketName, suffix) => {
+                let newId;
+                if (bucketMap.has(bucketName)) {
+                    newId = bucketMap.get(bucketName);
+                } else {
+                    newId = 'bucket999' + bucketCounter;
+                    bucketMap.set(bucketName, newId);
+                    bucketCounter++;
+                }
+                return prefix + newId + suffix;
+            });
+        
+            outputTextarea.textContent = anonymizedText;
+        }
+
+        // --- Role Anonymizer Function ---
+        function anonymizeAwsRoles() {
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+        
+            if (!inputText.trim()) {
+                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
+                return;
+            }
+        
+            const roleArnRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/)([\w\+\=\,\.\@\-\/]+)/g;
+            const roleMap = new Map();
+            let roleCounter = 1;
+        
+            const anonymizedText = inputText.replace(roleArnRegex, (match, prefix, roleName) => {
+                let newId;
+                if (roleMap.has(roleName)) {
+                    newId = roleMap.get(roleName);
+                } else {
+                    newId = 'role999' + roleCounter;
+                    roleMap.set(roleName, newId);
+                    roleCounter++;
+                }
+                return prefix + newId;
+            });
+        
+            outputTextarea.textContent = anonymizedText;
+        }
+
+        // --- AWS Resource Extractor Function ---
+        function extractAwsResources() {
+            const inputText = inputTextarea.value;
+            jsonValidationResult.style.display = 'none';
+
+            if (!inputText.trim()) {
+                outputTextarea.textContent = "Input is empty. Cannot extract resources.";
+                return;
+            }
+
+            // --- Helper: Extract Region from ARN ---
+            const getRegionFromArn = (arn) => {
+                if (!arn) return null;
+                const parts = arn.split(':');
+                // arn:partition:service:region:account:resource
+                // region is at index 3
+                if (parts.length > 3) {
+                    const region = parts[3];
+                    // Basic validation: shouldn't be empty, shouldn't be numeric (account id), shouldn't be '*'
+                    // Note: IAM ARNs often have empty region. We ignore those.
+                    if (region && region !== '' && !/^\d+$/.test(region) && !region.includes('*')) {
+                        return region;
+                    }
+                }
+                return null;
+            };
+
+            // --- Helper function to check for non-printable chars (excluding tab, newline, cr) ---
+            const isPrintable = (text) => !/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text);
+
+            // --- Base64 Detection ---
+            const base64Regex = /\b[A-Za-z0-9+/=]{20,}\b/g;
+            const decodedBase64Map = new Map();
+            let b64Match;
+            while ((b64Match = base64Regex.exec(inputText)) !== null) {
+                const potentialB64 = b64Match[0];
+                if (potentialB64.length % 4 !== 0 || !/^[A-Za-z0-9+/]*=?=?$/.test(potentialB64)) {
+                    continue; // Not a likely Base64 string
+                }
+                if (decodedBase64Map.has(potentialB64)) continue; // Already processed
+
+                try {
+                    const decodedBytes = atob(potentialB64).split('').map(c => c.charCodeAt(0));
+                    const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
+                    
+                    if (isPrintable(decodedText) && decodedText.trim().length > 0) { 
+                        decodedBase64Map.set(potentialB64, decodedText);
+                    }
+                } catch (e) {
+                    // Not valid Base64, ignore
+                }
+            }
+
+            // --- Epoch Detection ---
+            const lines = inputText.split('\n');
+            const epochRegex = /\b(\d{10}|\d{13})\b/g; // Regex to find *all* timestamps *within* a line
+            const convertedEpochList = []; // Use a list of objects
+            // Min date: 2001-01-01. Max date: 1 year in the future.
+            const minDate = new Date('2001-01-01T00:00:00Z').getTime();
+            const maxDate = new Date().getTime() + (1000 * 60 * 60 * 24 * 365); 
+            
+            lines.forEach(line => {
+                let epochMatch;
+                // Reset lastIndex for each new line because we are using exec() with the /g flag
+                epochRegex.lastIndex = 0; 
+                while ((epochMatch = epochRegex.exec(line)) !== null) {
+                    const tsString = epochMatch[0]; // The timestamp string (e.g., '1223324589738')
+
+                    // Avoid matching AWS Account IDs (12 digits)
+                    if (tsString.length === 12) continue; 
+                    
+                    const timestampNum = Number(tsString);
+                    let date;
+
+                    if (tsString.length === 10) {
+                        date = new Date(timestampNum * 1000); // seconds
+                    } else {
+                        date = new Date(timestampNum); // milliseconds
+                    }
+
+                    if (date.getTime() >= minDate && date.getTime() <= maxDate) {
+                        convertedEpochList.push({
+                            line: line.trim(),
+                            timestamp: tsString,
+                            utcDate: date.toUTCString()
+                        });
+                    }
+                }
+            });
+
+            // --- AWS Resource Regex Definitions ---
+            const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
+            const subnetRegex = /(subnet-[0-9a-fA-F]{8,17})/g;
+            const sgRegex = /(sg-[0-9a-fA-F]{8,17})/g;
+            const eniRegex = /(eni-[0-9a-fA-F]{8,17})/g;
+            
+            // --- USER REQUESTED ADDITION (EC2 Instance) ---
+            const instanceRegex = /(i-[0-9a-fA-F]{8,17})/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Added Network ACL and Route Table Regexes ---
+            const naclRegex = /(acl-[0-9a-fA-F]{8,17})/g;
+            const routeTableRegex = /(rtb-[0-9a-fA-F]{8,17})/g;
+            const naclArnRegex = /(arn:[^:]+:ec2:[^:]*:[^:]*:network-acl\/acl-[\w-]+)/g;
+            const routeTableArnRegex = /(arn:[^:]+:ec2:[^:]*:[^:]*:route-table\/rtb-[\w-]+)/g;
+            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Added generic ARN regex ---
+            // Generic ARN regex. This will match all ARNs, including roles.
+            // This regex matches 'arn:' followed by common ARN characters.
+            // UPDATED: Added '*' to allow wildcard ARNs (common in error messages like resource-based policies)
+            const arnRegex = /(arn:[a-zA-Z0-9:._/+=,*-]+)/g;
+            // Specific regex for IAM roles (already present, to be used for CLI generation)
+            const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- USER REQUESTED ADDITION: IAM User Regex ---
+            const userRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:user\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+            const assumedRoleRegex = /arn:[^:]+:sts::[^:]+:assumed-role\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Added SageMaker regexes ---
+            const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
+            const smEndpointRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smEndpointConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint-config\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- USER REQUESTED ADDITIONS START ---
+            const smNotebookLifecycleConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:notebook-instance-lifecycle-config\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smNotebookInstanceRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:notebook-instance\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smTransformJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:transform-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smTrainingJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:training-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smPipelineRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:pipeline\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smStudioLifecycleConfigRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:studio-lifecycle-config\/([\w\+\=\,\.\@\-\/]+)/g;
+            const smProcessingJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:processing-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- USER REQUESTED ADDITIONS END ---
+            // --- MODIFICATION END ---
+            
+            // --- USER REQUESTED ADDITION (AutoML Job) ---
+            const smAutoMLJobRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:auto-ml-job\/([\w\+\=\,\.\@\-\/]+)/g; // v1
+            const smAutoMLJobV2Regex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:automl-job\/([\w\+\=\,\.\@\-\/]+)/g; // v2
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            const smImageRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:image\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            const smClusterRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:cluster\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            // Includes wildcards for error extraction
+            const smSecretRegex = /arn:[^:]+:secretsmanager:[^:]*:[^:]*:secret:([\w\+\=\,\.\@\-\/\*]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Added Personalize regexes ---
+            const psAlgorithmRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:algorithm\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psBatchInferenceJobRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:batch-inference-job\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psCampaignRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:campaign\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psDatasetRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:dataset\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psDatasetGroupRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:dataset-group\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psFilterRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:filter\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psRecipeRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:recipe\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psRecommenderRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:recommender\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psSchemaRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:schema\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psSolutionRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:solution\/([\w\+\=\,\.\@\-\/]+)/g;
+            const psSolutionVersionRegex = /arn:[^:]+:personalize:[^:]*:[^:]*:solution-version\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            const smPipelineExecutionRegex = /(arn:[^:]+:sagemaker:[^:]*:[^:]*:pipeline\/[\w\+\=\,\.\@\-\/]+\/execution\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Added Bedrock regexes ---
+            const brGuardrailRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:guardrail\/([\w]+)/g;
+            const brInferenceProfileRegex = /arn:[^:]+:bedrock:[^:]*:[^:]*:inference-profile\/([\w]+)/g;
+            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Added Comprehend regexes ---
+            const compDatasetRegex = /(arn:[^:]+:comprehend:[^:]*:[^:]*:dataset\/[\w\+\=\,\.\@\-\/]+)/g;
+            const compEndpointRegex = /(arn:[^:]+:comprehend:[^:]*:[^:]*:endpoint\/[\w\+\=\,\.\@\-\/]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added DataZone regexes ---
+            // These regexes capture the domain ID and the specific resource ID
+            const dzDomainRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)/g;
+            const dzProjectRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/project\/([\w-]+)/g;
+            const dzEnvironmentRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/environment\/([\w-]+)/g;
+            const dzDataSourceRegex = /arn:[^:]+:datazone:[^:]*:[^:]*:domain\/([\w-]+)\/dataSource\/([\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added EFS regex ---
+            const efsRegex = /arn:[^:]+:elasticfilesystem:[^:]*:[^:]*:file-system\/(fs-[\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added Textract regexes ---
+            const textractAdapterRegex = /arn:[^:]+:textract:[^:]*:[^:]*:adapter\/([\w-]+)(?!\/adapter-version)/g;
+            const textractAdapterVersionRegex = /arn:[^:]+:textract:[^:]*:[^:]*:adapter\/([\w-]+)\/adapter-version\/([\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Added KMS regex ---
+            const kmsKeyRegex = /arn:[^:]+:kms:[^:]*:[^:]*:key\/([\w-]+)/g;
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (URL) ---
+            const urlRegex = /(https?:\/\/[^\s"']+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Email) ---
+            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // Regex for request IDs
+            const requestIdRegex = /x-amz-request-id:?\s*([0-9A-F]{16,})/gi;
+            const id2Regex = /x-amz-id-2:?\s*([A-Za-z0-9/+=]{40,})/gi;
+            // New Regex for UUID-style Request IDs (e.g., from API Gateway, Lambda)
+            const uuidRequestIdRegex = /(?:x-amzn-RequestId:?\s*|[Rr]equestId:?\s*)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gi;
+
+            // --- USER REQUESTED ADDITION: Access Error Regex ---
+            // Updated all regexes to include '@' and '*' in ARN capture groups and '*' in Action capture groups for robustness
+            
+            // Pattern 1: User: ARN is not authorized to perform: Action with an explicit/implicit deny in a source
+            const accessErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!permissions\s+boundary)([a-zA-Z0-9\s]+)/gi;
+            
+            // Pattern 2: User: ARN is not authorized to perform: Action because no service control policy allows the Action action
+            const scpImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+because\s+no\s+service\s+control\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*-]+\s+action/gi;
+
+            // Pattern 3: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a resource control policy
+            const resourcePolicyErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!VPC\s+endpoint\s+policy|permissions\s+boundary|session(?:s)?\s+policy|resource-based\s+policy)([a-zA-Z0-9\s]+)/gi;
+
+            // Pattern 4: User: ARN is not authorized to perform: Action because no VPC endpoint policy allows the Action action
+            const vpcEndpointErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+because\s+no\s+VPC\s+endpoint\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*-]+\s+action/gi;
+
+            // Pattern 5: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a VPC endpoint policy
+            const vpcEndpointExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+VPC\s+endpoint\s+policy/gi;
+
+            // Pattern 6: Implicit deny in permissions boundary (with resource)
+            const permissionsBoundaryImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+because\s+no\s+permissions\s+boundary\s+allows\s+the\s+[a-zA-Z0-9:*-]+\s+action/gi;
+
+            // Pattern 7: Explicit deny in permissions boundary (Optional resource)
+            const permissionsBoundaryExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+permissions\s+boundary/gi;
+
+            // Pattern 8: Implicit deny in session policy
+            const sessionPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+because\s+no\s+session\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*-]+\s+action/gi;
+
+            // Pattern 9: Explicit deny in session(s) policy (Optional resource)
+            const sessionPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+session(?:s)?\s+policy/gi;
+
+            // Pattern 10: Implicit deny in resource-based policy (Matches Secrets Manager)
+            const resourceBasedPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?because\s+no\s+resource-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*-]+\s+action/gi;
+
+            // Pattern 11: Explicit deny in resource-based policy (with resource) (Matches Secrets Manager)
+            const resourceBasedPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+resource-based\s+policy/gi;
+
+            // Pattern 12: Trust Policy Implicit Deny
+            const trustPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+because\s+no\s+role\s+trust\s+policy\s+allows\s+the\s+(?:[a-zA-Z0-9:*-]+)\s+action/gi;
+
+            // Pattern 13: Trust Policy Explicit Deny
+            const trustPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+with\s+an\s+explicit\s+deny\s+in\s+the\s+role\s+trust\s+policy/gi;
+
+            // Pattern 14: Identity-based Policy Implicit Deny
+            const identityPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?because\s+no\s+identity-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*-]+\s+action/gi;
+
+            // Pattern 15: Identity-based Policy Explicit Deny (with resource)
+            const identityPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*-]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+explicit\s+deny\s+in\s+an\s+identity-based\s+policy/gi;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- Extract Resources ---
+            const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
+            const subnets = [...new Set(inputText.match(subnetRegex) || [])];
+            const sgs = [...new Set(inputText.match(sgRegex) || [])];
+            const enis = [...new Set(inputText.match(eniRegex) || [])];
+            
+            // --- USER REQUESTED ADDITION (EC2 Instance) ---
+            const instances = [...new Set(inputText.match(instanceRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Extract Network ACLs and Route Tables ---
+            const naclIds = [...new Set(inputText.match(naclRegex) || [])];
+            const routeTableIds = [...new Set(inputText.match(routeTableRegex) || [])];
+            const naclArns = [...new Set(inputText.match(naclArnRegex) || [])];
+            const routeTableArns = [...new Set(inputText.match(routeTableArnRegex) || [])];
+            // --- MODIFICATION END ---
+            
+            // --- USER REQUESTED ADDITION (URL) ---
+            const urls = [...new Set(inputText.match(urlRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION (Email) ---
+            const emails = [...new Set(inputText.match(emailRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- MODIFICATION START: Extract and filter ARNs ---
+            // Extract all ARNs
+            const allArns = [...new Set(inputText.match(arnRegex) || [])];
+            // Extract just roles (using the more specific regex)
+            const roles = [...new Set(inputText.match(roleRegex) || [])];
+            // --- USER REQUESTED ADDITION: Extract IAM Users ---
+            const iamUsers = [...new Set(inputText.match(userRegex) || [])];
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+            const assumedRoles = [...inputText.matchAll(assumedRoleRegex)];
+            const assumedRoleArns = assumedRoles.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Extract SageMaker resources ---
+            // Use matchAll to get capture groups
+            const smDomains = [...inputText.matchAll(smDomainRegex)];
+            const smEndpoints = [...inputText.matchAll(smEndpointRegex)];
+            const smEndpointConfigs = [...inputText.matchAll(smEndpointConfigRegex)];
+            // --- USER REQUESTED ADDITIONS START ---
+            const smNotebookLifecycleConfigs = [...inputText.matchAll(smNotebookLifecycleConfigRegex)];
+            const smNotebookInstances = [...inputText.matchAll(smNotebookInstanceRegex)];
+            const smTransformJobs = [...inputText.matchAll(smTransformJobRegex)];
+            const smTrainingJobs = [...inputText.matchAll(smTrainingJobRegex)];
+            const smPipelines = [...inputText.matchAll(smPipelineRegex)];
+            const smStudioLifecycleConfigs = [...inputText.matchAll(smStudioLifecycleConfigRegex)];
+            const smProcessingJobs = [...inputText.matchAll(smProcessingJobRegex)];
+            // --- USER REQUESTED ADDITIONS END ---
+
+
+            // Get the full ARNs from the matches to filter them from the 'otherArns' list
+            const smDomainArns = smDomains.map(match => match[0]);
+            const smEndpointArns = smEndpoints.map(match => match[0]);
+            const smEndpointConfigArns = smEndpointConfigs.map(match => match[0]);
+            // --- USER REQUESTED ADDITIONS START ---
+            const smNotebookLifecycleConfigArns = smNotebookLifecycleConfigs.map(match => match[0]);
+            const smNotebookInstanceArns = smNotebookInstances.map(match => match[0]);
+            const smTransformJobArns = smTransformJobs.map(match => match[0]);
+            const smTrainingJobArns = smTrainingJobs.map(match => match[0]);
+            const smPipelineArns = smPipelines.map(match => match[0]);
+            const smStudioLifecycleConfigArns = smStudioLifecycleConfigs.map(match => match[0]);
+            const smProcessingJobArns = smProcessingJobs.map(match => match[0]);
+            // --- USER REQUESTED ADDITIONS END ---
+            
+            // --- MODIFICATION START: Extract Personalize ARNs ---
+            const psAlgorithms = [...inputText.matchAll(psAlgorithmRegex)];
+            const psBatchInferenceJobs = [...inputText.matchAll(psBatchInferenceJobRegex)];
+            const psCampaigns = [...inputText.matchAll(psCampaignRegex)];
+            const psDatasets = [...inputText.matchAll(psDatasetRegex)];
+            const psDatasetGroups = [...inputText.matchAll(psDatasetGroupRegex)];
+            const psFilters = [...inputText.matchAll(psFilterRegex)];
+            const psRecipes = [...inputText.matchAll(psRecipeRegex)];
+            const psRecommenders = [...inputText.matchAll(psRecommenderRegex)];
+            const psSchemas = [...inputText.matchAll(psSchemaRegex)];
+            const psSolutions = [...inputText.matchAll(psSolutionRegex)];
+            const psSolutionVersions = [...inputText.matchAll(psSolutionVersionRegex)];
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            const smPipelineExecutions = [...inputText.matchAll(smPipelineExecutionRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (AutoML Job) ---
+            const smAutoMLJobs = [...inputText.matchAll(smAutoMLJobRegex)]; // v1
+            const smAutoMLJobV2s = [...inputText.matchAll(smAutoMLJobV2Regex)]; // v2
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            const smImages = [...inputText.matchAll(smImageRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            const smClusters = [...inputText.matchAll(smClusterRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            const smSecrets = [...inputText.matchAll(smSecretRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            const psAlgorithmArns = psAlgorithms.map(match => match[0]);
+            const psBatchInferenceJobArns = psBatchInferenceJobs.map(match => match[0]);
+            const psCampaignArns = psCampaigns.map(match => match[0]);
+            const psDatasetArns = psDatasets.map(match => match[0]);
+            const psDatasetGroupArns = psDatasetGroups.map(match => match[0]);
+            const psFilterArns = psFilters.map(match => match[0]);
+            const psRecipeArns = psRecipes.map(match => match[0]);
+            const psRecommenderArns = psRecommenders.map(match => match[0]);
+            const psSchemaArns = psSchemas.map(match => match[0]);
+            const psSolutionArns = psSolutions.map(match => match[0]);
+            const psSolutionVersionArns = psSolutionVersions.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            // match[0] is the full ARN, which is what we need.
+            const smPipelineExecutionArns = smPipelineExecutions.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (AutoML Job) ---
+            const smAutoMLJobArns = smAutoMLJobs.map(match => match[0]);
+            const smAutoMLJobV2Arns = smAutoMLJobV2s.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Image) ---
+            const smImageArns = smImages.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            const smClusterArns = smClusters.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            const smSecretArns = smSecrets.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Extract Bedrock resources ---
+            const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
+            const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
+
+            const brGuardrailArns = brGuardrails.map(match => match[0]);
+            const brInferenceProfileArns = brInferenceProfiles.map(match => match[0]);
+            
+            // --- MODIFICATION START: Extract Comprehend resources ---
+            const compDatasets = [...inputText.matchAll(compDatasetRegex)];
+            const compEndpoints = [...inputText.matchAll(compEndpointRegex)];
+
+            const compDatasetArns = compDatasets.map(match => match[0]);
+            const compEndpointArns = compEndpoints.map(match => match[0]);
+            
+            // --- MODIFICATION START: Extract DataZone resources ---
+            const dzDomains = [...inputText.matchAll(dzDomainRegex)];
+            const dzProjects = [...inputText.matchAll(dzProjectRegex)];
+            const dzEnvironments = [...inputText.matchAll(dzEnvironmentRegex)];
+            const dzDataSources = [...inputText.matchAll(dzDataSourceRegex)];
+
+            const dzDomainArns = dzDomains.map(match => match[0]);
+            const dzProjectArns = dzProjects.map(match => match[0]);
+            const dzEnvironmentArns = dzEnvironments.map(match => match[0]);
+            const dzDataSourceArns = dzDataSources.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Extract EFS resources ---
+            const efsFileSystems = [...inputText.matchAll(efsRegex)];
+            const efsArnList = efsFileSystems.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Extract Textract resources ---
+            const textractAdapters = [...inputText.matchAll(textractAdapterRegex)];
+            const textractAdapterVersions = [...inputText.matchAll(textractAdapterVersionRegex)];
+
+            const textractAdapterArns = textractAdapters.map(match => match[0]);
+            const textractAdapterVersionArns = textractAdapterVersions.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Extract KMS resources ---
+            const kmsKeys = [...inputText.matchAll(kmsKeyRegex)];
+            const kmsKeyArns = kmsKeys.map(match => match[0]);
+            // --- MODIFICATION END ---
+
+            // Filter out roles from the main ARN list to avoid duplication in the output
+            const otherArns = allArns.filter(arn => 
+                !roles.includes(arn) &&
+                // --- USER REQUESTED ADDITION: Filter IAM Users ---
+                !iamUsers.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+                // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+                !assumedRoleArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+                !smDomainArns.includes(arn) &&
+                !smEndpointArns.includes(arn) &&
+                !smEndpointConfigArns.includes(arn) &&
+                // --- USER REQUESTED ADDITIONS START ---
+                !smNotebookLifecycleConfigArns.includes(arn) &&
+                !smNotebookInstanceArns.includes(arn) &&
+                !smTransformJobArns.includes(arn) &&
+                !smTrainingJobArns.includes(arn) &&
+                !smPipelineArns.includes(arn) &&
+                !smStudioLifecycleConfigArns.includes(arn) &&
+                !smProcessingJobArns.includes(arn) &&
+                // --- USER REQUESTED ADDITIONS END ---
+                // --- MODIFICATION START: Filter Personalize ARNs ---
+                !psAlgorithmArns.includes(arn) &&
+                !psBatchInferenceJobArns.includes(arn) &&
+                !psCampaignArns.includes(arn) &&
+                !psDatasetArns.includes(arn) &&
+                !psDatasetGroupArns.includes(arn) &&
+                !psFilterArns.includes(arn) &&
+                !psRecipeArns.includes(arn) &&
+                !psRecommenderArns.includes(arn) &&
+                !psSchemaArns.includes(arn) &&
+                !psSolutionArns.includes(arn) &&
+                !psSolutionVersionArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                
+                // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+                !smPipelineExecutionArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (AutoML Job) ---
+                !smAutoMLJobArns.includes(arn) &&
+                !smAutoMLJobV2Arns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (Image) ---
+                !smImageArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (SM Cluster) ---
+                !smClusterArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+                !smSecretArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
+                // --- MODIFICATION START: Filter Bedrock ARNs ---
+                !brGuardrails.includes(arn) &&
+                !compEndpointArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter DataZone ARNs ---
+                !dzDomainArns.includes(arn) &&
+                !dzProjectArns.includes(arn) &&
+                !dzEnvironmentArns.includes(arn) &&
+                !dzDataSources.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter EFS ARNs ---
+                !efsArnList.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter Textract ARNs ---
+                !textractAdapterArns.includes(arn) &&
+                !textractAdapterVersionArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter KMS ARNs ---
+                !kmsKeyArns.includes(arn) &&
+                // --- MODIFICATION END ---
+                // --- MODIFICATION START: Filter Network ACL and Route Table ARNs ---
+                !naclArns.includes(arn) &&
+                !routeTableArns.includes(arn)
+                // --- MODIFICATION END ---
+            );
+            // --- MODIFICATION END ---
+            
+            // Find request IDs
+            const requestIds = [...inputText.matchAll(requestIdRegex)];
+            const id2s = [...inputText.matchAll(id2Regex)];
+            const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; 
+
+            // --- USER REQUESTED ADDITION: Access Error Matches ---
+            const accessErrorMatches = [...inputText.matchAll(accessErrorRegex)];
+            const scpImplicitDenyMatches = [...inputText.matchAll(scpImplicitDenyRegex)];
+            const resourcePolicyErrorMatches = [...inputText.matchAll(resourcePolicyErrorRegex)];
+            const vpcEndpointErrorMatches = [...inputText.matchAll(vpcEndpointErrorRegex)];
+            const vpcEndpointExplicitDenyMatches = [...inputText.matchAll(vpcEndpointExplicitDenyRegex)];
+            const permissionsBoundaryImplicitDenyMatches = [...inputText.matchAll(permissionsBoundaryImplicitDenyRegex)];
+            const permissionsBoundaryExplicitDenyMatches = [...inputText.matchAll(permissionsBoundaryExplicitDenyRegex)];
+            const sessionPolicyImplicitDenyMatches = [...inputText.matchAll(sessionPolicyImplicitDenyRegex)];
+            const sessionPolicyExplicitDenyMatches = [...inputText.matchAll(sessionPolicyExplicitDenyRegex)];
+            const resourceBasedPolicyImplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyImplicitDenyRegex)];
+            const resourceBasedPolicyExplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyExplicitDenyRegex)];
+            
+            const trustPolicyImplicitDenyMatches = [...inputText.matchAll(trustPolicyImplicitDenyRegex)];
+            const trustPolicyExplicitDenyMatches = [...inputText.matchAll(trustPolicyExplicitDenyRegex)];
+            
+            const identityPolicyImplicitDenyMatches = [...inputText.matchAll(identityPolicyImplicitDenyRegex)];
+            const identityPolicyExplicitDenyMatches = [...inputText.matchAll(identityPolicyExplicitDenyRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
+            const allRequestIds = new Set();
+            requestIds.forEach(match => allRequestIds.add(match[1])); // S3 style
+            id2s.forEach(match => allRequestIds.add(match[1])); // S3 style
+            uuidRequestIds.forEach(match => allRequestIds.add(match[1])); // UUID style
+
+            // --- Build Output String ---
+            let output = "";
+            const cliOutput = [];
+
+            // --- USER REQUESTED ADDITION: Output Access Errors ---
+            if (accessErrorMatches.length > 0) {
+                accessErrorMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: explicit/implicit deny, match[4]: source
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  ${match[3]}\n`;
+                    output += `From: ${match[4].trim()}\n\n`;
+                });
+            }
+            
+            if (scpImplicitDenyMatches.length > 0) {
+                scpImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission listed\n`;
+                    output += `From: service control policy\n\n`;
+                });
+            }
+
+            if (resourcePolicyErrorMatches.length > 0) {
+                resourcePolicyErrorMatches.forEach(match => {
+                    // match[1]: ARN
+                    // match[2]: Action
+                    // match[3]: Resource
+                    // match[4]: explicit/implicit deny
+                    // match[5]: source (e.g., resource control policy)
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: ${match[5].trim()}\n\n`;
+                });
+            }
+
+            if (vpcEndpointErrorMatches.length > 0) {
+                vpcEndpointErrorMatches.forEach(match => {
+                    // match[1]: ARN
+                    // match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: VPC endpoint policy\n\n`;
+                });
+            }
+
+            if (vpcEndpointExplicitDenyMatches.length > 0) {
+                vpcEndpointExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource, match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: VPC endpoint policy\n\n`;
+                });
+            }
+
+            if (permissionsBoundaryImplicitDenyMatches.length > 0) {
+                permissionsBoundaryImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: permissions boundary\n\n`;
+                });
+            }
+
+            if (permissionsBoundaryExplicitDenyMatches.length > 0) {
+                permissionsBoundaryExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource (Optional), match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    if (match[3]) {
+                        output += `Resource: ${match[3]}\n`;
+                    }
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: permissions boundary\n\n`;
+                });
+            }
+
+            if (sessionPolicyImplicitDenyMatches.length > 0) {
+                sessionPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: session policy\n\n`;
+                });
+            }
+
+            if (sessionPolicyExplicitDenyMatches.length > 0) {
+                sessionPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource (Optional), match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    if (match[3]) {
+                        output += `Resource: ${match[3]}\n`;
+                    }
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: session policy\n\n`;
+                });
+            }
+
+            if (resourceBasedPolicyImplicitDenyMatches.length > 0) {
+                resourceBasedPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource (optional due to update)
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    if (match[3]) {
+                        output += `Resource: ${match[3]}\n`;
+                    }
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: resource-based policy\n\n`;
+                });
+            }
+
+            if (resourceBasedPolicyExplicitDenyMatches.length > 0) {
+                resourceBasedPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource, match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: resource-based policy\n\n`;
+                });
+            }
+
+            if (trustPolicyImplicitDenyMatches.length > 0) {
+                trustPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no trust policy allows action\n`;
+                    output += `From: role trust policy\n\n`;
+                });
+            }
+
+            if (trustPolicyExplicitDenyMatches.length > 0) {
+                trustPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  explicit deny\n`;
+                    output += `From: role trust policy\n\n`;
+                });
+            }
+
+            if (identityPolicyImplicitDenyMatches.length > 0) {
+                identityPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource (optional)
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    if (match[3]) {
+                        output += `Resource: ${match[3]}\n`;
+                    }
+                    output += `Reason:  implicit deny / no identity-based policy allows action\n`;
+                    output += `From: identity-based policy\n\n`;
+                });
+            }
+
+            if (identityPolicyExplicitDenyMatches.length > 0) {
+                identityPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  explicit deny\n`;
+                    output += `From: identity-based policy\n\n`;
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            if (vpcs.length > 0) {
+                output += `VPCs (${vpcs.length}):\n${vpcs.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-vpcs --vpc-ids ${vpcs.join(' ')}`);
+                vpcs.forEach(vpcId => {
+                    cliOutput.push(`aws ec2 describe-vpc-endpoints --filters Name=vpc-id,Values=${vpcId}`);
+                });
+            }
+            if (subnets.length > 0) {
+                output += `Subnets (${subnets.length}):\n${subnets.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-subnets --subnet-ids ${subnets.join(' ')}`);
+            }
+            if (sgs.length > 0) {
+                output += `Security Groups (${sgs.length}):\n${sgs.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-security-groups --group-ids ${sgs.join(' ')}`);
+            }
+            if (enis.length > 0) {
+                output += `Network Interfaces (ENIs) (${enis.length}):\n${enis.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-network-interfaces --network-interface-ids ${enis.join(' ')}`);
+            }
+            
+            // --- USER REQUESTED ADDITION (EC2 Instance) ---
+            if (instances.length > 0) {
+                output += `EC2 Instances (${instances.length}):\n${instances.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-instances --instance-ids ${instances.join(' ')}`);
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Add Network ACLs and Route Tables to output ---
+            if (naclIds.length > 0) {
+                output += `Network ACL IDs (${naclIds.length}):\n${naclIds.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-network-acls --network-acl-ids ${naclIds.join(' ')}`);
+            }
+            if (naclArns.length > 0) {
+                output += `Network ACL ARNs (${naclArns.length}):\n${naclArns.join('\n')}\n\n`;
+                // CLI commands are already generated from the IDs
+            }
+            if (routeTableIds.length > 0) {
+                output += `Route Table IDs (${routeTableIds.length}):\n${routeTableIds.join('\n')}\n\n`;
+                cliOutput.push(`aws ec2 describe-route-tables --route-table-ids ${routeTableIds.join(' ')}`);
+            }
+            if (routeTableArns.length > 0) {
+                output += `Route Table ARNs (${routeTableArns.length}):\n${routeTableArns.join('\n')}\n\n`;
+                // CLI commands are already generated from the IDs
+            }
+            // --- MODIFICATION END ---
+            
+            // --- MODIFICATION START: Add ARNs to output ---
+            if (roles.length > 0) {
+                output += `Execution Roles (IAM) (${roles.length}):\n${roles.join('\n')}\n\n`;
+                
+                const roleCommands = roles.map(role => {
+                    const roleNameMatch = role.match(/role\/(.+)/);
+                    if (roleNameMatch && roleNameMatch[1]) {
+                        return `aws iam get-role --role-name ${roleNameMatch[1]}`;
+                    }
+                    return null;
+                }).filter(Boolean); 
+
+                if (roleCommands.length > 0) {
+                    cliOutput.push(...roleCommands);
+                }
+            }
+
+            // --- USER REQUESTED ADDITION: IAM Users Output & CLI ---
+            if (iamUsers.length > 0) {
+                output += `IAM Users (${iamUsers.length}):\n${iamUsers.join('\n')}\n\n`;
+                
+                const userCommands = iamUsers.map(userArn => {
+                    const userNameMatch = userArn.match(/user\/(.+)/);
+                    if (userNameMatch && userNameMatch[1]) {
+                        return `aws iam get-user --user-name ${userNameMatch[1]}`;
+                    }
+                    return null;
+                }).filter(Boolean); 
+
+                if (userCommands.length > 0) {
+                    cliOutput.push(...userCommands);
+                }
+            }
+            // --- END USER REQUESTED ADDITION ---
+            
+            // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+            if (assumedRoles.length > 0) {
+                // Get unique ARNs
+                const uniqueArns = [...new Set(assumedRoleArns)];
+                output += `STS Assumed Roles (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                // Extract the actual Role Name from "assumed-role/RoleName/SessionName"
+                // Capture Group 1 contains "RoleName/SessionName"
+                const roleNames = [...new Set(assumedRoles.map(match => {
+                   if (match[1]) {
+                       return match[1].split('/')[0]; // Split by first slash to get Role Name
+                   }
+                   return null;
+                }).filter(Boolean))];
+
+                roleNames.forEach(roleName => {
+                    cliOutput.push(`aws iam get-role --role-name ${roleName}`);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Add SageMaker resources to output and CLI ---
+            if (smDomains.length > 0) {
+                const uniqueArns = [...new Set(smDomainArns)];
+                const domainIds = [...new Set(smDomains.map(match => match[1]))]; 
+
+                // Map ID to Region
+                const idToRegion = {};
+                smDomains.forEach(match => {
+                    // match[1] is ID, match[0] is ARN
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Domains (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                domainIds.forEach(id => {
+                    let cmd = `aws sagemaker describe-domain --domain-id ${id}`;
+                    if (idToRegion[id]) cmd += ` --region ${idToRegion[id]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+    
+            if (smEndpoints.length > 0) {
+                const uniqueArns = [...new Set(smEndpointArns)];
+                const endpointNames = [...new Set(smEndpoints.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smEndpoints.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Endpoints (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                endpointNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-endpoint --endpoint-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+    
+            if (smEndpointConfigs.length > 0) {
+                const uniqueArns = [...new Set(smEndpointConfigArns)];
+                const configNames = [...new Set(smEndpointConfigs.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smEndpointConfigs.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Endpoint Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                configNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-endpoint-config --endpoint-config-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+            
+            // --- USER REQUESTED ADDITIONS START ---
+            if (smNotebookLifecycleConfigs.length > 0) {
+                const uniqueArns = [...new Set(smNotebookLifecycleConfigArns)];
+                const configNames = [...new Set(smNotebookLifecycleConfigs.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smNotebookLifecycleConfigs.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Notebook Lifecycle Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                configNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-notebook-instance-lifecycle-config --notebook-instance-lifecycle-config-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (smNotebookInstances.length > 0) {
+                const uniqueArns = [...new Set(smNotebookInstanceArns)];
+                const instanceNames = [...new Set(smNotebookInstances.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smNotebookInstances.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Notebook Instances (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                instanceNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-notebook-instance --notebook-instance-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (smTransformJobs.length > 0) {
+                const uniqueArns = [...new Set(smTransformJobArns)];
+                const jobNames = [...new Set(smTransformJobs.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smTransformJobs.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Transform Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                jobNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-transform-job --transform-job-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (smTrainingJobs.length > 0) {
+                const uniqueArns = [...new Set(smTrainingJobArns)];
+                const jobNames = [...new Set(smTrainingJobs.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smTrainingJobs.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Training Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                jobNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-training-job --training-job-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (smPipelines.length > 0) {
+                const uniqueArns = [...new Set(smPipelineArns)];
+                const pipelineNames = [...new Set(smPipelines.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smPipelines.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Pipelines (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                pipelineNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-pipeline --pipeline-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (smStudioLifecycleConfigs.length > 0) {
+                const uniqueArns = [...new Set(smStudioLifecycleConfigArns)];
+                const configNames = [...new Set(smStudioLifecycleConfigs.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smStudioLifecycleConfigs.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Studio Lifecycle Configs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                configNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-studio-lifecycle-config --studio-lifecycle-config-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (smProcessingJobs.length > 0) {
+                const uniqueArns = [...new Set(smProcessingJobArns)];
+                const jobNames = [...new Set(smProcessingJobs.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smProcessingJobs.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Processing Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                jobNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-processing-job --processing-job-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+            // --- USER REQUESTED ADDITIONS END ---
+
+            // --- MODIFICATION START: Add Personalize resources to output and CLI ---
+            // Helper for Personalize: all commands use ARN and are direct loops
+            if (psAlgorithms.length > 0) {
+                const uniqueArns = [...new Set(psAlgorithmArns)];
+                output += `Personalize Algorithms (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-algorithm --algorithm-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psBatchInferenceJobs.length > 0) {
+                const uniqueArns = [...new Set(psBatchInferenceJobArns)];
+                output += `Personalize Batch Inference Jobs (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-batch-inference-job --batch-inference-job-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psCampaigns.length > 0) {
+                const uniqueArns = [...new Set(psCampaignArns)];
+                output += `Personalize Campaigns (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-campaign --campaign-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psDatasets.length > 0) {
+                const uniqueArns = [...new Set(psDatasetArns)];
+                output += `Personalize Datasets (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-dataset --dataset-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psDatasetGroups.length > 0) {
+                const uniqueArns = [...new Set(psDatasetGroupArns)];
+                output += `Personalize Dataset Groups (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-dataset-group --dataset-group-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psFilters.length > 0) {
+                const uniqueArns = [...new Set(psFilterArns)];
+                output += `Personalize Filters (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-filter --filter-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psRecipes.length > 0) {
+                const uniqueArns = [...new Set(psRecipeArns)];
+                output += `Personalize Recipes (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-recipe --recipe-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psRecommenders.length > 0) {
+                const uniqueArns = [...new Set(psRecommenderArns)];
+                output += `Personalize Recommenders (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-recommender --recommender-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psSchemas.length > 0) {
+                const uniqueArns = [...new Set(psSchemaArns)];
+                output += `Personalize Schemas (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-schema --schema-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psSolutions.length > 0) {
+                const uniqueArns = [...new Set(psSolutionArns)];
+                output += `Personalize Solutions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-solution --solution-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (psSolutionVersions.length > 0) {
+                const uniqueArns = [...new Set(psSolutionVersionArns)];
+                output += `Personalize Solution Versions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    let cmd = `aws personalize describe-solution-version --solution-version-arn ${arn}`;
+                    const r = getRegionFromArn(arn);
+                    if (r) cmd += ` --region ${r}`;
+                    cliOutput.push(cmd);
+                });
+            }
+            // --- MODIFICATION END ---
+
+            // --- USER REQUESTED ADDITION (Pipeline Execution) ---
+            if (smPipelineExecutions.length > 0) {
+                const uniqueArns = [...new Set(smPipelineExecutionArns)];
+                output += `SageMaker Pipeline Executions (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                uniqueArns.forEach(arn => {
+                    const r = getRegionFromArn(arn);
+                    const regionFlag = r ? ` --region ${r}` : '';
+                    cliOutput.push(`aws sagemaker describe-pipeline-execution --pipeline-execution-arn ${arn}${regionFlag}`);
+                    cliOutput.push(`aws sagemaker describe-pipeline-definition-for-execution --pipeline-execution-arn ${arn}${regionFlag}`);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (SM Cluster) ---
+            if (smClusters.length > 0) {
+                const uniqueArns = [...new Set(smClusterArns)];
+                const clusterNames = [...new Set(smClusters.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smClusters.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `SageMaker Clusters (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                clusterNames.forEach(name => {
+                    let cmd = `aws sagemaker describe-cluster --cluster-name ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            if (smSecrets.length > 0) {
+                const uniqueArns = [...new Set(smSecretArns)];
+                const secretNames = [...new Set(smSecrets.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                smSecrets.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `Secrets Manager Secrets (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                secretNames.forEach(name => {
+                    let cmd = `aws secretsmanager describe-secret --secret-id ${name}`;
+                    if (idToRegion[name]) cmd += ` --region ${idToRegion[name]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- MODIFICATION START: Add Bedrock resources to output and CLI ---
+            if (brGuardrails.length > 0) {
+                const uniqueArns = [...new Set(brGuardrailArns)];
+                const guardrailIds = [...new Set(brGuardrails.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                brGuardrails.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `Bedrock Guardrails (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                guardrailIds.forEach(id => {
+                    // Note: The CLI uses the ID, not the full ARN
+                    let cmd = `aws bedrock get-guardrail --guardrail-identifier ${id}`;
+                    if (idToRegion[id]) cmd += ` --region ${idToRegion[id]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+
+            if (brInferenceProfiles.length > 0) {
+                const uniqueArns = [...new Set(brInferenceProfileArns)];
+                const profileIds = [...new Set(brInferenceProfiles.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                brInferenceProfiles.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `Bedrock Inference Profiles (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                profileIds.forEach(id => {
+                    // Note: The CLI uses the ID, not the full ARN
+                    let cmd = `aws bedrock get-inference-profile --inference-profile-identifier ${id}`;
+                    if (idToRegion[id]) cmd += ` --region ${idToRegion[id]}`;
+                    cliOutput.push(cmd);
+                });
+            }
+            // --- MODIFICATION END ---
+
+            // --- MODIFICATION START: Add KMS resources to output and CLI ---
+            if (kmsKeys.length > 0) {
+                const uniqueArns = [...new Set(kmsKeyArns)];
+                const keyIds = [...new Set(kmsKeys.map(match => match[1]))]; 
+
+                const idToRegion = {};
+                kmsKeys.forEach(match => {
+                    const r = getRegionFromArn(match[0]);
+                    if (r) idToRegion[match[1]] = r;
+                });
+
+                output += `KMS Keys (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                keyIds.forEach(id => {
+                    let cmd1 = `aws kms describe-key --key-id ${id}`;
+                    let cmd2 = `aws kms get-key-policy --key-id ${id} --policy-name default`;
+                    if (idToRegion[id]) {
+                        cmd1 += ` --region ${idToRegion[id]}`;
+                        cmd2 += ` --region ${idToRegion[id]}`;
+                    }
+                    cliOutput.push(cmd1);
+                    cliOutput.push(cmd2);
+                });
+            }
+            // --- MODIFICATION END ---
+
+            // Add other ARNs to output
+            if (otherArns.length > 0) {
+                output += `Other AWS ARNs (${otherArns.length}):\n${otherArns.join('\n')}\n\n`;
+            }
+            // --- MODIFICATION END ---
+
+            // Add request IDs to output
+            if (allRequestIds.size > 0) {
+                output += `AWS Request IDs (${allRequestIds.size}):\n${Array.from(allRequestIds).join('\n')}\n\n`;
+            }
+
+            // --- USER REQUESTED ADDITION (URL) ---
+            if (urls.length > 0) {
+                output += `Found URLs (${urls.length}):\n${urls.join('\n')}\n\n`;
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Email) ---
+            if (emails.length > 0) {
+                output += `Found Emails (${emails.length}):\n${emails.join('\n')}\n\n`;
+            }
+            // --- END USER REQUESTED ADDITION ---
+
+            // Add Decoded Base64 to output
+            if (decodedBase64Map.size > 0) {
+                output += `Decoded Base64 Strings (${decodedBase64Map.size}):\n`;
+                decodedBase64Map.forEach((decodedText, originalB64) => {
+                    output += `--- ${originalB64.substring(0, 20)}... ---\n${decodedText}\n---\n`;
+                });
+                output += "\n";
+            }
+
+            // Add Converted Epoch Timestamps to output
+            if (convertedEpochList.length > 0) {
+                // Get unique items based on the combination of line, timestamp, and date
+                const uniqueEntries = new Set(convertedEpochList.map(e => JSON.stringify(e)));
+                const uniqueEpochList = Array.from(uniqueEntries).map(s => JSON.parse(s));
+
+                output += `Converted Epoch Timestamps (${uniqueEpochList.length}):\n`;
+                uniqueEpochList.forEach(entry => {
+                    // Format: "line content" ===> timestamp ===> UTC Date
+                    output += `"${entry.line}" ===> ${entry.timestamp} ===> ${entry.utcDate}\n`;
+                });
+                output += "\n";
+            }
+
+            // --- Finalize Output ---
+            if (output === "") {
+                // --- MODIFICATION START: Updated "no resources found" message ---
+                // --- USER REQUESTED UPDATE ---
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, Access Errors, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Secrets Manager secrets, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
+                // --- END USER REQUESTED UPDATE ---
+                // --- MODIFICATION END ---
+            } else {
+                if (cliOutput.length > 0) {
+                    output += "--- AWS CLI Describe Commands ---\n";
+                    output += cliOutput.join('\n');
+                }
+                outputTextarea.textContent = output.trim();
+            }
+        }
+
+        // --- AWS Request ID Extractor Function ---
+        /* This function is now merged into extractAwsResources() */
+
+        // --- Utility Functions ---
+
+        function clearInput() {
+            inputTextarea.value = '';
+            document.getElementById('epochInput').value = ''; 
+            outputTextarea.textContent = 'Your formatted text will appear here.';
+            jsonValidationResult.style.display = 'none';
+            fileInput.value = ''; // Clear file input selection
+            
+            // Clear Base64 radio buttons
+            const radios = document.getElementsByName('base64tool');
+            radios.forEach(radio => radio.checked = false);
+            
+            // Clear image preview
+            previewImageTag.src = '';
+            imagePreview.style.display = 'none';
+
+            // Reset tool mode to default
+            updateToolMode();
+        }
+
+        function copyResult(copyButton) {
+            const outputText = outputTextarea.textContent;
+
+            if (outputText === 'Your formatted text will appear here.' || !outputText.trim()) {
+                copyButton.textContent = 'Nothing to copy!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                }, 2000);
+                return;
+            }
+
+            const textarea = document.createElement('textarea');
+            textarea.value = outputText;
+            textarea.style.position = 'fixed'; 
+            textarea.style.opacity = 0;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                // Use execCommand as a fallback for environments where clipboard API might be restricted
+                document.execCommand('copy');
+                copyButton.textContent = 'Copied!';
+            } catch (err) {
+                copyButton.textContent = 'Failed!';
+                console.error('Failed to copy text: ', err);
+            }
+            
+            document.body.removeChild(textarea);
+
+            setTimeout(() => {
+                copyButton.textContent = 'Copy';
+            }, 2000);
+        }
+
+        function toggleXmlOptions() {
+            const format = document.getElementById('downloadFormat').value;
+            const xmlOptions = document.getElementById('xmlOptions');
+            if (format === 'xml') {
+                xmlOptions.classList.add('visible');
+            } else {
+                xmlOptions.classList.remove('visible');
+            }
+        }
+
+        function downloadResult() {
+            let content = outputTextarea.textContent;
+            const format = document.getElementById('downloadFormat').value;
+            let mimeType = 'text/plain';
+            let filename = `result.${format}`;
+
+            if (content === 'Your formatted text will appear here.' || !content.trim()) {
+                const downloadBtn = event.target;
+                const originalText = downloadBtn.textContent;
+                downloadBtn.textContent = 'No content!';
+                setTimeout(() => { downloadBtn.textContent = originalText; }, 2000);
+                return;
+            }
+
+            switch(format) {
+                case 'csv':
+                    mimeType = 'text/csv';
+                    break;
+                case 'json':
+                    mimeType = 'application/json';
+                    break;
+                case 'xml':
+                    mimeType = 'application/xml';
+                    const rootTag = document.getElementById('xmlRoot').value || 'root';
+                    const childTag = document.getElementById('xmlChild').value || 'item';
+                    const lines = content.trim().split('\n');
+                    const xmlLines = lines.map(line => {
+                        const escapedLine = line.replace(/&/g, '&amp;')
+                                                .replace(/</g, '&lt;')
+                                                .replace(/>/g, '&gt;')
+                                                .replace(/"/g, '&quot;')
+                                                .replace(/'/g, '&apos;');
+                        return `  <${childTag}>${escapedLine}</${childTag}>`;
+                    });
+                    content = `<?xml version="1.0" encoding="UTF-8"?>\n<${rootTag}>\n${xmlLines.join('\n')}\n</${rootTag}>`;
+                    break;
+                case 'txt':
+                default:
+                    mimeType = 'text/plain';
+                    break;
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+    </script>
+
+</body>
+</html>
