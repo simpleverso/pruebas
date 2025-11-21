@@ -1011,53 +1011,52 @@
             const uuidRequestIdRegex = /(?:x-amzn-RequestId:?\s*|[Rr]equestId:?\s*)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gi;
 
             // --- USER REQUESTED ADDITION: Access Error Regex ---
+            // Updated all regexes to include '@' and '*' in ARN capture groups and '*' in Action capture groups for robustness
+            
             // Pattern 1: User: ARN is not authorized to perform: Action with an explicit/implicit deny in a source
-            // MODIFIED: Added (?!permissions\s+boundary) to exclude PB matches (handled by Pattern 7)
-            const accessErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!permissions\s+boundary)([a-zA-Z0-9\s]+)/gi;
+            const accessErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!permissions\s+boundary)([a-zA-Z0-9\s]+)/gi;
             
             // Pattern 2: User: ARN is not authorized to perform: Action because no service control policy allows the Action action
-            const scpImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+service\s+control\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+            const scpImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+because\s+no\s+service\s+control\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*]+\s+action/gi;
 
             // Pattern 3: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a resource control policy
-            // FIXED: Added '*' inside the character class [a-zA-Z0-9:._/+=,*-] to allow wildcards within the ARN string
-            // MODIFIED: Added |resource-based\s+policy to negative lookahead to exclude Resource-Based Policy matches (handled by Pattern 11)
-            const resourcePolicyErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!VPC\s+endpoint\s+policy|permissions\s+boundary|session(?:s)?\s+policy|resource-based\s+policy)([a-zA-Z0-9\s]+)/gi;
+            const resourcePolicyErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!VPC\s+endpoint\s+policy|permissions\s+boundary|session(?:s)?\s+policy|resource-based\s+policy)([a-zA-Z0-9\s]+)/gi;
 
             // Pattern 4: User: ARN is not authorized to perform: Action because no VPC endpoint policy allows the Action action
-            const vpcEndpointErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+VPC\s+endpoint\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+            const vpcEndpointErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+because\s+no\s+VPC\s+endpoint\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*]+\s+action/gi;
 
             // Pattern 5: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a VPC endpoint policy
-            const vpcEndpointExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+VPC\s+endpoint\s+policy/gi;
+            const vpcEndpointExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+VPC\s+endpoint\s+policy/gi;
 
             // Pattern 6: Implicit deny in permissions boundary (with resource)
-            const permissionsBoundaryImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+because\s+no\s+permissions\s+boundary\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+            const permissionsBoundaryImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+because\s+no\s+permissions\s+boundary\s+allows\s+the\s+[a-zA-Z0-9:*]+\s+action/gi;
 
             // Pattern 7: Explicit deny in permissions boundary (Optional resource)
-            const permissionsBoundaryExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+permissions\s+boundary/gi;
+            const permissionsBoundaryExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+permissions\s+boundary/gi;
 
             // Pattern 8: Implicit deny in session policy
-            const sessionPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+session\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+            const sessionPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+because\s+no\s+session\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*]+\s+action/gi;
 
             // Pattern 9: Explicit deny in session(s) policy (Optional resource)
-            const sessionPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+session(?:s)?\s+policy/gi;
+            const sessionPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+session(?:s)?\s+policy/gi;
 
             // Pattern 10: Implicit deny in resource-based policy (Matches Secrets Manager)
-            const resourceBasedPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+resource-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+            const resourceBasedPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+because\s+no\s+resource-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*]+\s+action/gi;
 
             // Pattern 11: Explicit deny in resource-based policy (with resource) (Matches Secrets Manager)
-            const resourceBasedPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+resource-based\s+policy/gi;
+            const resourceBasedPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+resource-based\s+policy/gi;
 
             // Pattern 12: Trust Policy Implicit Deny
-            const trustPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+role\s+trust\s+policy\s+allows\s+the\s+(?:[a-zA-Z0-9:]+)\s+action/gi;
+            const trustPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+because\s+no\s+role\s+trust\s+policy\s+allows\s+the\s+(?:[a-zA-Z0-9:*]+)\s+action/gi;
 
             // Pattern 13: Trust Policy Explicit Deny
-            const trustPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+explicit\s+deny\s+in\s+the\s+role\s+trust\s+policy/gi;
+            const trustPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+with\s+an\s+explicit\s+deny\s+in\s+the\s+role\s+trust\s+policy/gi;
 
             // Pattern 14: Identity-based Policy Implicit Deny
-            const identityPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+identity-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+            const identityPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+because\s+no\s+identity-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:*]+\s+action/gi;
 
             // Pattern 15: Identity-based Policy Explicit Deny (with resource)
-            const identityPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+explicit\s+deny\s+in\s+an\s+identity-based\s+policy/gi;
+            const identityPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,*@-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:*]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+explicit\s+deny\s+in\s+an\s+identity-based\s+policy/gi;
             // --- END USER REQUESTED ADDITION ---
 
             // --- Extract Resources ---
