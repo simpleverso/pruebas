@@ -1052,6 +1052,12 @@
 
             // Pattern 13: Trust Policy Explicit Deny
             const trustPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+explicit\s+deny\s+in\s+the\s+role\s+trust\s+policy/gi;
+
+            // Pattern 14: Identity-based Policy Implicit Deny
+            const identityPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+identity-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+
+            // Pattern 15: Identity-based Policy Explicit Deny (with resource)
+            const identityPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+explicit\s+deny\s+in\s+an\s+identity-based\s+policy/gi;
             // --- END USER REQUESTED ADDITION ---
 
             // --- Extract Resources ---
@@ -1339,6 +1345,9 @@
             
             const trustPolicyImplicitDenyMatches = [...inputText.matchAll(trustPolicyImplicitDenyRegex)];
             const trustPolicyExplicitDenyMatches = [...inputText.matchAll(trustPolicyExplicitDenyRegex)];
+            
+            const identityPolicyImplicitDenyMatches = [...inputText.matchAll(identityPolicyImplicitDenyRegex)];
+            const identityPolicyExplicitDenyMatches = [...inputText.matchAll(identityPolicyExplicitDenyRegex)];
             // --- END USER REQUESTED ADDITION ---
 
             const allRequestIds = new Set();
@@ -1506,6 +1515,29 @@
                     output += `Action with no permission: ${match[2]}\n`;
                     output += `Reason:  explicit deny\n`;
                     output += `From: role trust policy\n\n`;
+                });
+            }
+
+            if (identityPolicyImplicitDenyMatches.length > 0) {
+                identityPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no identity-based policy allows action\n`;
+                    output += `From: identity-based policy\n\n`;
+                });
+            }
+
+            if (identityPolicyExplicitDenyMatches.length > 0) {
+                identityPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  explicit deny\n`;
+                    output += `From: identity-based policy\n\n`;
                 });
             }
             // --- END USER REQUESTED ADDITION ---
