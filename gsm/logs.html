@@ -900,6 +900,10 @@
             // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
             
+            // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+            const assumedRoleRegex = /arn:[^:]+:sts::[^:]+:assumed-role\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
             // --- MODIFICATION START: Added SageMaker regexes ---
             const smDomainRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:domain\/(d-[\w]+)/g;
             const smEndpointRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:endpoint\/([\w\+\=\,\.\@\-\/]+)/g;
@@ -1022,6 +1026,11 @@
             // Extract just roles (using the more specific regex)
             const roles = [...new Set(inputText.match(roleRegex) || [])];
             
+            // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+            const assumedRoles = [...inputText.matchAll(assumedRoleRegex)];
+            const assumedRoleArns = assumedRoles.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
             // --- MODIFICATION START: Extract SageMaker resources ---
             // Use matchAll to get capture groups
             const smDomains = [...inputText.matchAll(smDomainRegex)];
@@ -1160,6 +1169,9 @@
             // Filter out roles from the main ARN list to avoid duplication in the output
             const otherArns = allArns.filter(arn => 
                 !roles.includes(arn) &&
+                // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+                !assumedRoleArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
                 !smDomainArns.includes(arn) &&
                 !smEndpointArns.includes(arn) &&
                 !smEndpointConfigArns.includes(arn) &&
@@ -1306,6 +1318,27 @@
                     cliOutput.push(...roleCommands);
                 }
             }
+            
+            // --- USER REQUESTED ADDITION: STS Assumed Roles ---
+            if (assumedRoles.length > 0) {
+                // Get unique ARNs
+                const uniqueArns = [...new Set(assumedRoleArns)];
+                output += `STS Assumed Roles (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+                
+                // Extract the actual Role Name from "assumed-role/RoleName/SessionName"
+                // Capture Group 1 contains "RoleName/SessionName"
+                const roleNames = [...new Set(assumedRoles.map(match => {
+                   if (match[1]) {
+                       return match[1].split('/')[0]; // Split by first slash to get Role Name
+                   }
+                   return null;
+                }).filter(Boolean))];
+
+                roleNames.forEach(roleName => {
+                    cliOutput.push(`aws iam get-role --role-name ${roleName}`);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Add SageMaker resources to output and CLI ---
             if (smDomains.length > 0) {
@@ -1619,7 +1652,7 @@
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
                 // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
                 // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
