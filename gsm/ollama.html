@@ -1553,7 +1553,7 @@
                 if (!prompt) return;
 
                 const model = modelSelect.value;
-                const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
+                //const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
                 const userSystemPrompt = systemPrompt.value.trim();
                 
                 analysisOutput.classList.add('animate-pulse');
@@ -1562,8 +1562,8 @@
                 
                 const payload = {
                     model: model,
-                    prompt: `Text:\n"""\n${prompt}\n"""\n\nAnalysis:`,
-                    system: userSystemPrompt || analysisSystemPrompt,
+                    prompt: `Text:\n"""\n${prompt}\n"""\n\n`,
+                    system: userSystemPrompt,
                     stream: false 
                 };
 
