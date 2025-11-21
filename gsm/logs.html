@@ -1006,21 +1006,40 @@
 
             // --- USER REQUESTED ADDITION: Access Error Regex ---
             // Pattern 1: User: ARN is not authorized to perform: Action with an explicit/implicit deny in a source
-            const accessErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+([a-zA-Z0-9\s]+)/gi;
+            // MODIFIED: Added (?!permissions\s+boundary) to exclude PB matches (handled by Pattern 7)
+            const accessErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!permissions\s+boundary)([a-zA-Z0-9\s]+)/gi;
             
             // Pattern 2: User: ARN is not authorized to perform: Action because no service control policy allows the Action action
             const scpImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+service\s+control\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
 
             // Pattern 3: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a resource control policy
             // FIXED: Added '*' inside the character class [a-zA-Z0-9:._/+=,*-] to allow wildcards within the ARN string
-            // MODIFIED: Added (?!VPC\s+endpoint\s+policy) to exclude VPC endpoint policies which are now handled by Pattern 5
-            const resourcePolicyErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!VPC\s+endpoint\s+policy)([a-zA-Z0-9\s]+)/gi;
+            // MODIFIED: Added |resource-based\s+policy to negative lookahead to exclude Resource-Based Policy matches (handled by Pattern 11)
+            const resourcePolicyErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+(?!VPC\s+endpoint\s+policy|permissions\s+boundary|session(?:s)?\s+policy|resource-based\s+policy)([a-zA-Z0-9\s]+)/gi;
 
             // Pattern 4: User: ARN is not authorized to perform: Action because no VPC endpoint policy allows the Action action
             const vpcEndpointErrorRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+VPC\s+endpoint\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
 
             // Pattern 5: User: ARN is not authorized to perform: Action on resource: ResourceARN with an explicit deny in a VPC endpoint policy
             const vpcEndpointExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+VPC\s+endpoint\s+policy/gi;
+
+            // Pattern 6: Implicit deny in permissions boundary (with resource)
+            const permissionsBoundaryImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+because\s+no\s+permissions\s+boundary\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+
+            // Pattern 7: Explicit deny in permissions boundary (Optional resource)
+            const permissionsBoundaryExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+permissions\s+boundary/gi;
+
+            // Pattern 8: Implicit deny in session policy
+            const sessionPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+session\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+
+            // Pattern 9: Explicit deny in session(s) policy (Optional resource)
+            const sessionPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+session(?:s)?\s+policy/gi;
+
+            // Pattern 10: Implicit deny in resource-based policy
+            const resourceBasedPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+resource-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
+
+            // Pattern 11: Explicit deny in resource-based policy (with resource)
+            const resourceBasedPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+resource-based\s+policy/gi;
             // --- END USER REQUESTED ADDITION ---
 
             // --- Extract Resources ---
@@ -1287,6 +1306,12 @@
             const resourcePolicyErrorMatches = [...inputText.matchAll(resourcePolicyErrorRegex)];
             const vpcEndpointErrorMatches = [...inputText.matchAll(vpcEndpointErrorRegex)];
             const vpcEndpointExplicitDenyMatches = [...inputText.matchAll(vpcEndpointExplicitDenyRegex)];
+            const permissionsBoundaryImplicitDenyMatches = [...inputText.matchAll(permissionsBoundaryImplicitDenyRegex)];
+            const permissionsBoundaryExplicitDenyMatches = [...inputText.matchAll(permissionsBoundaryExplicitDenyRegex)];
+            const sessionPolicyImplicitDenyMatches = [...inputText.matchAll(sessionPolicyImplicitDenyRegex)];
+            const sessionPolicyExplicitDenyMatches = [...inputText.matchAll(sessionPolicyExplicitDenyRegex)];
+            const resourceBasedPolicyImplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyImplicitDenyRegex)];
+            const resourceBasedPolicyExplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyExplicitDenyRegex)];
             // --- END USER REQUESTED ADDITION ---
 
             const allRequestIds = new Set();
@@ -1351,16 +1376,87 @@
 
             if (vpcEndpointExplicitDenyMatches.length > 0) {
                 vpcEndpointExplicitDenyMatches.forEach(match => {
-                    // match[1]: ARN
-                    // match[2]: Action
-                    // match[3]: Resource
-                    // match[4]: explicit/implicit deny
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource, match[4]: explicit/implicit deny
                     output += `========ACCESS ERROR=======\n`;
                     output += `User: ${match[1]}\n`;
                     output += `Action with no permission: ${match[2]}\n`;
                     output += `Resource: ${match[3]}\n`;
                     output += `Reason:  ${match[4]}\n`;
                     output += `From: VPC endpoint policy\n\n`;
+                });
+            }
+
+            if (permissionsBoundaryImplicitDenyMatches.length > 0) {
+                permissionsBoundaryImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: permissions boundary\n\n`;
+                });
+            }
+
+            if (permissionsBoundaryExplicitDenyMatches.length > 0) {
+                permissionsBoundaryExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource (Optional), match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    if (match[3]) {
+                        output += `Resource: ${match[3]}\n`;
+                    }
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: permissions boundary\n\n`;
+                });
+            }
+
+            if (sessionPolicyImplicitDenyMatches.length > 0) {
+                sessionPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: session policy\n\n`;
+                });
+            }
+
+            if (sessionPolicyExplicitDenyMatches.length > 0) {
+                sessionPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource (Optional), match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    if (match[3]) {
+                        output += `Resource: ${match[3]}\n`;
+                    }
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: session policy\n\n`;
+                });
+            }
+
+            if (resourceBasedPolicyImplicitDenyMatches.length > 0) {
+                resourceBasedPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no permission\n`;
+                    output += `From: resource-based policy\n\n`;
+                });
+            }
+
+            if (resourceBasedPolicyExplicitDenyMatches.length > 0) {
+                resourceBasedPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action, match[3]: Resource, match[4]: explicit/implicit deny
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Resource: ${match[3]}\n`;
+                    output += `Reason:  ${match[4]}\n`;
+                    output += `From: resource-based policy\n\n`;
                 });
             }
             // --- END USER REQUESTED ADDITION ---
