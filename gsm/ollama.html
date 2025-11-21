@@ -322,6 +322,35 @@
                                 + Add Rule
                             </button>
                         </div>
+
+                        <!-- NEW: Rule Set Management UI -->
+                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4">
+                            <h4 class="text-xs font-bold text-cyan-500 uppercase mb-3">Saved Rule Sets</h4>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-between">
+                                <!-- Save Current -->
+                                <div class="flex gap-2 flex-grow sm:max-w-md">
+                                    <input type="text" id="rule-set-name" class="flex-grow bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500" placeholder="Name this rule set...">
+                                    <button id="save-rules-btn" class="px-4 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700 transition whitespace-nowrap">Save</button>
+                                </div>
+                                <!-- Load/Delete -->
+                                <div class="flex gap-2 flex-grow sm:max-w-md">
+                                    <select id="saved-rules-select" class="flex-grow bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500">
+                                        <option value="" disabled selected>Select saved rules...</option>
+                                    </select>
+                                    <button id="load-rules-btn" class="px-4 py-2 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700 transition">Load</button>
+                                    <button id="delete-rules-btn" class="px-4 py-2 bg-red-600 text-white rounded text-sm font-semibold hover:bg-red-700 transition">Del</button>
+                                </div>
+                            </div>
+                            <!-- NEW: Export/Import Controls -->
+                            <div class="mt-3 pt-3 border-t border-gray-700 flex justify-between items-center">
+                                <span class="text-xs text-gray-500">Backup & Restore:</span>
+                                <div class="flex gap-2">
+                                     <button id="export-rules-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 transition">Export JSON</button>
+                                     <button id="import-rules-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 transition">Import JSON</button>
+                                     <input type="file" id="import-rules-input" class="hidden" accept=".json">
+                                </div>
+                            </div>
+                        </div>
                         
                         <div id="rules-container" class="flex flex-col gap-4">
                             <!-- Rules will be injected here -->
@@ -331,13 +360,18 @@
                     <!-- Step 4: Process & Download -->
                     <div id="batch-actions-wrapper" class="hidden border-t border-gray-700 pt-6">
                         <div class="flex flex-col gap-4">
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-4 flex-wrap">
                                 <button id="start-batch-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                     Start Processing
                                 </button>
                                 <button id="stop-batch-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                                     Stop
                                 </button>
+                                <!-- NEW: Batch Debug Toggle -->
+                                <div class="flex items-center gap-2 ml-auto">
+                                    <input type="checkbox" id="batch-debug-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800">
+                                    <label for="batch-debug-checkbox" class="text-sm text-gray-300">Show row requests</label>
+                                </div>
                             </div>
 
                             <!-- Progress -->
@@ -345,6 +379,9 @@
                                 <div id="batch-progress-bar" class="bg-cyan-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
                             </div>
                             <div id="batch-status" class="text-sm text-gray-400 font-mono"></div>
+
+                            <!-- NEW: Batch Debug Log -->
+                            <div id="batch-debug-log" class="hidden w-full p-4 bg-gray-950 rounded-lg border border-gray-700 h-64 overflow-y-auto font-mono text-xs text-gray-400 whitespace-pre-wrap"></div>
 
                             <!-- Download -->
                             <button id="download-batch-btn" class="hidden w-full sm:w-auto self-start px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-lg">
@@ -370,6 +407,8 @@
             const STORAGE_KEY_ACTIVE_CHAT_A = 'ollama_active_chat_a';
             const STORAGE_KEY_ACTIVE_CHAT_B = 'ollama_active_chat_b';
             const STORAGE_KEY_DEBUG_MODE = 'ollama_debug_mode';
+            // NEW: Storage key for batch rules
+            const STORAGE_KEY_BATCH_RULES = 'ollama_batch_rules';
 
             // --- DOM Elements ---
             const ollamaEndpoint = document.getElementById('ollama-endpoint');
@@ -396,6 +435,17 @@
             const batchRulesWrapper = document.getElementById('batch-rules-wrapper');
             const rulesContainer = document.getElementById('rules-container');
             const addRuleBtn = document.getElementById('add-rule-btn');
+            // NEW: Rule Management Elements
+            const ruleSetNameInput = document.getElementById('rule-set-name');
+            const saveRulesBtn = document.getElementById('save-rules-btn');
+            const savedRulesSelect = document.getElementById('saved-rules-select');
+            const loadRulesBtn = document.getElementById('load-rules-btn');
+            const deleteRulesBtn = document.getElementById('delete-rules-btn');
+            // NEW: Export/Import Elements
+            const exportRulesBtn = document.getElementById('export-rules-btn');
+            const importRulesBtn = document.getElementById('import-rules-btn');
+            const importRulesInput = document.getElementById('import-rules-input');
+
             const batchActionsWrapper = document.getElementById('batch-actions-wrapper');
             const startBatchBtn = document.getElementById('start-batch-btn');
             const stopBatchBtn = document.getElementById('stop-batch-btn');
@@ -403,6 +453,9 @@
             const batchProgressBar = document.getElementById('batch-progress-bar');
             const batchStatus = document.getElementById('batch-status');
             const downloadBatchBtn = document.getElementById('download-batch-btn');
+            // NEW: Batch Debug Elements
+            const batchDebugCheckbox = document.getElementById('batch-debug-checkbox');
+            const batchDebugLog = document.getElementById('batch-debug-log');
 
             // --- Chat Elements (Panel A) ---
             const chatSelectA = document.getElementById('chat-select-a');
@@ -759,11 +812,15 @@
             }
 
             // 2. Rules UI
-            function addBatchRuleUI() {
-                const ruleId = Date.now();
+            // MODIFIED: Accepts optional data to pre-fill fields
+            function addBatchRuleUI(data = null) {
+                const ruleId = Date.now() + Math.random(); // Ensure unique ID if looping fast
                 const div = document.createElement('div');
                 div.className = 'bg-gray-700 p-4 rounded-lg border border-gray-600 relative flex flex-col gap-4';
                 div.dataset.ruleId = ruleId;
+
+                // Pre-calculate headers options
+                const headerOptions = currentHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
 
                 div.innerHTML = `
                     <button class="absolute top-2 right-2 text-red-400 hover:text-red-300 text-sm font-bold delete-rule-btn">&times;</button>
@@ -775,10 +832,10 @@
                              <div class="flex flex-wrap items-end gap-2 text-sm">
                                 <span class="text-gray-300 py-2">Map Column</span>
                                 <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-gray-200 rule-var-col">
-                                    ${currentHeaders.map(h => `<option value="${h}">${h}</option>`).join('')}
+                                    ${headerOptions}
                                 </select>
                                 <span class="text-gray-300 py-2">to Variable Name</span>
-                                <input type="text" class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-cyan-400 font-mono w-32 rule-var-name" placeholder="my_var" value="var_${ruleId}">
+                                <input type="text" class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-cyan-400 font-mono w-32 rule-var-name" placeholder="my_var" value="var_${Math.floor(ruleId)}">
                                 <span class="text-xs text-gray-500 py-2">(Use <code>{{name}}</code> in prompt)</span>
                              </div>
                         </div>
@@ -787,14 +844,31 @@
                         <div class="sm:col-span-2">
                              <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step B: Write Prompt</h4>
                             <label class="block text-xs text-gray-500 mb-1">Prompt Template</label>
-                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-prompt" rows="3" placeholder="Analyze this: {{var_${ruleId}}}"></textarea>
+                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-prompt" rows="3" placeholder="Analyze this: {{var_${Math.floor(ruleId)}}}"></textarea>
                         </div>
 
                         <!-- Output Section -->
                         <div>
                              <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step C: Output</h4>
-                            <label class="block text-xs text-gray-500 mb-1">Save Response To Column</label>
-                            <input type="text" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-output-col" placeholder="New Column Name">
+                            
+                            <div class="flex gap-3 mb-2 text-xs">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" class="form-radio text-cyan-600 rule-output-mode" name="output-mode-${ruleId}" value="new" checked>
+                                    <span class="ml-1.5 text-gray-300">New Column</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" class="form-radio text-cyan-600 rule-output-mode" name="output-mode-${ruleId}" value="existing">
+                                    <span class="ml-1.5 text-gray-300">Overwrite Existing</span>
+                                </label>
+                            </div>
+
+                            <!-- Input for New Column -->
+                            <input type="text" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-output-col-new" placeholder="New Column Name">
+                            
+                            <!-- Select for Existing Column (Hidden initially) -->
+                            <select class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-output-col-existing hidden">
+                                ${headerOptions}
+                            </select>
                             
                             <label class="block text-xs text-gray-500 mt-3 mb-1">Model</label>
                             <select class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 rule-model">
@@ -805,6 +879,23 @@
                 `;
 
                 rulesContainer.appendChild(div);
+
+                // Logic to toggle New vs Existing inputs
+                const radioButtons = div.querySelectorAll(`input[name="output-mode-${ruleId}"]`);
+                const inputNew = div.querySelector('.rule-output-col-new');
+                const selectExisting = div.querySelector('.rule-output-col-existing');
+
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        if (e.target.value === 'new') {
+                            inputNew.classList.remove('hidden');
+                            selectExisting.classList.add('hidden');
+                        } else {
+                            inputNew.classList.add('hidden');
+                            selectExisting.classList.remove('hidden');
+                        }
+                    });
+                });
 
                 // Populate model select for this rule
                 const ruleModelSelect = div.querySelector('.rule-model');
@@ -818,9 +909,172 @@
                 div.querySelector('.delete-rule-btn').addEventListener('click', () => {
                     div.remove();
                 });
+
+                // NEW: Populate with data if loading from save
+                if (data) {
+                    div.querySelector('.rule-var-col').value = data.varCol || '';
+                    div.querySelector('.rule-var-name').value = data.varName || '';
+                    div.querySelector('.rule-prompt').value = data.promptTemplate || '';
+                    div.querySelector('.rule-model').value = data.model || modelSelect.value;
+
+                    // Handle Output Mode
+                    const savedMode = data.outputMode || 'new';
+                    const radioToSelect = div.querySelector(`input[name="output-mode-${ruleId}"][value="${savedMode}"]`);
+                    if (radioToSelect) {
+                        radioToSelect.checked = true;
+                        // Manually trigger the visual toggle logic
+                        if (savedMode === 'new') {
+                            inputNew.classList.remove('hidden');
+                            selectExisting.classList.add('hidden');
+                            inputNew.value = data.outputCol || '';
+                        } else {
+                            inputNew.classList.add('hidden');
+                            selectExisting.classList.remove('hidden');
+                            selectExisting.value = data.outputCol || '';
+                        }
+                    }
+                }
             }
 
-            addRuleBtn.addEventListener('click', addBatchRuleUI);
+            addRuleBtn.addEventListener('click', () => addBatchRuleUI());
+
+
+            // NEW: Save/Load Rules Logic
+            function getSavedRulesFromStorage() {
+                const stored = localStorage.getItem(STORAGE_KEY_BATCH_RULES);
+                return stored ? JSON.parse(stored) : {};
+            }
+
+            function updateSavedRulesDropdown() {
+                const rules = getSavedRulesFromStorage();
+                savedRulesSelect.innerHTML = '<option value="" disabled selected>Select saved rules...</option>';
+                Object.keys(rules).forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    savedRulesSelect.appendChild(opt);
+                });
+            }
+
+            saveRulesBtn.addEventListener('click', () => {
+                const name = ruleSetNameInput.value.trim();
+                if (!name) {
+                    showMessage('Please enter a name for the rule set.', 'error');
+                    return;
+                }
+
+                const ruleDivs = document.querySelectorAll('#rules-container > div');
+                if (ruleDivs.length === 0) {
+                    showMessage('No rules to save.', 'error');
+                    return;
+                }
+
+                const rulesToSave = [];
+                ruleDivs.forEach(div => {
+                    const varCol = div.querySelector('.rule-var-col').value;
+                    const varName = div.querySelector('.rule-var-name').value.trim();
+                    const promptTemplate = div.querySelector('.rule-prompt').value;
+                    const model = div.querySelector('.rule-model').value;
+                    
+                    // Get output mode and value
+                    const ruleId = div.dataset.ruleId;
+                    const mode = div.querySelector(`input[name="output-mode-${ruleId}"]:checked`).value;
+                    let outputCol = '';
+                    if (mode === 'new') {
+                        outputCol = div.querySelector('.rule-output-col-new').value.trim();
+                    } else {
+                        outputCol = div.querySelector('.rule-output-col-existing').value;
+                    }
+
+                    rulesToSave.push({
+                        varCol, varName, promptTemplate, model, outputMode: mode, outputCol
+                    });
+                });
+
+                const allRules = getSavedRulesFromStorage();
+                allRules[name] = rulesToSave;
+                localStorage.setItem(STORAGE_KEY_BATCH_RULES, JSON.stringify(allRules));
+                
+                updateSavedRulesDropdown();
+                showMessage(`Rule set "${name}" saved.`, 'success');
+            });
+
+            loadRulesBtn.addEventListener('click', () => {
+                const name = savedRulesSelect.value;
+                if (!name) return;
+
+                const allRules = getSavedRulesFromStorage();
+                const rulesToLoad = allRules[name];
+
+                if (rulesToLoad) {
+                    rulesContainer.innerHTML = ''; // Clear existing
+                    rulesToLoad.forEach(ruleData => {
+                        addBatchRuleUI(ruleData);
+                    });
+                    showMessage(`Rule set "${name}" loaded.`, 'success');
+                }
+            });
+
+            deleteRulesBtn.addEventListener('click', () => {
+                const name = savedRulesSelect.value;
+                if (!name) return;
+                
+                if (confirm(`Delete rule set "${name}"?`)) {
+                    const allRules = getSavedRulesFromStorage();
+                    delete allRules[name];
+                    localStorage.setItem(STORAGE_KEY_BATCH_RULES, JSON.stringify(allRules));
+                    updateSavedRulesDropdown();
+                    showMessage(`Rule set "${name}" deleted.`, 'success');
+                }
+            });
+
+            // NEW: Export Rules Logic
+            exportRulesBtn.addEventListener('click', () => {
+                const rules = getSavedRulesFromStorage();
+                if (Object.keys(rules).length === 0) {
+                    showMessage('No saved rules to export.', 'error');
+                    return;
+                }
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rules, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "ollama_batch_rules.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                showMessage('Rules exported successfully.', 'success');
+            });
+
+            // NEW: Import Rules Logic
+            importRulesBtn.addEventListener('click', () => importRulesInput.click());
+
+            importRulesInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedRules = JSON.parse(e.target.result);
+                        if (typeof importedRules !== 'object' || importedRules === null) {
+                            throw new Error('Invalid JSON format');
+                        }
+                        
+                        // Merge with existing rules
+                        const currentRules = getSavedRulesFromStorage();
+                        const mergedRules = { ...currentRules, ...importedRules };
+                        
+                        localStorage.setItem(STORAGE_KEY_BATCH_RULES, JSON.stringify(mergedRules));
+                        updateSavedRulesDropdown();
+                        showMessage(`Rules imported successfully. (${Object.keys(importedRules).length} sets loaded)`, 'success');
+                    } catch (err) {
+                        showMessage('Failed to import rules: Invalid JSON file.', 'error');
+                        console.error(err);
+                    }
+                    importRulesInput.value = ''; // Reset input
+                };
+                reader.readAsText(file);
+            });
 
 
             // 3. Run Batch
@@ -833,7 +1087,16 @@
                     const varCol = div.querySelector('.rule-var-col').value;
                     const varName = div.querySelector('.rule-var-name').value.trim();
                     const promptTemplate = div.querySelector('.rule-prompt').value;
-                    const outputCol = div.querySelector('.rule-output-col').value.trim();
+                    
+                    // Determine Output Column based on mode
+                    const mode = div.querySelector(`input[name="output-mode-${div.dataset.ruleId}"]:checked`).value;
+                    let outputCol = '';
+                    if (mode === 'new') {
+                        outputCol = div.querySelector('.rule-output-col-new').value.trim();
+                    } else {
+                        outputCol = div.querySelector('.rule-output-col-existing').value;
+                    }
+
                     const model = div.querySelector('.rule-model').value;
 
                     if (outputCol && promptTemplate) {
@@ -851,6 +1114,16 @@
                 stopBatchBtn.classList.remove('hidden');
                 batchProgressContainer.classList.remove('hidden');
                 downloadBatchBtn.classList.add('hidden');
+                
+                // Handle Debug UI
+                if (batchDebugCheckbox.checked) {
+                    batchDebugLog.classList.remove('hidden');
+                    batchDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- Batch Processing Log ---</div>';
+                } else {
+                    batchDebugLog.classList.add('hidden');
+                    batchDebugLog.innerHTML = '';
+                }
+
                 batchStopRequested = false;
                 batchStatus.textContent = 'Starting...';
                 batchProgressBar.style.width = '0%';
@@ -891,14 +1164,41 @@
                             stream: false
                         };
 
+                        // Debug Logging - Request
+                        if (batchDebugCheckbox.checked) {
+                            const logEntryReq = document.createElement('div');
+                            logEntryReq.className = 'mb-2 border-l-2 border-cyan-600 pl-2';
+                            logEntryReq.innerHTML = `<div class="text-cyan-400 font-bold text-xs">Row ${i + 1} [Request] -> "${rule.outputCol}"</div><div class="text-gray-500 text-[10px]">${JSON.stringify(payload, null, 2)}</div>`;
+                            batchDebugLog.appendChild(logEntryReq);
+                            batchDebugLog.scrollTop = batchDebugLog.scrollHeight;
+                        }
+
                         try {
                             const result = await callOllama('/api/generate', payload);
+
+                            // Debug Logging - Response
+                            if (batchDebugCheckbox.checked) {
+                                const logEntryRes = document.createElement('div');
+                                logEntryRes.className = 'mb-4 border-l-2 border-green-600 pl-2 pb-2 border-b border-gray-800';
+                                logEntryRes.innerHTML = `<div class="text-green-400 font-bold text-xs">Row ${i + 1} [Response]</div><div class="text-gray-500 text-[10px]">${JSON.stringify(result, null, 2)}</div>`;
+                                batchDebugLog.appendChild(logEntryRes);
+                                batchDebugLog.scrollTop = batchDebugLog.scrollHeight;
+                            }
+
                             if (result && result.response) {
                                 row[rule.outputCol] = result.response.trim();
                             } else {
                                 row[rule.outputCol] = "Error";
                             }
                         } catch (err) {
+                            // Debug Logging - Error
+                            if (batchDebugCheckbox.checked) {
+                                const logEntryErr = document.createElement('div');
+                                logEntryErr.className = 'mb-4 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800';
+                                logEntryErr.innerHTML = `<div class="text-red-400 font-bold text-xs">Row ${i + 1} [Error]</div><div class="text-gray-500 text-[10px]">${err.message}</div>`;
+                                batchDebugLog.appendChild(logEntryErr);
+                                batchDebugLog.scrollTop = batchDebugLog.scrollHeight;
+                            }
                             row[rule.outputCol] = "Error: " + err.message;
                         }
                     }
@@ -1221,7 +1521,7 @@
                 if (!prompt) return;
 
                 const model = modelSelect.value;
-                //const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
+                const analysisSystemPrompt = 'You are an expert analyst. Analyze the following text and provide a concise summary of its key points, tone, and sentiment.';
                 const userSystemPrompt = systemPrompt.value.trim();
                 
                 analysisOutput.classList.add('animate-pulse');
@@ -1230,8 +1530,8 @@
                 
                 const payload = {
                     model: model,
-                    prompt: `Text:\n"""\n${prompt}\n"""\n:`,
-                    system: userSystemPrompt,
+                    prompt: `Text:\n"""\n${prompt}\n"""\n\nAnalysis:`,
+                    system: userSystemPrompt || analysisSystemPrompt,
                     stream: false 
                 };
 
@@ -1514,7 +1814,8 @@
 
             // --- Run Initial Load ---
             loadChats(); 
-            checkConnectionAndLoadModels(); 
+            checkConnectionAndLoadModels();
+            updateSavedRulesDropdown(); // NEW: Initialize saved rules dropdown
             
         });
     </script>
