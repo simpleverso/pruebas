@@ -902,7 +902,8 @@
             // --- MODIFICATION START: Added generic ARN regex ---
             // Generic ARN regex. This will match all ARNs, including roles.
             // This regex matches 'arn:' followed by common ARN characters.
-            const arnRegex = /(arn:[a-zA-Z0-9:._/+=,-]+)/g;
+            // UPDATED: Added '*' to allow wildcard ARNs (common in error messages like resource-based policies)
+            const arnRegex = /(arn:[a-zA-Z0-9:._/+=,*-]+)/g;
             // Specific regex for IAM roles (already present, to be used for CLI generation)
             const roleRegex = /(arn:[^:]+:iam:[^:]*:[^:]*:role\/[\w\+\=\,\.\@\-\/]+)/g;
             // --- USER REQUESTED ADDITION: IAM User Regex ---
@@ -939,6 +940,11 @@
 
             // --- USER REQUESTED ADDITION (SM Cluster) ---
             const smClusterRegex = /arn:[^:]+:sagemaker:[^:]*:[^:]*:cluster\/([\w\+\=\,\.\@\-\/]+)/g;
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            // Includes wildcards for error extraction
+            const smSecretRegex = /arn:[^:]+:secretsmanager:[^:]*:[^:]*:secret:([\w\+\=\,\.\@\-\/\*]+)/g;
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Added Personalize regexes ---
@@ -1035,11 +1041,17 @@
             // Pattern 9: Explicit deny in session(s) policy (Optional resource)
             const sessionPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+(?:on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+)?with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+session(?:s)?\s+policy/gi;
 
-            // Pattern 10: Implicit deny in resource-based policy
+            // Pattern 10: Implicit deny in resource-based policy (Matches Secrets Manager)
             const resourceBasedPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+resource-based\s+policy\s+allows\s+the\s+[a-zA-Z0-9:]+\s+action/gi;
 
-            // Pattern 11: Explicit deny in resource-based policy (with resource)
+            // Pattern 11: Explicit deny in resource-based policy (with resource) (Matches Secrets Manager)
             const resourceBasedPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+on\s+resource:\s+([a-zA-Z0-9:._/+=,*-]+)\s+with\s+an\s+(explicit\s+deny|implicit\s+deny)\s+in\s+a\s+resource-based\s+policy/gi;
+
+            // Pattern 12: Trust Policy Implicit Deny
+            const trustPolicyImplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+because\s+no\s+role\s+trust\s+policy\s+allows\s+the\s+(?:[a-zA-Z0-9:]+)\s+action/gi;
+
+            // Pattern 13: Trust Policy Explicit Deny
+            const trustPolicyExplicitDenyRegex = /User:\s+(arn:[a-zA-Z0-9:._/+=,-]+)\s+is\s+not\s+authorized\s+to\s+perform:\s+([a-zA-Z0-9:]+)\s+with\s+an\s+explicit\s+deny\s+in\s+the\s+role\s+trust\s+policy/gi;
             // --- END USER REQUESTED ADDITION ---
 
             // --- Extract Resources ---
@@ -1141,6 +1153,10 @@
             const smClusters = [...inputText.matchAll(smClusterRegex)];
             // --- END USER REQUESTED ADDITION ---
 
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            const smSecrets = [...inputText.matchAll(smSecretRegex)];
+            // --- END USER REQUESTED ADDITION ---
+
             const psAlgorithmArns = psAlgorithms.map(match => match[0]);
             const psBatchInferenceJobArns = psBatchInferenceJobs.map(match => match[0]);
             const psCampaignArns = psCampaigns.map(match => match[0]);
@@ -1170,6 +1186,10 @@
 
             // --- USER REQUESTED ADDITION (SM Cluster) ---
             const smClusterArns = smClusters.map(match => match[0]);
+            // --- END USER REQUESTED ADDITION ---
+
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            const smSecretArns = smSecrets.map(match => match[0]);
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Extract Bedrock resources ---
@@ -1268,6 +1288,10 @@
                 !smClusterArns.includes(arn) &&
                 // --- END USER REQUESTED ADDITION ---
 
+                // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+                !smSecretArns.includes(arn) &&
+                // --- END USER REQUESTED ADDITION ---
+
                 // --- MODIFICATION START: Filter Bedrock ARNs ---
                 !brGuardrails.includes(arn) &&
                 !compEndpointArns.includes(arn) &&
@@ -1312,6 +1336,9 @@
             const sessionPolicyExplicitDenyMatches = [...inputText.matchAll(sessionPolicyExplicitDenyRegex)];
             const resourceBasedPolicyImplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyImplicitDenyRegex)];
             const resourceBasedPolicyExplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyExplicitDenyRegex)];
+            
+            const trustPolicyImplicitDenyMatches = [...inputText.matchAll(trustPolicyImplicitDenyRegex)];
+            const trustPolicyExplicitDenyMatches = [...inputText.matchAll(trustPolicyExplicitDenyRegex)];
             // --- END USER REQUESTED ADDITION ---
 
             const allRequestIds = new Set();
@@ -1457,6 +1484,28 @@
                     output += `Resource: ${match[3]}\n`;
                     output += `Reason:  ${match[4]}\n`;
                     output += `From: resource-based policy\n\n`;
+                });
+            }
+
+            if (trustPolicyImplicitDenyMatches.length > 0) {
+                trustPolicyImplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  implicit deny / no trust policy allows action\n`;
+                    output += `From: role trust policy\n\n`;
+                });
+            }
+
+            if (trustPolicyExplicitDenyMatches.length > 0) {
+                trustPolicyExplicitDenyMatches.forEach(match => {
+                    // match[1]: ARN, match[2]: Action
+                    output += `========ACCESS ERROR=======\n`;
+                    output += `User: ${match[1]}\n`;
+                    output += `Action with no permission: ${match[2]}\n`;
+                    output += `Reason:  explicit deny\n`;
+                    output += `From: role trust policy\n\n`;
                 });
             }
             // --- END USER REQUESTED ADDITION ---
@@ -1781,6 +1830,18 @@
             }
             // --- END USER REQUESTED ADDITION ---
 
+            // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
+            if (smSecrets.length > 0) {
+                const uniqueArns = [...new Set(smSecretArns)];
+                const secretNames = [...new Set(smSecrets.map(match => match[1]))]; 
+                output += `Secrets Manager Secrets (${uniqueArns.length}):\n${uniqueArns.join('\n')}\n\n`;
+    
+                secretNames.forEach(name => {
+                    cliOutput.push(`aws secretsmanager describe-secret --secret-id ${name}`);
+                });
+            }
+            // --- END USER REQUESTED ADDITION ---
+
             // --- MODIFICATION START: Add Bedrock resources to output and CLI ---
             if (brGuardrails.length > 0) {
                 const uniqueArns = [...new Set(brGuardrailArns)];
@@ -1875,7 +1936,7 @@
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
                 // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, Access Errors, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
+                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, Access Errors, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Secrets Manager secrets, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
                 // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
