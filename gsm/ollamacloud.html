@@ -218,7 +218,12 @@
                     <!-- CORS Warning -->
                     <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4" role="alert">
                         <strong class="font-bold">Ollama Note:</strong>
-                        <span class="block sm:inline">If using Ollama, start server with `OLLAMA_ORIGINS=*`. Gemini/Nova do not require this configuration.</span>
+                         <span class="block sm:inline">For this client to work, you must start your Ollama server with the `OLLAMA_ORIGINS=*` environment variable. (e.g., `OLLAMA_ORIGINS='*' ollama serve`)</span>
+                        <span class="block sm:inline">docker run -d -p 11434:11434 --name ollama -e OLLAMA_ORIGINS='*' ollama/ollama:latest </span>
+                        <span class="block sm:inline">ollama run gemma3:4b-it-qat</span>
+                        <span class="block sm:inline">llama3.2:3b-instruct-fp16</span>
+                        <span class="block sm:inline">N*: 64*a1*96*0b-afa7-4f33-be88-d5a1f50071f6</span>
+                        <span class="block sm:inline">G-: AI-za-Sy-D55JRtjqNbqkaKGrnaRTuvAdQ5Af8-wnk </span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -230,12 +235,12 @@
                             <!-- Gemini API Key -->
                             <div>
                                 <label for="gemini-api-key" class="block text-sm font-medium text-gray-300 mb-2">Google Gemini API Key</label>
-                                <input type="password" id="gemini-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Gemini API Key here..." value="AIzaSyD55JRtjqNbqkaKGrnaRTuvAdQ5Af8-wnk">
+                                <input type="password" id="gemini-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Gemini API Key here..." value="">
                             </div>
                             <!-- NEW: Nova API Key -->
                             <div>
                                 <label for="nova-api-key" class="block text-sm font-medium text-gray-300 mb-2">Amazon Nova API Key</label>
-                                <input type="password" id="nova-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Nova API Key here...">
+                                <input type="password" id="nova-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Nova API Key here..." value="">
                             </div>
                         </div>
                         <div>
@@ -375,6 +380,15 @@
                                 <button id="stop-batch-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                                     Stop
                                 </button>
+                                
+                                <!-- Batch Delay Control -->
+                                <div class="flex items-center gap-2 border-l border-gray-600 pl-4">
+                                    <input type="checkbox" id="batch-delay-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800">
+                                    <label for="batch-delay-checkbox" class="text-sm text-gray-300">Delay</label>
+                                    <input type="number" id="batch-delay-input" class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm text-gray-100 focus:ring-1 focus:ring-cyan-500" value="1" min="0.1" step="0.1">
+                                    <span class="text-sm text-gray-400">s</span>
+                                </div>
+
                                 <!-- Batch Debug Toggle -->
                                 <div class="flex items-center gap-2 ml-auto">
                                     <input type="checkbox" id="batch-debug-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800">
@@ -464,6 +478,10 @@
             const downloadBatchBtn = document.getElementById('download-batch-btn');
             const batchDebugCheckbox = document.getElementById('batch-debug-checkbox');
             const batchDebugLog = document.getElementById('batch-debug-log');
+            
+            // Batch Delay Elements
+            const batchDelayCheckbox = document.getElementById('batch-delay-checkbox');
+            const batchDelayInput = document.getElementById('batch-delay-input');
 
             // --- Chat Elements (Panel A) ---
             const chatSelectA = document.getElementById('chat-select-a');
@@ -526,9 +544,7 @@
             // --- Constants ---
             const GEMINI_MODEL_NAME = 'gemini-2.5-flash-preview-09-2025';
             const DEFAULT_NOVA_MODELS = [
-                { id: 'Nova Pro v3 (6.x)', name: 'Nova Pro v3 (6.x)' },
-                { id: 'nova-premier-v1', name: 'Nova Premier v1' },
-                { id: 'nova-orchestrator-v1', name: 'Nova Orchestrator v1' }
+                { id: 'Nova Pro v3', name: 'Nova Pro v3 (DEFAULT LOCAL)' },
             ];
 
             // --- Load Saved Values ---
@@ -1123,6 +1139,15 @@
                     const percent = Math.round(((i + 1) / total) * 100);
                     batchProgressBar.style.width = `${percent}%`;
                     batchStatus.textContent = `Processing row ${i + 1} of ${total}...`;
+
+                    // Delay Logic
+                    if (batchDelayCheckbox.checked && i < total - 1 && !batchStopRequested) {
+                        const delaySec = parseFloat(batchDelayInput.value) || 0;
+                        if (delaySec > 0) {
+                            batchStatus.textContent = `Waiting ${delaySec}s before next row...`;
+                            await new Promise(r => setTimeout(r, delaySec * 1000));
+                        }
+                    }
                 }
 
                 stopBatchBtn.classList.add('hidden');
@@ -1312,6 +1337,8 @@
                     throw new Error('Nova API Key missing');
                 }
 
+                const url = 'https://api.nova.amazon.com/v1/chat/completions';
+
                 let messages = [];
                 // 1. Handle System Prompt (Nova usually treats it as a message with role 'system')
                 if (systemInstruction) {
@@ -1350,7 +1377,7 @@
 
                 if (onDebug) onDebug(payload);
 
-                const response = await fetch('[https://api.nova.amazon.com/v1/chat/completions](https://api.nova.amazon.com/v1/chat/completions)', {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1836,14 +1863,20 @@
                 const novaKey = novaApiKeyInput.value.trim();
                 if (novaKey) {
                     try {
-                        const res = await fetch('[https://api.nova.amazon.com/v1/models](https://api.nova.amazon.com/v1/models)', {
-                             headers: { 'Authorization': `Bearer ${novaKey}` }
+                        const url = 'https://api.nova.amazon.com/v1/models';
+                        const response = await fetch(url, {
+                            headers: {
+                                'Authorization': `Bearer ${novaKey}`,
+                            },
                         });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if(data.data) novaModels = data.data; // Assuming OpenAI-like response structure { data: [...] }
+
+                        if (response.ok) {
+                            const text = await response.text();
+                            console.log('Nova Models Response:', text);
+                            const data = JSON.parse(text);
+                            if (data.data) novaModels = data.data; 
                         }
-                    } catch (e) { console.warn('Could not fetch Nova models, using defaults.'); }
+                    } catch (e) { console.warn('Could not fetch Nova models, using defaults.', e); }
                 }
 
                 // 2. Fetch Ollama Models
