@@ -50,7 +50,7 @@
 
         <!-- Tab Navigation -->
         <div class="mb-4 border-b border-gray-700">
-            <nav class="-mb-px flex space-x-8" role="tablist" aria-label="Tabs">
+            <nav class="-mb-px flex space-x-8 overflow-x-auto" role="tablist" aria-label="Tabs">
                 <button id="tab-chat" role="tab" aria-selected="true"
                     class="border-cyan-500 text-cyan-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
                     Chat
@@ -62,6 +62,10 @@
                 <button id="tab-batch" role="tab" aria-selected="false"
                     class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
                     Excel/CSV Batch
+                </button>
+                <button id="tab-commands" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Commands (Ollama)
                 </button>
             </nav>
         </div>
@@ -414,6 +418,83 @@
 
                 </section>
             </div>
+
+            <!-- Commands Panel -->
+            <div id="panel-commands" role="tabpanel" aria-labelledby="tab-commands" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-6">Ollama Command Center</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Left Column: Pull & Manage -->
+                        <div class="flex flex-col gap-6">
+                            
+                            <!-- PULL MODEL -->
+                            <div class="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                                <h3 class="text-lg font-semibold text-gray-200 mb-4">Pull Model</h3>
+                                <div class="flex gap-2 mb-3">
+                                    <input type="text" id="cmd-pull-model-name" class="flex-grow bg-gray-800 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" placeholder="Model name (e.g., llama3:latest)">
+                                    <button id="cmd-pull-btn" class="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow">Pull</button>
+                                </div>
+                                <div id="cmd-pull-log" class="h-32 bg-gray-900 rounded p-2 text-xs font-mono text-green-400 overflow-y-auto whitespace-pre-wrap"></div>
+                            </div>
+
+                            <!-- DELETE MODEL -->
+                            <div class="bg-gray-700 p-4 rounded-lg border border-gray-600 flex-grow">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-200">Installed Models</h3>
+                                    <button id="cmd-refresh-list-btn" class="text-xs bg-gray-600 px-2 py-1 rounded hover:bg-gray-500">Refresh</button>
+                                </div>
+                                <div class="overflow-x-auto bg-gray-900 rounded border border-gray-600 max-h-64 overflow-y-auto">
+                                    <table class="w-full text-left text-sm text-gray-400">
+                                        <thead class="bg-gray-800 text-xs uppercase text-gray-300">
+                                            <tr>
+                                                <th class="px-4 py-2">Name</th>
+                                                <th class="px-4 py-2">Size</th>
+                                                <th class="px-4 py-2 text-right">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cmd-model-list-body">
+                                            <!-- JS Populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Raw Request -->
+                        <div class="flex flex-col h-full">
+                            <div class="bg-gray-700 p-4 rounded-lg border border-gray-600 flex-grow flex flex-col">
+                                <h3 class="text-lg font-semibold text-gray-200 mb-4">Raw API Tester</h3>
+                                
+                                <div class="grid grid-cols-3 gap-2 mb-3">
+                                    <div class="col-span-1">
+                                        <label class="block text-xs text-gray-400 mb-1">Method</label>
+                                        <select id="cmd-raw-method" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-gray-100 text-sm">
+                                            <option value="GET">GET</option>
+                                            <option value="POST" selected>POST</option>
+                                            <option value="DELETE">DELETE</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-400 mb-1">Endpoint (e.g., /api/generate)</label>
+                                        <input type="text" id="cmd-raw-path" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-gray-100 text-sm font-mono" value="/api/generate">
+                                    </div>
+                                </div>
+
+                                <label class="block text-xs text-gray-400 mb-1">JSON Body</label>
+                                <textarea id="cmd-raw-body" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-gray-300 text-xs font-mono h-32 mb-3 focus:outline-none focus:ring-1 focus:ring-cyan-500" placeholder='{"model": "llama3", "prompt": "Hi"}'></textarea>
+
+                                <button id="cmd-raw-send-btn" class="w-full py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow mb-3">Send Request</button>
+
+                                <label class="block text-xs text-gray-400 mb-1">Response</label>
+                                <div id="cmd-raw-response" class="flex-grow bg-gray-950 rounded p-2 text-xs font-mono text-yellow-400 overflow-auto whitespace-pre-wrap h-48 border border-gray-700"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
         </div>
 
     </div>
@@ -522,8 +603,22 @@
             // Tab Elements
             const tabChat = document.getElementById('tab-chat');
             const tabAnalysis = document.getElementById('tab-analysis');
+            const tabCommands = document.getElementById('tab-commands'); // NEW
             const panelChat = document.getElementById('panel-chat');
             const panelAnalysis = document.getElementById('panel-analysis');
+            const panelCommands = document.getElementById('panel-commands'); // NEW
+
+            // Command Panel Elements
+            const cmdPullModelName = document.getElementById('cmd-pull-model-name');
+            const cmdPullBtn = document.getElementById('cmd-pull-btn');
+            const cmdPullLog = document.getElementById('cmd-pull-log');
+            const cmdModelListBody = document.getElementById('cmd-model-list-body');
+            const cmdRefreshListBtn = document.getElementById('cmd-refresh-list-btn');
+            const cmdRawMethod = document.getElementById('cmd-raw-method');
+            const cmdRawPath = document.getElementById('cmd-raw-path');
+            const cmdRawBody = document.getElementById('cmd-raw-body');
+            const cmdRawSendBtn = document.getElementById('cmd-raw-send-btn');
+            const cmdRawResponse = document.getElementById('cmd-raw-response');
 
             // --- State ---
             let allChats = {}; 
@@ -1309,12 +1404,12 @@
             const inactiveTabClasses = ['border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300'];
 
             function switchTab(newTab, newPanel) {
-                [tabChat, tabAnalysis, tabBatch].forEach(t => {
+                [tabChat, tabAnalysis, tabBatch, tabCommands].forEach(t => {
                     t.setAttribute('aria-selected', 'false');
                     t.classList.remove(...activeTabClasses);
                     t.classList.add(...inactiveTabClasses);
                 });
-                [panelChat, panelAnalysis, panelBatch].forEach(p => p.classList.add('hidden'));
+                [panelChat, panelAnalysis, panelBatch, panelCommands].forEach(p => p.classList.add('hidden'));
                 newTab.setAttribute('aria-selected', 'true');
                 newTab.classList.add(...activeTabClasses);
                 newTab.classList.remove(...inactiveTabClasses);
@@ -1324,6 +1419,7 @@
             tabChat.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabChat, panelChat); });
             tabAnalysis.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabAnalysis, panelAnalysis); });
             tabBatch.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabBatch, panelBatch); });
+            tabCommands.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabCommands, panelCommands); });
 
             
             /**
@@ -1337,7 +1433,7 @@
                     throw new Error('Nova API Key missing');
                 }
 
-                const url = 'https://api.nova.amazon.com/v1/chat/completions';
+                const url = '[https://api.nova.amazon.com/v1/chat/completions](https://api.nova.amazon.com/v1/chat/completions)';
 
                 let messages = [];
                 // 1. Handle System Prompt (Nova usually treats it as a message with role 'system')
@@ -1547,10 +1643,19 @@
                                 try {
                                     const chunk = JSON.parse(line);
                                     let contentChunk = (apiPath === '/api/chat') ? (chunk.message?.content || '') : (chunk.response || '');
-                                    if (contentChunk) {
-                                        fullResponse += contentChunk;
-                                        if (onStreamChunk) onStreamChunk(contentChunk);
+                                    
+                                    // For Pull requests, the chunk structure is different ({status, digest, etc})
+                                    // This helper was originally built for chat/generate.
+                                    // We will handle Pull separately in its own function, but if this was used for generic streaming:
+                                    if (apiPath === '/api/pull') {
+                                        if (onStreamChunk) onStreamChunk(chunk); // Pass raw chunk object
+                                    } else {
+                                         if (contentChunk) {
+                                            fullResponse += contentChunk;
+                                            if (onStreamChunk) onStreamChunk(contentChunk);
+                                        }
                                     }
+
                                     if (chunk.done) {
                                         if (onStreamEnd) onStreamEnd(fullResponse);
                                         return null; 
@@ -1803,6 +1908,168 @@
             chatSelectB.addEventListener('change', (e) => switchChat('b', e.target.value));
 
 
+            // --- COMMAND CENTER LOGIC (NEW) ---
+            
+            // PULL MODEL
+            cmdPullBtn.addEventListener('click', async () => {
+                const modelName = cmdPullModelName.value.trim();
+                if (!modelName) return showMessage('Enter a model name to pull.', 'error');
+                
+                cmdPullBtn.disabled = true;
+                cmdPullLog.innerHTML = `Started pull for: ${modelName}...\n`;
+                
+                const endpoint = ollamaEndpoint.value;
+                const url = new URL(endpoint);
+                url.pathname = '/api/pull';
+
+                try {
+                    const response = await fetch(url.toString(), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: modelName, stream: true })
+                    });
+                    
+                    if (!response.ok) throw new Error(`Pull failed: ${response.status}`);
+                    
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+                        
+                        for (const line of lines) {
+                            if (!line.trim()) continue;
+                            try {
+                                const json = JSON.parse(line);
+                                let logLine = `> ${json.status}`;
+                                if (json.total && json.completed) {
+                                    const percent = Math.round((json.completed / json.total) * 100);
+                                    logLine += ` (${percent}%)`;
+                                }
+                                if (json.error) logLine = `ERROR: ${json.error}`;
+                                
+                                cmdPullLog.innerHTML += logLine + '\n';
+                                cmdPullLog.scrollTop = cmdPullLog.scrollHeight;
+                            } catch (e) { console.warn('JSON Parse error in pull stream', e); }
+                        }
+                    }
+                    cmdPullLog.innerHTML += 'Done!\n';
+                    checkConnectionAndLoadModels(); // Refresh lists
+                } catch (err) {
+                    cmdPullLog.innerHTML += `\nFATAL ERROR: ${err.message}`;
+                } finally {
+                    cmdPullBtn.disabled = false;
+                }
+            });
+
+            // RAW COMMAND EXECUTER
+            cmdRawSendBtn.addEventListener('click', async () => {
+                const method = cmdRawMethod.value;
+                const path = cmdRawPath.value;
+                const bodyStr = cmdRawBody.value.trim();
+                let body = null;
+
+                if (method !== 'GET' && bodyStr) {
+                    try {
+                        body = JSON.parse(bodyStr);
+                    } catch (e) {
+                        cmdRawResponse.textContent = 'Error: Invalid JSON in Body';
+                        return;
+                    }
+                }
+
+                const endpoint = ollamaEndpoint.value;
+                const url = new URL(endpoint);
+                url.pathname = path;
+                
+                cmdRawResponse.textContent = 'Sending...';
+
+                try {
+                    const options = { method: method };
+                    if (body) {
+                        options.headers = { 'Content-Type': 'application/json' };
+                        options.body = JSON.stringify(body);
+                    }
+
+                    const response = await fetch(url.toString(), options);
+                    const text = await response.text();
+                    try {
+                        const json = JSON.parse(text);
+                        cmdRawResponse.textContent = JSON.stringify(json, null, 2);
+                    } catch {
+                        cmdRawResponse.textContent = text;
+                    }
+                } catch (err) {
+                    cmdRawResponse.textContent = `Error: ${err.message}`;
+                }
+            });
+
+            // MODEL LIST & DELETE
+            async function refreshModelListForManager(models) {
+                cmdModelListBody.innerHTML = '';
+                if (!models || models.length === 0) {
+                    cmdModelListBody.innerHTML = '<tr><td colspan="3" class="px-4 py-2 text-center italic">No models found</td></tr>';
+                    return;
+                }
+                models.forEach(m => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-gray-700 hover:bg-gray-800';
+                    
+                    // Calculate size in GB
+                    const sizeGB = (m.size / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+                    
+                    tr.innerHTML = `
+                        <td class="px-4 py-2 font-medium text-cyan-400">${m.name}</td>
+                        <td class="px-4 py-2 text-gray-500">${sizeGB}</td>
+                        <td class="px-4 py-2 text-right">
+                            <button class="text-red-400 hover:text-red-300 font-bold text-xs px-2 py-1 border border-red-900 rounded bg-red-900/20 del-btn" data-name="${m.name}">DELETE</button>
+                        </td>
+                    `;
+                    cmdModelListBody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.del-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const name = e.target.dataset.name;
+                        if (confirm(`Are you sure you want to delete ${name}? This cannot be undone.`)) {
+                            await deleteModel(name);
+                        }
+                    });
+                });
+            }
+
+            async function deleteModel(modelName) {
+                const endpoint = ollamaEndpoint.value;
+                const url = new URL(endpoint);
+                url.pathname = '/api/delete';
+                
+                try {
+                    const response = await fetch(url.toString(), {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: modelName })
+                    });
+                    
+                    if (response.ok) {
+                        showMessage(`Deleted ${modelName}`, 'success');
+                        checkConnectionAndLoadModels();
+                    } else {
+                        const err = await response.text();
+                        showMessage(`Delete failed: ${err}`, 'error');
+                    }
+                } catch (e) {
+                    showMessage(`Delete failed: ${e.message}`, 'error');
+                }
+            }
+
+            cmdRefreshListBtn.addEventListener('click', () => checkConnectionAndLoadModels());
+
+
             // --- Initial Check Function ---
             function populateModelSelect(selectElement, models) {
                 const currentValue = selectElement.value; 
@@ -1863,7 +2130,7 @@
                 const novaKey = novaApiKeyInput.value.trim();
                 if (novaKey) {
                     try {
-                        const url = 'https://api.nova.amazon.com/v1/models';
+                        const url = '[https://api.nova.amazon.com/v1/models](https://api.nova.amazon.com/v1/models)';
                         const response = await fetch(url, {
                             headers: {
                                 'Authorization': `Bearer ${novaKey}`,
@@ -1891,6 +2158,7 @@
                         const data = await response.json();
                         localModels = data.models || [];
                         showMessage(`Loaded ${localModels.length} local models + Cloud APIs.`, 'success');
+                        refreshModelListForManager(localModels); // Update Manager UI
                     } else {
                         showMessage('Ollama connection failed. Cloud APIs available.', 'error');
                     }
