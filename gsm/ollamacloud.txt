@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama, Gemini & Nova Client</title>
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load SheetJS for Excel/CSV processing -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // 'media' or 'class'
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for chat history */
+        .chat-history::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-history::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
+            border-radius: 4px;
+        }
+        .chat-history::-webkit-scrollbar-thumb {
+            background: #4b5563; /* bg-gray-600 */
+            border-radius: 4px;
+        }
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+
+    <!-- Main Container -->
+    <div class="container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+
+        <header class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Universal AI Client</h1>
+            <p class="text-lg text-gray-400 mt-2">Ollama (Local) • Google Gemini • Amazon Nova</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="mb-4 border-b border-gray-700">
+            <nav class="-mb-px flex space-x-8" role="tablist" aria-label="Tabs">
+                <button id="tab-chat" role="tab" aria-selected="true"
+                    class="border-cyan-500 text-cyan-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Chat
+                </button>
+                <button id="tab-analysis" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Text Analysis
+                </button>
+                <button id="tab-batch" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Excel/CSV Batch
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div>
+            <!-- Chat Panel (Default Visible) -->
+            <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat">
+                <section class="flex flex-col gap-6">
+                    <!-- Global Chat Management -->
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-3xl font-bold text-cyan-400">Multi-Chat</h2>
+                        <button id="new-chat-btn" class="px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                            New Chat
+                        </button>
+                    </div>
+                    
+                    <!-- 2-Column Chat Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        <!-- Panel A -->
+                        <div id="chat-panel-a" class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
+                            <h3 class="text-xl font-semibold text-gray-300">Panel A</h3>
+                            <!-- Per-Chat Model Select A -->
+                            <div class="flex flex-col">
+                                <label for="chat-model-select-a" class="text-sm font-medium text-gray-300 mb-1">Model</label>
+                                <select id="chat-model-select-a" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                    <option>Loading models...</option>
+                                </select>
+                            </div>
+                            <!-- Local System Prompt A -->
+                            <div class="flex flex-col">
+                                <label for="chat-system-prompt-a" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
+                                <div class="flex gap-2"> 
+                                    <textarea id="chat-system-prompt-a" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a pirate."></textarea>
+                                    <button id="save-prompt-btn-a" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Session Control A -->
+                            <div class="flex gap-2">
+                                <label for="chat-select-a" class="flex-shrink-0 text-sm font-medium text-gray-300 py-2">Session:</label>
+                                <select id="chat-select-a" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition text-sm">
+                                    <option>Loading...</option>
+                                </select>
+                                <button id="delete-chat-btn-a" class="flex-shrink-0 px-3 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Delete Selected Chat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 4a1 1 0 100 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- History A -->
+                            <div id="chat-history-a" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto flex flex-col gap-4">
+                                <!-- Messages for A -->
+                            </div>
+                            <!-- Image Preview A -->
+                            <div id="chat-image-preview-a" class="hidden relative w-24 h-24 mb-2">
+                                <img id="preview-img-a" src="" class="w-full h-full object-cover rounded-lg border border-gray-600">
+                                <button id="remove-img-btn-a" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-0 w-6 h-6 flex items-center justify-center text-lg font-bold leading-none focus:outline-none">&times;</button>
+                            </div>
+                            <!-- Input A -->
+                            <div class="flex gap-2">
+                                <input id="chat-input-a" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Type message for Panel A...">
+                                <input type="file" id="chat-file-input-a" class="hidden" accept="image/*">
+                                <button id="chat-attach-btn-a" class="px-4 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Attach Image">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button id="chat-clear-btn-a" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button id="chat-send-btn-a" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800">Send</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel B -->
+                        <div id="chat-panel-b" class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
+                            <h3 class="text-xl font-semibold text-gray-300">Panel B</h3>
+                            <!-- Per-Chat Model Select B -->
+                            <div class="flex flex-col">
+                                <label for="chat-model-select-b" class="text-sm font-medium text-gray-300 mb-1">Model</label>
+                                <select id="chat-model-select-b" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                    <option>Loading models...</option>
+                                </select>
+                            </div>
+                            <!-- Local System Prompt B -->
+                            <div class="flex flex-col">
+                                <label for="chat-system-prompt-b" class="text-sm font-medium text-gray-300 mb-1">Chat System Prompt (Overrides Global)</label>
+                                <div class="flex gap-2"> 
+                                    <textarea id="chat-system-prompt-b" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful C++ expert."></textarea>
+                                    <button id="save-prompt-btn-b" class="flex-shrink-0 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Save System Prompt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Session Control B -->
+                            <div class="flex gap-2">
+                                <label for="chat-select-b" class="flex-shrink-0 text-sm font-medium text-gray-300 py-2">Session:</label>
+                                <select id="chat-select-b" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition text-sm">
+                                    <option>Loading...</option>
+                                </select>
+                                <button id="delete-chat-btn-b" class="flex-shrink-0 px-3 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Delete Selected Chat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 4a1 1 0 100 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- History B -->
+                            <div id="chat-history-b" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto flex flex-col gap-4">
+                                <!-- Messages for B -->
+                            </div>
+                            <!-- Image Preview B -->
+                            <div id="chat-image-preview-b" class="hidden relative w-24 h-24 mb-2">
+                                <img id="preview-img-b" src="" class="w-full h-full object-cover rounded-lg border border-gray-600">
+                                <button id="remove-img-btn-b" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-0 w-6 h-6 flex items-center justify-center text-lg font-bold leading-none focus:outline-none">&times;</button>
+                            </div>
+                            <!-- Input B -->
+                            <div class="flex gap-2">
+                                <input id="chat-input-b" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Type message for Panel B...">
+                                <input type="file" id="chat-file-input-b" class="hidden" accept="image/*">
+                                <button id="chat-attach-btn-b" class="px-4 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Attach Image">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a3 3 0 106 0V7a1 1 0 112 0v4a5 5 0 11-10 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button id="chat-clear-btn-b" class="px-4 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition shadow focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Clear Chat History">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button id="chat-send-btn-b" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800">Send</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+
+            <!-- Analysis Panel (Default Hidden) -->
+            <div id="panel-analysis" role="tabpanel" aria-labelledby="tab-analysis" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    
+                    <!-- Configuration Section -->
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuration & Analysis Setup</h2>
+            
+                    <!-- CORS Warning -->
+                    <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4" role="alert">
+                        <strong class="font-bold">Ollama Note:</strong>
+                        <span class="block sm:inline">If using Ollama, start server with `OLLAMA_ORIGINS=*`. Gemini/Nova do not require this configuration.</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2 flex flex-col gap-4">
+                            <div>
+                                <label for="ollama-endpoint" class="block text-sm font-medium text-gray-300 mb-2">Ollama API Endpoint (Local)</label>
+                                <input type="text" id="ollama-endpoint" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" value="http://localhost:11434">
+                            </div>
+                            <!-- Gemini API Key -->
+                            <div>
+                                <label for="gemini-api-key" class="block text-sm font-medium text-gray-300 mb-2">Google Gemini API Key</label>
+                                <input type="password" id="gemini-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Gemini API Key here..." value="AIzaSyD55JRtjqNbqkaKGrnaRTuvAdQ5Af8-wnk">
+                            </div>
+                            <!-- NEW: Nova API Key -->
+                            <div>
+                                <label for="nova-api-key" class="block text-sm font-medium text-gray-300 mb-2">Amazon Nova API Key</label>
+                                <input type="password" id="nova-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Nova API Key here...">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Default Model</label>
+                            <select id="model-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition">
+                                <option value="" disabled>Loading models...</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Used for Analysis & as default for new chats.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap items-center gap-4">
+                        <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                            Reload Models & Test
+                        </button>
+                        <!-- Debug Mode Toggle -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="debug-mode-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2 focus:ring-offset-gray-800">
+                            <label for="debug-mode-checkbox" class="ml-2 text-sm font-medium text-gray-300">Show raw request payloads (Debug Mode)</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="system-prompt" class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt (Optional)</label>
+                        <textarea id="system-prompt" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful assistant. (Used for Analysis & as default for new chats)"></textarea>
+                    </div>
+                    
+                    <div id="connection-status" class="mt-4 text-sm"></div>
+                    
+                    <!-- Divider -->
+                    <hr class="border-t border-gray-700 my-6">
+
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Text to Analyze</h2>
+                    <div class="flex flex-col gap-4">
+                        <!-- Input Text -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="analysis-input" class="block text-sm font-medium text-gray-300">Text to Analyze</label>
+                                <button id="copy-input-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
+                            </div>
+                            <textarea id="analysis-input" rows="8" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your text here..."></textarea>
+                        </div>
+        
+                        <!-- Analyze Button -->
+                        <button id="analyze-btn" class="w-full sm:w-auto self-center px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                            Analyze Text
+                        </button>
+        
+                        <!-- Output Text -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="analysis-output" class="block text-sm font-medium text-gray-300">Analysis Result</label>
+                                <button id="copy-output-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
+                            </div>
+                            <textarea id="analysis-output" rows="8" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Analysis will appear here..." readonly></textarea>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Batch Processing Panel -->
+            <div id="panel-batch" role="tabpanel" aria-labelledby="tab-batch" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Excel/CSV Batch Processing</h2>
+                    <p class="text-sm text-gray-400 mb-6">Upload a file, map columns to variables, and define rules to process each row.</p>
+
+                    <!-- Step 1: Upload -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">1. Upload File (.xlsx, .xls, .csv)</label>
+                        <input type="file" id="batch-file-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-sm text-gray-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-cyan-600 file:text-white
+                            hover:file:bg-cyan-700
+                        "/>
+                    </div>
+
+                    <!-- Step 2: Preview & Headers -->
+                    <div id="batch-preview-container" class="hidden mb-6">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">2. File Preview (First 3 Rows)</h3>
+                        <div class="overflow-x-auto bg-gray-900 rounded-lg p-2 border border-gray-700">
+                            <table id="batch-preview-table" class="w-full text-sm text-left text-gray-400">
+                                <!-- JS will populate this -->
+                            </table>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">Detected Headers: <span id="batch-headers-list" class="text-cyan-400 font-mono"></span></div>
+                    </div>
+
+                    <!-- Step 3: Rules -->
+                    <div id="batch-rules-wrapper" class="hidden mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-300">3. Processing Rules</h3>
+                            <button id="add-rule-btn" class="px-3 py-1 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700 transition">
+                                + Add Rule
+                            </button>
+                        </div>
+
+                        <!-- Rule Set Management UI -->
+                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4">
+                            <h4 class="text-xs font-bold text-cyan-500 uppercase mb-3">Saved Rule Sets</h4>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-between">
+                                <div class="flex gap-2 flex-grow sm:max-w-md">
+                                    <input type="text" id="rule-set-name" class="flex-grow bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500" placeholder="Name this rule set...">
+                                    <button id="save-rules-btn" class="px-4 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700 transition whitespace-nowrap">Save</button>
+                                </div>
+                                <div class="flex gap-2 flex-grow sm:max-w-md">
+                                    <select id="saved-rules-select" class="flex-grow bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500">
+                                        <option value="" disabled selected>Select saved rules...</option>
+                                    </select>
+                                    <button id="load-rules-btn" class="px-4 py-2 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700 transition">Load</button>
+                                    <button id="delete-rules-btn" class="px-4 py-2 bg-red-600 text-white rounded text-sm font-semibold hover:bg-red-700 transition">Del</button>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-gray-700 flex justify-between items-center">
+                                <span class="text-xs text-gray-500">Backup & Restore:</span>
+                                <div class="flex gap-2">
+                                     <button id="export-rules-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 transition">Export JSON</button>
+                                     <button id="import-rules-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 transition">Import JSON</button>
+                                     <input type="file" id="import-rules-input" class="hidden" accept=".json">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="rules-container" class="flex flex-col gap-4">
+                            <!-- Rules will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Process & Download -->
+                    <div id="batch-actions-wrapper" class="hidden border-t border-gray-700 pt-6">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-4 flex-wrap">
+                                <button id="start-batch-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Start Processing
+                                </button>
+                                <button id="stop-batch-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    Stop
+                                </button>
+                                <!-- Batch Debug Toggle -->
+                                <div class="flex items-center gap-2 ml-auto">
+                                    <input type="checkbox" id="batch-debug-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800">
+                                    <label for="batch-debug-checkbox" class="text-sm text-gray-300">Show row requests</label>
+                                </div>
+                            </div>
+
+                            <!-- Progress -->
+                            <div id="batch-progress-container" class="hidden w-full bg-gray-700 rounded-full h-4 dark:bg-gray-700">
+                                <div id="batch-progress-bar" class="bg-cyan-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div id="batch-status" class="text-sm text-gray-400 font-mono"></div>
+
+                            <!-- Batch Debug Log -->
+                            <div id="batch-debug-log" class="hidden w-full p-4 bg-gray-950 rounded-lg border border-gray-700 h-64 overflow-y-auto font-mono text-xs text-gray-400 whitespace-pre-wrap"></div>
+
+                            <!-- Download -->
+                            <button id="download-batch-btn" class="hidden w-full sm:w-auto self-start px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-lg">
+                                Download Processed File
+                            </button>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Storage Keys ---
+            const STORAGE_KEY_ENDPOINT = 'ollama_endpoint';
+            const STORAGE_KEY_GEMINI_KEY = 'gemini_api_key';
+            const STORAGE_KEY_NOVA_KEY = 'nova_api_key'; // NEW
+            const STORAGE_KEY_MODEL = 'ollama_model';
+            const STORAGE_KEY_SYSTEM_PROMPT = 'ollama_system_prompt';
+            const STORAGE_KEY_ANALYSIS_INPUT = 'ollama_analysis_input';
+            const STORAGE_KEY_CHAT_SESSIONS = 'ollama_chat_sessions';
+            const STORAGE_KEY_ACTIVE_CHAT_A = 'ollama_active_chat_a';
+            const STORAGE_KEY_ACTIVE_CHAT_B = 'ollama_active_chat_b';
+            const STORAGE_KEY_DEBUG_MODE = 'ollama_debug_mode';
+            const STORAGE_KEY_BATCH_RULES = 'ollama_batch_rules';
+
+            // --- DOM Elements ---
+            const ollamaEndpoint = document.getElementById('ollama-endpoint');
+            const geminiApiKeyInput = document.getElementById('gemini-api-key');
+            const novaApiKeyInput = document.getElementById('nova-api-key'); // NEW
+            const modelSelect = document.getElementById('model-select');
+            const connectionStatus = document.getElementById('connection-status');
+            const systemPrompt = document.getElementById('system-prompt');
+            const testConnectionBtn = document.getElementById('test-connection-btn');
+            const debugModeCheckbox = document.getElementById('debug-mode-checkbox');
+
+            // Analysis Elements
+            const analysisInput = document.getElementById('analysis-input');
+            const analysisOutput = document.getElementById('analysis-output');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const copyInputBtn = document.getElementById('copy-input-btn');
+            const copyOutputBtn = document.getElementById('copy-output-btn');
+
+            // Batch Elements
+            const tabBatch = document.getElementById('tab-batch');
+            const panelBatch = document.getElementById('panel-batch');
+            const batchFileInput = document.getElementById('batch-file-input');
+            const batchPreviewContainer = document.getElementById('batch-preview-container');
+            const batchPreviewTable = document.getElementById('batch-preview-table');
+            const batchHeadersList = document.getElementById('batch-headers-list');
+            const batchRulesWrapper = document.getElementById('batch-rules-wrapper');
+            const rulesContainer = document.getElementById('rules-container');
+            const addRuleBtn = document.getElementById('add-rule-btn');
+            const ruleSetNameInput = document.getElementById('rule-set-name');
+            const saveRulesBtn = document.getElementById('save-rules-btn');
+            const savedRulesSelect = document.getElementById('saved-rules-select');
+            const loadRulesBtn = document.getElementById('load-rules-btn');
+            const deleteRulesBtn = document.getElementById('delete-rules-btn');
+            const exportRulesBtn = document.getElementById('export-rules-btn');
+            const importRulesBtn = document.getElementById('import-rules-btn');
+            const importRulesInput = document.getElementById('import-rules-input');
+
+            const batchActionsWrapper = document.getElementById('batch-actions-wrapper');
+            const startBatchBtn = document.getElementById('start-batch-btn');
+            const stopBatchBtn = document.getElementById('stop-batch-btn');
+            const batchProgressContainer = document.getElementById('batch-progress-container');
+            const batchProgressBar = document.getElementById('batch-progress-bar');
+            const batchStatus = document.getElementById('batch-status');
+            const downloadBatchBtn = document.getElementById('download-batch-btn');
+            const batchDebugCheckbox = document.getElementById('batch-debug-checkbox');
+            const batchDebugLog = document.getElementById('batch-debug-log');
+
+            // --- Chat Elements (Panel A) ---
+            const chatSelectA = document.getElementById('chat-select-a');
+            const deleteChatBtnA = document.getElementById('delete-chat-btn-a');
+            const chatHistoryA = document.getElementById('chat-history-a');
+            const chatInputA = document.getElementById('chat-input-a');
+            const chatSendBtnA = document.getElementById('chat-send-btn-a');
+            const chatClearBtnA = document.getElementById('chat-clear-btn-a');
+            const chatSystemPromptA = document.getElementById('chat-system-prompt-a');
+            const savePromptBtnA = document.getElementById('save-prompt-btn-a');
+            const chatAttachBtnA = document.getElementById('chat-attach-btn-a');
+            const chatFileInputA = document.getElementById('chat-file-input-a');
+            const chatImagePreviewA = document.getElementById('chat-image-preview-a');
+            const previewImgA = document.getElementById('preview-img-a');
+            const removeImgBtnA = document.getElementById('remove-img-btn-a');
+            const chatModelSelectA = document.getElementById('chat-model-select-a');
+
+
+            // --- Chat Elements (Panel B) ---
+            const chatSelectB = document.getElementById('chat-select-b');
+            const deleteChatBtnB = document.getElementById('delete-chat-btn-b');
+            const chatHistoryB = document.getElementById('chat-history-b');
+            const chatInputB = document.getElementById('chat-input-b');
+            const chatSendBtnB = document.getElementById('chat-send-btn-b');
+            const chatClearBtnB = document.getElementById('chat-clear-btn-b');
+            const chatSystemPromptB = document.getElementById('chat-system-prompt-b');
+            const savePromptBtnB = document.getElementById('save-prompt-btn-b');
+            const chatAttachBtnB = document.getElementById('chat-attach-btn-b');
+            const chatFileInputB = document.getElementById('chat-file-input-b');
+            const chatImagePreviewB = document.getElementById('chat-image-preview-b');
+            const previewImgB = document.getElementById('preview-img-b');
+            const removeImgBtnB = document.getElementById('remove-img-btn-b');
+            const chatModelSelectB = document.getElementById('chat-model-select-b');
+
+            // --- Global Chat Elements ---
+            const newChatBtn = document.getElementById('new-chat-btn');
+
+            // Tab Elements
+            const tabChat = document.getElementById('tab-chat');
+            const tabAnalysis = document.getElementById('tab-analysis');
+            const panelChat = document.getElementById('panel-chat');
+            const panelAnalysis = document.getElementById('panel-analysis');
+
+            // --- State ---
+            let allChats = {}; 
+            let activeChatIdA = null;
+            let activeChatIdB = null;
+            let savedModel = localStorage.getItem(STORAGE_KEY_MODEL);
+            let stagedImageA = null; 
+            let stagedImageB = null;
+            let novaModels = []; // To store fetched or default Nova models
+            
+            // Batch State
+            let currentWorkbook = null;
+            let currentSheetName = null;
+            let currentData = []; // Array of objects
+            let currentHeaders = [];
+            let batchStopRequested = false;
+
+            // --- Constants ---
+            const GEMINI_MODEL_NAME = 'gemini-2.5-flash-preview-09-2025';
+            const DEFAULT_NOVA_MODELS = [
+                { id: 'Nova Pro v3 (6.x)', name: 'Nova Pro v3 (6.x)' },
+                { id: 'nova-premier-v1', name: 'Nova Premier v1' },
+                { id: 'nova-orchestrator-v1', name: 'Nova Orchestrator v1' }
+            ];
+
+            // --- Load Saved Values ---
+            const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
+            if (savedEndpoint) ollamaEndpoint.value = savedEndpoint;
+
+            const savedGeminiKey = localStorage.getItem(STORAGE_KEY_GEMINI_KEY);
+            if (savedGeminiKey) geminiApiKeyInput.value = savedGeminiKey;
+
+            const savedNovaKey = localStorage.getItem(STORAGE_KEY_NOVA_KEY);
+            if (savedNovaKey) novaApiKeyInput.value = savedNovaKey;
+
+            const savedSystemPrompt = localStorage.getItem(STORAGE_KEY_SYSTEM_PROMPT);
+            if (savedSystemPrompt) systemPrompt.value = savedSystemPrompt;
+
+            const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
+            if (savedAnalysisInput) analysisInput.value = savedAnalysisInput;
+
+            // Load Debug Mode
+            const savedDebugMode = localStorage.getItem(STORAGE_KEY_DEBUG_MODE);
+            if (savedDebugMode === 'true') {
+                debugModeCheckbox.checked = true;
+            }
+
+            // --- Helper Functions ---
+
+            function copyToClipboard(text, buttonEl) {
+                if (!text) return;
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = 0;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = buttonEl.textContent;
+                    buttonEl.textContent = 'Copied!';
+                    setTimeout(() => { buttonEl.textContent = originalText; }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    showMessage('Failed to copy text.', 'error');
+                }
+                document.body.removeChild(textarea);
+            }
+
+            function showMessage(message, type = 'error') {
+                connectionStatus.textContent = message;
+                connectionStatus.classList.remove(type === 'error' ? 'text-green-400' : 'text-red-400');
+                connectionStatus.classList.add(type === 'error' ? 'text-red-400' : 'text-green-400');
+            }
+
+            /**
+             * Adds a message bubble to a specific chat history UI.
+             */
+            function addMessageToChatUI(historyElement, role, content, dataUrl = null) {
+                const messageWrapper = document.createElement('div');
+                const messageBubble = document.createElement('div');
+                const messageContent = document.createElement('p');
+                
+                messageWrapper.classList.add('flex', 'items-start', 'gap-2');
+                
+                if (role === 'debug') {
+                    messageWrapper.classList.add('justify-center', 'w-full', 'my-2');
+                    messageBubble.classList.add('bg-gray-800', 'border', 'border-gray-600', 'rounded-lg', 'p-2', 'w-full', 'max-w-2xl', 'text-xs');
+                    
+                    const details = document.createElement('details');
+                    const summary = document.createElement('summary');
+                    summary.textContent = 'Debug: Request Payload';
+                    summary.classList.add('cursor-pointer', 'font-bold', 'text-cyan-500', 'uppercase', 'mb-1');
+                    
+                    const pre = document.createElement('pre');
+                    pre.classList.add('overflow-x-auto', 'whitespace-pre-wrap', 'font-mono', 'text-gray-400', 'p-2', 'bg-gray-900', 'rounded');
+                    pre.textContent = content;
+                    
+                    details.appendChild(summary);
+                    details.appendChild(pre);
+                    messageBubble.appendChild(details);
+
+                    messageWrapper.appendChild(messageBubble);
+                    historyElement.appendChild(messageWrapper);
+                    historyElement.scrollTop = historyElement.scrollHeight;
+                    return details; 
+                }
+
+                messageBubble.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'sm:max-w-md');
+                messageContent.classList.add('text-sm');
+
+                if (role === 'user') {
+                    messageWrapper.classList.add('justify-end');
+                    messageBubble.classList.add('bg-gray-700', 'text-gray-100');
+                } else {
+                    messageWrapper.classList.add('justify-start');
+                    messageBubble.classList.add('bg-cyan-800', 'text-cyan-100');
+                }
+
+                if (dataUrl) {
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.classList.add('w-full', 'max-w-xs', 'rounded-lg', 'mb-2');
+                    messageBubble.appendChild(img);
+                }
+
+                if (content) {
+                    messageContent.innerHTML = mdToHtml(content); 
+                    messageBubble.appendChild(messageContent);
+                } else if (role === 'model') {
+                    messageContent.innerHTML = '<span class="animate-pulse">...</span>';
+                    messageBubble.appendChild(messageContent);
+                }
+
+                messageWrapper.appendChild(messageBubble);
+
+                if (role === 'model') {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.classList.add(
+                        'flex-shrink-0', 'p-1.5', 'mt-1', 'bg-gray-600', 'text-gray-300', 
+                        'rounded-full', 'hover:bg-gray-500', 'transition', 'focus:outline-none',
+                        'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800'
+                    );
+                    
+                    const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`;
+                    const checkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+                    
+                    copyBtn.innerHTML = copyIconSVG;
+                    copyBtn.title = 'Copy response';
+
+                    copyBtn.addEventListener('click', () => {
+                        const textToCopy = messageContent.textContent;
+                        if (!textToCopy) return;
+                        const textarea = document.createElement('textarea');
+                        textarea.value = textToCopy;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        try {
+                            document.execCommand('copy');
+                            copyBtn.innerHTML = checkIconSVG;
+                            setTimeout(() => { copyBtn.innerHTML = copyIconSVG; }, 2000);
+                        } catch (err) { console.error('Copy failed', err); }
+                        document.body.removeChild(textarea);
+                    });
+
+                    messageWrapper.appendChild(copyBtn);
+                }
+
+                historyElement.appendChild(messageWrapper);
+                historyElement.scrollTop = historyElement.scrollHeight;
+
+                return messageContent;
+            }
+
+            // --- Markdown to HTML ---
+            function mdToHtml(text) {
+                if (!text) return '';
+                let safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const parts = safeText.split('```');
+                let html = '';
+                
+                for (let i = 0; i < parts.length; i++) {
+                    let part = parts[i];
+                    if (i % 2 === 0) {
+                        part = part.replace(/`([^`]+?)`/g, '<code class="bg-gray-700 text-cyan-300 px-1.5 py-0.5 rounded-md">$1</code>');
+                        part = part.replace(/\*\*([^\s].*?[^\s])\*\*/g, '<strong>$1</strong>');
+                        part = part.replace(/\*([^\s].*?[^\s])\*/g, '<em>$1</em>');
+                        part = part.replace(/^\s*\*\s+(.*)/gm, '<li class="ml-5 list-disc">$1</li>');
+                        part = part.replace(/^\s*\d+\.\s+(.*)/gm, '<li class="ml-5 list-decimal">$1</li>');
+                        html += part.replace(/\n/g, '<br>');
+                    } else {
+                        let lang = 'plaintext';
+                        let code = part;
+                        const newlineIndex = part.indexOf('\n');
+                        if (newlineIndex === 0) {
+                            code = part.substring(1); 
+                        } else {
+                            const firstLine = part.substring(0, newlineIndex).trim();
+                            if (firstLine.length > 0 && !firstLine.includes(' ')) {
+                                lang = firstLine;
+                                code = part.substring(newlineIndex + 1);
+                            } else {
+                                code = part;
+                            }
+                        }
+                        html += `<pre class="bg-gray-950 p-3 my-2 rounded-lg overflow-x-auto"><code class_="language-${lang}">${code.trim()}</code></pre>`;
+                    }
+                }
+                html = html.replace(/<br><pre/g, '<pre').replace(/<\/pre><br>/g, '</pre>').replace(/(<br>\s*){2,}/g, '<br><br>').replace(/<br><li/g, '<li').replace(/<\/li><br>/g, '</li>');
+                return html;
+            }
+
+
+            // --- Image Handling ---
+            function handleImageUpload(panelSuffix, event) {
+                const file = event.target.files[0];
+                if (!file || !file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target.result;
+                    const base64 = dataUrl.split(',')[1];
+                    
+                    if (panelSuffix === 'a') {
+                        stagedImageA = { dataUrl, base64 };
+                        previewImgA.src = dataUrl;
+                        chatImagePreviewA.classList.remove('hidden');
+                    } else {
+                        stagedImageB = { dataUrl, base64 };
+                        previewImgB.src = dataUrl;
+                        chatImagePreviewB.classList.remove('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+                event.target.value = null;
+            }
+
+            function clearStagedImage(panelSuffix) {
+                if (panelSuffix === 'a') {
+                    stagedImageA = null;
+                    previewImgA.src = '';
+                    chatImagePreviewA.classList.add('hidden');
+                    chatFileInputA.value = null; 
+                } else {
+                    stagedImageB = null;
+                    previewImgB.src = '';
+                    chatImagePreviewB.classList.add('hidden');
+                    chatFileInputB.value = null; 
+                }
+            }
+
+
+            // --- Batch Processing Functions ---
+            batchFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    currentWorkbook = XLSX.read(data, {type: 'array'});
+                    currentSheetName = currentWorkbook.SheetNames[0];
+                    const worksheet = currentWorkbook.Sheets[currentSheetName];
+                    currentData = XLSX.utils.sheet_to_json(worksheet);
+                    if (currentData.length > 0) {
+                        currentHeaders = Object.keys(currentData[0]);
+                    } else {
+                        currentHeaders = [];
+                    }
+                    renderBatchPreview();
+                    batchPreviewContainer.classList.remove('hidden');
+                    batchRulesWrapper.classList.remove('hidden');
+                    batchActionsWrapper.classList.remove('hidden');
+                    rulesContainer.innerHTML = '';
+                    addBatchRuleUI(); 
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            function renderBatchPreview() {
+                batchPreviewTable.innerHTML = '';
+                if (currentData.length === 0) return;
+                const thead = document.createElement('thead');
+                const trHead = document.createElement('tr');
+                trHead.className = 'bg-gray-800 text-xs uppercase';
+                currentHeaders.forEach(h => {
+                    const th = document.createElement('th');
+                    th.className = 'px-4 py-2 font-medium text-cyan-500';
+                    th.textContent = h;
+                    trHead.appendChild(th);
+                });
+                thead.appendChild(trHead);
+                batchPreviewTable.appendChild(thead);
+                const tbody = document.createElement('tbody');
+                currentData.slice(0, 3).forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-gray-800 hover:bg-gray-800/50';
+                    currentHeaders.forEach(h => {
+                        const td = document.createElement('td');
+                        td.className = 'px-4 py-2 truncate max-w-xs';
+                        td.textContent = row[h] || '';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                batchPreviewTable.appendChild(tbody);
+                batchHeadersList.textContent = currentHeaders.map(h => `{{${h}}}`).join(', ');
+            }
+
+            function addBatchRuleUI(data = null) {
+                const ruleId = Date.now() + Math.random(); 
+                const div = document.createElement('div');
+                div.className = 'bg-gray-700 p-4 rounded-lg border border-gray-600 relative flex flex-col gap-4';
+                div.dataset.ruleId = ruleId;
+                const headerOptions = currentHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
+
+                div.innerHTML = `
+                    <button class="absolute top-2 right-2 text-red-400 hover:text-red-300 text-sm font-bold delete-rule-btn">&times;</button>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-3">
+                             <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step A: Define Variable (Read Cell)</h4>
+                             <div class="flex flex-wrap items-end gap-2 text-sm">
+                                <span class="text-gray-300 py-2">Map Column</span>
+                                <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-gray-200 rule-var-col">
+                                    ${headerOptions}
+                                </select>
+                                <span class="text-gray-300 py-2">to Variable Name</span>
+                                <input type="text" class="bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-cyan-400 font-mono w-32 rule-var-name" placeholder="my_var" value="var_${Math.floor(ruleId)}">
+                                <span class="text-xs text-gray-500 py-2">(Use <code>{{name}}</code> in prompt)</span>
+                             </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                             <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step B: Write Prompt</h4>
+                            <label class="block text-xs text-gray-500 mb-1">Prompt Template</label>
+                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-prompt" rows="3" placeholder="Analyze this: {{var_${Math.floor(ruleId)}}}"></textarea>
+                        </div>
+                        <div>
+                             <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step C: Output</h4>
+                            <div class="flex gap-3 mb-2 text-xs">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" class="form-radio text-cyan-600 rule-output-mode" name="output-mode-${ruleId}" value="new" checked>
+                                    <span class="ml-1.5 text-gray-300">New Column</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" class="form-radio text-cyan-600 rule-output-mode" name="output-mode-${ruleId}" value="existing">
+                                    <span class="ml-1.5 text-gray-300">Overwrite Existing</span>
+                                </label>
+                            </div>
+                            <input type="text" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-output-col-new" placeholder="New Column Name">
+                            <select class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-output-col-existing hidden">
+                                ${headerOptions}
+                            </select>
+                            <label class="block text-xs text-gray-500 mt-3 mb-1">Model</label>
+                            <select class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 rule-model">
+                                <option value="" disabled>Loading...</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                rulesContainer.appendChild(div);
+                const radioButtons = div.querySelectorAll(`input[name="output-mode-${ruleId}"]`);
+                const inputNew = div.querySelector('.rule-output-col-new');
+                const selectExisting = div.querySelector('.rule-output-col-existing');
+
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        if (e.target.value === 'new') {
+                            inputNew.classList.remove('hidden');
+                            selectExisting.classList.add('hidden');
+                        } else {
+                            inputNew.classList.add('hidden');
+                            selectExisting.classList.remove('hidden');
+                        }
+                    });
+                });
+
+                const ruleModelSelect = div.querySelector('.rule-model');
+                Array.from(modelSelect.options).forEach(opt => {
+                    ruleModelSelect.appendChild(opt.cloneNode(true));
+                });
+                ruleModelSelect.value = modelSelect.value; 
+
+                div.querySelector('.delete-rule-btn').addEventListener('click', () => { div.remove(); });
+
+                if (data) {
+                    div.querySelector('.rule-var-col').value = data.varCol || '';
+                    div.querySelector('.rule-var-name').value = data.varName || '';
+                    div.querySelector('.rule-prompt').value = data.promptTemplate || '';
+                    div.querySelector('.rule-model').value = data.model || modelSelect.value;
+                    const savedMode = data.outputMode || 'new';
+                    const radioToSelect = div.querySelector(`input[name="output-mode-${ruleId}"][value="${savedMode}"]`);
+                    if (radioToSelect) {
+                        radioToSelect.checked = true;
+                        if (savedMode === 'new') {
+                            inputNew.classList.remove('hidden');
+                            selectExisting.classList.add('hidden');
+                            inputNew.value = data.outputCol || '';
+                        } else {
+                            inputNew.classList.add('hidden');
+                            selectExisting.classList.remove('hidden');
+                            selectExisting.value = data.outputCol || '';
+                        }
+                    }
+                }
+            }
+
+            addRuleBtn.addEventListener('click', () => addBatchRuleUI());
+
+            // NEW: Save/Load Rules Logic
+            function getSavedRulesFromStorage() {
+                const stored = localStorage.getItem(STORAGE_KEY_BATCH_RULES);
+                return stored ? JSON.parse(stored) : {};
+            }
+
+            function updateSavedRulesDropdown() {
+                const rules = getSavedRulesFromStorage();
+                savedRulesSelect.innerHTML = '<option value="" disabled selected>Select saved rules...</option>';
+                Object.keys(rules).forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    savedRulesSelect.appendChild(opt);
+                });
+            }
+
+            saveRulesBtn.addEventListener('click', () => {
+                const name = ruleSetNameInput.value.trim();
+                if (!name) { showMessage('Please enter a name for the rule set.', 'error'); return; }
+                const ruleDivs = document.querySelectorAll('#rules-container > div');
+                if (ruleDivs.length === 0) { showMessage('No rules to save.', 'error'); return; }
+                const rulesToSave = [];
+                ruleDivs.forEach(div => {
+                    const varCol = div.querySelector('.rule-var-col').value;
+                    const varName = div.querySelector('.rule-var-name').value.trim();
+                    const promptTemplate = div.querySelector('.rule-prompt').value;
+                    const model = div.querySelector('.rule-model').value;
+                    const ruleId = div.dataset.ruleId;
+                    const mode = div.querySelector(`input[name="output-mode-${ruleId}"]:checked`).value;
+                    let outputCol = (mode === 'new') ? div.querySelector('.rule-output-col-new').value.trim() : div.querySelector('.rule-output-col-existing').value;
+                    rulesToSave.push({ varCol, varName, promptTemplate, model, outputMode: mode, outputCol });
+                });
+                const allRules = getSavedRulesFromStorage();
+                allRules[name] = rulesToSave;
+                localStorage.setItem(STORAGE_KEY_BATCH_RULES, JSON.stringify(allRules));
+                updateSavedRulesDropdown();
+                showMessage(`Rule set "${name}" saved.`, 'success');
+            });
+
+            loadRulesBtn.addEventListener('click', () => {
+                const name = savedRulesSelect.value;
+                if (!name) return;
+                const allRules = getSavedRulesFromStorage();
+                const rulesToLoad = allRules[name];
+                if (rulesToLoad) {
+                    rulesContainer.innerHTML = ''; 
+                    rulesToLoad.forEach(ruleData => addBatchRuleUI(ruleData));
+                    showMessage(`Rule set "${name}" loaded.`, 'success');
+                }
+            });
+
+            deleteRulesBtn.addEventListener('click', () => {
+                const name = savedRulesSelect.value;
+                if (!name) return;
+                if (confirm(`Delete rule set "${name}"?`)) {
+                    const allRules = getSavedRulesFromStorage();
+                    delete allRules[name];
+                    localStorage.setItem(STORAGE_KEY_BATCH_RULES, JSON.stringify(allRules));
+                    updateSavedRulesDropdown();
+                    showMessage(`Rule set "${name}" deleted.`, 'success');
+                }
+            });
+
+            exportRulesBtn.addEventListener('click', () => {
+                const rules = getSavedRulesFromStorage();
+                if (Object.keys(rules).length === 0) { showMessage('No saved rules to export.', 'error'); return; }
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rules, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "ollama_batch_rules.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                showMessage('Rules exported successfully.', 'success');
+            });
+
+            importRulesBtn.addEventListener('click', () => importRulesInput.click());
+            importRulesInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedRules = JSON.parse(e.target.result);
+                        if (typeof importedRules !== 'object' || importedRules === null) throw new Error('Invalid JSON format');
+                        const currentRules = getSavedRulesFromStorage();
+                        const mergedRules = { ...currentRules, ...importedRules };
+                        localStorage.setItem(STORAGE_KEY_BATCH_RULES, JSON.stringify(mergedRules));
+                        updateSavedRulesDropdown();
+                        showMessage(`Rules imported successfully. (${Object.keys(importedRules).length} sets loaded)`, 'success');
+                    } catch (err) {
+                        showMessage('Failed to import rules: Invalid JSON file.', 'error');
+                        console.error(err);
+                    }
+                    importRulesInput.value = ''; 
+                };
+                reader.readAsText(file);
+            });
+
+            // 3. Run Batch
+            startBatchBtn.addEventListener('click', async () => {
+                const ruleDivs = document.querySelectorAll('#rules-container > div');
+                const rules = [];
+                ruleDivs.forEach(div => {
+                    const varCol = div.querySelector('.rule-var-col').value;
+                    const varName = div.querySelector('.rule-var-name').value.trim();
+                    const promptTemplate = div.querySelector('.rule-prompt').value;
+                    const mode = div.querySelector(`input[name="output-mode-${div.dataset.ruleId}"]:checked`).value;
+                    let outputCol = (mode === 'new') ? div.querySelector('.rule-output-col-new').value.trim() : div.querySelector('.rule-output-col-existing').value;
+                    const model = div.querySelector('.rule-model').value;
+                    if (outputCol && promptTemplate) {
+                        rules.push({ varCol, varName, promptTemplate, outputCol, model });
+                    }
+                });
+
+                if (rules.length === 0) {
+                    showMessage('Please add at least one valid rule with a Prompt and Output Column.', 'error');
+                    return;
+                }
+
+                startBatchBtn.classList.add('hidden');
+                stopBatchBtn.classList.remove('hidden');
+                batchProgressContainer.classList.remove('hidden');
+                downloadBatchBtn.classList.add('hidden');
+                
+                if (batchDebugCheckbox.checked) {
+                    batchDebugLog.classList.remove('hidden');
+                    batchDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- Batch Processing Log ---</div>';
+                } else {
+                    batchDebugLog.classList.add('hidden');
+                    batchDebugLog.innerHTML = '';
+                }
+
+                batchStopRequested = false;
+                batchStatus.textContent = 'Starting...';
+                batchProgressBar.style.width = '0%';
+
+                const total = currentData.length;
+                for (let i = 0; i < total; i++) {
+                    if (batchStopRequested) {
+                        batchStatus.textContent = 'Stopped by user.';
+                        break;
+                    }
+
+                    const row = currentData[i];
+                    
+                    for (const rule of rules) {
+                        const varValue = row[rule.varCol] || '';
+                        let prompt = rule.promptTemplate;
+                        prompt = prompt.replace(new RegExp(`{{${rule.varName}}}`, 'g'), varValue);
+                        currentHeaders.forEach(h => {
+                            prompt = prompt.replace(new RegExp(`{{${h}}}`, 'g'), row[h] || '');
+                        });
+
+                        const onDebug = (payload) => {
+                            if (batchDebugCheckbox.checked) {
+                                const logEntryReq = document.createElement('div');
+                                logEntryReq.className = 'mb-2 border-l-2 border-cyan-600 pl-2';
+                                logEntryReq.innerHTML = `<div class="text-cyan-400 font-bold text-xs">Row ${i + 1} [Request] -> "${rule.outputCol}" (${rule.model})</div><div class="text-gray-500 text-[10px]">${JSON.stringify(payload, null, 2)}</div>`;
+                                batchDebugLog.appendChild(logEntryReq);
+                                batchDebugLog.scrollTop = batchDebugLog.scrollHeight;
+                            }
+                        };
+
+                        try {
+                            let resultText = '';
+                            
+                            // ROUTING LOGIC
+                            if (rule.model === GEMINI_MODEL_NAME) {
+                                resultText = await callGemini(rule.model, prompt, null, onDebug);
+                            } else if (rule.model.toLowerCase().includes('nova')) {
+                                resultText = await callNova(rule.model, prompt, null, false, onDebug);
+                            } else {
+                                const payload = { model: rule.model, prompt: prompt, stream: false };
+                                onDebug(payload);
+                                const res = await callOllama('/api/generate', payload);
+                                if (res && res.response) {
+                                    resultText = res.response.trim();
+                                } else {
+                                    throw new Error("Ollama returned empty response");
+                                }
+                            }
+
+                            row[rule.outputCol] = resultText;
+
+                            if (batchDebugCheckbox.checked) {
+                                const logEntryRes = document.createElement('div');
+                                logEntryRes.className = 'mb-4 border-l-2 border-green-600 pl-2 pb-2 border-b border-gray-800';
+                                logEntryRes.innerHTML = `<div class="text-green-400 font-bold text-xs">Row ${i + 1} [Response]</div><div class="text-gray-500 text-[10px]">${resultText.substring(0, 100)}...</div>`;
+                                batchDebugLog.appendChild(logEntryRes);
+                                batchDebugLog.scrollTop = batchDebugLog.scrollHeight;
+                            }
+
+                        } catch (err) {
+                             if (batchDebugCheckbox.checked) {
+                                const logEntryErr = document.createElement('div');
+                                logEntryErr.className = 'mb-2 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800';
+                                logEntryErr.innerHTML = `<div class="text-red-400 font-bold text-xs">Row ${i + 1} [Error]</div><div class="text-gray-500 text-[10px]">${err.message}</div>`;
+                                batchDebugLog.appendChild(logEntryErr);
+                            }
+                            row[rule.outputCol] = "Error: " + err.message;
+                        }
+                    }
+
+                    const percent = Math.round(((i + 1) / total) * 100);
+                    batchProgressBar.style.width = `${percent}%`;
+                    batchStatus.textContent = `Processing row ${i + 1} of ${total}...`;
+                }
+
+                stopBatchBtn.classList.add('hidden');
+                startBatchBtn.classList.remove('hidden');
+                downloadBatchBtn.classList.remove('hidden');
+                if (!batchStopRequested) batchStatus.textContent = 'Processing Complete!';
+                else batchStatus.textContent = 'Stopped by user. Partial results available for download.';
+                renderBatchPreview(); 
+            });
+
+            stopBatchBtn.addEventListener('click', () => { batchStopRequested = true; });
+            downloadBatchBtn.addEventListener('click', () => {
+                const newWs = XLSX.utils.json_to_sheet(currentData);
+                const newWb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(newWb, newWs, "Processed");
+                XLSX.writeFile(newWb, "ollama_gemini_nova_processed.xlsx");
+            });
+
+
+            // --- Chat Session Management Functions ---
+            function loadChats() {
+                const savedChats = localStorage.getItem(STORAGE_KEY_CHAT_SESSIONS);
+                allChats = savedChats ? JSON.parse(savedChats) : {};
+                activeChatIdA = localStorage.getItem(STORAGE_KEY_ACTIVE_CHAT_A);
+                activeChatIdB = localStorage.getItem(STORAGE_KEY_ACTIVE_CHAT_B);
+                if (Object.keys(allChats).length === 0) {
+                    const newChatA = createNewChat(false); 
+                    const newChatB = createNewChat(false); 
+                    activeChatIdA = newChatA.id;
+                    activeChatIdB = newChatB.id;
+                    saveChats();
+                }
+                if (!allChats[activeChatIdA]) {
+                    activeChatIdA = Object.keys(allChats)[0];
+                    localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_A, activeChatIdA);
+                }
+                if (!allChats[activeChatIdB]) {
+                    activeChatIdB = Object.keys(allChats)[0] || activeChatIdA; 
+                    localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_B, activeChatIdB);
+                }
+                renderChatListDropdowns();
+                loadChatHistory('a', activeChatIdA);
+                loadChatHistory('b', activeChatIdB);
+            }
+
+            function saveChats() {
+                localStorage.setItem(STORAGE_KEY_CHAT_SESSIONS, JSON.stringify(allChats));
+                localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_A, activeChatIdA);
+                localStorage.setItem(STORAGE_KEY_ACTIVE_CHAT_B, activeChatIdB);
+            }
+
+            function renderChatListDropdowns() {
+                const selects = [chatSelectA, chatSelectB];
+                const sortedChatIds = Object.keys(allChats).sort((a, b) => (allChats[b].createdAt || 0) - (allChats[a].createdAt || 0));
+                selects.forEach(select => {
+                    select.innerHTML = ''; 
+                    for (const chatId of sortedChatIds) {
+                        const chat = allChats[chatId];
+                        const option = document.createElement('option');
+                        option.value = chatId;
+                        let chatName = chat.name;
+                        if (!chatName && chat.messages.length > 0) {
+                             const firstUserMsg = chat.messages.find(m => m.role === 'user');
+                             if (firstUserMsg && firstUserMsg.content) chatName = `Chat: ${firstUserMsg.content.substring(0, 30)}...`;
+                        }
+                        if (!chatName) chatName = `Chat ${chatId.substring(0, 8)}`;
+                        chat.name = chatName; 
+                        option.textContent = chatName;
+                        select.appendChild(option);
+                    }
+                });
+                chatSelectA.value = activeChatIdA;
+                chatSelectB.value = activeChatIdB;
+            }
+
+            function loadChatHistory(panelSuffix, chatId) {
+                const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
+                const systemPromptEl = (panelSuffix === 'a') ? chatSystemPromptA : chatSystemPromptB;
+                const modelSelectEl = (panelSuffix === 'a') ? chatModelSelectA : chatModelSelectB; 
+                historyEl.innerHTML = '';
+                const chat = allChats[chatId];
+                if (!chat) {
+                    const firstChatId = Object.keys(allChats)[0];
+                    if (firstChatId) switchChat(panelSuffix, firstChatId);
+                    return;
+                }
+                systemPromptEl.value = chat.systemPrompt || '';
+                if (chat.model) modelSelectEl.value = chat.model;
+                else {
+                    modelSelectEl.value = modelSelect.value;
+                    chat.model = modelSelectEl.value; 
+                }
+                if (chat.messages.length > 0) {
+                    chat.messages.forEach(msg => {
+                        let dataUrl = null;
+                        if (msg.role === 'user' && msg.images && msg.images[0]) {
+                            dataUrl = `data:image/jpeg;base64,${msg.images[0]}`;
+                        }
+                        addMessageToChatUI(historyEl, msg.role, msg.content, dataUrl);
+                    });
+                } else {
+                    addMessageToChatUI(historyEl, 'model', 'New chat. Say hello!', null);
+                }
+                historyEl.scrollTop = historyEl.scrollHeight;
+            }
+
+            function createNewChat(doSave = true) {
+                const newChatId = crypto.randomUUID();
+                const newChat = {
+                    id: newChatId,
+                    name: `New Chat ${new Date().toLocaleTimeString()}`,
+                    messages: [],
+                    createdAt: Date.now(),
+                    systemPrompt: "",
+                    model: modelSelect.value 
+                };
+                allChats[newChatId] = newChat;
+                if (doSave) {
+                    saveChats();
+                    renderChatListDropdowns();
+                }
+                return newChat;
+            }
+
+            function deleteChat(chatIdToDelete) {
+                if (Object.keys(allChats).length <= 1) {
+                    showMessage('Cannot delete the last chat session.', 'error');
+                    return;
+                }
+                delete allChats[chatIdToDelete];
+                const fallbackChatId = Object.keys(allChats)[0];
+                if (activeChatIdA === chatIdToDelete) switchChat('a', fallbackChatId);
+                if (activeChatIdB === chatIdToDelete) switchChat('b', fallbackChatId);
+                saveChats();
+                renderChatListDropdowns();
+                showMessage('Chat session deleted.', 'success');
+            }
+
+            function switchChat(panelSuffix, newChatId) {
+                if (panelSuffix === 'a') activeChatIdA = newChatId;
+                else activeChatIdB = newChatId;
+                saveChats();
+                loadChatHistory(panelSuffix, newChatId);
+            }
+
+            function clearChatHistory(panelSuffix) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                if (!activeChatId || !allChats[activeChatId]) return;
+                const chat = allChats[activeChatId];
+                chat.messages = []; 
+                saveChats(); 
+                loadChatHistory(panelSuffix, activeChatId); 
+                showMessage(`Chat history cleared for Panel ${panelSuffix}.`, 'success');
+            }
+
+
+            // --- Tab Logic ---
+            const activeTabClasses = ['border-cyan-500', 'text-cyan-400'];
+            const inactiveTabClasses = ['border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300'];
+
+            function switchTab(newTab, newPanel) {
+                [tabChat, tabAnalysis, tabBatch].forEach(t => {
+                    t.setAttribute('aria-selected', 'false');
+                    t.classList.remove(...activeTabClasses);
+                    t.classList.add(...inactiveTabClasses);
+                });
+                [panelChat, panelAnalysis, panelBatch].forEach(p => p.classList.add('hidden'));
+                newTab.setAttribute('aria-selected', 'true');
+                newTab.classList.add(...activeTabClasses);
+                newTab.classList.remove(...inactiveTabClasses);
+                newPanel.classList.remove('hidden');
+            }
+
+            tabChat.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabChat, panelChat); });
+            tabAnalysis.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabAnalysis, panelAnalysis); });
+            tabBatch.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabBatch, panelBatch); });
+
+            
+            /**
+             * NEW: Amazon Nova API Call
+             * Uses standard OpenAI-compatible Chat Completions endpoint structure
+             */
+            async function callNova(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null) {
+                const apiKey = novaApiKeyInput.value.trim();
+                if (!apiKey) {
+                    showMessage('Nova API Key is missing. Please add it in configuration.', 'error');
+                    throw new Error('Nova API Key missing');
+                }
+
+                let messages = [];
+                // 1. Handle System Prompt (Nova usually treats it as a message with role 'system')
+                if (systemInstruction) {
+                    messages.push({ role: "system", content: systemInstruction });
+                }
+
+                // 2. Normalize Prompt/History to Messages
+                if (typeof promptOrMessages === 'string') {
+                    messages.push({ role: 'user', content: promptOrMessages });
+                } else if (Array.isArray(promptOrMessages)) {
+                    // Filter out existing system prompts to avoid dupes if we passed one in args
+                    const userMsgs = promptOrMessages.filter(m => m.role !== 'system');
+                    
+                    // Map roles (Nova supports user/assistant/system)
+                    // Simplified mapping: just copy content and role. 
+                    // Note: Nova might not support base64 images directly in all tiers via standard chat/completions yet without specific structure, 
+                    // but for text it follows standard. Ignoring images for Nova text-only prototype for stability.
+                    userMsgs.forEach(msg => {
+                        messages.push({
+                            role: msg.role === 'model' ? 'assistant' : msg.role, // Map 'model' back to 'assistant'
+                            content: msg.content
+                        });
+                    });
+                }
+
+                const payload = {
+                    model: model,
+                    messages: messages,
+                    stream: stream
+                };
+
+                // Add stream options if streaming (recommended for usage stats)
+                if (stream) {
+                    payload.stream_options = { include_usage: true };
+                }
+
+                if (onDebug) onDebug(payload);
+
+                const response = await fetch('[https://api.nova.amazon.com/v1/chat/completions](https://api.nova.amazon.com/v1/chat/completions)', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Nova API Error ${response.status}: ${errorText}`);
+                }
+
+                // Handle Streaming (SSE)
+                if (stream) {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    
+                    return {
+                        reader,
+                        processChunk: (chunkValue) => {
+                             buffer += decoder.decode(chunkValue, { stream: true });
+                             const lines = buffer.split('\n');
+                             buffer = lines.pop(); // Keep partial line
+                             const chunks = [];
+                             
+                             for (const line of lines) {
+                                 const trimmed = line.trim();
+                                 if (!trimmed || trimmed === 'data: [DONE]') continue;
+                                 if (trimmed.startsWith('data: ')) {
+                                     try {
+                                         const json = JSON.parse(trimmed.substring(6));
+                                         if (json.choices && json.choices.length > 0) {
+                                             const delta = json.choices[0].delta;
+                                             if (delta && delta.content) {
+                                                 chunks.push(delta.content);
+                                             }
+                                         }
+                                     } catch (e) { console.warn('Nova stream parse error', e); }
+                                 }
+                             }
+                             return chunks;
+                        }
+                    };
+                }
+
+                // Handle Non-Streaming
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                    return data.choices[0].message.content;
+                }
+                throw new Error('Invalid Nova response format');
+            }
+
+
+            /**
+             * Google Gemini API Call
+             */
+            async function callGemini(model, promptOrMessages, systemInstruction = null, onDebug = null) {
+                const apiKey = geminiApiKeyInput.value.trim();
+                if (!apiKey) {
+                    showMessage('Gemini API Key is missing. Please add it in configuration.', 'error');
+                    throw new Error('Gemini API Key missing');
+                }
+
+                let contents = [];
+                if (typeof promptOrMessages === 'string') {
+                    contents = [{ role: 'user', parts: [{ text: promptOrMessages }] }];
+                } else if (Array.isArray(promptOrMessages)) {
+                    contents = promptOrMessages
+                        .filter(msg => msg.role !== 'system') 
+                        .map(msg => {
+                            const parts = [{ text: msg.content || '' }];
+                            if (msg.images && msg.images.length > 0) {
+                                msg.images.forEach(b64 => {
+                                    parts.push({ inline_data: { mime_type: 'image/png', data: b64 } });
+                                });
+                            }
+                            return {
+                                role: msg.role === 'assistant' ? 'model' : 'user',
+                                parts: parts
+                            };
+                        });
+                }
+
+                const requestBody = { contents: contents };
+                if (systemInstruction) {
+                    requestBody.system_instruction = { parts: [{ text: systemInstruction }] };
+                }
+
+                if (onDebug) onDebug(requestBody);
+
+                let retries = 0;
+                let result = null;
+                while (retries < 3) {
+                    try {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(requestBody)
+                        });
+                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                        result = await response.json();
+                        break;
+                    } catch (e) {
+                        retries++;
+                        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retries)));
+                    }
+                }
+                if (!result) throw new Error("Failed to generate content from Gemini");
+                const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!generatedText) throw new Error("Gemini response structure invalid/empty");
+                return generatedText;
+            }
+
+
+            /**
+             * Generic function to call the Ollama API.
+             */
+            async function callOllama(apiPath, body, onStreamChunk, onStreamEnd) {
+                const endpoint = ollamaEndpoint.value;
+                if (!endpoint) { showMessage('Ollama API endpoint is not set.', 'error'); return null; }
+
+                const url = new URL(endpoint);
+                url.pathname = apiPath;
+
+                try {
+                    const response = await fetch(url.toString(), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ error: `HTTP error! status: ${response.status}` }));
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+
+                    if (body.stream && response.body) {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+                        let buffer = '';
+                        let fullResponse = '';
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) {
+                                if (buffer.trim()) {
+                                    try {
+                                        const chunk = JSON.parse(buffer);
+                                        let contentChunk = (apiPath === '/api/chat') ? (chunk.message?.content || '') : (chunk.response || '');
+                                        if (contentChunk) {
+                                            fullResponse += contentChunk;
+                                            if (onStreamChunk) onStreamChunk(contentChunk);
+                                        }
+                                    } catch (e) { console.warn('Failed to parse final buffer line:', buffer, e); }
+                                }
+                                break;
+                            }
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop(); 
+
+                            for (const line of lines) {
+                                if (line.trim() === '') continue;
+                                try {
+                                    const chunk = JSON.parse(line);
+                                    let contentChunk = (apiPath === '/api/chat') ? (chunk.message?.content || '') : (chunk.response || '');
+                                    if (contentChunk) {
+                                        fullResponse += contentChunk;
+                                        if (onStreamChunk) onStreamChunk(contentChunk);
+                                    }
+                                    if (chunk.done) {
+                                        if (onStreamEnd) onStreamEnd(fullResponse);
+                                        return null; 
+                                    }
+                                } catch (e) { console.warn('Failed to parse stream line:', line, e); }
+                            }
+                        }
+                        if (onStreamEnd) onStreamEnd(fullResponse); 
+                        return null;
+                    }
+                    return await response.json();
+
+                } catch (err) {
+                    console.error('Ollama API call failed:', err);
+                    let errorMessage = 'Failed to connect to Ollama. ';
+                    if (err.message.includes('Failed to fetch')) errorMessage += 'Is the server running? Check CORS (OLLAMA_ORIGINS).';
+                    else errorMessage += err.message;
+                    showMessage(errorMessage, 'error');
+                    return null;
+                }
+            }
+
+
+            // --- Event Listeners ---
+
+            // 1. Analyze Button
+            analyzeBtn.addEventListener('click', async () => {
+                const prompt = analysisInput.value;
+                if (!prompt) return;
+                const model = modelSelect.value;
+                const userSystemPrompt = systemPrompt.value.trim();
+                
+                analysisOutput.classList.add('animate-pulse');
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'Analyzing...';
+                
+                let finalPrompt = `Text:\n"""\n${prompt}\n"""\n\n`;
+
+                const onDebug = (payload) => {
+                    if (debugModeCheckbox.checked) {
+                         const debugInfo = `--- DEBUG REQUEST (${model}) ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\n`;
+                         analysisOutput.value = debugInfo + 'Analyzing...';
+                    }
+                };
+
+                try {
+                    let responseText = "";
+                    // ROUTING LOGIC
+                    if (model === GEMINI_MODEL_NAME) {
+                        responseText = await callGemini(model, finalPrompt, userSystemPrompt, onDebug);
+                    } else if (model.toLowerCase().includes('nova')) {
+                        // Nova non-streaming for analysis
+                        responseText = await callNova(model, finalPrompt, userSystemPrompt, false, onDebug);
+                    } else {
+                        // Ollama
+                        if(userSystemPrompt) finalPrompt = `System Instruction: ${userSystemPrompt}\n\n` + finalPrompt;
+                        const payload = { model: model, prompt: finalPrompt, stream: false };
+                        onDebug(payload);
+                        const data = await callOllama('/api/generate', payload);
+                        if (data && data.response) responseText = data.response.trim();
+                        else throw new Error("No response from Ollama");
+                    }
+                    
+                    if (debugModeCheckbox.checked) {
+                         analysisOutput.value += "\n\n--- RESPONSE ---\n" + responseText;
+                    } else {
+                         analysisOutput.value = responseText;
+                    }
+                    showMessage(`Analysis complete with ${model}.`, 'success');
+
+                } catch (err) {
+                    analysisOutput.value += '\nError: ' + err.message;
+                    showMessage('Analysis failed.', 'error');
+                }
+                
+                analysisOutput.classList.remove('animate-pulse');
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Text';
+            });
+
+            // 2. Chat Send Handlers
+            async function handleChatSend(panelSuffix) {
+                const inputEl = (panelSuffix === 'a') ? chatInputA : chatInputB;
+                const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
+                const sendBtnEl = (panelSuffix === 'a') ? chatSendBtnA : chatSendBtnB;
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                const stagedImage = (panelSuffix === 'a') ? stagedImageA : stagedImageB;
+                
+                const message = inputEl.value.trim();
+                if (!message && !stagedImage) return; 
+
+                const globalSystemPrompt = systemPrompt.value.trim();
+                const chat = allChats[activeChatId];
+                if (!chat) return;
+
+                const model = chat.model; 
+                const localSystemPrompt = chat.systemPrompt ? chat.systemPrompt.trim() : '';
+                const finalSystemPrompt = localSystemPrompt || globalSystemPrompt;
+
+                addMessageToChatUI(historyEl, 'user', message, stagedImage ? stagedImage.dataUrl : null);
+                
+                const userMessage = { role: 'user', content: message };
+                if (stagedImage) userMessage.images = [stagedImage.base64];
+                chat.messages.push(userMessage);
+                
+                inputEl.value = '';
+                clearStagedImage(panelSuffix);
+
+                const typingBubble = addMessageToChatUI(historyEl, 'model', '...');
+                sendBtnEl.disabled = true;
+
+                const onDebug = (payload) => {
+                    if (debugModeCheckbox.checked) {
+                        addMessageToChatUI(historyEl, 'debug', JSON.stringify(payload, null, 2));
+                    }
+                };
+
+                // --- ROUTING LOGIC ---
+                if (model === GEMINI_MODEL_NAME) {
+                    // GEMINI FLOW (Non-streaming)
+                    try {
+                        const responseText = await callGemini(model, chat.messages, finalSystemPrompt, onDebug);
+                        typingBubble.innerHTML = mdToHtml(responseText); 
+                        chat.messages.push({ role: 'assistant', content: responseText });
+                        saveAndRenameChat();
+                        showMessage(`Gemini response received.`, 'success');
+                    } catch (err) {
+                        typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                        showMessage(err.message, 'error');
+                    } finally {
+                        sendBtnEl.disabled = false;
+                    }
+
+                } else if (model.toLowerCase().includes('nova')) {
+                    // NOVA FLOW (Streaming)
+                    try {
+                         // Nova supports streaming via standard SSE
+                        const streamHandler = await callNova(model, chat.messages, finalSystemPrompt, true, onDebug);
+                        
+                        let fullResponse = '';
+                        const reader = streamHandler.reader;
+                        
+                        while(true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            
+                            const chunks = streamHandler.processChunk(value);
+                            chunks.forEach(chunk => {
+                                fullResponse += chunk;
+                                typingBubble.innerHTML = mdToHtml(fullResponse); 
+                                historyEl.scrollTop = historyEl.scrollHeight;
+                            });
+                        }
+
+                        chat.messages.push({ role: 'assistant', content: fullResponse });
+                        saveAndRenameChat();
+                        showMessage(`Nova response received.`, 'success');
+                        
+                    } catch(err) {
+                         typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                         showMessage(err.message, 'error');
+                    } finally {
+                        sendBtnEl.disabled = false;
+                    }
+
+                } else {
+                    // OLLAMA FLOW (Streaming)
+                    let messagesForApi = [...chat.messages];
+                    if (finalSystemPrompt) messagesForApi.unshift({ role: 'system', content: finalSystemPrompt });
+                    const payload = { model: model, messages: messagesForApi, stream: true };
+                    onDebug(payload); 
+
+                    let fullResponse = '';
+                    const onStreamChunk = (chunk) => {
+                        fullResponse += chunk;
+                        typingBubble.innerHTML = mdToHtml(fullResponse); 
+                        historyEl.scrollTop = historyEl.scrollHeight;
+                    };
+
+                    const onStreamEnd = (finalResponse) => {
+                        typingBubble.innerHTML = mdToHtml(finalResponse); 
+                        chat.messages.push({ role: 'assistant', content: finalResponse });
+                        saveAndRenameChat();
+                        sendBtnEl.disabled = false;
+                        showMessage(`Chat response complete with ${model}.`, 'success');
+                    };
+                    
+                    await callOllama('/api/chat', payload, onStreamChunk, onStreamEnd);
+                }
+
+                function saveAndRenameChat() {
+                    const userMessages = chat.messages.filter(m => m.role === 'user');
+                    if (userMessages.length === 1) {
+                        chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`;
+                        renderChatListDropdowns();
+                    }
+                    saveChats();
+                }
+            }
+
+            chatSendBtnA.addEventListener('click', () => handleChatSend('a'));
+            chatClearBtnA.addEventListener('click', () => clearChatHistory('a')); 
+            chatInputA.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend('a'); } });
+            savePromptBtnA.addEventListener('click', () => { if (allChats[activeChatIdA]) { allChats[activeChatIdA].systemPrompt = chatSystemPromptA.value; saveChats(); showMessage('Panel A system prompt saved.', 'success'); } });
+            chatModelSelectA.addEventListener('change', () => { if (allChats[activeChatIdA]) { allChats[activeChatIdA].model = chatModelSelectA.value; saveChats(); showMessage(`Panel A model set to ${chatModelSelectA.value}`, 'success'); } });
+            chatAttachBtnA.addEventListener('click', () => chatFileInputA.click());
+            chatFileInputA.addEventListener('change', (e) => handleImageUpload('a', e));
+            removeImgBtnA.addEventListener('click', () => clearStagedImage('a'));
+
+            chatSendBtnB.addEventListener('click', () => handleChatSend('b'));
+            chatClearBtnB.addEventListener('click', () => clearChatHistory('b')); 
+            chatInputB.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend('b'); } });
+            savePromptBtnB.addEventListener('click', () => { if (allChats[activeChatIdB]) { allChats[activeChatIdB].systemPrompt = chatSystemPromptB.value; saveChats(); showMessage('Panel B system prompt saved.', 'success'); } });
+            chatModelSelectB.addEventListener('change', () => { if (allChats[activeChatIdB]) { allChats[activeChatIdB].model = chatModelSelectB.value; saveChats(); showMessage(`Panel B model set to ${chatModelSelectB.value}`, 'success'); } });
+            chatAttachBtnB.addEventListener('click', () => chatFileInputB.click());
+            chatFileInputB.addEventListener('change', (e) => handleImageUpload('b', e));
+            removeImgBtnB.addEventListener('click', () => clearStagedImage('b'));
+
+
+            // 3. Copy Buttons
+            copyInputBtn.addEventListener('click', () => copyToClipboard(analysisInput.value, copyInputBtn));
+            copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
+
+            // Test Connection Button
+            testConnectionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showMessage('Testing connection...', 'success');
+                checkConnectionAndLoadModels();
+            });
+
+            // 4. Local Storage Savers
+            ollamaEndpoint.addEventListener('change', () => { localStorage.setItem(STORAGE_KEY_ENDPOINT, ollamaEndpoint.value); showMessage('Endpoint saved.', 'success'); });
+            geminiApiKeyInput.addEventListener('change', () => { localStorage.setItem(STORAGE_KEY_GEMINI_KEY, geminiApiKeyInput.value); showMessage('Gemini Key saved.', 'success'); });
+            novaApiKeyInput.addEventListener('change', () => { localStorage.setItem(STORAGE_KEY_NOVA_KEY, novaApiKeyInput.value); showMessage('Nova Key saved.', 'success'); });
+            systemPrompt.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
+            analysisInput.addEventListener('input', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
+            modelSelect.addEventListener('change', () => {
+                const newModel = modelSelect.value;
+                localStorage.setItem(STORAGE_KEY_MODEL, newModel);
+                savedModel = newModel;
+                showMessage(`Global default model saved: ${newModel}`, 'success');
+            });
+            debugModeCheckbox.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_DEBUG_MODE, debugModeCheckbox.checked));
+
+            // 5. Chat Session Listeners
+            newChatBtn.addEventListener('click', () => { const newChat = createNewChat(); switchChat('a', newChat.id); renderChatListDropdowns(); });
+            deleteChatBtnA.addEventListener('click', () => deleteChat(activeChatIdA));
+            deleteChatBtnB.addEventListener('click', () => deleteChat(activeChatIdB));
+            chatSelectA.addEventListener('change', (e) => switchChat('a', e.target.value));
+            chatSelectB.addEventListener('change', (e) => switchChat('b', e.target.value));
+
+
+            // --- Initial Check Function ---
+            function populateModelSelect(selectElement, models) {
+                const currentValue = selectElement.value; 
+                selectElement.innerHTML = ''; 
+                
+                // 1. Google Gemini
+                const geminiOpt = document.createElement('option');
+                geminiOpt.value = GEMINI_MODEL_NAME;
+                geminiOpt.textContent = `✨ Google Gemini (${GEMINI_MODEL_NAME})`;
+                geminiOpt.classList.add('bg-blue-900', 'text-white', 'font-bold');
+                selectElement.appendChild(geminiOpt);
+
+                // 2. Amazon Nova (Using fetched or default list)
+                const novaHeader = document.createElement('option');
+                novaHeader.disabled = true;
+                novaHeader.textContent = '--- Amazon Nova Models ---';
+                selectElement.appendChild(novaHeader);
+                
+                const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
+                modelsToShow.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = `☁️ ${m.name || m.id}`;
+                    selectElement.appendChild(opt);
+                });
+
+                // 3. Local Ollama
+                if (models && models.length > 0) {
+                    const separator = document.createElement('option');
+                    separator.disabled = true;
+                    separator.textContent = '--- Local Ollama Models ---';
+                    selectElement.appendChild(separator);
+
+                    models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.name;
+                        option.textContent = model.name;
+                        selectElement.appendChild(option);
+                    });
+                } else {
+                    const noOllama = document.createElement('option');
+                    noOllama.disabled = true;
+                    noOllama.textContent = '(No Local Models Found)';
+                    selectElement.appendChild(noOllama);
+                }
+
+                if (currentValue) {
+                    // Try to restore previous selection
+                    const allOpts = Array.from(selectElement.options);
+                    if(allOpts.some(o => o.value === currentValue)) {
+                        selectElement.value = currentValue;
+                    }
+                }
+            }
+
+            async function checkConnectionAndLoadModels() {
+                // 1. Fetch Nova Models if Key Exists
+                const novaKey = novaApiKeyInput.value.trim();
+                if (novaKey) {
+                    try {
+                        const res = await fetch('[https://api.nova.amazon.com/v1/models](https://api.nova.amazon.com/v1/models)', {
+                             headers: { 'Authorization': `Bearer ${novaKey}` }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if(data.data) novaModels = data.data; // Assuming OpenAI-like response structure { data: [...] }
+                        }
+                    } catch (e) { console.warn('Could not fetch Nova models, using defaults.'); }
+                }
+
+                // 2. Fetch Ollama Models
+                const endpoint = ollamaEndpoint.value;
+                const url = new URL(endpoint);
+                url.pathname = '/api/tags';
+
+                let localModels = [];
+                try {
+                    const response = await fetch(url.toString());
+                    if (response.ok) {
+                        const data = await response.json();
+                        localModels = data.models || [];
+                        showMessage(`Loaded ${localModels.length} local models + Cloud APIs.`, 'success');
+                    } else {
+                        showMessage('Ollama connection failed. Cloud APIs available.', 'error');
+                    }
+                } catch (err) {
+                    showMessage('Ollama unreachable. Cloud APIs available.', 'error');
+                }
+                
+                // Populate all dropdowns
+                const allSelects = [modelSelect, chatModelSelectA, chatModelSelectB, ...document.querySelectorAll('.rule-model')];
+                allSelects.forEach(sel => populateModelSelect(sel, localModels));
+
+                // Default handling
+                if (savedModel) {
+                     // Simple check if saved model is in the new list (roughly)
+                     modelSelect.value = savedModel;
+                }
+            }
+
+            // --- Run Initial Load ---
+            loadChats(); 
+            checkConnectionAndLoadModels();
+            updateSavedRulesDropdown(); 
+            
+        });
+    </script>
+</body>
+</html>
