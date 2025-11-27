@@ -412,6 +412,12 @@
                                     <span class="text-sm text-gray-400">s</span>
                                 </div>
 
+                                <!-- Batch ETA Toggle -->
+                                <div class="flex items-center gap-2 border-l border-gray-600 pl-4">
+                                    <input type="checkbox" id="batch-eta-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800" checked>
+                                    <label for="batch-eta-checkbox" class="text-sm text-gray-300">Show ETA (after 5 rows)</label>
+                                </div>
+
                                 <!-- Batch Debug Toggle -->
                                 <div class="flex items-center gap-2 ml-auto">
                                     <input type="checkbox" id="batch-debug-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800">
@@ -583,9 +589,10 @@
             const batchDebugCheckbox = document.getElementById('batch-debug-checkbox');
             const batchDebugLog = document.getElementById('batch-debug-log');
             
-            // Batch Delay Elements
+            // Batch Delay & ETA Elements
             const batchDelayCheckbox = document.getElementById('batch-delay-checkbox');
             const batchDelayInput = document.getElementById('batch-delay-input');
+            const batchEtaCheckbox = document.getElementById('batch-eta-checkbox');
 
             // --- Chat Elements (Panel A) ---
             const chatSelectA = document.getElementById('chat-select-a');
@@ -1192,6 +1199,11 @@
                 batchStatus.textContent = 'Starting...';
                 batchProgressBar.style.width = '0%';
 
+                // ETA variables
+                let batchStartTime = Date.now();
+                let fixedTimePer5Rows = 0;
+                let etaCalculated = false;
+
                 const total = currentData.length;
                 for (let i = 0; i < total; i++) {
                     if (batchStopRequested) {
@@ -1265,13 +1277,45 @@
 
                     const percent = Math.round(((i + 1) / total) * 100);
                     batchProgressBar.style.width = `${percent}%`;
-                    batchStatus.textContent = `Processing row ${i + 1} of ${total}...`;
+                    
+                    let statusMsg = `Processing row ${i + 1} of ${total}...`;
+
+                    // ETA Calculation (Based on first 5 rows)
+                    if (batchEtaCheckbox.checked) {
+                        if (i === 4) { // Completed 5th row
+                            const elapsedSinceStart = Date.now() - batchStartTime;
+                            fixedTimePer5Rows = elapsedSinceStart / 5;
+                            etaCalculated = true;
+                        }
+
+                        if (etaCalculated) {
+                            const remainingRows = total - (i + 1);
+                            const estimatedRemainingMs = fixedTimePer5Rows * remainingRows;
+                            
+                            // Format Time
+                            const seconds = Math.floor((estimatedRemainingMs / 1000) % 60);
+                            const minutes = Math.floor((estimatedRemainingMs / (1000 * 60)) % 60);
+                            const hours = Math.floor((estimatedRemainingMs / (1000 * 60 * 60)));
+
+                            let timeString = '';
+                            if (hours > 0) timeString += `${hours}h `;
+                            if (minutes > 0 || hours > 0) timeString += `${minutes}m `;
+                            timeString += `${seconds}s`;
+
+                            statusMsg += ` (ETA: ${timeString})`;
+                        } else if (i < 4 && total > 5) {
+                            statusMsg += ` (Calculating ETA...)`;
+                        }
+                    }
+
+                    batchStatus.textContent = statusMsg;
 
                     // Delay Logic
                     if (batchDelayCheckbox.checked && i < total - 1 && !batchStopRequested) {
                         const delaySec = parseFloat(batchDelayInput.value) || 0;
                         if (delaySec > 0) {
-                            batchStatus.textContent = `Waiting ${delaySec}s before next row...`;
+                            // Don't overwrite the ETA message, append waiting
+                            batchStatus.textContent = `${statusMsg} [Waiting ${delaySec}s]`;
                             await new Promise(r => setTimeout(r, delaySec * 1000));
                         }
                     }
