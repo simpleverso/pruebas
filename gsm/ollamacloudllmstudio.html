@@ -223,7 +223,7 @@
                     <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4" role="alert">
                         <strong class="font-bold">Setup Notes:</strong>
                         <ul class="list-disc list-inside mt-1 text-sm">
-                             <li><strong>Ollama:</strong> Run with `OLLAMA_ORIGINS='*' ollama serve`</li>
+                             <li><strong>Ollama:</strong> Run with `OLLAMA_ORIGINS='*' ollama serve` For this client to work, you must start your Ollama server with the `OLLAMA_ORIGINS=*` environment variable. (e.g., `OLLAMA_ORIGINS='*' ollama serve`) docker run -d -p 11434:11434 --name ollama -e OLLAMA_ORIGINS='*' ollama/ollama:latest ollama run gemma3:4b-it-qat llama3.2:3b-instruct-fp16 N*: 64*a1*96*0b-afa7-4f33-be88-d5a1f50071f6 G-: AI-za-Sy-D55JRtjqNbqkaKGrnaRTuvAdQ5Af8-wnk http://localhost:11434 http://192.168.0.20:11434</li>
                              <li><strong>LM Studio:</strong> Enable "Serve on Local Network" or ensure CORS is enabled in settings. Default is `http://localhost:1234/v1`.</li>
                         </ul>
                     </div>
