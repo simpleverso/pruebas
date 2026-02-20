@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Matcher & Batch Finder</title>
+    <title>Pattern match</title>
     <!-- Load Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -51,15 +51,15 @@
     <div class="w-full max-w-4xl bg-white p-6 md:p-8 rounded-xl shadow-lg">
         
         <header class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Image Matcher & Batch Finder</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Detector de patrones textiles</h1>
             <p class="text-lg text-gray-600 mt-2">
-                Using OpenCV (ORB, AKAZE, BRISK, KAZE)
+             <!--   Using OpenCV (ORB, AKAZE, BRISK, KAZE)-->
             </p>
         </header>
 
         <!-- Status Message Area -->
         <div id="status" class="text-center p-4 mb-4 bg-blue-50 text-blue-700 rounded-lg">
-            Loading OpenCV.js... Please wait. This may take a moment.
+            Cargando sistema de analisis de patrones... Por favor espere, puede tardar un momento..
         </div>
         
         <!-- Loading Spinner -->
@@ -72,10 +72,10 @@
 
             <!-- Tab Navigation -->
             <div class="flex border-b border-gray-300">
-                <button id="tabPairwise" class="tab-btn active">Pairwise Matcher</button>
-                <button id="tabBatchImage" class="tab-btn">Batch Image Finder</button>
-                <button id="tabBatchHui" class="tab-btn">Batch .hui Finder</button>
-                <button id="tabCreateHui" class="tab-btn">Create .hui Files</button>
+                <button id="tabPairwise" class="tab-btn active">Encontrar pares</button>
+                <button id="tabBatchImage" class="tab-btn">Encontrar en conjunto de imagenes</button>
+                <button id="tabBatchHui" class="tab-btn">Encontrar en conjuntos .hui </button>
+                <button id="tabCreateHui" class="tab-btn">Crear archivos .hui</button>
             </div>
 
             <!-- Tab 1: Pairwise Matcher Content -->
@@ -84,14 +84,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Image 1 Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="imgInput1" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Query Image</label>
+                        <label for="imgInput1" class="text-lg font-semibold text-gray-700 mb-2">1. Imagen a buscar</label>
                         <input type="file" id="imgInput1" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <img id="img1" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Query Image" />
                     </div>
                     
                     <!-- Image 2 Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="imgInput2" class="text-lg font-semibold text-gray-700 mb-2">2. Upload Database Image</label>
+                        <label for="imgInput2" class="text-lg font-semibold text-gray-700 mb-2">2. Imagen de base de datos a comparar</label>
                         <input type="file" id="imgInput2" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                         <img id="img2" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Database Image" />
                     </div>
@@ -99,37 +99,37 @@
 
                 <!-- Options Section -->
                 <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
-                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Options</h3>
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Opciones</h3>
                     <div class="flex flex-col md:flex-row flex-wrap justify-center items-center gap-4 md:gap-6">
                         <!-- Algorithm Selection -->
                         <div class="flex items-center">
-                            <label for="algorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
+                            <label for="algorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algoritmos:</label>
                             <select id="algorithmSelect" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                <option value="orb" selected>ORB (Feature Match)</option>
-                                <option value="akaze">AKAZE (Feature Match)</option>
-                                <option value="brisk">BRISK (Feature Match)</option>
-                                <option value="kaze">KAZE (Feature Match)</option>
+                                <option value="orb" selected>v1</option>
+                                <option value="akaze">v2</option>
+                                <option value="brisk">v3</option>
+                                <option value="kaze">v4</option>
                             </select>
                         </div>
 
                         <!-- Show Lines -->
                         <div class="flex items-center">
                             <input type="checkbox" id="showLines" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" checked>
-                            <label for="showLines" class="ml-2 text-sm font-medium text-gray-700">Show Match Lines</label>
+                            <label for="showLines" class="ml-2 text-sm font-medium text-gray-700">Mostrar lineas</label>
                         </div>
                         <!-- Show Circles -->
                         <div class="flex items-center">
                             <input type="checkbox" id="showCircles" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                            <label for="showCircles" class="ml-2 text-sm font-medium text-gray-700">Show Numbered Circles</label>
+                            <label for="showCircles" class="ml-2 text-sm font-medium text-gray-700">Mostrar circulos</label>
                         </div>
                         <!-- Show Unmatched -->
                         <div class="flex items-center">
                             <input type="checkbox" id="showUnmatched" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                            <label for="showUnmatched" class="ml-2 text-sm font-medium text-gray-700">Show Unmatched Keypoints</label>
+                            <label for="showUnmatched" class="ml-2 text-sm font-medium text-gray-700">Mostrar puntos sin coincidencias</label>
                         </div>
                         <!-- Max Matches -->
                         <div class="flex items-center">
-                            <label for="maxMatches" class="mr-2 text-sm font-medium text-gray-700">Max Matches:</label>
+                            <label for="maxMatches" class="mr-2 text-sm font-medium text-gray-700">Maximo de coincidencias:</label>
                             <input type="number" id="maxMatches" value="10" min="1" class="w-20 p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
@@ -138,13 +138,13 @@
                 <!-- Match Button -->
                 <div class="text-center mb-6">
                     <button id="matchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
-                        Run Analysis
+                       Iniciar analisis
                     </button>
                 </div>
 
                 <!-- Result Canvas -->
                 <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner mb-6">
-                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Pairwise Results</h2>
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Resultados de pares</h2>
                     <canvas id="outputCanvas" class="w-full h-auto rounded-md"></canvas>
                 </div>
 
@@ -202,10 +202,10 @@
                         <div class="flex items-center">
                             <label for="batchAlgorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
                             <select id="batchAlgorithmSelect" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                <option value="orb" selected>ORB</option>
-                                <option value="akaze">AKAZE</option>
-                                <option value="brisk">BRISK</option>
-                                <option value="kaze">KAZE</option>
+                                <option value="orb" selected>v1</option>
+                                <option value="akaze">v2</option>
+                                <option value="brisk">v3</option>
+                                <option value="kaze">v4</option>
                             </select>
                         </div>
                     </div>
