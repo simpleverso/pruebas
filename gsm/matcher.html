@@ -130,7 +130,7 @@
                         <!-- Max Matches -->
                         <div class="flex items-center">
                             <label for="maxMatches" class="mr-2 text-sm font-medium text-gray-700">Maximo de coincidencias:</label>
-                            <input type="number" id="maxMatches" value="10" min="1" class="w-20 p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <input type="number" id="maxMatches" value="40" min="1" class="w-20 p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
                 </div>
@@ -214,7 +214,7 @@
                 <!-- Batch Match Button -->
                 <div class="text-center mb-6">
                     <button id="batchMatchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
-                        Run Batch Analysis
+                        Realizar analisis de batch
                     </button>
                 </div>
 
@@ -265,13 +265,13 @@
                 <!-- Batch Match Button -->
                 <div class="text-center mb-6">
                     <button id="batchMatchButtonHui" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
-                        Run .hui Batch Analysis
+                        Realizar analisis Batch .hui 
                     </button>
                 </div>
 
                 <!-- Batch Result List -->
                 <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
-                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Batch Results</h2>
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Resultados batch</h2>
                     <ul id="batchResultsListHui" class="divide-y divide-gray-200">
                         <!-- Results will be populated here -->
                     </ul>
