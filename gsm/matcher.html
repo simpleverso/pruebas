@@ -1278,7 +1278,7 @@
                                 <span class="font-semibold text-gray-800">${index + 1}. ${result.filename}</span>
                                 <span class="text-sm text-gray-600 block">Good Matches: <strong>${result.goodMatches}</strong></span>
                             </div>
-                            ${index === 0 ? '<span class="text-sm font-bold text-green-600">Best Match</span>' : ''}
+                            ${index === 0 ? '<span class="text-sm font-bold text-green-600">Mejor resultado</span>' : ''}
                         `;
                         batchResultsList.appendChild(li);
                     });
@@ -1485,7 +1485,7 @@
                                 ${descriptionText}
                                 ${errorText}
                             </div>
-                            ${index === 0 && !result.error ? '<span class="text-sm font-bold text-green-600">Best Match</span>' : ''}
+                            ${index === 0 && !result.error ? '<span class="text-sm font-bold text-green-600">Mejor resultado</span>' : ''}
                         `;
                         batchResultsListHui.appendChild(li);
                     });
