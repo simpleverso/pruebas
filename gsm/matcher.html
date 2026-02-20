@@ -182,14 +182,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Query Image Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="queryImgInput" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Query Image</label>
+                        <label for="queryImgInput" class="text-lg font-semibold text-gray-700 mb-2">1. Suba la imagen a buscar</label>
                         <input type="file" id="queryImgInput" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <img id="queryImgPreview" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Query Image" />
                     </div>
                     
                     <!-- Database Images Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="databaseImgInput" class="text-lg font-semibold text-gray-700 mb-2">2. Upload Database Images</label>
+                        <label for="databaseImgInput" class="text-lg font-semibold text-gray-700 mb-2">2. Suba las imagenes de base de datos</label>
                         <input type="file" id="databaseImgInput" accept="image/*" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                         <div id="databaseFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
                     </div>
@@ -197,7 +197,7 @@
 
                 <!-- Batch Options -->
                 <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
-                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Batch Options</h3>
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Busqueda batch</h3>
                     <div class="flex justify-center">
                         <div class="flex items-center">
                             <label for="batchAlgorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
@@ -232,14 +232,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Query Image Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="queryImgInputHui" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Query Image</label>
+                        <label for="queryImgInputHui" class="text-lg font-semibold text-gray-700 mb-2">1. Suba la imagen a buscar</label>
                         <input type="file" id="queryImgInputHui" accept="image/*" class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <img id="queryImgPreviewHui" class="hidden w-full h-48 object-contain mt-4 rounded-lg bg-gray-100" alt="Query Image" />
                     </div>
                     
                     <!-- Database .hui Files Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="databaseHuiInput" class="text-lg font-semibold text-gray-700 mb-2">2. Upload Database .hui Files</label>
+                        <label for="databaseHuiInput" class="text-lg font-semibold text-gray-700 mb-2">2. Suba las imagenes de base de datos en archivos .hui </label>
                         <input type="file" id="databaseHuiInput" accept=".hui" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                         <div id="databaseHuiFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
                     </div>
@@ -283,7 +283,7 @@
                 <div class="flex flex-col items-center gap-6 mb-6">
                     <!-- Database Images Upload -->
                     <div class="flex flex-col items-center">
-                        <label for="huiCreatorInput" class="text-lg font-semibold text-gray-700 mb-2">1. Upload Images to Convert</label>
+                        <label for="huiCreatorInput" class="text-lg font-semibold text-gray-700 mb-2">1. Suba las imagenes a convertir</label>
                         <input type="file" id="huiCreatorInput" accept="image/*" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                         <div id="huiCreatorFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
                     </div>
@@ -306,7 +306,7 @@
 
                 <!-- Batch Result List -->
                 <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
-                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Processing Results</h2>
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Resultados del procesamiento</h2>
                     <ul id="huiCreatorResultsList" class="divide-y divide-gray-200">
                         <!-- Results will be populated here -->
                     </ul>
@@ -650,7 +650,7 @@
             if (cv) {
                 console.log('OpenCV.js is ready.');
                 cvLoaded = true;
-                statusEl.textContent = 'OpenCV.js Loaded. Please select images.';
+                statusEl.textContent = 'Sistema de deteccion de patrones, inicializado... Ingrese imagenes.';
                 statusEl.classList.remove('bg-blue-50', 'text-blue-700');
                 statusEl.classList.add('bg-green-50', 'text-green-700');
                 loaderEl.classList.add('hidden');
