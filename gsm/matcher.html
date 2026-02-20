@@ -191,16 +191,16 @@
                     <div class="flex flex-col items-center">
                         <label for="databaseImgInput" class="text-lg font-semibold text-gray-700 mb-2">2. Suba las imagenes de base de datos</label>
                         <input type="file" id="databaseImgInput" accept="image/*" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                        <div id="databaseFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
+                        <div id="databaseFileCount" class="text-sm text-gray-600 mt-4">0 archivos seleccionados</div>
                     </div>
                 </div>
 
                 <!-- Batch Options -->
                 <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
-                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Busqueda batch</h3>
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Busqueda por lotes</h3>
                     <div class="flex justify-center">
                         <div class="flex items-center">
-                            <label for="batchAlgorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
+                            <label for="batchAlgorithmSelect" class="mr-2 text-sm font-medium text-gray-700">Algoritmo:</label>
                             <select id="batchAlgorithmSelect" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                                 <option value="orb" selected>v1</option>
                                 <option value="akaze">v2</option>
@@ -214,13 +214,13 @@
                 <!-- Batch Match Button -->
                 <div class="text-center mb-6">
                     <button id="batchMatchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
-                        Realizar analisis de batch
+                        Realizar analisis por lotes
                     </button>
                 </div>
 
                 <!-- Batch Result List -->
                 <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
-                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Batch Results</h2>
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Resultados por lotes:</h2>
                     <ul id="batchResultsList" class="divide-y divide-gray-200">
                         <!-- Results will be populated here -->
                     </ul>
@@ -241,23 +241,26 @@
                     <div class="flex flex-col items-center">
                         <label for="databaseHuiInput" class="text-lg font-semibold text-gray-700 mb-2">2. Suba las imagenes de base de datos en archivos .hui </label>
                         <input type="file" id="databaseHuiInput" accept=".hui" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                        <div id="databaseHuiFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
+                        <div id="databaseHuiFileCount" class="text-sm text-gray-600 mt-4">0 archivos seleccionados</div>
                     </div>
                 </div>
 
                 <!-- Batch Options -->
                 <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-inner">
-                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Batch Options</h3>
+                    <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Opciones por lotes</h3>
                     <div class="flex flex-col items-center gap-4">
                         <div class="flex items-center">
-                            <label for="batchAlgorithmSelectHui" class="mr-2 text-sm font-medium text-gray-700">Query Image Algorithm:</label>
+                            <label for="batchAlgorithmSelectHui" class="mr-2 text-sm font-medium text-gray-700">Algoritmo de busqueda:</label>
                             <select id="batchAlgorithmSelectHui" class="block w-full max-w-xs p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-100" disabled>
-                                <option value="brisk" selected>BRISK</option>
+                                <option value="orb" selected>v1</option>
+                                <option value="akaze">v2</option>
+                                <option value="brisk">v3</option>
+                                <option value="kaze">v4</option>
                             </select>
                         </div>
                         <div class="flex items-center">
                             <input type="checkbox" id="forceAlgorithmMatch" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" checked>
-                            <label for="forceAlgorithmMatch" class="ml-2 text-sm font-medium text-gray-700">Only match files with same algorithm</label>
+                            <label for="forceAlgorithmMatch" class="ml-2 text-sm font-medium text-gray-700">Solo comparar con el mismo algoritmo</label>
                         </div>
                     </div>
                 </div>
@@ -265,13 +268,13 @@
                 <!-- Batch Match Button -->
                 <div class="text-center mb-6">
                     <button id="batchMatchButtonHui" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
-                        Realizar analisis Batch .hui 
+                        Realizar analisis por lotes .hui 
                     </button>
                 </div>
 
                 <!-- Batch Result List -->
                 <div class="w-full bg-gray-50 rounded-lg p-4 shadow-inner">
-                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Resultados batch</h2>
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Resultados de busqueda por lotes</h2>
                     <ul id="batchResultsListHui" class="divide-y divide-gray-200">
                         <!-- Results will be populated here -->
                     </ul>
@@ -285,22 +288,22 @@
                     <div class="flex flex-col items-center">
                         <label for="huiCreatorInput" class="text-lg font-semibold text-gray-700 mb-2">1. Suba las imagenes a convertir</label>
                         <input type="file" id="huiCreatorInput" accept="image/*" multiple class="w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                        <div id="huiCreatorFileCount" class="text-sm text-gray-600 mt-4">0 files selected</div>
+                        <div id="huiCreatorFileCount" class="text-sm text-gray-600 mt-4">0 archivos seleccionados</div>
                     </div>
                     
                     <!-- NEW: Description for single file -->
                     <div id="huiCreatorDescriptionWrapper" class="flex flex-col items-center w-full max-w-xs hidden">
-                        <label for="huiCreatorDesc" class="text-sm font-medium text-gray-700 mb-2">Description (for single file):</label>
+                        <label for="huiCreatorDesc" class="text-sm font-medium text-gray-700 mb-2">Descripcion (para un solo archivo):</label>
                         <input type="text" id="huiCreatorDesc" placeholder="Optional description..." class="w-full p-2 text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
-                    <p class="text-sm text-gray-600">All images will be processed using the <strong>BRISK</strong> algorithm to create .hui files.</p>
+                    <p class="text-sm text-gray-600">Todas las imagenes se procesaran con el algoritmo <strong>v3</strong> para crear los archivos .hui</p>
                 </div>
 
                 <!-- Batch Match Button -->
                 <div class="text-center mb-6">
                     <button id="createHuiButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-md" disabled>
-                        Create .hui Files
+                        Crear archivo .hui 
                     </button>
                 </div>
 
@@ -538,18 +541,18 @@
         function saveFeatures(descriptorMat, base64Img, filename, algorithm, description = "", silent = false) {
             if (!descriptorMat || descriptorMat.empty()) {
                 if (!silent) {
-                    statusEl.textContent = 'Error: No descriptors to save.';
+                    statusEl.textContent = 'Error: No hay descriptores para guardar.';
                     statusEl.classList.add('bg-red-50', 'text-red-700');
                 }
-                console.error("saveFeatures: No descriptors to save.");
+                console.error("saveFeatures: No hay descriptores para guardar.");
                 return false;
             }
 
-            if (!silent) statusEl.textContent = 'Converting descriptors...';
+            if (!silent) statusEl.textContent = 'Convirtiendo descriptores...';
             const descriptorsArray = matToJSON(descriptorMat);
             if (!descriptorsArray) {
                 if (!silent) {
-                    statusEl.textContent = 'Error: Failed to convert descriptors.';
+                    statusEl.textContent = 'Error: Falla al convertir los descriptores.';
                     statusEl.classList.add('bg-red-50', 'text-red-700');
                 }
                 console.error("saveFeatures: Failed to convert descriptors.");
@@ -577,7 +580,7 @@
                 descriptors: descriptorsArray,
             };
 
-            if (!silent) statusEl.textContent = 'Downloading...';
+            if (!silent) statusEl.textContent = 'Descargando...';
             
             // Ensure filename ends with .hui
             if (!filename.toLowerCase().endsWith('.hui')) {
@@ -660,8 +663,8 @@
                 checkBatchHuiMatchButton(); // NEW
                 checkHuiCreatorButton(); // NEW
             } else {
-                console.error('Failed to load OpenCV.js');
-                statusEl.textContent = 'Error: Failed to load OpenCV.js. Please refresh the page.';
+                console.error('Failed to load libraries');
+                statusEl.textContent = 'Error: Falla al cargar las librerias, por favor reinicie la pagina';
                 statusEl.classList.remove('bg-blue-50', 'text-blue-700');
                 statusEl.classList.add('bg-red-50', 'text-red-700');
             }
@@ -725,10 +728,10 @@
         function checkBatchMatchButton() {
             if (queryImg && databaseFiles && databaseFiles.length > 0 && cvLoaded) {
                 batchMatchButton.disabled = false;
-                batchMatchButton.textContent = 'Run Batch Analysis';
+                batchMatchButton.textContent = 'Iniciar analisis por lotes';
             } else {
                 batchMatchButton.disabled = true;
-                batchMatchButton.textContent = 'Run Batch Analysis';
+                batchMatchButton.textContent = 'Iniciar analisis por lotes';
             }
         }
 
@@ -748,7 +751,7 @@
         databaseHuiInput.addEventListener('change', (e) => {
             if (e.target.files && e.target.files.length > 0) {
                 databaseHuiFiles = e.target.files;
-                databaseHuiFileCount.textContent = `${databaseHuiFiles.length} .hui files selected`;
+                databaseHuiFileCount.textContent = `${databaseHuiFiles.length} .hui archivos seleccionados`;
                 checkBatchHuiMatchButton();
             } else {
                 databaseHuiFiles = null;
@@ -758,10 +761,10 @@
         function checkBatchHuiMatchButton() {
             if (queryImgHui && databaseHuiFiles && databaseHuiFiles.length > 0 && cvLoaded) {
                 batchMatchButtonHui.disabled = false;
-                batchMatchButtonHui.textContent = 'Run .hui Batch Analysis';
+                batchMatchButtonHui.textContent = 'Iniciar analisis por lote de archivos .hui';
             } else {
                 batchMatchButtonHui.disabled = true;
-                batchMatchButtonHui.textContent = 'Run .hui Batch Analysis';
+                batchMatchButtonHui.textContent = 'Iniciar analisis por lote de archivos .hui';
             }
         }
 
@@ -794,10 +797,10 @@
         function checkHuiCreatorButton() {
             if (huiCreatorFiles && huiCreatorFiles.length > 0 && cvLoaded) {
                 createHuiButton.disabled = false;
-                createHuiButton.textContent = 'Create .hui Files';
+                createHuiButton.textContent = 'Crear archivo .hui';
             } else {
                 createHuiButton.disabled = true;
-                createHuiButton.textContent = 'Create .hui Files';
+                createHuiButton.textContent = 'Crear archivo .hui';
             }
         }
 
@@ -927,15 +930,15 @@
         // --- Main analysis function ---
         async function runPairwiseAnalysis() {
             if (!img1 || !img2 || !cvLoaded) {
-                statusEl.textContent = 'Please upload both images first.';
+                statusEl.textContent = 'Por favor suba las dos imágenes primero.';
                 statusEl.classList.add('bg-red-50', 'text-red-700');
                 return;
             }
 
             // Disable button and show loading state
             matchButton.disabled = true;
-            matchButton.textContent = 'Processing...';
-            statusEl.textContent = 'Processing... This might take a moment.';
+            matchButton.textContent = 'Procesando...';
+            statusEl.textContent = 'Procesando... Esto puede tomar un momento...';
             statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
             statusEl.classList.add('bg-blue-50', 'text-blue-700');
             
@@ -1005,7 +1008,7 @@
                             if (success) {
                                 resolve({ filename: file.name, success: true, count: des.rows });
                             } else {
-                                throw new Error("Failed to save features.");
+                                throw new Error("Falla al guardar los features.");
                             }
 
                         } catch(err) {
@@ -1022,7 +1025,7 @@
                         }
                     };
                     img.onerror = () => {
-                         resolve({ filename: file.name, success: false, error: 'Could not load image.' });
+                         resolve({ filename: file.name, success: false, error: 'No se pudo cargar la imagen.' });
                     };
                     img.src = base64Img;
                 };
@@ -1039,14 +1042,14 @@
          */
         async function runHuiCreation() {
             if (!huiCreatorFiles || huiCreatorFiles.length === 0 || !cvLoaded) {
-                statusEl.textContent = 'Please upload images to convert.';
+                statusEl.textContent = 'Por favor suba las imagenes a convertir.';
                 statusEl.classList.add('bg-red-50', 'text-red-700');
                 return;
             }
 
             createHuiButton.disabled = true;
-            createHuiButton.textContent = 'Processing...';
-            statusEl.textContent = 'Processing images...';
+            createHuiButton.textContent = 'Procesando...';
+            statusEl.textContent = 'Procesando imagenes...';
             statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
             statusEl.classList.add('bg-blue-50', 'text-blue-700');
             huiCreatorResultsList.innerHTML = ''; // Clear previous results
@@ -1073,7 +1076,7 @@
                         li.innerHTML = `
                             <div class="flex-1">
                                 <span class="font-semibold">${result.filename}</span>
-                                <span class="text-sm text-gray-600 block">Success: Generated ${result.count} descriptors. File downloaded.</span>
+                                <span class="text-sm text-gray-600 block">Success: Se generó ${result.count} descriptores. Archivo descargado.</span>
                             </div>
                             <span class="text-sm font-bold">✓</span>
                         `;
@@ -1214,8 +1217,8 @@
             }
 
             batchMatchButton.disabled = true;
-            batchMatchButton.textContent = 'Processing...';
-            statusEl.textContent = 'Processing Query Image...';
+            batchMatchButton.textContent = 'Procesando...';
+            statusEl.textContent = 'Procesando consulta de imagen...';
             statusEl.classList.remove('bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700');
             statusEl.classList.add('bg-blue-50', 'text-blue-700');
             batchResultsList.innerHTML = ''; // Clear previous results
@@ -1259,12 +1262,12 @@
                 results.sort((a, b) => b.goodMatches - a.goodMatches);
 
                 // 4. Display results
-                statusEl.textContent = `Batch analysis complete. Found ${results.length} results.`;
+                statusEl.textContent = `Busqueda por lotes completada. Se encontraron ${results.length} resultados.`;
                 statusEl.classList.remove('bg-blue-50', 'text-blue-700');
                 statusEl.classList.add('bg-green-50', 'text-green-700');
 
                 if (results.length === 0) {
-                    batchResultsList.innerHTML = '<li class="p-4 text-center text-gray-500">No results found.</li>';
+                    batchResultsList.innerHTML = '<li class="p-4 text-center text-gray-500">Sin resultados.</li>';
                 } else {
                     results.forEach((result, index) => {
                         const li = document.createElement('li');
@@ -1297,7 +1300,7 @@
                 
                 // Re-enable button
                 batchMatchButton.disabled = false;
-                batchMatchButton.textContent = 'Run Batch Analysis';
+                batchMatchButton.textContent = 'Iniciar analisis por lote';
             }
         }
         
@@ -1331,7 +1334,7 @@
                     if (!huiData.descriptors || !huiData.algorithm || !huiData.rows || 
                         huiData.cols === undefined || huiData.type === undefined || !huiData.imageBase64) {
                         console.error(`Invalid .hui file ${file.name}: Missing properties.`);
-                        resolve({ filename: file.name, goodMatches: -1, imgSrc: null, error: 'Invalid .hui format', description: "" });
+                        resolve({ filename: file.name, goodMatches: -1, imgSrc: null, error: 'Formato .hui invalido', description: "" });
                         return;
                     }
 
@@ -1401,7 +1404,7 @@
          */
         async function runBatchHuiAnalysis() {
             if (!queryImgHui || !databaseHuiFiles || databaseHuiFiles.length === 0 || !cvLoaded) {
-                statusEl.textContent = 'Please upload a query image and database .hui files.';
+                statusEl.textContent = 'Por favor suba una imagen para consulta y una base de datos de archvos .hui';
                 statusEl.classList.add('bg-red-50', 'text-red-700');
                 return;
             }
