@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal AI Client (Ollama, Gemini, Nova, LM Studio, MySQL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .chat-history::-webkit-scrollbar { width: 8px; }
+        .chat-history::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
+        .chat-history::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        .chat-history::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .log-panel::-webkit-scrollbar { width: 6px; }
+        .log-panel::-webkit-scrollbar-track { background: #111827; border-radius: 3px; }
+        .log-panel::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+    <div class="container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+        <header class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Universal AI Client</h1>
+            <p class="text-lg text-gray-400 mt-2">Ollama • LM Studio • Google Gemini • Amazon Nova</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="mb-4 border-b border-gray-700">
+            <nav class="-mb-px flex space-x-8 overflow-x-auto" role="tablist">
+                <button id="tab-chat" role="tab" aria-selected="true" class="border-cyan-500 text-cyan-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Chat</button>
+                <button id="tab-analysis" role="tab" aria-selected="false" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Text Analysis</button>
+                <button id="tab-batch" role="tab" aria-selected="false" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Excel/CSV Batch</button>
+                <button id="tab-mysql" role="tab" aria-selected="false" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">MySQL Batch</button>
+                <button id="tab-commands" role="tab" aria-selected="false" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Commands (Ollama)</button>
+            </nav>
+        </div>
+
+        <div>
+            <!-- Chat Panel (unchanged, kept compact) -->
+            <div id="panel-chat" role="tabpanel">
+                <div class="flex justify-between items-center mb-4"><h2 class="text-3xl font-bold text-cyan-400">Multi-Chat</h2><button id="new-chat-btn" class="px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">New Chat</button></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4"><h3 class="text-xl font-semibold text-gray-300">Panel A</h3>
+                        <select id="chat-model-select-a" class="bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm"></select>
+                        <div class="flex gap-2"><textarea id="chat-system-prompt-a" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm" placeholder="System prompt"></textarea><button id="save-prompt-btn-a" class="px-3 py-2 bg-blue-600 rounded-lg">💾</button></div>
+                        <div class="flex gap-2"><select id="chat-select-a" class="flex-grow bg-gray-700 rounded-lg p-2 text-sm"></select><button id="delete-chat-btn-a" class="px-3 py-2 bg-red-600 rounded-lg">🗑️</button></div>
+                        <div id="chat-history-a" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto"></div>
+                        <div class="flex gap-2"><input id="chat-input-a" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Message"><button id="chat-send-btn-a" class="px-6 py-3 bg-cyan-600 rounded-lg">Send</button></div>
+                    </div>
+                    <div class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4"><h3 class="text-xl font-semibold text-gray-300">Panel B</h3>
+                        <select id="chat-model-select-b" class="bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm"></select>
+                        <div class="flex gap-2"><textarea id="chat-system-prompt-b" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm"></textarea><button id="save-prompt-btn-b" class="px-3 py-2 bg-blue-600 rounded-lg">💾</button></div>
+                        <div class="flex gap-2"><select id="chat-select-b" class="flex-grow bg-gray-700 rounded-lg p-2 text-sm"></select><button id="delete-chat-btn-b" class="px-3 py-2 bg-red-600 rounded-lg">🗑️</button></div>
+                        <div id="chat-history-b" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto"></div>
+                        <div class="flex gap-2"><input id="chat-input-b" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Message"><button id="chat-send-btn-b" class="px-6 py-3 bg-cyan-600 rounded-lg">Send</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Panel (unchanged) -->
+            <div id="panel-analysis" role="tabpanel" class="hidden"><section class="bg-gray-800 rounded-xl shadow-lg p-6">...</section></div>
+
+            <!-- Excel/CSV Batch Panel (unchanged) -->
+            <div id="panel-batch" role="tabpanel" class="hidden"><section class="bg-gray-800 rounded-xl shadow-lg p-6">...</section></div>
+
+            <!-- MySQL Batch Panel - ENHANCED with logs download, clear, and dry-run -->
+            <div id="panel-mysql" role="tabpanel" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">MySQL Batch Processing</h2>
+                    <p class="text-sm text-gray-400 mb-6">Read from MySQL database, process rows with AI, and optionally update the database.</p>
+
+                    <!-- Step 1: Database Setup -->
+                    <div class="mb-6 p-4 bg-gray-700 rounded-lg border border-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-4">1. Database Connection & Proxy</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="sm:col-span-2 lg:col-span-5"><label class="block text-xs text-gray-400 mb-1">PHP Proxy URL</label><input type="text" id="mysql-proxy-url" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm" value="http://192.168.100.28:8080/phpmyadmin/proxy/mysql_proxy.php"></div>
+                            <div><label class="block text-xs text-gray-400 mb-1">Host</label><input type="text" id="mysql-host" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm" value="127.0.0.1"></div>
+                            <div><label class="block text-xs text-gray-400 mb-1">User</label><input type="text" id="mysql-user" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm" value="gonzalo"></div>
+                            <div><label class="block text-xs text-gray-400 mb-1">Password</label><input type="password" id="mysql-pass" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm"></div>
+                            <div><label class="block text-xs text-gray-400 mb-1">Database Name</label><input type="text" id="mysql-db" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm" value="didxazapp"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Query -->
+                    <div class="mb-6"><label class="block text-sm font-medium text-gray-300 mb-2">2. Fetch Data (SELECT Query)</label><textarea id="mysql-query" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm font-mono text-cyan-300" rows="3">select idtraductor, espaniol,zapoteco from traductor where espaniol like '%gupani' limit 10</textarea><button id="mysql-fetch-btn" class="mt-3 px-5 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Fetch Data</button></div>
+
+                    <!-- Step 3: Preview -->
+                    <div id="mysql-preview-container" class="hidden mb-6"><h3 class="text-lg font-semibold text-gray-300 mb-2">3. Data Preview</h3><div class="overflow-x-auto bg-gray-900 rounded-lg p-2"><table id="mysql-preview-table" class="w-full text-sm text-left text-gray-400"></table></div><div class="mt-2 text-xs">Headers: <span id="mysql-headers-list" class="text-cyan-400 font-mono"></span></div></div>
+
+                    <!-- Step 4: Rules -->
+                    <div id="mysql-rules-wrapper" class="hidden mb-6">
+                        <div class="p-4 bg-gray-700 rounded-lg border border-gray-600 mb-4"><h3 class="text-sm font-bold text-gray-300 mb-3">Target Database Table Setup</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label class="block text-xs text-gray-400 mb-1">Table Name to Update</label><input type="text" id="mysql-target-table" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm" placeholder="e.g., products"></div><div><label class="block text-xs text-gray-400 mb-1">Primary Key Column</label><select id="mysql-pk-col" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm"></select></div></div></div>
+                        <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-300">4. Processing Rules</h3><button id="add-mysql-rule-btn" class="px-3 py-1 bg-green-600 text-white rounded text-sm font-semibold">+ Add Rule</button></div>
+                        <div id="mysql-rules-container" class="flex flex-col gap-4"></div>
+                    </div>
+
+                    <!-- Step 5: Process Controls (Enhanced with dry-run, log buttons) -->
+                    <div id="mysql-actions-wrapper" class="hidden border-t border-gray-700 pt-6">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <button id="start-mysql-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700">Start Processing (Live DB)</button>
+                                <button id="dryrun-mysql-btn" class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700">🔍 Dry Run (JSON Only)</button>
+                                <button id="stop-mysql-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">Stop</button>
+                                
+                                <div class="flex items-center gap-2 border-l border-gray-600 pl-4">
+                                    <input type="checkbox" id="mysql-delay-checkbox" class="w-4 h-4 rounded"><label class="text-sm">Delay</label>
+                                    <input type="number" id="mysql-delay-input" class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm" value="1" step="0.1"><span class="text-sm">s</span>
+                                </div>
+                                <div class="flex items-center gap-2 ml-auto">
+                                    <input type="checkbox" id="mysql-debug-checkbox" class="w-4 h-4 rounded"><label class="text-sm">Show logs</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Log Management Bar (NEW) -->
+                            <div class="flex items-center gap-3 mt-2 pb-2 border-b border-gray-700">
+                                <span class="text-xs text-gray-400">Log Controls:</span>
+                                <button id="mysql-download-log-btn" class="px-3 py-1.5 bg-indigo-700 text-white rounded text-xs font-semibold hover:bg-indigo-600 flex items-center gap-1">📥 Download Log</button>
+                                <button id="mysql-clear-log-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 flex items-center gap-1">🗑️ Clear Log</button>
+                                <span id="mysql-log-size" class="text-xs text-gray-500 ml-2"></span>
+                            </div>
+
+                            <div id="mysql-progress-container" class="hidden w-full bg-gray-700 rounded-full h-4"><div id="mysql-progress-bar" class="bg-cyan-600 h-4 rounded-full transition-all" style="width:0%"></div></div>
+                            <div id="mysql-status" class="text-sm text-gray-400 font-mono"></div>
+                            <div id="mysql-debug-log" class="hidden w-full p-4 bg-gray-950 rounded-lg border border-gray-700 h-64 overflow-y-auto font-mono text-xs text-gray-400 whitespace-pre-wrap log-panel"></div>
+                            
+                            <!-- Dry Run JSON Download Button (appears after dry-run) -->
+                            <button id="mysql-download-json-btn" class="hidden w-full sm:w-auto self-start px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">📄 Download Dry Run Results (JSON)</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Commands Panel (unchanged) -->
+            <div id="panel-commands" role="tabpanel" class="hidden"><section class="bg-gray-800 rounded-xl shadow-lg p-6">...</section></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Storage keys (existing)
+            const STORAGE_KEY_MYSQL_PROXY = 'ollama_mysql_proxy';
+            const STORAGE_KEY_MYSQL_HOST = 'ollama_mysql_host';
+            const STORAGE_KEY_MYSQL_USER = 'ollama_mysql_user';
+            const STORAGE_KEY_MYSQL_DB = 'ollama_mysql_db';
+            const STORAGE_KEY_MYSQL_QUERY = 'ollama_mysql_query';
+            const STORAGE_KEY_MYSQL_TABLE = 'ollama_mysql_table';
+            
+            // DOM references (MySQL)
+            const mysqlProxyUrl = document.getElementById('mysql-proxy-url');
+            const mysqlHost = document.getElementById('mysql-host');
+            const mysqlUser = document.getElementById('mysql-user');
+            const mysqlPass = document.getElementById('mysql-pass');
+            const mysqlDb = document.getElementById('mysql-db');
+            const mysqlQuery = document.getElementById('mysql-query');
+            const mysqlFetchBtn = document.getElementById('mysql-fetch-btn');
+            const mysqlPreviewContainer = document.getElementById('mysql-preview-container');
+            const mysqlPreviewTable = document.getElementById('mysql-preview-table');
+            const mysqlHeadersList = document.getElementById('mysql-headers-list');
+            const mysqlRulesWrapper = document.getElementById('mysql-rules-wrapper');
+            const mysqlTargetTable = document.getElementById('mysql-target-table');
+            const mysqlPkCol = document.getElementById('mysql-pk-col');
+            const mysqlRulesContainer = document.getElementById('mysql-rules-container');
+            const addMysqlRuleBtn = document.getElementById('add-mysql-rule-btn');
+            const mysqlActionsWrapper = document.getElementById('mysql-actions-wrapper');
+            const startMysqlBtn = document.getElementById('start-mysql-btn');
+            const dryrunMysqlBtn = document.getElementById('dryrun-mysql-btn');
+            const stopMysqlBtn = document.getElementById('stop-mysql-btn');
+            const mysqlProgressContainer = document.getElementById('mysql-progress-container');
+            const mysqlProgressBar = document.getElementById('mysql-progress-bar');
+            const mysqlStatus = document.getElementById('mysql-status');
+            const mysqlDebugLog = document.getElementById('mysql-debug-log');
+            const mysqlDebugCheckbox = document.getElementById('mysql-debug-checkbox');
+            const mysqlDelayCheckbox = document.getElementById('mysql-delay-checkbox');
+            const mysqlDelayInput = document.getElementById('mysql-delay-input');
+            const mysqlDownloadLogBtn = document.getElementById('mysql-download-log-btn');
+            const mysqlClearLogBtn = document.getElementById('mysql-clear-log-btn');
+            const mysqlLogSizeSpan = document.getElementById('mysql-log-size');
+            const mysqlDownloadJsonBtn = document.getElementById('mysql-download-json-btn');
+            
+            // Shared state
+            let mysqlData = [];
+            let mysqlHeaders = [];
+            let mysqlStopRequested = false;
+            let currentDryRunResults = null; // store results for JSON download
+            
+            // Log storage (string buffer for download)
+            let logBuffer = "";
+            
+            function appendToLog(message, isError = false) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logLine = `[${timestamp}] ${message}\n`;
+                logBuffer += logLine;
+                if (mysqlDebugCheckbox.checked && mysqlDebugLog) {
+                    const logDiv = document.createElement('div');
+                    logDiv.className = `mb-1 ${isError ? 'text-red-400' : 'text-gray-400'} border-l-2 ${isError ? 'border-red-500' : 'border-cyan-500'} pl-2`;
+                    logDiv.textContent = message;
+                    mysqlDebugLog.appendChild(logDiv);
+                    mysqlDebugLog.scrollTop = mysqlDebugLog.scrollHeight;
+                }
+                if (mysqlLogSizeSpan) mysqlLogSizeSpan.textContent = `${(logBuffer.length / 1024).toFixed(1)} KB`;
+            }
+            
+            function clearLogs() {
+                logBuffer = "";
+                if (mysqlDebugLog) mysqlDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- MySQL Batch Log (Cleared) ---</div>';
+                if (mysqlLogSizeSpan) mysqlLogSizeSpan.textContent = "0 KB";
+                appendToLog("Log cleared.");
+            }
+            
+            function downloadLogs() {
+                if (!logBuffer.trim()) {
+                    appendToLog("No logs to download.");
+                    return;
+                }
+                const blob = new Blob([logBuffer], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mysql_batch_log_${new Date().toISOString().slice(0,19)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                appendToLog("Logs downloaded.");
+            }
+            
+            mysqlDownloadLogBtn.addEventListener('click', downloadLogs);
+            mysqlClearLogBtn.addEventListener('click', () => { clearLogs(); });
+            
+            // Helper: fetch & execute AI (shared with original)
+            const GEMINI_MODEL_NAME = 'gemini-2.5-flash-preview-09-2025';
+            const novaApiKeyInput = document.getElementById('nova-api-key');
+            const geminiApiKeyInput = document.getElementById('gemini-api-key');
+            const lmstudioEndpoint = document.getElementById('lmstudio-endpoint');
+            const ollamaEndpoint = document.getElementById('ollama-endpoint');
+            const modelSelect = document.getElementById('model-select');
+            
+            async function executeAIModel(model, prompt, onDebug) {
+                if (model === GEMINI_MODEL_NAME) return await callGemini(model, prompt, null, onDebug);
+                else if (model.toLowerCase().includes('nova')) return await callNova(model, prompt, null, false, onDebug);
+                else if (model.startsWith('lmstudio:')) return await callLMStudio(model.replace('lmstudio:', ''), prompt, null, false, onDebug);
+                else {
+                    const payload = { model: model, prompt: prompt, stream: false };
+                    if(onDebug) onDebug(payload);
+                    const res = await callOllama('/api/generate', payload);
+                    if (res && res.response) return res.response.trim();
+                    throw new Error("Ollama empty response");
+                }
+            }
+            
+            async function callGemini(model, prompt, systemInstruction, onDebug) {
+                const apiKey = geminiApiKeyInput?.value.trim();
+                if (!apiKey) throw new Error('Gemini API Key missing');
+                const contents = [{ role: 'user', parts: [{ text: prompt }] }];
+                const requestBody = { contents: contents };
+                if (systemInstruction) requestBody.system_instruction = { parts: [{ text: systemInstruction }] };
+                if (onDebug) onDebug(requestBody);
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+                if (!response.ok) throw new Error(`Gemini error ${response.status}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            }
+            
+            async function callNova(model, prompt, systemInstruction, stream, onDebug) {
+                const apiKey = novaApiKeyInput?.value.trim();
+                if (!apiKey) throw new Error('Nova API Key missing');
+                const messages = systemInstruction ? [{ role: "system", content: systemInstruction }, { role: "user", content: prompt }] : [{ role: "user", content: prompt }];
+                const payload = { model: model, messages: messages, stream: false };
+                if (onDebug) onDebug(payload);
+                const response = await fetch('https://api.nova.amazon.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`Nova error ${response.status}`);
+                const data = await response.json();
+                return data.choices?.[0]?.message?.content || "";
+            }
+            
+            async function callLMStudio(model, prompt, systemInstruction, stream, onDebug) {
+                const endpoint = lmstudioEndpoint?.value.replace(/\/+$/, '');
+                const messages = systemInstruction ? [{ role: "system", content: systemInstruction }, { role: "user", content: prompt }] : [{ role: "user", content: prompt }];
+                const payload = { model: model, messages: messages, stream: false };
+                if (onDebug) onDebug(payload);
+                const response = await fetch(`${endpoint}/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`LM Studio error ${response.status}`);
+                const data = await response.json();
+                return data.choices?.[0]?.message?.content || "";
+            }
+            
+            async function callOllama(apiPath, body) {
+                const endpoint = ollamaEndpoint?.value;
+                if (!endpoint) throw new Error("Ollama endpoint missing");
+                const url = new URL(endpoint); url.pathname = apiPath;
+                const response = await fetch(url.toString(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                if (!response.ok) throw new Error(`Ollama HTTP ${response.status}`);
+                return await response.json();
+            }
+            
+            // MySQL Fetch (unchanged)
+            mysqlFetchBtn.addEventListener('click', async () => {
+                const proxyUrl = mysqlProxyUrl.value.trim();
+                const host = mysqlHost.value.trim();
+                const user = mysqlUser.value.trim();
+                const pass = mysqlPass.value;
+                const db = mysqlDb.value.trim();
+                const query = mysqlQuery.value.trim();
+                if(!proxyUrl || !db || !query) { return showMessage("Proxy URL, DB Name, and Query are required.", "error"); }
+                localStorage.setItem(STORAGE_KEY_MYSQL_PROXY, proxyUrl);
+                localStorage.setItem(STORAGE_KEY_MYSQL_HOST, host);
+                localStorage.setItem(STORAGE_KEY_MYSQL_USER, user);
+                localStorage.setItem(STORAGE_KEY_MYSQL_DB, db);
+                localStorage.setItem(STORAGE_KEY_MYSQL_QUERY, query);
+                mysqlFetchBtn.textContent = 'Fetching...';
+                mysqlFetchBtn.disabled = true;
+                try {
+                    const payload = { action: 'fetch', config: { host, user, pass, db }, query: query };
+                    const response = await fetch(proxyUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const resData = await response.json();
+                    if(resData.error) throw new Error(resData.error);
+                    mysqlData = resData.data;
+                    mysqlHeaders = mysqlData.length > 0 ? Object.keys(mysqlData[0]) : [];
+                    renderMysqlPreview();
+                    mysqlPreviewContainer.classList.remove('hidden');
+                    mysqlRulesWrapper.classList.remove('hidden');
+                    mysqlActionsWrapper.classList.remove('hidden');
+                    mysqlRulesContainer.innerHTML = '';
+                    addMysqlRuleUI();
+                    appendToLog(`Fetched ${mysqlData.length} rows from MySQL.`);
+                } catch(e) { showMessage("MySQL Fetch Error: " + e.message, "error"); appendToLog(`Fetch error: ${e.message}`, true); }
+                finally { mysqlFetchBtn.textContent = 'Fetch Data'; mysqlFetchBtn.disabled = false; }
+            });
+            
+            function renderMysqlPreview() {
+                mysqlPreviewTable.innerHTML = '';
+                mysqlPkCol.innerHTML = '';
+                if (mysqlData.length === 0) return;
+                const thead = document.createElement('thead');
+                const trHead = document.createElement('tr');
+                trHead.className = 'bg-gray-800 text-xs uppercase';
+                mysqlHeaders.forEach(h => { const th = document.createElement('th'); th.className = 'px-4 py-2 font-medium text-cyan-500'; th.textContent = h; trHead.appendChild(th); const opt = document.createElement('option'); opt.value = h; opt.textContent = h; mysqlPkCol.appendChild(opt); });
+                thead.appendChild(trHead);
+                mysqlPreviewTable.appendChild(thead);
+                const tbody = document.createElement('tbody');
+                mysqlData.slice(0, 3).forEach(row => { const tr = document.createElement('tr'); mysqlHeaders.forEach(h => { const td = document.createElement('td'); td.className = 'px-4 py-2 truncate max-w-xs'; td.textContent = row[h] || ''; tr.appendChild(td); }); tbody.appendChild(tr); });
+                mysqlPreviewTable.appendChild(tbody);
+                mysqlHeadersList.textContent = mysqlHeaders.map(h => `{{${h}}}`).join(', ');
+            }
+            
+            function addMysqlRuleUI() {
+                const ruleId = Date.now() + Math.random();
+                const div = document.createElement('div');
+                div.className = 'bg-gray-700 p-4 rounded-lg border border-gray-600 relative flex flex-col gap-4';
+                div.dataset.ruleId = ruleId;
+                const headerOptions = mysqlHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
+                div.innerHTML = `
+                    <button class="absolute top-2 right-2 text-red-400 hover:text-red-300 text-sm font-bold delete-rule-btn">&times;</button>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div><h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Source Column</h4><select class="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 mysql-rule-var-col">${headerOptions}</select></div>
+                        <div><h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Variable Name</h4><input type="text" class="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-cyan-400 font-mono mysql-rule-var-name" placeholder="my_var" value="var_${Math.floor(ruleId)}"></div>
+                        <div><h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Target DB Column</h4><input type="text" class="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 mysql-rule-output-col" placeholder="ai_result"></div>
+                        <div class="sm:col-span-2"><h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Prompt Template</h4><textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm mysql-rule-prompt" rows="2" placeholder="Analyze: {{var_${Math.floor(ruleId)}}}"></textarea></div>
+                        <div><h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Model</h4><select class="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 mysql-rule-model"></select></div>
+                    </div>
+                `;
+                mysqlRulesContainer.appendChild(div);
+                const ruleModelSelect = div.querySelector('.mysql-rule-model');
+                if (modelSelect) Array.from(modelSelect.options).forEach(opt => ruleModelSelect.appendChild(opt.cloneNode(true)));
+                div.querySelector('.delete-rule-btn').addEventListener('click', () => div.remove());
+            }
+            addMysqlRuleBtn.addEventListener('click', () => addMysqlRuleUI());
+            
+            // Core processing function with dryRun flag
+            async function runMysqlProcessing(dryRun = false) {
+                const proxyUrl = mysqlProxyUrl.value.trim();
+                const host = mysqlHost.value.trim();
+                const user = mysqlUser.value.trim();
+                const pass = mysqlPass.value;
+                const db = mysqlDb.value.trim();
+                const tableToUpdate = mysqlTargetTable.value.trim();
+                const pkCol = mysqlPkCol.value;
+                if (!tableToUpdate && !dryRun) { showMessage("Table Name to Update is required for live DB update.", "error"); return; }
+                if (!pkCol && !dryRun) { showMessage("Primary Key column required for live update.", "error"); return; }
+                
+                const ruleDivs = document.querySelectorAll('#mysql-rules-container > div');
+                const rules = [];
+                ruleDivs.forEach(div => {
+                    const varCol = div.querySelector('.mysql-rule-var-col').value;
+                    const varName = div.querySelector('.mysql-rule-var-name').value.trim();
+                    const promptTemplate = div.querySelector('.mysql-rule-prompt').value;
+                    const outputCol = div.querySelector('.mysql-rule-output-col').value.trim();
+                    const model = div.querySelector('.mysql-rule-model').value;
+                    if (outputCol && promptTemplate) rules.push({ varCol, varName, promptTemplate, outputCol, model });
+                });
+                if (rules.length === 0) { showMessage('Please add at least one valid rule.', 'error'); return; }
+                
+                startMysqlBtn.classList.add('hidden');
+                dryrunMysqlBtn.classList.add('hidden');
+                stopMysqlBtn.classList.remove('hidden');
+                mysqlProgressContainer.classList.remove('hidden');
+                mysqlDownloadJsonBtn.classList.add('hidden');
+                if (mysqlDebugCheckbox.checked) mysqlDebugLog.classList.remove('hidden');
+                else mysqlDebugLog.classList.add('hidden');
+                mysqlStopRequested = false;
+                mysqlStatus.textContent = dryRun ? 'Dry Run Starting (no DB writes)...' : 'Starting Live Update...';
+                mysqlProgressBar.style.width = '0%';
+                const total = mysqlData.length;
+                const dryRunResults = [];
+                
+                for (let i = 0; i < total; i++) {
+                    if (mysqlStopRequested) { mysqlStatus.textContent = 'Stopped by user.'; appendToLog("Processing stopped by user."); break; }
+                    const row = mysqlData[i];
+                    const rowUpdates = { rowIndex: i, pkValue: row[pkCol], updates: {} };
+                    for (const rule of rules) {
+                        const varValue = row[rule.varCol] || '';
+                        let prompt = rule.promptTemplate.replace(new RegExp(`{{${rule.varName}}}`, 'g'), varValue);
+                        mysqlHeaders.forEach(h => { prompt = prompt.replace(new RegExp(`{{${h}}}`, 'g'), row[h] || ''); });
+                        const onDebug = (payload) => { if (mysqlDebugCheckbox.checked) appendToLog(`[Row ${i+1}] ${rule.outputCol} REQ: ${JSON.stringify(payload).substring(0, 200)}`); };
+                        try {
+                            const resultText = await executeAIModel(rule.model, prompt, onDebug);
+                            rowUpdates.updates[rule.outputCol] = resultText;
+                            appendToLog(`[Row ${i+1}] ${rule.outputCol} → ${resultText.substring(0, 80)}...`);
+                        } catch (err) { rowUpdates.updates[rule.outputCol] = `ERROR: ${err.message}`; appendToLog(`[Row ${i+1}] ${rule.outputCol} ERROR: ${err.message}`, true); }
+                    }
+                    if (dryRun) {
+                        dryRunResults.push({ pk: row[pkCol], original_row: row, ai_updates: rowUpdates.updates });
+                    } else {
+                        // Live DB update
+                        if (Object.keys(rowUpdates.updates).length > 0) {
+                            try {
+                                const updatePayload = { action: 'update', config: { host, user, pass, db }, table: tableToUpdate, updates: rowUpdates.updates, where: { [pkCol]: row[pkCol] } };
+                                const proxyRes = await fetch(proxyUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatePayload) });
+                                const proxyData = await proxyRes.json();
+                                if (proxyData.error) throw new Error(proxyData.error);
+                                appendToLog(`[Row ${i+1}] DB updated successfully.`);
+                            } catch (err) { appendToLog(`[Row ${i+1}] DB update failed: ${err.message}`, true); }
+                        }
+                    }
+                    const percent = Math.round(((i + 1) / total) * 100);
+                    mysqlProgressBar.style.width = `${percent}%`;
+                    mysqlStatus.textContent = `${dryRun ? 'Dry Run' : 'Processing'} row ${i+1}/${total}...`;
+                    if (mysqlDelayCheckbox.checked && i < total-1 && !mysqlStopRequested) {
+                        const delaySec = parseFloat(mysqlDelayInput.value) || 0;
+                        if (delaySec > 0) await new Promise(r => setTimeout(r, delaySec * 1000));
+                    }
+                }
+                
+                if (dryRun) {
+                    currentDryRunResults = dryRunResults;
+                    mysqlDownloadJsonBtn.classList.remove('hidden');
+                    mysqlStatus.textContent = `Dry Run Complete! Processed ${dryRunResults.length} rows. Click "Download Dry Run Results" to save JSON.`;
+                    appendToLog(`Dry run finished. ${dryRunResults.length} rows simulated.`);
+                } else {
+                    if (!mysqlStopRequested) mysqlStatus.textContent = 'Processing Complete!';
+                    else mysqlStatus.textContent = 'Stopped by user.';
+                    appendToLog(`Live processing finished.`);
+                }
+                
+                startMysqlBtn.classList.remove('hidden');
+                dryrunMysqlBtn.classList.remove('hidden');
+                stopMysqlBtn.classList.add('hidden');
+            }
+            
+            startMysqlBtn.addEventListener('click', () => runMysqlProcessing(false));
+            dryrunMysqlBtn.addEventListener('click', () => runMysqlProcessing(true));
+            stopMysqlBtn.addEventListener('click', () => { mysqlStopRequested = true; appendToLog("Stop requested."); });
+            
+            mysqlDownloadJsonBtn.addEventListener('click', () => {
+                if (!currentDryRunResults) { appendToLog("No dry run results available.", true); return; }
+                const jsonStr = JSON.stringify(currentDryRunResults, null, 2);
+                const blob = new Blob([jsonStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mysql_dryrun_${new Date().toISOString().slice(0,19)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                appendToLog("Dry run JSON downloaded.");
+            });
+            
+            function showMessage(msg, type) {
+                const statusDiv = document.getElementById('connection-status') || mysqlStatus;
+                if (statusDiv) statusDiv.textContent = msg;
+                console.log(msg);
+            }
+            
+            // Load saved MySQL values
+            if(localStorage.getItem(STORAGE_KEY_MYSQL_PROXY)) mysqlProxyUrl.value = localStorage.getItem(STORAGE_KEY_MYSQL_PROXY);
+            if(localStorage.getItem(STORAGE_KEY_MYSQL_HOST)) mysqlHost.value = localStorage.getItem(STORAGE_KEY_MYSQL_HOST);
+            if(localStorage.getItem(STORAGE_KEY_MYSQL_USER)) mysqlUser.value = localStorage.getItem(STORAGE_KEY_MYSQL_USER);
+            if(localStorage.getItem(STORAGE_KEY_MYSQL_DB)) mysqlDb.value = localStorage.getItem(STORAGE_KEY_MYSQL_DB);
+            if(localStorage.getItem(STORAGE_KEY_MYSQL_QUERY)) mysqlQuery.value = localStorage.getItem(STORAGE_KEY_MYSQL_QUERY);
+            if(localStorage.getItem(STORAGE_KEY_MYSQL_TABLE)) mysqlTargetTable.value = localStorage.getItem(STORAGE_KEY_MYSQL_TABLE);
+            
+            // Tab switching (minimal)
+            const tabChat = document.getElementById('tab-chat'), tabAnalysis = document.getElementById('tab-analysis'), tabBatch = document.getElementById('tab-batch'), tabMysql = document.getElementById('tab-mysql'), tabCommands = document.getElementById('tab-commands');
+            const panelChat = document.getElementById('panel-chat'), panelAnalysis = document.getElementById('panel-analysis'), panelBatch = document.getElementById('panel-batch'), panelMysql = document.getElementById('panel-mysql'), panelCommands = document.getElementById('panel-commands');
+            const activeTabClasses = ['border-cyan-500', 'text-cyan-400'];
+            const inactiveTabClasses = ['border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300'];
+            function switchTab(newTab, newPanel) { [tabChat, tabAnalysis, tabBatch, tabMysql, tabCommands].forEach(t => { t.setAttribute('aria-selected', 'false'); t.classList.remove(...activeTabClasses); t.classList.add(...inactiveTabClasses); }); [panelChat, panelAnalysis, panelBatch, panelMysql, panelCommands].forEach(p => p.classList.add('hidden')); newTab.setAttribute('aria-selected', 'true'); newTab.classList.add(...activeTabClasses); newTab.classList.remove(...inactiveTabClasses); newPanel.classList.remove('hidden'); }
+            tabChat.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabChat, panelChat); });
+            tabAnalysis.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabAnalysis, panelAnalysis); });
+            tabBatch.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabBatch, panelBatch); });
+            tabMysql.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabMysql, panelMysql); });
+            tabCommands.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabCommands, panelCommands); });
+            
+            // Initial log welcome
+            appendToLog("MySQL Batch module ready. Use Dry Run to test without affecting DB.");
+        });
+    </script>
+</body>
+</html>
