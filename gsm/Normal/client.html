@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Stream Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .video-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            margin-bottom: 20px;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .status.connecting {
+            background: rgba(33,150,243,0.2);
+            border-left: 3px solid #2196f3;
+        }
+
+        .status.connected {
+            background: rgba(76,175,80,0.2);
+            border-left: 3px solid #4caf50;
+        }
+
+        .status.error {
+            background: rgba(244,67,54,0.2);
+            border-left: 3px solid #f44336;
+        }
+
+        .room-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .connecting-animation {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-card">
+            <h1>🎬 Live Stream Viewer</h1>
+            
+            <div class="video-wrapper">
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+            
+            <div class="controls">
+                <button id="reconnectBtn">🔄 Reconnect</button>
+                <button id="fullscreenBtn">⛶ Fullscreen</button>
+            </div>
+            
+            <div id="status" class="status connecting">
+                🔍 Connecting to stream...
+            </div>
+            
+            <div id="roomInfo" class="room-info"></div>
+        </div>
+    </div>
+
+    <script>
+        const remoteVideo = document.getElementById('remoteVideo');
+        const statusDiv = document.getElementById('status');
+        const roomInfoDiv = document.getElementById('roomInfo');
+        const reconnectBtn = document.getElementById('reconnectBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        
+        let peerConnection = null;
+        let currentRoomId = null;
+        let reconnectAttempts = 0;
+        let reconnectTimeout = null;
+        
+        // Configuration for WebRTC
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+        
+        // Get room ID from URL
+        function getRoomIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('room');
+        }
+        
+        // Connect to stream
+        async function connectToStream() {
+            const roomId = getRoomIdFromUrl();
+            
+            if (!roomId) {
+                statusDiv.textContent = '❌ No room ID specified. Please provide a valid stream URL.';
+                statusDiv.className = 'status error';
+                roomInfoDiv.textContent = 'Invalid URL. The stream URL should contain a room parameter.';
+                return;
+            }
+            
+            currentRoomId = roomId;
+            roomInfoDiv.textContent = `Room ID: ${roomId}`;
+            
+            try {
+                // Get stream data from localStorage
+                const streamDataStr = localStorage.getItem(`stream_${roomId}`);
+                
+                if (!streamDataStr) {
+                    statusDiv.textContent = '⏳ Waiting for stream to become available...';
+                    statusDiv.className = 'status connecting';
+                    statusDiv.classList.add('connecting-animation');
+                    
+                    // Poll for stream availability
+                    if (reconnectTimeout) clearTimeout(reconnectTimeout);
+                    reconnectTimeout = setTimeout(() => {
+                        if (reconnectAttempts < 30) { // Try for 30 seconds
+                            reconnectAttempts++;
+                            connectToStream();
+                        } else {
+                            statusDiv.textContent = '❌ Stream not available. Make sure the broadcaster has started the stream.';
+                            statusDiv.className = 'status error';
+                            statusDiv.classList.remove('connecting-animation');
+                        }
+                    }, 1000);
+                    return;
+                }
+                
+                statusDiv.classList.remove('connecting-animation');
+                const streamData = JSON.parse(streamDataStr);
+                
+                // Create peer connection
+                if (peerConnection) {
+                    peerConnection.close();
+                }
+                
+                peerConnection = new RTCPeerConnection(configuration);
+                
+                // Handle incoming tracks
+                peerConnection.ontrack = (event) => {
+                    if (event.streams && event.streams[0]) {
+                        remoteVideo.srcObject = event.streams[0];
+                        statusDiv.textContent = '✅ Connected! Watching live stream.';
+                        statusDiv.className = 'status connected';
+                        console.log('Stream connected successfully');
+                    }
+                };
+                
+                // Handle connection state changes
+                peerConnection.oniceconnectionstatechange = () => {
+                    console.log('ICE Connection State:', peerConnection.iceConnectionState);
+                    if (peerConnection.iceConnectionState === 'disconnected') {
+                        statusDiv.textContent = '⚠️ Connection lost. Attempting to reconnect...';
+                        statusDiv.className = 'status connecting';
+                        reconnectToStream();
+                    } else if (peerConnection.iceConnectionState === 'connected') {
+                        statusDiv.textContent = '✅ Connected! Watching live stream.';
+                        statusDiv.className = 'status connected';
+                    }
+                };
+                
+                // Set remote description
+                await peerConnection.setRemoteDescription({
+                    type: streamData.type,
+                    sdp: streamData.sdp
+                });
+                
+                // Create and send answer
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                // Store answer for broadcaster
+                localStorage.setItem(`answer_${roomId}`, JSON.stringify({
+                    type: answer.type,
+                    sdp: answer.sdp
+                }));
+                
+                // Clean up answer after 5 seconds
+                setTimeout(() => {
+                    localStorage.removeItem(`answer_${roomId}`);
+                }, 5000);
+                
+                statusDiv.textContent = '🔗 Establishing connection...';
+                
+            } catch (error) {
+                console.error('Error connecting to stream:', error);
+                statusDiv.textContent = '❌ Connection failed: ' + error.message;
+                statusDiv.className = 'status error';
+            }
+        }
+        
+        // Reconnect to stream
+        function reconnectToStream() {
+            if (reconnectTimeout) clearTimeout(reconnectTimeout);
+            reconnectTimeout = setTimeout(() => {
+                connectToStream();
+            }, 3000);
+        }
+        
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fullscreenBtn.textContent = '✕ Exit Fullscreen';
+            } else {
+                document.exitFullscreen();
+                fullscreenBtn.textContent = '⛶ Fullscreen';
+            }
+        }
+        
+        // Handle fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                fullscreenBtn.textContent = '✕ Exit Fullscreen';
+            } else {
+                fullscreenBtn.textContent = '⛶ Fullscreen';
+            }
+        });
+        
+        // Event listeners
+        reconnectBtn.addEventListener('click', () => {
+            reconnectAttempts = 0;
+            connectToStream();
+        });
+        
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        
+        // Initialize connection
+        connectToStream();
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+            }
+        });
+    </script>
+</body>
+</html>
