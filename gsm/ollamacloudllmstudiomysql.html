@@ -485,7 +485,7 @@
                     <!-- Step 2: Query -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-300 mb-2">2. Fetch Data (SELECT Query)</label>
-                        <textarea id="mysql-query" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm font-mono text-cyan-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none" rows="3" placeholder="SELECT id, title, description FROM products WHERE ai_summary IS NULL LIMIT 50;"></textarea>
+                        <textarea id="mysql-query" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm font-mono text-cyan-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none" rows="3" placeholder="SELECT id, title, description FROM products WHERE ai_summary IS NULL LIMIT 50;" value="select idtraductor, espaniol,zapoteco from traductor where espaniol like '%gupani' limit 10"></textarea>
                         <button id="mysql-fetch-btn" class="mt-3 px-5 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition">Fetch Data</button>
                     </div>
 
@@ -1131,7 +1131,7 @@
                         <div class="sm:col-span-2">
                              <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step B: Write Prompt</h4>
                             <label class="block text-xs text-gray-500 mb-1">Prompt Template</label>
-                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-prompt" rows="3" placeholder="Analyze this: {{var_${Math.floor(ruleId)}}}"></textarea>
+                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500 rule-prompt" rows="3" placeholder="Analyze this: {{var_${Math.floor(ruleId)}}}" value="Analyze this text '{{var_${Math.floor(ruleId)}}' if the text does not start with capital letter, add the capital letter, else just show the text as is. Just show the result."></textarea>
                         </div>
                         <div>
                              <h4 class="text-xs uppercase text-gray-400 font-bold mb-2">Step C: Output</h4>
