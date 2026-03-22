@@ -1944,7 +1944,7 @@
 
                     // Create a new controller if no signal provided, with timeout
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_LOCAL);
+                    const timeoutId = setTimeout(() => controller.abort(), (TIMEOUT_LOCAL*3));
                     
                     const effectiveSignal = signal || controller.signal;
                     
