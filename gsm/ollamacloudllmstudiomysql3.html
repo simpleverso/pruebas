@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal AI Client (Ollama, Gemini, Nova, LM Studio, MySQL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .chat-history::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-history::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        .chat-history::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+
+    <div class="container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+
+        <header class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Universal AI Client</h1>
+            <p class="text-lg text-gray-400 mt-2">Ollama • LM Studio • Google Gemini • Amazon Nova • MySQL Batch</p>
+        </header>
+
+        <div class="mb-4 border-b border-gray-700">
+            <nav class="-mb-px flex space-x-8 overflow-x-auto" role="tablist">
+                <button id="tab-chat" role="tab" aria-selected="true"
+                    class="border-cyan-500 text-cyan-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Chat
+                </button>
+                <button id="tab-analysis" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Text Analysis
+                </button>
+                <button id="tab-batch" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Excel/CSV Batch
+                </button>
+                <button id="tab-mysql" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    MySQL Batch
+                </button>
+                <button id="tab-commands" role="tab" aria-selected="false"
+                    class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none">
+                    Commands (Ollama)
+                </button>
+            </nav>
+        </div>
+
+        <div>
+            <!-- Chat Panel -->
+            <div id="panel-chat" role="tabpanel">
+                <section class="flex flex-col gap-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-3xl font-bold text-cyan-400">Multi-Chat</h2>
+                        <button id="new-chat-btn" class="px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">New Chat</button>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Panel A -->
+                        <div class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
+                            <h3 class="text-xl font-semibold text-gray-300">Panel A</h3>
+                            <div class="flex flex-col">
+                                <label class="text-sm font-medium text-gray-300 mb-1">Model</label>
+                                <select id="chat-model-select-a" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100">
+                                    <option>Loading models...</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-sm font-medium text-gray-300 mb-1">System Prompt</label>
+                                <div class="flex gap-2">
+                                    <textarea id="chat-system-prompt-a" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100"></textarea>
+                                    <button id="save-prompt-btn-a" class="px-3 py-2 bg-blue-600 text-white rounded-lg">Save</button>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <label class="text-sm font-medium text-gray-300 py-2">Session:</label>
+                                <select id="chat-select-a" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100"></select>
+                                <button id="delete-chat-btn-a" class="px-3 py-2 bg-red-600 text-white rounded-lg">Del</button>
+                            </div>
+                            <div id="chat-history-a" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto"></div>
+                            <div class="flex gap-2">
+                                <input id="chat-input-a" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100" placeholder="Type message...">
+                                <button id="chat-send-btn-a" class="px-6 py-3 bg-cyan-600 text-white rounded-lg">Send</button>
+                                <button id="chat-clear-btn-a" class="px-4 py-3 bg-yellow-600 text-white rounded-lg">Clear</button>
+                            </div>
+                        </div>
+                        <!-- Panel B -->
+                        <div class="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-4">
+                            <h3 class="text-xl font-semibold text-gray-300">Panel B</h3>
+                            <div class="flex flex-col">
+                                <label class="text-sm font-medium text-gray-300 mb-1">Model</label>
+                                <select id="chat-model-select-b" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100">
+                                    <option>Loading models...</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-sm font-medium text-gray-300 mb-1">System Prompt</label>
+                                <div class="flex gap-2">
+                                    <textarea id="chat-system-prompt-b" rows="2" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100"></textarea>
+                                    <button id="save-prompt-btn-b" class="px-3 py-2 bg-blue-600 text-white rounded-lg">Save</button>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <label class="text-sm font-medium text-gray-300 py-2">Session:</label>
+                                <select id="chat-select-b" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-gray-100"></select>
+                                <button id="delete-chat-btn-b" class="px-3 py-2 bg-red-600 text-white rounded-lg">Del</button>
+                            </div>
+                            <div id="chat-history-b" class="chat-history h-96 bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-y-auto"></div>
+                            <div class="flex gap-2">
+                                <input id="chat-input-b" type="text" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100" placeholder="Type message...">
+                                <button id="chat-send-btn-b" class="px-6 py-3 bg-cyan-600 text-white rounded-lg">Send</button>
+                                <button id="chat-clear-btn-b" class="px-4 py-3 bg-yellow-600 text-white rounded-lg">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Analysis Panel -->
+            <div id="panel-analysis" role="tabpanel" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuration & Analysis</h2>
+                    <div class="bg-yellow-900 border border-yellow-700 text-yellow-200 px-4 py-3 rounded-lg mb-4">
+                        <strong>Setup Notes:</strong> Ollama requires `OLLAMA_ORIGINS='*' ollama serve`. LM Studio needs CORS enabled.
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2 flex flex-col gap-4">
+                            <div><label class="block text-sm font-medium text-gray-300 mb-2">Ollama Endpoint</label><input type="text" id="ollama-endpoint" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100" value="http://localhost:11434"></div>
+                            <div><label class="block text-sm font-medium text-gray-300 mb-2">LM Studio Endpoint</label><input type="text" id="lmstudio-endpoint" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100" value="http://localhost:1234/v1"></div>
+                            <div><label class="block text-sm font-medium text-gray-300 mb-2">Gemini API Key</label><input type="password" id="gemini-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100"></div>
+                            <div><label class="block text-sm font-medium text-gray-300 mb-2">Nova API Key</label><input type="password" id="nova-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100"></div>
+                        </div>
+                        <div><label class="block text-sm font-medium text-gray-300 mb-2">Default Model</label><select id="model-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100"></select></div>
+                    </div>
+                    <div class="mt-4 flex gap-4">
+                        <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg">Reload Models</button>
+                        <div class="flex items-center"><input type="checkbox" id="debug-mode-checkbox" class="w-4 h-4"><label class="ml-2 text-sm text-gray-300">Debug Mode</label></div>
+                    </div>
+                    <div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt</label><textarea id="system-prompt" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100"></textarea></div>
+                    <div id="connection-status" class="mt-4 text-sm"></div>
+                    <hr class="border-t border-gray-700 my-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Text to Analyze</h2>
+                    <div class="flex flex-col gap-4">
+                        <div><label class="block text-sm font-medium text-gray-300">Text</label><textarea id="analysis-input" rows="6" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100"></textarea></div>
+                        <div class="flex gap-4"><input type="checkbox" id="analysis-stream-checkbox" checked><label class="text-sm text-gray-300">Stream Response</label><button id="analyze-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg">Analyze</button><button id="stop-analysis-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg">Stop</button></div>
+                        <div><label class="block text-sm font-medium text-gray-300">Result</label><textarea id="analysis-output" rows="6" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300" readonly></textarea></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Excel/CSV Batch Panel -->
+            <div id="panel-batch" role="tabpanel" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">Excel/CSV Batch Processing</h2>
+                    <div class="mb-6"><input type="file" id="batch-file-input" accept=".csv,.xlsx,.xls" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-cyan-600 file:text-white hover:file:bg-cyan-700"></div>
+                    <div id="batch-preview-container" class="hidden mb-6"><h3 class="text-lg font-semibold text-gray-300 mb-2">Preview</h3><div class="overflow-x-auto"><table id="batch-preview-table" class="w-full text-sm"></table></div></div>
+                    <div id="batch-rules-wrapper" class="hidden mb-6"><div class="flex justify-between mb-4"><h3 class="text-lg font-semibold text-gray-300">Rules</h3><button id="add-rule-btn" class="px-3 py-1 bg-green-600 text-white rounded">+ Add Rule</button></div><div id="rules-container" class="flex flex-col gap-4"></div></div>
+                    <div id="batch-actions-wrapper" class="hidden"><button id="start-batch-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg">Start Processing</button><button id="stop-batch-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg">Stop</button><div id="batch-progress-container" class="hidden mt-4"><div id="batch-progress-bar" class="bg-cyan-600 h-4 rounded-full" style="width:0%"></div></div><div id="batch-status" class="mt-2 text-sm"></div><button id="download-batch-btn" class="hidden mt-4 px-6 py-3 bg-green-600 text-white rounded-lg">Download</button></div>
+                </section>
+            </div>
+
+            <!-- MySQL Batch Panel - Updated to work with mysql_proxy.php -->
+            <div id="panel-mysql" role="tabpanel" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4">MySQL Batch Processing</h2>
+                    <p class="text-sm text-gray-400 mb-6">Read from MySQL via proxy, process with AI, and update the database directly.</p>
+
+                    <!-- Connection Settings -->
+                    <div class="mb-6 p-4 bg-gray-700 rounded-lg border border-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-4">1. Database Connection</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="lg:col-span-2">
+                                <label class="block text-xs text-gray-400 mb-1">PHP Proxy URL</label>
+                                <input type="text" id="mysql-proxy-url" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200" placeholder="http://your-server.com/mysql_proxy.php">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Host</label>
+                                <input type="text" id="mysql-host" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200" value="127.0.0.1">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">User</label>
+                                <input type="text" id="mysql-user" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Password</label>
+                                <input type="password" id="mysql-pass" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Database</label>
+                                <input type="text" id="mysql-db" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200">
+                            </div>
+                        </div>
+                        <button id="mysql-test-btn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Test Connection</button>
+                        <span id="mysql-test-status" class="ml-3 text-sm"></span>
+                    </div>
+
+                    <!-- Query Section -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">2. SELECT Query (to fetch data)</label>
+                        <textarea id="mysql-query" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm font-mono text-cyan-300" rows="3" placeholder="SELECT id, title, description FROM products WHERE ai_summary IS NULL LIMIT 50"></textarea>
+                        <button id="mysql-fetch-btn" class="mt-3 px-5 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Fetch Data</button>
+                    </div>
+
+                    <!-- Data Preview -->
+                    <div id="mysql-preview-container" class="hidden mb-6">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">3. Data Preview (First 5 rows)</h3>
+                        <div class="overflow-x-auto bg-gray-900 rounded-lg p-2 border border-gray-700">
+                            <table id="mysql-preview-table" class="w-full text-sm text-left text-gray-400"></table>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">Columns: <span id="mysql-headers-list" class="text-cyan-400 font-mono"></span> | Total: <span id="mysql-total-rows">0</span> rows</div>
+                    </div>
+
+                    <!-- Rules Section -->
+                    <div id="mysql-rules-wrapper" class="hidden mb-6">
+                        <div class="p-4 bg-gray-700 rounded-lg border border-gray-600 mb-4">
+                            <h3 class="text-sm font-bold text-gray-300 mb-3">Target Table Configuration</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Table to Update</label>
+                                    <input type="text" id="mysql-target-table" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200" placeholder="products">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Primary Key Column (for WHERE clause)</label>
+                                    <select id="mysql-pk-col" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-300">4. Processing Rules</h3>
+                            <button id="add-mysql-rule-btn" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">+ Add Rule</button>
+                        </div>
+                        <div id="mysql-rules-container" class="flex flex-col gap-4"></div>
+                    </div>
+
+                    <!-- Process Section -->
+                    <div id="mysql-actions-wrapper" class="hidden border-t border-gray-700 pt-6">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-4 flex-wrap">
+                                <button id="start-mysql-btn" class="px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700">Start Processing</button>
+                                <button id="stop-mysql-btn" class="hidden px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">Stop</button>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="mysql-delay-checkbox" class="w-4 h-4">
+                                    <label class="text-sm text-gray-300">Delay</label>
+                                    <input type="number" id="mysql-delay-input" class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm" value="1" min="0.1" step="0.1">
+                                    <span class="text-sm">s</span>
+                                </div>
+                                <div class="flex items-center gap-2 ml-auto">
+                                    <input type="checkbox" id="mysql-debug-checkbox" class="w-4 h-4">
+                                    <label class="text-sm text-gray-300">Debug Log</label>
+                                </div>
+                            </div>
+                            <div id="mysql-progress-container" class="hidden w-full bg-gray-700 rounded-full h-4">
+                                <div id="mysql-progress-bar" class="bg-cyan-600 h-4 rounded-full transition-all" style="width: 0%"></div>
+                            </div>
+                            <div id="mysql-status" class="text-sm text-gray-400 font-mono"></div>
+                            <div id="mysql-debug-log" class="hidden w-full p-4 bg-gray-950 rounded-lg border border-gray-700 h-64 overflow-y-auto font-mono text-xs text-gray-400 whitespace-pre-wrap"></div>
+                            <div id="mysql-results-summary" class="hidden bg-gray-700 p-4 rounded-lg">
+                                <h4 class="text-sm font-bold text-cyan-400 mb-2">Results</h4>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div><span class="text-xs">Processed:</span><br><span id="mysql-rows-processed" class="text-lg font-bold">0</span></div>
+                                    <div><span class="text-xs">Updated:</span><br><span id="mysql-rows-updated" class="text-lg font-bold text-green-400">0</span></div>
+                                    <div><span class="text-xs">Errors:</span><br><span id="mysql-rows-errors" class="text-lg font-bold text-red-400">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Commands Panel -->
+            <div id="panel-commands" role="tabpanel" class="hidden">
+                <section class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-6">Ollama Command Center</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div><div class="bg-gray-700 p-4 rounded-lg"><h3 class="text-lg font-semibold mb-4">Pull Model</h3><div class="flex gap-2"><input id="cmd-pull-model-name" class="flex-grow bg-gray-800 border border-gray-600 rounded p-2"><button id="cmd-pull-btn" class="px-4 py-2 bg-cyan-600 rounded">Pull</button></div><div id="cmd-pull-log" class="h-32 bg-gray-900 rounded p-2 text-xs text-green-400 overflow-auto mt-2"></div></div>
+                        <div class="bg-gray-700 p-4 rounded-lg mt-4"><div class="flex justify-between"><h3 class="text-lg font-semibold">Models</h3><button id="cmd-refresh-list-btn" class="text-xs bg-gray-600 px-2 py-1 rounded">Refresh</button></div><div class="overflow-auto max-h-64 mt-2"><table class="w-full text-sm"><thead><tr><th>Name</th><th>Size</th><th></th></tr></thead><tbody id="cmd-model-list-body"></tbody></table></div></div></div>
+                        <div class="bg-gray-700 p-4 rounded-lg"><h3 class="text-lg font-semibold mb-4">Raw API Tester</h3><div class="grid grid-cols-3 gap-2"><select id="cmd-raw-method" class="bg-gray-800 border border-gray-600 rounded p-2"><option>GET</option><option selected>POST</option><option>DELETE</option></select><input id="cmd-raw-path" class="col-span-2 bg-gray-800 border border-gray-600 rounded p-2" value="/api/generate"></div><textarea id="cmd-raw-body" class="w-full bg-gray-900 border border-gray-600 rounded p-2 h-32 mt-2 text-xs font-mono" placeholder='{"model": "llama3", "prompt": "Hi"}'></textarea><button id="cmd-raw-send-btn" class="w-full mt-2 py-2 bg-blue-600 rounded">Send</button><div id="cmd-raw-response" class="mt-2 bg-gray-950 rounded p-2 h-48 overflow-auto text-xs font-mono text-yellow-400"></div></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Storage Keys
+            const STORAGE_KEYS = {
+                endpoint: 'ollama_endpoint', lmstudio: 'lmstudio_endpoint', gemini: 'gemini_api_key',
+                nova: 'nova_api_key', model: 'ollama_model', systemPrompt: 'ollama_system_prompt',
+                analysisInput: 'ollama_analysis_input', chatSessions: 'ollama_chat_sessions',
+                activeChatA: 'ollama_active_chat_a', activeChatB: 'ollama_active_chat_b',
+                debugMode: 'ollama_debug_mode', batchRules: 'ollama_batch_rules',
+                mysqlProxy: 'mysql_proxy_url', mysqlHost: 'mysql_host', mysqlUser: 'mysql_user',
+                mysqlDb: 'mysql_db', mysqlQuery: 'mysql_query', mysqlTable: 'mysql_target_table'
+            };
+
+            // DOM Elements
+            const ollamaEndpoint = document.getElementById('ollama-endpoint');
+            const lmstudioEndpoint = document.getElementById('lmstudio-endpoint');
+            const geminiApiKey = document.getElementById('gemini-api-key');
+            const novaApiKey = document.getElementById('nova-api-key');
+            const modelSelect = document.getElementById('model-select');
+            const systemPrompt = document.getElementById('system-prompt');
+            const debugMode = document.getElementById('debug-mode-checkbox');
+            const analysisInput = document.getElementById('analysis-input');
+            const analysisOutput = document.getElementById('analysis-output');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const stopAnalysisBtn = document.getElementById('stop-analysis-btn');
+            const analysisStream = document.getElementById('analysis-stream-checkbox');
+
+            // MySQL Elements
+            const mysqlProxyUrl = document.getElementById('mysql-proxy-url');
+            const mysqlHost = document.getElementById('mysql-host');
+            const mysqlUser = document.getElementById('mysql-user');
+            const mysqlPass = document.getElementById('mysql-pass');
+            const mysqlDb = document.getElementById('mysql-db');
+            const mysqlQuery = document.getElementById('mysql-query');
+            const mysqlFetchBtn = document.getElementById('mysql-fetch-btn');
+            const mysqlTestBtn = document.getElementById('mysql-test-btn');
+            const mysqlTestStatus = document.getElementById('mysql-test-status');
+            const mysqlPreviewContainer = document.getElementById('mysql-preview-container');
+            const mysqlPreviewTable = document.getElementById('mysql-preview-table');
+            const mysqlHeadersList = document.getElementById('mysql-headers-list');
+            const mysqlTotalRows = document.getElementById('mysql-total-rows');
+            const mysqlRulesWrapper = document.getElementById('mysql-rules-wrapper');
+            const mysqlTargetTable = document.getElementById('mysql-target-table');
+            const mysqlPkCol = document.getElementById('mysql-pk-col');
+            const mysqlRulesContainer = document.getElementById('mysql-rules-container');
+            const addMysqlRuleBtn = document.getElementById('add-mysql-rule-btn');
+            const mysqlActionsWrapper = document.getElementById('mysql-actions-wrapper');
+            const startMysqlBtn = document.getElementById('start-mysql-btn');
+            const stopMysqlBtn = document.getElementById('stop-mysql-btn');
+            const mysqlProgressContainer = document.getElementById('mysql-progress-container');
+            const mysqlProgressBar = document.getElementById('mysql-progress-bar');
+            const mysqlStatus = document.getElementById('mysql-status');
+            const mysqlDebugLog = document.getElementById('mysql-debug-log');
+            const mysqlDebugCheckbox = document.getElementById('mysql-debug-checkbox');
+            const mysqlDelayCheckbox = document.getElementById('mysql-delay-checkbox');
+            const mysqlDelayInput = document.getElementById('mysql-delay-input');
+            const mysqlResultsSummary = document.getElementById('mysql-results-summary');
+            const mysqlRowsProcessed = document.getElementById('mysql-rows-processed');
+            const mysqlRowsUpdated = document.getElementById('mysql-rows-updated');
+            const mysqlRowsErrors = document.getElementById('mysql-rows-errors');
+
+            // State
+            let mysqlData = [];
+            let mysqlHeaders = [];
+            let mysqlStopRequested = false;
+            let mysqlProcessingResults = { processed: 0, updated: 0, errors: 0 };
+            let analysisAbortController = null;
+            let currentData = [];
+            let currentHeaders = [];
+            let batchStopRequested = false;
+
+            // Constants
+            const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
+
+            // Load saved values
+            if (localStorage.getItem(STORAGE_KEYS.endpoint)) ollamaEndpoint.value = localStorage.getItem(STORAGE_KEYS.endpoint);
+            if (localStorage.getItem(STORAGE_KEYS.lmstudio)) lmstudioEndpoint.value = localStorage.getItem(STORAGE_KEYS.lmstudio);
+            if (localStorage.getItem(STORAGE_KEYS.gemini)) geminiApiKey.value = localStorage.getItem(STORAGE_KEYS.gemini);
+            if (localStorage.getItem(STORAGE_KEYS.nova)) novaApiKey.value = localStorage.getItem(STORAGE_KEYS.nova);
+            if (localStorage.getItem(STORAGE_KEYS.systemPrompt)) systemPrompt.value = localStorage.getItem(STORAGE_KEYS.systemPrompt);
+            if (localStorage.getItem(STORAGE_KEYS.analysisInput)) analysisInput.value = localStorage.getItem(STORAGE_KEYS.analysisInput);
+            if (localStorage.getItem(STORAGE_KEYS.debugMode) === 'true') debugMode.checked = true;
+            if (localStorage.getItem(STORAGE_KEYS.mysqlProxy)) mysqlProxyUrl.value = localStorage.getItem(STORAGE_KEYS.mysqlProxy);
+            if (localStorage.getItem(STORAGE_KEYS.mysqlHost)) mysqlHost.value = localStorage.getItem(STORAGE_KEYS.mysqlHost);
+            if (localStorage.getItem(STORAGE_KEYS.mysqlUser)) mysqlUser.value = localStorage.getItem(STORAGE_KEYS.mysqlUser);
+            if (localStorage.getItem(STORAGE_KEYS.mysqlDb)) mysqlDb.value = localStorage.getItem(STORAGE_KEYS.mysqlDb);
+            if (localStorage.getItem(STORAGE_KEYS.mysqlQuery)) mysqlQuery.value = localStorage.getItem(STORAGE_KEYS.mysqlQuery);
+            if (localStorage.getItem(STORAGE_KEYS.mysqlTable)) mysqlTargetTable.value = localStorage.getItem(STORAGE_KEYS.mysqlTable);
+
+            // Helper Functions
+            function showMessage(msg, type) {
+                const status = document.getElementById('connection-status');
+                if (status) {
+                    status.textContent = msg;
+                    status.className = `mt-4 text-sm ${type === 'error' ? 'text-red-400' : 'text-green-400'}`;
+                }
+            }
+
+            function mdToHtml(text) {
+                if (!text) return '';
+                let safe = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                safe = safe.replace(/`([^`]+?)`/g, '<code class="bg-gray-700 text-cyan-300 px-1.5 py-0.5 rounded">$1</code>');
+                safe = safe.replace(/\*\*([^\s].*?[^\s])\*\*/g, '<strong>$1</strong>');
+                safe = safe.replace(/\*([^\s].*?[^\s])\*/g, '<em>$1</em>');
+                safe = safe.replace(/\n/g, '<br>');
+                return safe;
+            }
+
+            function addMessageToChatUI(historyEl, role, content) {
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+                const bubble = document.createElement('div');
+                bubble.className = `p-3 rounded-lg max-w-xs ${role === 'user' ? 'bg-gray-700' : 'bg-cyan-800'}`;
+                bubble.innerHTML = mdToHtml(content);
+                wrapper.appendChild(bubble);
+                historyEl.appendChild(wrapper);
+                historyEl.scrollTop = historyEl.scrollHeight;
+                return bubble;
+            }
+
+            // AI API Calls
+            async function callOllama(apiPath, body, signal) {
+                const endpoint = ollamaEndpoint.value;
+                const url = new URL(endpoint);
+                url.pathname = apiPath;
+                const response = await fetch(url.toString(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                    signal
+                });
+                if (!response.ok) throw new Error(`Ollama error: ${response.status}`);
+                return await response.json();
+            }
+
+            async function callGemini(model, prompt, signal) {
+                const key = geminiApiKey.value.trim();
+                if (!key) throw new Error('Gemini API key missing');
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] }),
+                    signal
+                });
+                if (!response.ok) throw new Error(`Gemini error: ${response.status}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            }
+
+            async function callLMStudio(model, prompt, signal) {
+                const endpoint = lmstudioEndpoint.value.replace(/\/+$/, '');
+                const response = await fetch(`${endpoint}/chat/completions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }),
+                    signal
+                });
+                if (!response.ok) throw new Error(`LM Studio error: ${response.status}`);
+                const data = await response.json();
+                return data.choices?.[0]?.message?.content || '';
+            }
+
+            async function callNova(model, prompt, signal) {
+                const key = novaApiKey.value.trim();
+                if (!key) throw new Error('Nova API key missing');
+                const response = await fetch('https://api.nova.amazon.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }),
+                    signal
+                });
+                if (!response.ok) throw new Error(`Nova error: ${response.status}`);
+                const data = await response.json();
+                return data.choices?.[0]?.message?.content || '';
+            }
+
+            async function executeAIModel(model, prompt, onDebug, signal) {
+                if (onDebug && debugMode.checked) onDebug({ model, prompt });
+                if (model === GEMINI_MODEL) return await callGemini(model, prompt, signal);
+                if (model.toLowerCase().includes('nova')) return await callNova(model, prompt, signal);
+                if (model.startsWith('lmstudio:')) return await callLMStudio(model.replace('lmstudio:', ''), prompt, signal);
+                const res = await callOllama('/api/generate', { model, prompt, stream: false }, signal);
+                return res?.response?.trim() || '';
+            }
+
+            // MySQL Proxy Calls (matching mysql_proxy.php format)
+            async function mysqlProxyCall(action, extraData = {}) {
+                const proxyUrl = mysqlProxyUrl.value.trim();
+                if (!proxyUrl) throw new Error('Proxy URL is required');
+                
+                const payload = {
+                    action: action,
+                    config: {
+                        host: mysqlHost.value.trim(),
+                        user: mysqlUser.value.trim(),
+                        pass: mysqlPass.value,
+                        db: mysqlDb.value.trim()
+                    },
+                    ...extraData
+                };
+                
+                const response = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            }
+
+            // Test MySQL Connection
+            mysqlTestBtn.addEventListener('click', async () => {
+                mysqlTestStatus.textContent = 'Testing...';
+                mysqlTestStatus.className = 'ml-3 text-sm text-yellow-400';
+                try {
+                    await mysqlProxyCall('test');
+                    mysqlTestStatus.textContent = '✓ Connected!';
+                    mysqlTestStatus.className = 'ml-3 text-sm text-green-400';
+                    localStorage.setItem(STORAGE_KEYS.mysqlProxy, mysqlProxyUrl.value);
+                    localStorage.setItem(STORAGE_KEYS.mysqlHost, mysqlHost.value);
+                    localStorage.setItem(STORAGE_KEYS.mysqlUser, mysqlUser.value);
+                    localStorage.setItem(STORAGE_KEYS.mysqlDb, mysqlDb.value);
+                } catch (err) {
+                    mysqlTestStatus.textContent = `✗ ${err.message}`;
+                    mysqlTestStatus.className = 'ml-3 text-sm text-red-400';
+                }
+            });
+
+            // Fetch MySQL Data
+            mysqlFetchBtn.addEventListener('click', async () => {
+                const query = mysqlQuery.value.trim();
+                if (!query) {
+                    alert('Please enter a SELECT query');
+                    return;
+                }
+                
+                localStorage.setItem(STORAGE_KEYS.mysqlQuery, query);
+                mysqlFetchBtn.disabled = true;
+                mysqlFetchBtn.textContent = 'Fetching...';
+                
+                try {
+                    const result = await mysqlProxyCall('fetch', { query });
+                    mysqlData = result.data || [];
+                    
+                    if (mysqlData.length > 0) {
+                        mysqlHeaders = Object.keys(mysqlData[0]);
+                    } else {
+                        mysqlHeaders = [];
+                    }
+                    
+                    // Render preview
+                    mysqlPreviewTable.innerHTML = '';
+                    if (mysqlData.length > 0) {
+                        const thead = document.createElement('thead');
+                        const trHead = document.createElement('tr');
+                        trHead.className = 'bg-gray-800 text-xs uppercase';
+                        mysqlHeaders.forEach(h => {
+                            const th = document.createElement('th');
+                            th.className = 'px-4 py-2 text-cyan-500';
+                            th.textContent = h;
+                            trHead.appendChild(th);
+                        });
+                        thead.appendChild(trHead);
+                        mysqlPreviewTable.appendChild(thead);
+                        
+                        const tbody = document.createElement('tbody');
+                        mysqlData.slice(0, 5).forEach(row => {
+                            const tr = document.createElement('tr');
+                            mysqlHeaders.forEach(h => {
+                                const td = document.createElement('td');
+                                td.className = 'px-4 py-2 truncate max-w-xs';
+                                td.textContent = row[h] || '';
+                                tr.appendChild(td);
+                            });
+                            tbody.appendChild(tr);
+                        });
+                        mysqlPreviewTable.appendChild(tbody);
+                    }
+                    
+                    // Update PK dropdown
+                    mysqlPkCol.innerHTML = '<option value="">Select primary key...</option>';
+                    mysqlHeaders.forEach(h => {
+                        const opt = document.createElement('option');
+                        opt.value = h;
+                        opt.textContent = h;
+                        mysqlPkCol.appendChild(opt);
+                    });
+                    
+                    mysqlHeadersList.textContent = mysqlHeaders.map(h => `{{${h}}}`).join(', ');
+                    mysqlTotalRows.textContent = mysqlData.length;
+                    mysqlPreviewContainer.classList.remove('hidden');
+                    mysqlRulesWrapper.classList.remove('hidden');
+                    mysqlActionsWrapper.classList.remove('hidden');
+                    
+                    // Clear and add default rule
+                    mysqlRulesContainer.innerHTML = '';
+                    addMysqlRule();
+                    
+                    mysqlStatus.textContent = `✓ Loaded ${mysqlData.length} rows`;
+                } catch (err) {
+                    mysqlStatus.textContent = `✗ Error: ${err.message}`;
+                    showMessage(err.message, 'error');
+                } finally {
+                    mysqlFetchBtn.disabled = false;
+                    mysqlFetchBtn.textContent = 'Fetch Data';
+                }
+            });
+
+            // Add MySQL Rule
+            function addMysqlRule() {
+                const ruleId = Date.now();
+                const div = document.createElement('div');
+                div.className = 'bg-gray-700 p-4 rounded-lg border border-gray-600 relative';
+                div.dataset.ruleId = ruleId;
+                const headerOptions = mysqlHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
+                
+                div.innerHTML = `
+                    <button class="absolute top-2 right-2 text-red-400 hover:text-red-300 delete-rule-btn">&times;</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-xs text-gray-400">Source Column</label>
+                            <select class="w-full bg-gray-800 border border-gray-600 rounded p-2 rule-source-col">${headerOptions}</select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Variable Name</label>
+                            <input type="text" class="w-full bg-gray-800 border border-gray-600 rounded p-2 rule-var-name" placeholder="var_name" value="var_${ruleId}">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Target DB Column</label>
+                            <input type="text" class="w-full bg-gray-800 border border-gray-600 rounded p-2 rule-target-col" placeholder="ai_result">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-xs text-gray-400">Prompt Template</label>
+                            <textarea class="w-full bg-gray-800 border border-gray-600 rounded p-2 rule-prompt" rows="2" placeholder="Analyze: {{var_${ruleId}}}"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Model</label>
+                            <select class="w-full bg-gray-800 border border-gray-600 rounded p-2 rule-model">
+                                ${Array.from(modelSelect.options).map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                `;
+                
+                div.querySelector('.delete-rule-btn').onclick = () => div.remove();
+                mysqlRulesContainer.appendChild(div);
+            }
+            
+            addMysqlRuleBtn.addEventListener('click', addMysqlRule);
+
+            // Start MySQL Processing
+            startMysqlBtn.addEventListener('click', async () => {
+                const table = mysqlTargetTable.value.trim();
+                const pkCol = mysqlPkCol.value;
+                
+                if (!table) {
+                    alert('Please enter target table name');
+                    return;
+                }
+                if (!pkCol) {
+                    alert('Please select a primary key column');
+                    return;
+                }
+                
+                const rules = [];
+                document.querySelectorAll('#mysql-rules-container > div').forEach(div => {
+                    const sourceCol = div.querySelector('.rule-source-col')?.value;
+                    const varName = div.querySelector('.rule-var-name')?.value.trim();
+                    const targetCol = div.querySelector('.rule-target-col')?.value.trim();
+                    const promptTemplate = div.querySelector('.rule-prompt')?.value;
+                    const model = div.querySelector('.rule-model')?.value;
+                    if (targetCol && promptTemplate) {
+                        rules.push({ sourceCol, varName, promptTemplate, targetCol, model });
+                    }
+                });
+                
+                if (rules.length === 0) {
+                    alert('Please add at least one rule');
+                    return;
+                }
+                
+                localStorage.setItem(STORAGE_KEYS.mysqlTable, table);
+                
+                startMysqlBtn.classList.add('hidden');
+                stopMysqlBtn.classList.remove('hidden');
+                mysqlProgressContainer.classList.remove('hidden');
+                mysqlResultsSummary.classList.remove('hidden');
+                if (mysqlDebugCheckbox.checked) mysqlDebugLog.classList.remove('hidden');
+                else mysqlDebugLog.classList.add('hidden');
+                
+                mysqlStopRequested = false;
+                mysqlProcessingResults = { processed: 0, updated: 0, errors: 0 };
+                updateMysqlResults();
+                
+                const total = mysqlData.length;
+                const updates = [];
+                let batchStartTime = Date.now();
+                let timePer5Rows = 0;
+                let etaCalculated = false;
+                
+                for (let i = 0; i < total && !mysqlStopRequested; i++) {
+                    const row = mysqlData[i];
+                    const pkValue = row[pkCol];
+                    const rowUpdates = {};
+                    
+                    for (const rule of rules) {
+                        try {
+                            let prompt = rule.promptTemplate;
+                            const sourceValue = row[rule.sourceCol] || '';
+                            prompt = prompt.replace(new RegExp(`{{${rule.varName}}}`, 'g'), sourceValue);
+                            mysqlHeaders.forEach(h => {
+                                prompt = prompt.replace(new RegExp(`{{${h}}}`, 'g'), row[h] || '');
+                            });
+                            
+                            if (mysqlDebugCheckbox.checked) {
+                                mysqlDebugLog.innerHTML += `<div class="text-cyan-400 mb-1">Row ${i+1}: ${rule.targetCol} (${rule.model})</div>`;
+                            }
+                            
+                            const result = await executeAIModel(rule.model, prompt, 
+                                (p) => { if (mysqlDebugCheckbox.checked) mysqlDebugLog.innerHTML += `<div class="text-gray-500 text-[10px]">${JSON.stringify(p)}</div>`; },
+                                null
+                            );
+                            
+                            rowUpdates[rule.targetCol] = result;
+                            mysqlProcessingResults.updated++;
+                            
+                            if (mysqlDebugCheckbox.checked) {
+                                mysqlDebugLog.innerHTML += `<div class="text-green-400 text-[10px] mb-2">✓ ${result.substring(0, 100)}...</div>`;
+                            }
+                        } catch (err) {
+                            mysqlProcessingResults.errors++;
+                            if (mysqlDebugCheckbox.checked) {
+                                mysqlDebugLog.innerHTML += `<div class="text-red-400 text-[10px] mb-2">✗ ${err.message}</div>`;
+                            }
+                        }
+                    }
+                    
+                    if (Object.keys(rowUpdates).length > 0) {
+                        updates.push({ updates: rowUpdates, where: { [pkCol]: pkValue } });
+                    }
+                    
+                    mysqlProcessingResults.processed++;
+                    updateMysqlResults();
+                    
+                    const percent = Math.round(((i + 1) / total) * 100);
+                    mysqlProgressBar.style.width = `${percent}%`;
+                    
+                    let statusMsg = `Processing row ${i + 1} of ${total}...`;
+                    if (i === 4 && total > 5) {
+                        timePer5Rows = (Date.now() - batchStartTime) / 5;
+                        etaCalculated = true;
+                    }
+                    if (etaCalculated && timePer5Rows > 0) {
+                        const remaining = total - (i + 1);
+                        const etaSec = Math.round((timePer5Rows * remaining) / 1000);
+                        statusMsg += ` (ETA: ${Math.floor(etaSec / 60)}m ${etaSec % 60}s)`;
+                    }
+                    mysqlStatus.textContent = statusMsg;
+                    
+                    if (mysqlDelayCheckbox.checked && i < total - 1) {
+                        const delaySec = parseFloat(mysqlDelayInput.value) || 0;
+                        if (delaySec > 0) await new Promise(r => setTimeout(r, delaySec * 1000));
+                    }
+                }
+                
+                // Execute all updates in batches
+                if (updates.length > 0 && !mysqlStopRequested) {
+                    mysqlStatus.textContent = 'Updating database...';
+                    try {
+                        for (const update of updates) {
+                            await mysqlProxyCall('update', { table, updates: update.updates, where: update.where });
+                        }
+                        mysqlStatus.textContent = `✓ Updated ${updates.length} rows successfully`;
+                    } catch (err) {
+                        mysqlStatus.textContent = `✗ Update error: ${err.message}`;
+                    }
+                }
+                
+                startMysqlBtn.classList.remove('hidden');
+                stopMysqlBtn.classList.add('hidden');
+                if (mysqlStopRequested) mysqlStatus.textContent = 'Stopped by user';
+                else mysqlStatus.textContent = 'Processing complete!';
+                
+                if (mysqlDebugCheckbox.checked && mysqlDebugLog) {
+                    mysqlDebugLog.scrollTop = mysqlDebugLog.scrollHeight;
+                }
+            });
+            
+            function updateMysqlResults() {
+                mysqlRowsProcessed.textContent = mysqlProcessingResults.processed;
+                mysqlRowsUpdated.textContent = mysqlProcessingResults.updated;
+                mysqlRowsErrors.textContent = mysqlProcessingResults.errors;
+            }
+            
+            stopMysqlBtn.addEventListener('click', () => { mysqlStopRequested = true; });
+
+            // Tab Switching
+            const tabs = ['chat', 'analysis', 'batch', 'mysql', 'commands'];
+            const panels = {};
+            tabs.forEach(t => { panels[t] = document.getElementById(`panel-${t}`); });
+            
+            function switchTab(activeTab) {
+                tabs.forEach(t => {
+                    const btn = document.getElementById(`tab-${t}`);
+                    const panel = panels[t];
+                    if (t === activeTab) {
+                        btn.setAttribute('aria-selected', 'true');
+                        btn.classList.add('border-cyan-500', 'text-cyan-400');
+                        btn.classList.remove('border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300');
+                        panel.classList.remove('hidden');
+                    } else {
+                        btn.setAttribute('aria-selected', 'false');
+                        btn.classList.remove('border-cyan-500', 'text-cyan-400');
+                        btn.classList.add('border-transparent', 'text-gray-400', 'hover:border-gray-500', 'hover:text-gray-300');
+                        panel.classList.add('hidden');
+                    }
+                });
+            }
+            
+            document.getElementById('tab-chat').onclick = () => switchTab('chat');
+            document.getElementById('tab-analysis').onclick = () => switchTab('analysis');
+            document.getElementById('tab-batch').onclick = () => switchTab('batch');
+            document.getElementById('tab-mysql').onclick = () => switchTab('mysql');
+            document.getElementById('tab-commands').onclick = () => switchTab('commands');
+
+            // Load Models
+            async function loadModels() {
+                try {
+                    const url = new URL(ollamaEndpoint.value);
+                    url.pathname = '/api/tags';
+                    const res = await fetch(url.toString());
+                    if (res.ok) {
+                        const data = await res.json();
+                        const models = data.models || [];
+                        const options = `<option value="${GEMINI_MODEL}">✨ Google Gemini</option><option disabled>--- Amazon Nova ---</option><option value="Nova Pro v3">☁️ Nova Pro v3</option><option disabled>--- Ollama ---</option>${models.map(m => `<option value="${m.name}">${m.name}</option>`).join('')}`;
+                        modelSelect.innerHTML = options;
+                        document.querySelectorAll('.rule-model').forEach(sel => { sel.innerHTML = options; });
+                    }
+                } catch (err) { console.warn('Ollama unreachable'); }
+            }
+            
+            document.getElementById('test-connection-btn').onclick = loadModels;
+            loadModels();
+            
+            // Analysis
+            analyzeBtn.onclick = async () => {
+                const prompt = analysisInput.value;
+                if (!prompt) return;
+                const model = modelSelect.value;
+                analysisOutput.value = '';
+                analyzeBtn.classList.add('hidden');
+                stopAnalysisBtn.classList.remove('hidden');
+                if (analysisAbortController) analysisAbortController.abort();
+                analysisAbortController = new AbortController();
+                try {
+                    const result = await executeAIModel(model, prompt, null, analysisAbortController.signal);
+                    analysisOutput.value = result;
+                } catch (err) {
+                    if (err.name !== 'AbortError') analysisOutput.value = `Error: ${err.message}`;
+                } finally {
+                    analyzeBtn.classList.remove('hidden');
+                    stopAnalysisBtn.classList.add('hidden');
+                }
+            };
+            stopAnalysisBtn.onclick = () => { if (analysisAbortController) analysisAbortController.abort(); };
+            
+            // Save settings
+            ollamaEndpoint.onchange = () => localStorage.setItem(STORAGE_KEYS.endpoint, ollamaEndpoint.value);
+            lmstudioEndpoint.onchange = () => localStorage.setItem(STORAGE_KEYS.lmstudio, lmstudioEndpoint.value);
+            geminiApiKey.onchange = () => localStorage.setItem(STORAGE_KEYS.gemini, geminiApiKey.value);
+            novaApiKey.onchange = () => localStorage.setItem(STORAGE_KEYS.nova, novaApiKey.value);
+            systemPrompt.onchange = () => localStorage.setItem(STORAGE_KEYS.systemPrompt, systemPrompt.value);
+            analysisInput.onchange = () => localStorage.setItem(STORAGE_KEYS.analysisInput, analysisInput.value);
+            debugMode.onchange = () => localStorage.setItem(STORAGE_KEYS.debugMode, debugMode.checked);
+            
+            // Simple chat initialization
+            const chatHistoryA = document.getElementById('chat-history-a');
+            const chatInputA = document.getElementById('chat-input-a');
+            const chatSendA = document.getElementById('chat-send-btn-a');
+            chatSendA.onclick = () => {
+                if (chatInputA.value.trim()) {
+                    addMessageToChatUI(chatHistoryA, 'user', chatInputA.value);
+                    addMessageToChatUI(chatHistoryA, 'model', 'AI response placeholder');
+                    chatInputA.value = '';
+                }
+            };
+            
+            console.log('MySQL Batch panel ready - works with mysql_proxy.php');
+        });
+    </script>
+</body>
+</html>
