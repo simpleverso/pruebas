@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tactical Area Control Map - Juchitán</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet Draw CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+    
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --panel-bg: rgba(15, 15, 15, 0.9);
+            --text-main: #e0e0e0;
+            --accent-green: #00ff41; /* Tactical Green */
+            --accent-red: #ff3333;   /* Alert Red */
+            --accent-blue: #00e5ff;  /* UI Blue */
+            --border-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace; /* Tactical font */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #map {
+            flex-grow: 1;
+            height: 100%;
+            background-color: #000; /* Deep black fallback */
+        }
+
+        #sidebar {
+            width: 350px;
+            background-color: var(--panel-bg);
+            border-left: 1px solid var(--accent-green);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: -5px 0 15px rgba(0, 255, 65, 0.1);
+            overflow-y: auto;
+        }
+
+        .header {
+            border-bottom: 1px solid var(--accent-green);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            padding: 10px;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        button.danger {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        button.danger:hover {
+            background: var(--accent-red);
+            color: #000;
+        }
+
+        .stats-panel {
+            flex-grow: 1;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.red { color: var(--accent-red); }
+        .stat-value.blue { color: var(--accent-blue); }
+
+        #status-indicator {
+            margin-top: 20px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .status-secure { border-color: var(--accent-green) !important; color: var(--accent-green); }
+        .status-vulnerable { border-color: var(--accent-red) !important; color: var(--accent-red); animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 51, 51, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
+        }
+
+        #loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: var(--accent-green);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid transparent;
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Custom Leaflet Tooltip for Dark Mode */
+        .leaflet-tooltip.dark-tooltip {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--accent-blue);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
+
+        .legend {
+            background: rgba(15, 15, 15, 0.9);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #ccc;
+        }
+        .legend span { display: inline-block; width: 12px; height: 12px; margin-right: 5px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div id="sidebar">
+        <div class="header">
+            <h1>Tactical Map Ctrl</h1>
+            <p>Juchitán de Zaragoza, Oax.</p>
+        </div>
+
+        <div class="control-group">
+            <label for="available-checkpoints">Available Units / Checkpoints</label>
+            <input type="number" id="available-checkpoints" value="5" min="0">
+            <p style="font-size: 0.75rem; color: #888; margin-bottom: 10px;">Use the polygon or rectangle tool on the map to select a tactical zone.</p>
+            <button id="analyze-view-btn">Analyze Visible Map Area</button>
+            <button class="danger" id="clear-btn">Clear Map</button>
+        </div>
+
+        <div class="stats-panel">
+            <h3 style="color: var(--text-main); margin-bottom: 15px; font-size: 1rem; border-bottom: 1px solid #333; padding-bottom: 5px;">Analysis Data</h3>
+            
+            <div class="stat-row">
+                <span>Selected Area:</span>
+                <span id="stat-area" class="stat-value blue">0 km²</span>
+            </div>
+            <div class="stat-row">
+                <span>Perimeter:</span>
+                <span id="stat-perimeter" class="stat-value blue">0 km</span>
+            </div>
+            <div class="stat-row">
+                <span>Entrances/Exits Found:</span>
+                <span id="stat-entrances" class="stat-value green">0</span>
+            </div>
+            <div class="stat-row">
+                <span>Internal Choke Points:</span>
+                <span id="stat-chokepoints" class="stat-value red">0</span>
+            </div>
+            <div class="stat-row" style="margin-top: 15px; border-top: 1px solid #555; padding-top: 15px;">
+                <span>Required Checkpoints:</span>
+                <span id="stat-required" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <div id="status-indicator">
+            STATUS: WAITING FOR DATA
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h2 id="loading-text">INTERCEPTING ROAD NETWORKS...</h2>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: #888;">Querying Overpass API</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <!-- Turf.js for Geospatial Analysis -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+    <script>
+        // --- Initialization ---
+        // Center on Juchitan de Zaragoza
+        const map = L.map('map', { zoomControl: false }).setView([16.4333, -95.0167], 14);
+
+        // Add Zoom control to top right to avoid sidebar
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        // Dark Matter Base Map (High contrast, easy on eyes)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Feature groups to hold layers
+        const drawnItems = new L.FeatureGroup().addTo(map);
+        const tacticalItems = new L.FeatureGroup().addTo(map); // For entrances, chokepoints, roads
+
+        // Setup Leaflet Draw Control
+        const drawControl = new L.Control.Draw({
+            position: 'topright',
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
+            },
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    showArea: true,
+                    shapeOptions: { color: '#00e5ff', fillOpacity: 0.1, weight: 2 }
+                },
+                rectangle: { shapeOptions: { color: '#00e5ff', fillOpacity: 0.1, weight: 2 } },
+                circle: false, circlemarker: false, marker: false, polyline: false
+            }
+        });
+        map.addControl(drawControl);
+
+        // Custom Icons
+        const iconEntrance = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color: var(--accent-green); width: 14px; height: 14px; border-radius: 50%; border: 2px solid #000; box-shadow: 0 0 8px var(--accent-green);"></div>`,
+            iconSize: [14, 14], iconAnchor: [7, 7]
+        });
+
+        const iconChokepoint = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color: var(--accent-red); width: 16px; height: 16px; transform: rotate(45deg); border: 2px solid #000; box-shadow: 0 0 10px var(--accent-red);"></div>`,
+            iconSize: [16, 16], iconAnchor: [8, 8]
+        });
+
+        // Add Legend
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <span style="background: var(--accent-green);"></span> Entrance/Exit (Perimeter)<br>
+                <span style="background: var(--accent-red); border-radius: 0; transform: rotate(45deg);"></span> Internal Choke Point<br>
+                <hr style="border-color: #444; margin: 5px 0;">
+                <div style="width: 20px; height: 2px; background: rgba(255,255,255,0.2); display: inline-block; margin-bottom: 4px;"></div> Detected Roads
+            `;
+            return div;
+        };
+        legend.addTo(map);
+
+        // --- Event Listeners ---
+        map.on(L.Draw.Event.CREATED, function (event) {
+            drawnItems.clearLayers();
+            const layer = event.layer;
+            drawnItems.addLayer(layer);
+            analyzeTacticalZone(layer);
+        });
+
+        map.on(L.Draw.Event.EDITED, function (event) {
+            const layers = event.layers;
+            layers.eachLayer(function (layer) {
+                analyzeTacticalZone(layer);
+            });
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            drawnItems.clearLayers();
+            tacticalItems.clearLayers();
+            resetStats();
+        });
+
+        document.getElementById('analyze-view-btn').addEventListener('click', () => {
+            drawnItems.clearLayers();
+            const bounds = map.getBounds();
+            // Shrink bounds slightly to create a visible rectangle
+            const p1 = bounds.getSouthWest();
+            const p2 = bounds.getNorthEast();
+            
+            const rect = L.rectangle([[p1.lat + 0.005, p1.lng + 0.005], [p2.lat - 0.005, p2.lng - 0.005]], {
+                color: '#00e5ff', fillOpacity: 0.1, weight: 2
+            });
+            drawnItems.addLayer(rect);
+            analyzeTacticalZone(rect);
+        });
+
+        document.getElementById('available-checkpoints').addEventListener('input', updateStatus);
+
+
+        // --- Core Tactical Logic ---
+
+        // Custom parser to replace external osmtogeojson dependency
+        function parseOsmToGeoJson(osmData) {
+            const nodeMap = new Map();
+            const features = [];
+
+            // 1. Map all nodes to coordinates
+            for (const el of osmData.elements) {
+                if (el.type === 'node') {
+                    nodeMap.set(el.id, [el.lon, el.lat]);
+                }
+            }
+
+            // 2. Build ways (lines) from nodes
+            for (const el of osmData.elements) {
+                if (el.type === 'way' && el.nodes) {
+                    const coordinates = [];
+                    for (const nodeId of el.nodes) {
+                        const coord = nodeMap.get(nodeId);
+                        if (coord) {
+                            coordinates.push(coord);
+                        }
+                    }
+                    
+                    if (coordinates.length >= 2) {
+                        features.push({
+                            type: "Feature",
+                            properties: el.tags || {},
+                            geometry: {
+                                type: "LineString",
+                                coordinates: coordinates
+                            }
+                        });
+                    }
+                }
+            }
+
+            return {
+                type: "FeatureCollection",
+                features: features
+            };
+        }
+
+        // Helper function to handle Overpass API timeouts by rotating endpoints
+        async function fetchOverpassDataWithFallback(query) {
+            // Multiple Overpass API endpoints to use as fallbacks
+            const endpoints = [
+                'https://overpass-api.de/api/interpreter',
+                'https://lz4.overpass-api.de/api/interpreter',
+                'https://z.overpass-api.de/api/interpreter',
+                'https://overpass.kumi.systems/api/interpreter'
+            ];
+
+            let lastError = null;
+
+            for (let i = 0; i < endpoints.length; i++) {
+                try {
+                    const response = await fetch(endpoints[i], {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: "data=" + encodeURIComponent(query)
+                    });
+                    
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(`Endpoint [${i+1}] failed (${response.status}): ${errText.substring(0, 150)}...`);
+                    }
+                    
+                    return await response.json();
+                } catch (err) {
+                    console.warn(`Overpass API attempt ${i + 1} failed:`, err);
+                    lastError = err;
+                    
+                    // Update UI to show retry attempt
+                    if (i < endpoints.length - 1) {
+                        document.getElementById('loading-text').innerText = `SERVER BUSY. SWITCHING RELAY (${i + 1}/${endpoints.length - 1})...`;
+                        // Wait 1.5 seconds before hitting the next endpoint
+                        await new Promise(res => setTimeout(res, 1500));
+                    }
+                }
+            }
+            
+            // If all fail, throw a clean error
+            throw new Error(`All Overpass API relays failed or timed out. Please try a smaller area. Last error: ${lastError.message}`);
+        }
+
+        async function analyzeTacticalZone(layer) {
+            tacticalItems.clearLayers();
+            showLoading(true);
+
+            try {
+                // 1. Get Geometry & Calculate Basic Stats
+                const geojson = layer.toGeoJSON();
+                const areaSqMeters = turf.area(geojson);
+                
+                // Significantly raised limit to 1000 km^2 to allow for entire municipalities like Juchitan.
+                if (areaSqMeters > 1000000000) { 
+                    throw new Error("Selected tactical area is astronomically large (> 1000 km²). Please select a smaller zone to prevent API bans.");
+                }
+
+                // If it's a large area (> 25 km²), warn the user that it will take time
+                if (areaSqMeters > 25000000) {
+                    document.getElementById('loading-text').innerText = "LARGE AREA DETECTED. SCANNING EXTENDED NETWORKS (MAY TAKE 1-2 MINS)...";
+                }
+
+                const perimeterMeters = turf.length(turf.polygonToLine(geojson), {units: 'meters'});
+
+                document.getElementById('stat-area').innerText = (areaSqMeters / 1000000).toFixed(2) + ' km²';
+                document.getElementById('stat-perimeter').innerText = (perimeterMeters / 1000).toFixed(2) + ' km';
+
+                // 2. Fetch Road Network from Overpass API
+                const bounds = layer.getBounds();
+                const bbox = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
+                
+                // Dynamically adjust API timeout based on the size of the area (up to 90 seconds for large areas)
+                const queryTimeout = areaSqMeters > 50000000 ? 90 : 30;
+
+                // Querying major/minor roads that can be driven on
+                // Added trunk and motorway just in case major federal highways intersect the municipality
+                const overpassQuery = `
+                    [out:json][timeout:${queryTimeout}];
+                    (
+                      way["highway"~"motorway|trunk|primary|secondary|tertiary|residential|unclassified"](${bbox});
+                    );
+                    out body;
+                    >;
+                    out skel qt;
+                `;
+
+                // Use the custom fallback fetch logic
+                const osmData = await fetchOverpassDataWithFallback(overpassQuery);
+
+                // 3. Convert OSM JSON to GeoJSON using our reliable built-in parser
+                const roadNetwork = parseOsmToGeoJson(osmData);
+
+                // Draw the road network context lightly
+                L.geoJSON(roadNetwork, {
+                    style: { color: '#ffffff', weight: 1, opacity: 0.2 },
+                    interactive: false
+                }).addTo(tacticalItems);
+
+                // 4. Calculate Entrances/Exits (Intersections with Polygon Boundary)
+                const boundaryLine = turf.polygonToLine(geojson);
+                let rawEntrances = [];
+
+                turf.featureEach(roadNetwork, (currentFeature) => {
+                    if (currentFeature.geometry.type === 'LineString' || currentFeature.geometry.type === 'MultiLineString') {
+                        const intersects = turf.lineIntersect(currentFeature, boundaryLine);
+                        if (intersects.features.length > 0) {
+                            rawEntrances.push(...intersects.features);
+                        }
+                    }
+                });
+
+                // Deduplicate entrances that are too close together (e.g., dual carriageways)
+                const entrances = deduplicatePoints(rawEntrances, 30); // 30 meters tolerance
+
+                // 5. Calculate Internal Choke Points (Intersections of roads INSIDE the polygon)
+                const internalChokepoints = calculateChokePoints(roadNetwork, geojson);
+
+                // 6. Render Tactical Markers
+                entrances.forEach(pt => {
+                    const coords = pt.geometry.coordinates;
+                    L.marker([coords[1], coords[0]], { icon: iconEntrance })
+                        .bindTooltip('Entrance/Exit<br>Must Secure', {className: 'dark-tooltip', direction: 'top'})
+                        .addTo(tacticalItems);
+                });
+
+                internalChokepoints.forEach(pt => {
+                    const coords = pt.geometry.coordinates;
+                    L.marker([coords[1], coords[0]], { icon: iconChokepoint })
+                        .bindTooltip('Internal Choke Point<br>Secondary Fallback', {className: 'dark-tooltip', direction: 'top'})
+                        .addTo(tacticalItems);
+                });
+
+                // 7. Update UI Stats
+                document.getElementById('stat-entrances').innerText = entrances.length;
+                document.getElementById('stat-chokepoints').innerText = internalChokepoints.length;
+                
+                // Required checkpoints = Number of Entrances. If they can't cover entrances, they rely on chokepoints.
+                document.getElementById('stat-required').innerText = entrances.length;
+
+                updateStatus();
+
+            } catch (error) {
+                console.error("Analysis Error:", error);
+                alert("Intercept Error:\n\n" + error.message);
+                resetStats();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // --- Helper Functions ---
+
+        function calculateChokePoints(roadGeoJSON, polygonGeoJSON) {
+            // Find nodes where multiple distinct road segments meet inside the polygon
+            const pointMap = new Map();
+            
+            turf.featureEach(roadGeoJSON, (feature) => {
+                if (feature.geometry.type === 'LineString') {
+                    const coords = feature.geometry.coordinates;
+                    // Only check start/end and maybe middle points for simplicity in JS
+                    coords.forEach(coord => {
+                        const key = `${coord[0].toFixed(5)},${coord[1].toFixed(5)}`;
+                        if (pointMap.has(key)) {
+                            pointMap.set(key, pointMap.get(key) + 1);
+                        } else {
+                            pointMap.set(key, 1);
+                        }
+                    });
+                }
+            });
+
+            let chokePoints = [];
+            pointMap.forEach((count, key) => {
+                // If 3 or more road segments share this node, it's a major intersection
+                if (count >= 3) {
+                    const [lng, lat] = key.split(',').map(Number);
+                    const pt = turf.point([lng, lat]);
+                    // Check if it's INSIDE the user's selected polygon
+                    if (turf.booleanPointInPolygon(pt, polygonGeoJSON)) {
+                        chokePoints.push(pt);
+                    }
+                }
+            });
+            
+            // Deduplicate chokepoints that might be functionally the same intersection
+            return deduplicatePoints(chokePoints, 50);
+        }
+
+        function deduplicatePoints(pointsArray, toleranceMeters) {
+            if (pointsArray.length === 0) return [];
+            const kept = [pointsArray[0]];
+            
+            for (let i = 1; i < pointsArray.length; i++) {
+                let isDuplicate = false;
+                for (let j = 0; j < kept.length; j++) {
+                    const distance = turf.distance(pointsArray[i], kept[j], {units: 'meters'});
+                    if (distance < toleranceMeters) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                if (!isDuplicate) kept.push(pointsArray[i]);
+            }
+            return kept;
+        }
+
+        function updateStatus() {
+            const req = parseInt(document.getElementById('stat-required').innerText) || 0;
+            const avail = parseInt(document.getElementById('available-checkpoints').value) || 0;
+            const statusBox = document.getElementById('status-indicator');
+
+            if (req === 0 && document.getElementById('stat-area').innerText === '0 km²') {
+                statusBox.style.display = 'none';
+                return;
+            }
+
+            statusBox.style.display = 'block';
+
+            if (avail >= req) {
+                statusBox.className = 'status-secure';
+                statusBox.innerHTML = `TACTICAL ADVANTAGE<br><span style="font-size: 0.8rem; font-weight: normal; color: #fff;">Sufficient resources to close perimeter.</span>`;
+            } else {
+                const deficit = req - avail;
+                statusBox.className = 'status-vulnerable';
+                statusBox.innerHTML = `PERIMETER VULNERABLE<br><span style="font-size: 0.8rem; font-weight: normal; color: #fff;">Deficit of ${deficit} checkpoints. Retreat to internal choke points (Red).</span>`;
+            }
+        }
+
+        function resetStats() {
+            document.getElementById('stat-area').innerText = '0 km²';
+            document.getElementById('stat-perimeter').innerText = '0 km';
+            document.getElementById('stat-entrances').innerText = '0';
+            document.getElementById('stat-chokepoints').innerText = '0';
+            document.getElementById('stat-required').innerText = '0';
+            document.getElementById('status-indicator').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = show ? 'flex' : 'none';
+            // Reset loading text whenever we show the screen again
+            if (show) {
+                document.getElementById('loading-text').innerText = "INTERCEPTING ROAD NETWORKS...";
+            }
+        }
+
+    </script>
+</body>
+</html>
