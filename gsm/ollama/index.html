@@ -1325,12 +1325,25 @@
                     mysqlPreviewContainer.classList.remove('hidden');
                     mysqlRulesWrapper.classList.remove('hidden');
                     mysqlActionsWrapper.classList.remove('hidden');
+                    // Save existing rules before clearing
+                    const existingRules = [];
+                    document.querySelectorAll('#mysql-rules-container > div').forEach(div => {
+                        existingRules.push({
+                            varCol: div.querySelector('.mysql-rule-var-col')?.value || '',
+                            varName: div.querySelector('.mysql-rule-var-name')?.value?.trim() || '',
+                            promptTemplate: div.querySelector('.mysql-rule-prompt')?.value || '',
+                            outputCol: div.querySelector('.mysql-rule-output-col')?.value?.trim() || '',
+                            model: div.querySelector('.mysql-rule-model')?.value || ''
+                        });
+                    });
                     mysqlRulesContainer.innerHTML = '';
                     if (window._pendingMysqlRules && window._pendingMysqlRules.length > 0) {
                         window._pendingMysqlRules.forEach(r => addMysqlRuleUI(r));
                         if (window._pendingMysqlPkCol) { mysqlPkCol.value = window._pendingMysqlPkCol; }
                         window._pendingMysqlRules = null; window._pendingMysqlPkCol = null;
                         showMessage('Imported project rules applied.', 'success');
+                    } else if (existingRules.length > 0) {
+                        existingRules.forEach(r => addMysqlRuleUI(r));
                     } else { addMysqlRuleUI(); }
                 } catch(e) {
                     if (e.name === 'AbortError') showMessage("MySQL Fetch Error: Connection timed out after " + (TIMEOUT_LOCAL/1000) + "s. Check if proxy is running.", "error");
@@ -1403,6 +1416,7 @@
             addMysqlRuleBtn.addEventListener('click', () => addMysqlRuleUI());
 
             // MySQL Log Management
+            mysqlDebugCheckbox.addEventListener('change', () => { if (mysqlDebugCheckbox.checked) { mysqlDebugLog.classList.remove('hidden'); } else { mysqlDebugLog.classList.add('hidden'); } });
             downloadMysqlLogsBtn.addEventListener('click', () => { const logContent = mysqlDebugLog.innerText; if (!logContent || logContent.trim() === '' || logContent.trim() === '--- MySQL Batch Log ---') { return showMessage('No logs to download', 'error'); } const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); downloadTextFile(logContent, `mysql_batch_logs_${timestamp}.txt`); });
             clearMysqlLogsBtn.addEventListener('click', () => { mysqlDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- MySQL Batch Log ---</div>'; });
             downloadMysqlDryRunBtn.addEventListener('click', () => { if (!mysqlDryRunResults || mysqlDryRunResults.length === 0) { return showMessage('No dry run results to download', 'error'); } const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); downloadJsonFile(mysqlDryRunResults, `mysql_dry_run_results_${timestamp}.json`); });
@@ -1533,7 +1547,8 @@
                 if (rules.length === 0) { return showMessage('Please add at least one valid rule with a Prompt and Target DB Column.', 'error'); }
                 startMysqlBtn.classList.add('hidden'); stopMysqlBtn.classList.remove('hidden'); mysqlProgressContainer.classList.remove('hidden');
                 mysqlDryRunResults = []; downloadMysqlDryRunBtn.classList.add('hidden');
-                if (mysqlDebugCheckbox.checked) { mysqlDebugLog.classList.remove('hidden'); mysqlDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- MySQL Batch Log ---</div>'; } else { mysqlDebugLog.classList.add('hidden'); mysqlDebugLog.innerHTML = ''; }
+                if (mysqlDebugCheckbox.checked) { mysqlDebugLog.classList.remove('hidden'); } else { mysqlDebugLog.classList.add('hidden'); }
+                mysqlDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- MySQL Batch Log ---</div>';
                 mysqlStopRequested = false; mysqlStatus.textContent = isDryRun ? 'Starting Dry Run (Simulation)...' : 'Starting...'; mysqlProgressBar.style.width = '0%';
                 let mysqlStartTime = Date.now(); let mysqlTimePer5Rows = 0; let mysqlEtaCalculated = false;
                 const total = mysqlData.length;

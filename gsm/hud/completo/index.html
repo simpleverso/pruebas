@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTZ Vision HUD</title>
+  <link rel="stylesheet" href="css/hud.css">
+</head>
+<body>
+
+  <!-- ===== Top-level layout: canvas + sidebar ===== -->
+  <div id="hud-layout">
+
+    <!-- Canvas area (takes remaining space) -->
+    <div id="hud-container">
+
+      <!-- Primary display canvas (HUD renders here) -->
+      <canvas id="hud-canvas" width="1280" height="720"></canvas>
+
+      <!-- Hidden video element for webcam capture -->
+      <video id="video-source" autoplay playsinline muted></video>
+
+      <!-- No-signal overlay -->
+      <div class="no-signal" id="no-signal">&#9888; NO SIGNAL</div>
+
+      <!-- ===== Telemetry Bar (top edge) ===== -->
+      <div id="telemetry-bar">
+      <span class="telemetry-item" id="tel-fps">FPS: --</span>
+      <span class="telemetry-item" id="tel-latency">LAT: -- ms</span>
+      <span class="telemetry-item" id="tel-skip">SKIP: OFF</span>
+      <span class="telemetry-item" id="tel-tracking">TRK: IDLE</span>
+      <span class="telemetry-item" id="tel-webcam">CAM: --</span>
+      <span class="telemetry-item" id="tel-serial">SER: --</span>
+      <span class="telemetry-item" id="tel-gamepad">PAD: --</span>
+      <span class="telemetry-item" id="tel-memory">MEM: -- MB</span>
+      <span class="telemetry-item" id="tel-inference">INF: -- ms</span>
+      <span class="telemetry-item" id="tel-rules">RULES: 0</span>
+      <span class="rec-indicator" id="rec-indicator">&#9679; REC</span>
+      <span class="gamepad-override-indicator" id="gamepad-override">GAMEPAD OVERRIDE</span>
+    </div>
+
+    </div><!-- /hud-container -->
+
+    <!-- ===== Sidebar Toggle (always visible) ===== -->
+    <button id="sidebar-toggle" title="Toggle sidebar">☰</button>
+
+    <!-- ===== Sidebar: Control Panels ===== -->
+    <div id="hud-sidebar">
+
+    <!-- Device Selection: Webcam, Serial Port, Gamepad -->
+    <div class="hud-panel" id="panel-devices">
+      <h3>Devices</h3>
+      <div class="panel-body">
+        <label for="webcam-select">Webcam</label>
+        <select id="webcam-select"><option value="">-- Select Webcam --</option></select>
+        <span class="telemetry-item status-nominal" id="webcam-status">DISCONNECTED</span>
+
+        <label for="serial-select">Serial Port</label>
+        <select id="serial-select"><option value="">-- Select Port --</option></select>
+        <button id="serial-connect-btn">Connect</button>
+        <span class="telemetry-item status-nominal" id="serial-status">DISCONNECTED</span>
+
+        <label for="gamepad-select">Gamepad</label>
+        <select id="gamepad-select"><option value="">-- Auto --</option></select>
+        <span class="telemetry-item status-nominal" id="gamepad-status">NONE</span>
+      </div>
+    </div>
+
+    <!-- Processing Pipeline -->
+    <div class="hud-panel" id="panel-pipeline">
+      <h3>Pipeline</h3>
+      <div class="panel-body">
+        <label><input type="checkbox" id="op-grayscale"> Grayscale</label>
+        <label><input type="checkbox" id="op-binarize"> Binarize</label>
+        <label><input type="checkbox" id="op-sobel"> Sobel Edge</label>
+        <label><input type="checkbox" id="op-canny"> Canny Edge</label>
+
+        <label for="threshold-input">Threshold</label>
+        <input type="range" id="threshold-input" min="0" max="255" value="128">
+
+        <label for="canny-low">Canny Low</label>
+        <input type="range" id="canny-low" min="0" max="255" value="50">
+
+        <label for="canny-high">Canny High</label>
+        <input type="range" id="canny-high" min="0" max="255" value="150">
+
+        <label><input type="checkbox" id="frame-skip-toggle"> Frame Skip</label>
+        <label for="frame-skip-interval">Skip N</label>
+        <input type="number" id="frame-skip-interval" min="2" max="10" value="3">
+      </div>
+    </div>
+
+    <!-- Tracking -->
+    <div class="hud-panel" id="panel-tracking">
+      <h3>Tracking</h3>
+      <div class="panel-body">
+        <button id="tracking-start" style="background:rgba(0,100,0,0.5)">▶ START TRACKING</button>        <button id="tracking-stop" disabled style="background:rgba(100,0,0,0.5)">■ STOP TRACKING</button>
+        <button id="roi-select-btn">⊞ SELECT REGION</button>
+        <button id="roi-cancel-btn" disabled>✕ CANCEL SELECT</button>
+        <button id="roi-clear-all" style="background:rgba(100,0,0,0.3)">✕ CLEAR ALL ROI</button>
+
+        <label for="template-mode">Template Mode</label>
+        <select id="template-mode">
+          <option value="color" selected>Color (RGB)</option>
+          <option value="grayscale">Grayscale</option>
+        </select>
+
+        <label for="template-size">Template Resolution</label>
+        <select id="template-size">
+          <option value="16" selected>16×16 (fastest)</option>
+          <option value="32">32×32</option>
+          <option value="42">42×42</option>
+          <option value="64">64×64</option>
+          <option value="0">Original (slowest)</option>
+        </select>
+
+        <span class="telemetry-item" id="roi-count">ROI: 0 | Focus: --</span>
+        <span class="telemetry-item" id="target-count">TARGET: 0/0</span>
+
+        <label for="dead-zone">Dead Zone (px)</label>
+        <input type="number" id="dead-zone" min="0" value="20">
+
+        <label><input type="checkbox" id="tf-toggle"> TF.js Detection</label>
+
+        <label for="tf-confidence">Confidence (%)</label>
+        <input type="number" id="tf-confidence" min="0" max="100" value="50">
+
+        <label for="tf-interval">Inference Interval</label>
+        <input type="number" id="tf-interval" min="1" max="30" value="3">
+
+        <label><input type="checkbox" id="show-movement-data"> Show Movement Data</label>
+      </div>
+    </div>
+
+    <!-- PTZ Controls -->
+    <div class="hud-panel collapsed" id="panel-ptz">
+      <h3>PTZ Control</h3>
+      <div class="panel-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; margin-bottom:6px;">
+          <span></span>
+          <button id="ptz-up">&#9650;</button>
+          <span></span>
+          <button id="ptz-left">&#9664;</button>
+          <button id="ptz-stop">&#9632;</button>
+          <button id="ptz-right">&#9654;</button>
+          <span></span>
+          <button id="ptz-down">&#9660;</button>
+          <span></span>
+        </div>
+
+        <button id="ptz-zoom-in">Z+</button>
+        <button id="ptz-zoom-out">Z−</button>
+
+        <label for="speed-level">Speed</label>
+        <select id="speed-level">
+          <option value="slow">Slow</option>
+          <option value="medium" selected>Medium</option>
+          <option value="fast">Fast</option>
+        </select>
+
+        <label><input type="checkbox" id="auto-track-toggle"> Auto Track</label>
+      </div>
+    </div>
+
+    <!-- Serial Command Config -->
+    <div class="hud-panel collapsed" id="panel-serial-config">
+      <h3>RS232 Commands</h3>
+      <div class="panel-body">
+        <label for="var-type">Variable Type</label>
+        <select id="var-type">
+          <option value="percent">Percent (0–100)</option>
+          <option value="percent_signed">Signed % (-100–100)</option>
+          <option value="angle">Angle (degrees)</option>
+          <option value="angle_delta">Angle Delta</option>
+          <option value="steps">Steps</option>
+          <option value="speed">Speed (1–255)</option>
+        </select>
+
+        <label for="tpl-pan">Pan Template</label>
+        <input type="text" id="tpl-pan" placeholder="PAN {direction} {percent}">
+
+        <label for="tpl-tilt">Tilt Template</label>
+        <input type="text" id="tpl-tilt" placeholder="TILT {direction} {percent}">
+
+        <label for="tpl-zoom">Zoom Template</label>
+        <input type="text" id="tpl-zoom" placeholder="ZOOM {direction} {percent}">
+
+        <label for="tpl-stop">Stop Template</label>
+        <input type="text" id="tpl-stop" placeholder="STOP">
+
+        <label style="font-size:8px;color:var(--hud-green-dim);margin-top:4px">
+          Placeholders: {percent} {percent_signed} {angle} {angle_delta} {steps} {speed} {direction} {raw_hex}
+        </label>
+
+        <button id="tpl-save">SAVE TEMPLATES</button>
+
+        <label for="tpl-test-val" style="margin-top:6px">Test Value</label>
+        <input type="number" id="tpl-test-val" value="50" min="0" max="255">
+        <button id="tpl-test-pan">Test Pan</button>
+        <button id="tpl-test-tilt">Test Tilt</button>
+        <button id="tpl-test-zoom">Test Zoom</button>
+      </div>
+    </div>
+
+    <!-- Gamepad Button → RS232 Mappings -->
+    <div class="hud-panel collapsed" id="panel-btn-mappings">
+      <h3>Button Mappings</h3>
+      <div class="panel-body">
+        <label style="font-size:8px;color:var(--hud-green-dim)">Map gamepad buttons to RS232 commands. Press "Detect" then press a button on the controller.</label>
+
+        <div id="btn-mapping-list"></div>
+
+        <button id="btn-mapping-add">+ ADD MAPPING</button>
+
+        <!-- Template for a single mapping row (cloned by JS) -->
+        <template id="btn-mapping-template">
+          <div class="btn-mapping-row" style="border:1px solid var(--hud-border);padding:4px;margin:3px 0;">
+            <label>Button #<span class="btn-idx">--</span></label>
+            <button class="btn-detect" style="font-size:9px">DETECT</button>
+            <label>Command</label>
+            <input type="text" class="btn-cmd" placeholder="e.g. FIRE\r\n" style="width:100%">
+            <label>Port</label>
+            <select class="btn-port"><option value="">-- Default --</option></select>
+            <label><input type="checkbox" class="btn-enabled" checked> Enabled</label>
+            <button class="btn-remove" style="font-size:9px;color:var(--hud-red)">✕ DEL</button>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Calibration -->
+    <div class="hud-panel collapsed" id="panel-calibration">
+      <h3>Calibration</h3>
+      <div class="panel-body">
+        <button id="cal-movement">Movement</button>
+        <button id="cal-light">Light</button>
+        <button id="cal-response">Response</button>
+        <button id="cal-zoom">Zoom</button>
+        <button id="cal-centering-blob">Center (Blob)</button>
+        <button id="cal-centering-tf">Center (TF)</button>
+        <span class="telemetry-item" id="cal-status">IDLE</span>
+      </div>
+    </div>
+
+    <!-- Recording -->
+    <div class="hud-panel collapsed" id="panel-recording">
+      <h3>Recording</h3>
+      <div class="panel-body">
+        <select id="rec-format">
+          <option value="webm-vp8">WebM/VP8</option>
+          <option value="webm-vp9">WebM/VP9</option>
+          <option value="mp4-h264">MP4/H264</option>
+        </select>
+        <button id="rec-start">&#9679; REC</button>
+        <button id="rec-stop" disabled>&#9632; STOP</button>
+        <span class="telemetry-item" id="rec-duration">00:00</span>
+        <span class="telemetry-item" id="rec-size">0 MB</span>
+      </div>
+    </div>
+
+    <!-- HUD Display: Grid & Reticle -->
+    <div class="hud-panel" id="panel-hud-display">
+      <h3>Display</h3>
+      <div class="panel-body">
+        <label for="reticle-style">Reticle</label>
+        <select id="reticle-style">
+          <option value="none">None</option>
+          <option value="crosshair">Crosshair</option>
+          <option value="tactical-circle" selected>Tactical Circle</option>
+          <option value="mil-dot">Mil-Dot</option>
+          <option value="bracket">Bracket</option>
+        </select>
+
+        <label for="reticle-opacity">Reticle Opacity</label>
+        <input type="range" id="reticle-opacity" min="0" max="100" value="80">
+
+        <label for="reticle-thickness">Reticle Thickness</label>
+        <input type="range" id="reticle-thickness" min="1" max="3" value="1">
+
+        <label for="reticle-color">Reticle Color</label>
+        <input type="color" id="reticle-color" value="#00FF00">
+
+        <label for="grid-preset">Grid</label>
+        <select id="grid-preset">
+          <option value="none" selected>None</option>
+          <option value="thirds">Rule of Thirds</option>
+          <option value="center-cross">Center Cross</option>
+          <option value="quadrants">Quadrants</option>
+          <option value="fine-grid">Fine Grid</option>
+          <option value="golden-ratio">Golden Ratio</option>
+          <option value="crosshair-only">Crosshair Only</option>
+        </select>
+
+        <label for="grid-n">Fine Grid N</label>
+        <input type="number" id="grid-n" min="4" max="16" value="8">
+
+        <label for="grid-opacity">Grid Opacity</label>
+        <input type="range" id="grid-opacity" min="0" max="100" value="30">
+
+        <label for="grid-thickness">Grid Thickness</label>
+        <input type="range" id="grid-thickness" min="1" max="3" value="1">
+
+        <label for="grid-color">Grid Color</label>
+        <input type="color" id="grid-color" value="#00FF00">
+
+        <label><input type="checkbox" id="mirror-h"> Mirror Horizontal</label>
+        <label><input type="checkbox" id="mirror-v"> Mirror Vertical</label>
+        <label for="rotate-angle">Rotate</label>
+        <select id="rotate-angle">
+          <option value="0" selected>0°</option>
+          <option value="90">90°</option>
+          <option value="180">180°</option>
+          <option value="270">270°</option>
+        </select>
+        <label><input type="checkbox" id="transform-camera-only"> Camera Only (overlays stay fixed)</label>
+      </div>
+    </div>
+
+    <!-- Config Import/Export -->
+    <div class="hud-panel collapsed" id="panel-config">
+      <h3>Config</h3>
+      <div class="panel-body">
+        <button id="config-export">Export</button>
+        <button id="config-import-btn">Import</button>
+        <input type="file" id="config-import-file" accept=".json" style="display:none">
+      </div>
+    </div>
+
+    </div><!-- /hud-sidebar -->
+
+  </div><!-- /hud-layout -->
+
+  <!-- ===== TensorFlow.js CDN ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2/dist/coco-ssd.min.js"></script>
+
+  <!-- ===== Application Modules (dependency order) ===== -->
+  <!-- Foundation: config & buffers first -->
+  <script src="js/config-manager.js"></script>
+  <script src="js/buffer-pool.js"></script>
+
+  <!-- Input subsystems -->
+  <script src="js/video-capture.js"></script>
+  <script src="js/gamepad-input.js"></script>
+
+  <!-- Processing pipeline -->
+  <script src="js/frame-skipper.js"></script>
+  <script src="js/frame-processor.js"></script>
+
+  <!-- Detection & tracking -->
+  <script src="js/blob-tracker.js"></script>
+  <script src="js/object-matcher.js"></script>
+  <script src="js/tf-detector.js"></script>
+
+  <!-- Serial & PTZ control -->
+  <script src="js/template-engine.js"></script>
+  <script src="js/serial-controller.js"></script>
+  <script src="js/ptz-movement.js"></script>
+  <script src="js/multi-device-rules.js"></script>
+
+  <!-- Calibration -->
+  <script src="js/calibration-engine.js"></script>
+
+  <!-- Output -->
+  <script src="js/hud-renderer.js"></script>
+  <script src="js/video-recorder.js"></script>
+
+  <!-- Lifecycle & orchestrator (last) -->
+  <script src="js/lifecycle-manager.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Panel collapse toggle + sidebar toggle -->
+  <script>
+    document.querySelectorAll('.hud-panel h3').forEach(function(h3) {
+      h3.addEventListener('click', function() {
+        h3.parentElement.classList.toggle('collapsed');
+      });
+    });
+    var sidebarToggle = document.getElementById('sidebar-toggle');
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', function() {
+        document.getElementById('hud-sidebar').classList.toggle('hidden');
+      });
+    }
+  </script>
+
+</body>
+</html>
