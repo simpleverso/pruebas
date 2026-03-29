@@ -322,6 +322,93 @@ body::before {
 ::-webkit-scrollbar-thumb {
   background: var(--hud-border);
 }
+
+
+/* ==========================================================================
+   Mobile-Responsive Styles (≤600px)
+   ========================================================================== */
+@media (max-width: 600px) {
+
+  /* --- 1.2 Sidebar overlay --- */
+  #hud-sidebar {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    right: 0;
+    z-index: 250;
+    overflow-y: auto;
+  }
+
+  /* --- 1.3 Sidebar hidden state --- */
+  #hud-sidebar.hidden {
+    transform: translateX(100%);
+  }
+
+  /* --- 1.4 Sidebar toggle button --- */
+  #sidebar-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 20px;
+    z-index: 300;
+  }
+
+  /* --- 1.5 Telemetry bar responsive --- */
+  #telemetry-bar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 24px;
+    gap: 6px 8px;
+    padding: 4px 8px;
+  }
+
+  /* --- 1.6 Touch-friendly form elements --- */
+  .hud-panel select,
+  .hud-panel input,
+  .hud-panel button {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  /* --- 1.7 Button font-size override --- */
+  .hud-panel button {
+    font-size: 14px;
+  }
+
+  /* --- 1.8 Panel heading, label, and padding --- */
+  .hud-panel {
+    padding: 10px;
+  }
+
+  .hud-panel h3 {
+    font-size: 14px;
+  }
+
+  .hud-panel label {
+    font-size: 12px;
+  }
+
+  /* --- 1.9 PTZ pad button sizing --- */
+  #panel-ptz .panel-body > div {
+    gap: 4px;
+  }
+
+  #panel-ptz .panel-body > div button {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  /* --- 1.10 Range input and color picker sizing --- */
+  input[type="range"] {
+    min-height: 32px;
+  }
+
+  input[type="color"] {
+    min-height: 44px;
+  }
+
+}
   </style>
 </head>
 <body>
@@ -8438,7 +8525,8 @@ if (typeof globalThis !== 'undefined') {
 
 /* global globalThis, ConfigManager, BufferPool, VideoCapture, FrameSkipper, FrameProcessor,
    BlobTracker, ObjectMatcher, TFDetector, SerialController, TemplateEngine, PTZMovement,
-   MultiDeviceRules, GamepadInput, CalibrationEngine, HUDRenderer, VideoRecorder, LifecycleManager */
+   MultiDeviceRules, GamepadInput, CalibrationEngine, HUDRenderer, VideoRecorder, LifecycleManager,
+   TouchRegionHandler */
 
 var App = (function () {
   'use strict';
@@ -9585,6 +9673,17 @@ var App = (function () {
     return best;
   }
 
+  /**
+   * Temporarily set _roiRect for a flash duration then clear it.
+   * Used to provide visual feedback for tap-based ROI selection.
+   */
+  function _flashROI(roi, durationMs) {
+    _roiRect = roi;
+    setTimeout(function () {
+      _roiRect = null;
+    }, durationMs || 200);
+  }
+
   // ---- TF.js Detection Click → Adopt as Primary Target ----
 
   /**
@@ -9751,6 +9850,80 @@ var App = (function () {
       if (selectBtn) selectBtn.disabled = false;
       if (cancelBtn) cancelBtn.disabled = true;
     });
+
+    // ---- Touch-based ROI selection (parallel to mouse path) ----
+    // Reuses the same shared state and target creation logic.
+    if (typeof TouchRegionHandler !== 'undefined') {
+      TouchRegionHandler.init(_canvas, {
+        getRoiMode: function () { return _roiMode; },
+        setRoiMode: function (v) { _roiMode = v; },
+        getRoiSelecting: function () { return _roiSelecting; },
+        setRoiSelecting: function (v) { _roiSelecting = v; },
+        getRoiStart: function () { return _roiStart; },
+        setRoiStart: function (v) { _roiStart = v; },
+        getRoiRect: function () { return _roiRect; },
+        setRoiRect: function (v) { _roiRect = v; }
+      }, {
+        onROIFinalized: function (roi) {
+          // Same manual target creation logic as the mouseup handler
+          var cx = roi.x + roi.w / 2;
+          var cy = roi.y + roi.h / 2;
+          var isColor = (_templateMode === 'color');
+          var manualId = Date.now() + Math.random();
+          var manualBlob = {
+            id: manualId,
+            centroid: { x: cx, y: cy },
+            boundingBox: { x: roi.x, y: roi.y, w: roi.w, h: roi.h },
+            area: roi.w * roi.h,
+            velocity: { vx: 0, vy: 0 },
+            framesLost: 0,
+            descriptor: new Float32Array(0),
+            referenceDescriptor: new Float32Array(0),
+            pixels: new Uint8Array(0),
+            _template: null,
+            _color: isColor,
+            _roiTarget: true
+          };
+
+          // Capture initial template from current frame (same as mouse path)
+          var currentFrame = _displayFrame || _lastProcessedFrame;
+          if (currentFrame && currentFrame.data) {
+            var rx = Math.max(0, Math.round(roi.x));
+            var ry = Math.max(0, Math.round(roi.y));
+            var rw = Math.round(roi.w);
+            var rh = Math.round(roi.h);
+            if (rx + rw <= currentFrame.width && ry + rh <= currentFrame.height) {
+              manualBlob._template = _extractPatch(currentFrame, rx, ry, rw, rh);
+            }
+          }
+
+          _manualTargets.push(manualBlob);
+          _trackedBlobs.push(manualBlob);
+          _focusedTargetIndex = _manualTargets.length - 1;
+          _setPrimaryTarget(manualId);
+
+          // Enable auto-tracking and set PTZ to auto mode
+          _autoTrackEnabled = true;
+          PTZMovement.setMode('auto');
+          _syncTrackingButtons();
+          _updateTargetCountDisplay();
+
+          // Exit ROI mode, reset cursor, re-enable SELECT REGION button
+          _roiRect = null;
+          _roiStart = null;
+          _roiMode = false;
+          _canvas.style.cursor = '';
+          if (selectBtn) selectBtn.disabled = false;
+          if (cancelBtn) cancelBtn.disabled = true;
+        },
+        onOverlayUpdate: function (rect) {
+          _roiRect = rect;
+        },
+        onTapFlash: function (roi) {
+          _flashROI(roi, 200);
+        }
+      });
+    }
   }
 
   /**
