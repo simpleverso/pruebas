@@ -258,14 +258,45 @@ class UIManager {
 
   /**
    * Centralized button enable/disable control.
-   * @param {object} state - Object with button IDs as keys and boolean enabled states as values
-   *   e.g. { connectBtn: true, disconnectBtn: false, startBtn: false, stopBtn: false }
    */
   setButtonStates(state) {
     for (const [id, enabled] of Object.entries(state)) {
       const btn = document.getElementById(id);
       if (btn) btn.disabled = !enabled;
     }
+  }
+
+  /**
+   * Show a drone signal detection alert banner.
+   * Displayed when ZC correlation peaks indicate a drone signal
+   * even if the full DroneID has not been decoded yet.
+   */
+  showSignalAlert(peak1, peak2) {
+    let alertEl = document.getElementById('signalAlert');
+    if (!alertEl) {
+      // Create the alert banner once, insert above the drone list
+      alertEl = document.createElement('div');
+      alertEl.id = 'signalAlert';
+      alertEl.style.cssText = 'background: linear-gradient(135deg, #ff6f00, #ff8f00); color: #fff; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-weight: 600; font-size: 0.9em; display: flex; align-items: center; gap: 8px; animation: pulse 1.5s infinite;';
+
+      const droneList = document.getElementById('droneList');
+      if (droneList && droneList.parentNode) {
+        droneList.parentNode.insertBefore(alertEl, droneList);
+      } else {
+        return;
+      }
+    }
+
+    alertEl.innerHTML = `⚠️ <span>Drone signal detected</span> <span style="font-size:0.8em; opacity:0.85;">(ZC: ${peak1.toFixed(2)} / ${peak2.toFixed(2)})</span>`;
+    alertEl.style.display = 'flex';
+
+    // Auto-hide after 5 seconds if no new signal
+    clearTimeout(this._signalAlertTimeout);
+    this._signalAlertTimeout = setTimeout(() => {
+      if (alertEl) alertEl.style.display = 'none';
+    }, 5000);
+
+    logger.info(MODULE, `showSignalAlert: peak1=${peak1.toFixed(3)}, peak2=${peak2.toFixed(3)}`);
   }
 }
 

@@ -86,16 +86,18 @@ describe('Property 4: Logger Output Routing', () => {
     }
   });
 
-  it('appends DOM element with correct CSS class for any log level', () => {
+  it('appends DOM element with correct CSS class for any log level above DEBUG', () => {
+    // DEBUG level is intentionally skipped from DOM output to keep the UI responsive
+    // during high-frequency scanning. DEBUG logs still go to console and history.
+    const nonDebugLevels = LEVEL_CONFIG.filter(c => c.level > LogLevel.DEBUG);
+    const nonDebugArb = fc.constantFrom(...nonDebugLevels);
+
     fc.assert(
-      fc.property(levelConfigArb, moduleNameArb, messageArb, (config, moduleName, message) => {
-        // Reset captures
+      fc.property(nonDebugArb, moduleNameArb, messageArb, (config, moduleName, message) => {
         logEntries.length = 0;
 
-        // Call the logger method for this level
         logger[config.method](moduleName, message);
 
-        // Verify DOM element was appended
         assert.ok(
           logEntries.length > 0,
           `Expected DOM entry to be appended for ${config.method}`
@@ -103,11 +105,27 @@ describe('Property 4: Logger Output Routing', () => {
 
         const entry = logEntries[logEntries.length - 1];
 
-        // Verify CSS class matches the expected pattern
         assert.equal(
           entry.className,
           config.cssClass,
           `Expected CSS class "${config.cssClass}" but got "${entry.className}" for level ${config.method}`
+        );
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it('does NOT append DOM element for DEBUG level (performance optimization)', () => {
+    fc.assert(
+      fc.property(moduleNameArb, messageArb, (moduleName, message) => {
+        logEntries.length = 0;
+
+        logger.debug(moduleName, message);
+
+        assert.equal(
+          logEntries.length,
+          0,
+          'DEBUG level should not append to DOM'
         );
       }),
       { numRuns: 100 }

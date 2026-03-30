@@ -63,14 +63,16 @@ class Logger {
 
     this.history.push({ timestamp, level: levelName, module, message, data });
 
-    // DOM output
-    const logConsole = document.getElementById('logConsole');
-    if (logConsole) {
-      const entry = document.createElement('div');
-      entry.className = `log-entry ${LEVEL_CSS_CLASSES[level]}`;
-      entry.textContent = formatted;
-      logConsole.appendChild(entry);
-      logConsole.scrollTop = logConsole.scrollHeight;
+    // DOM output — skip DEBUG level to avoid flooding the UI during scanning
+    if (level > LogLevel.DEBUG) {
+      const logConsole = document.getElementById('logConsole');
+      if (logConsole) {
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${LEVEL_CSS_CLASSES[level]}`;
+        entry.textContent = formatted;
+        logConsole.appendChild(entry);
+        logConsole.scrollTop = logConsole.scrollHeight;
+      }
     }
 
     // Console output

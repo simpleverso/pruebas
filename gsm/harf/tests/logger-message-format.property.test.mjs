@@ -121,28 +121,30 @@ describe('Property 3: Logger Message Format', () => {
             `Console output should contain module name "${moduleName}". Got: "${consoleOutput}"`
           );
 
-          // Also verify DOM output has the same properties
-          assert.ok(
-            logEntries.length > 0,
-            `Expected DOM entry to be appended for ${label}`
-          );
+          // Verify DOM output has the same properties (except DEBUG which skips DOM for performance)
+          if (label !== 'DEBUG') {
+            assert.ok(
+              logEntries.length > 0,
+              `Expected DOM entry to be appended for ${label}`
+            );
 
-          const domText = logEntries[logEntries.length - 1].textContent;
+            const domText = logEntries[logEntries.length - 1].textContent;
 
-          assert.ok(
-            TIMESTAMP_PATTERN.test(domText),
-            `DOM output should contain HH:MM:SS timestamp. Got: "${domText}"`
-          );
+            assert.ok(
+              TIMESTAMP_PATTERN.test(domText),
+              `DOM output should contain HH:MM:SS timestamp. Got: "${domText}"`
+            );
 
-          assert.ok(
-            domText.includes(label),
-            `DOM output should contain level label "${label}". Got: "${domText}"`
-          );
+            assert.ok(
+              domText.includes(label),
+              `DOM output should contain level label "${label}". Got: "${domText}"`
+            );
 
-          assert.ok(
-            domText.includes(moduleName),
-            `DOM output should contain module name "${moduleName}". Got: "${domText}"`
-          );
+            assert.ok(
+              domText.includes(moduleName),
+              `DOM output should contain module name "${moduleName}". Got: "${domText}"`
+            );
+          }
         }),
         { numRuns: 100 }
       );
