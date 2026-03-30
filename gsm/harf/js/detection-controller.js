@@ -133,22 +133,22 @@ class DetectionController {
         uiManager.updateDecoderStep('iq', 'active');
 
         // Process through DroneID decoder
-        const result = this.decoder.processSamples(data);
+        const decodeResult = this.decoder.processSamples(data);
 
-        if (result) {
+        if (decodeResult) {
           // Signal detected (ZC correlation above threshold)
-          if (result.signalDetected) {
-            this._handleSignalDetected(result.peak1, result.peak2);
+          if (decodeResult.signalDetected) {
+            this._handleSignalDetected(decodeResult.peak1, decodeResult.peak2);
           }
 
           // Full packet decoded
-          if (result.packet) {
+          if (decodeResult.packet) {
             this.validDroneIDCount++;
 
             const validDroneIDEl = document.getElementById('validDroneID');
             if (validDroneIDEl) validDroneIDEl.textContent = this.validDroneIDCount;
 
-            this.processValidPacket(result.packet);
+            this.processValidPacket(decodeResult.packet);
           }
         }
 
