@@ -416,3 +416,143 @@ interface LogEntry {
 }
 ```
 
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 1: DOM ID Preservation
+
+*For any* element ID present in the original `harf.html`, the refactored `index.html` shall contain an element with the same ID.
+
+**Validates: Requirements 1.4**
+
+### Property 2: CSS Selector Preservation
+
+*For any* CSS selector defined in the original `<style>` block of `harf.html`, the external `css/styles.css` shall contain a rule with the same selector.
+
+**Validates: Requirements 2.1**
+
+### Property 3: Logger Message Format
+
+*For any* log level, module name, and message string, calling the corresponding logger method shall produce output that contains a timestamp matching `HH:MM:SS` pattern, the level label (DEBUG/INFO/WARNING/ERROR/SUCCESS), and the module name.
+
+**Validates: Requirements 3.4**
+
+### Property 4: Logger Output Routing
+
+*For any* log level, calling the corresponding logger method shall both append a child element to the `#logConsole` DOM element with a CSS class matching the level name, and call the corresponding `console.*` method (debug→console.debug, info→console.info, warning→console.warn, error→console.error, success→console.log).
+
+**Validates: Requirements 3.5, 3.6**
+
+### Property 5: Logger Level Filtering
+
+*For any* pair of (minLevel, messageLevel) where messageLevel is strictly below minLevel, calling the logger method for messageLevel shall produce no DOM output and no console output.
+
+**Validates: Requirements 3.7**
+
+### Property 6: Complex Arithmetic Correctness
+
+*For any* two Complex numbers (a, b), the following must hold:
+- `a.add(b)` equals `Complex(a.re + b.re, a.im + b.im)`
+- `a.sub(b)` equals `Complex(a.re - b.re, a.im - b.im)`
+- `a.mul(b)` equals `Complex(a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re)`
+- `a.magnitude()` equals `sqrt(a.re² + a.im²)`
+- `a.conjugate()` equals `Complex(a.re, -a.im)`
+
+**Validates: Requirements 6.3**
+
+### Property 7: FFT Size Invariant
+
+*For any* valid power-of-2 FFT size N and any array of N Complex numbers, `FFT.forward()` shall return an array of exactly N Complex numbers, and the bit-reversed indices array shall have length N.
+
+**Validates: Requirements 6.3**
+
+### Property 8: ZadoffChu Sequence Length
+
+*For any* root index and sequence length L, `ZadoffChu.generate(root, L)` shall return an array of exactly L Complex numbers, and each element shall have magnitude approximately equal to 1.0 (unit magnitude property of ZC sequences).
+
+**Validates: Requirements 6.3**
+
+### Property 9: GoldSequence Output is Binary
+
+*For any* seed value and requested length L, `GoldSequence.generate(L)` shall return an array of exactly L values, where each value is either 0 or 1.
+
+**Validates: Requirements 6.3**
+
+### Property 10: QPSK Demodulation Output Size
+
+*For any* array of N Complex subcarrier symbols, `qpskDemodulate()` shall return an array of exactly 2×N bits, where each bit is either 0 or 1.
+
+**Validates: Requirements 7.7**
+
+### Property 11: Coordinate Parsing Round Trip
+
+*For any* integer coordinate value in the range [-1800000000, 1800000000], encoding it as 4 big-endian bytes and then calling `parseCoordinate()` shall return the original value divided by 10000000.
+
+**Validates: Requirements 7.3, 11.4**
+
+### Property 12: Band-to-Frequency Mapping
+
+*For any* band name in {`'2.4'`, `'5.8'`, `'1.4'`}, the frequency controller shall resolve it to the same constant as the original: 2437000000, 5200000000, or 1420000000 Hz respectively.
+
+**Validates: Requirements 5.3, 11.2**
+
+### Property 13: ES Module Syntax
+
+*For any* JavaScript file in the `js/` directory, the file shall contain at least one `export` statement and shall not assign to `window.*` globals for inter-module communication.
+
+**Validates: Requirements 12.3**
+
+## Error Handling
+
+Each module follows the same error handling pattern from the original `harf.html`:
+
+1. **USB operations** (HackRF Manager): All `controlTransferIn`/`controlTransferOut`/`transferIn` calls are wrapped in try/catch. On failure, the error is logged with context (operation name, parameters, error message). The function returns gracefully without crashing the app. The `disconnectHackRF` function handles partial cleanup if the device is in an inconsistent state.
+
+2. **Detection loop** (Detection Controller): If `transferIn` fails during the receive loop, the error is logged and the loop retries after a 100ms delay (matching original behavior). If scanning has been stopped during the error, the loop exits cleanly.
+
+3. **Packet parsing** (DroneID Decoder): `parsePacket`, `parseDJIDroneID`, and `parseRemoteID` are wrapped in try/catch. Parse failures return `null` and log a debug message. The decoder continues processing subsequent frames.
+
+4. **DOM operations** (UI Manager): All DOM element lookups use `getElementById` with null checks. If an element is missing, the operation is skipped with a warning log rather than throwing.
+
+5. **Initialization** (Main): WebUSB API availability is checked at startup. If `navigator.usb` is undefined, the connect button is disabled and an error is logged. The app remains functional for viewing the UI but cannot connect to hardware.
+
+6. **Logger**: The logger itself never throws. If `#logConsole` is not found in the DOM, it falls back to console-only output.
+
+## Testing Strategy
+
+### Unit Tests
+
+Unit tests verify specific examples and edge cases:
+
+- **Logger**: Verify each log level produces the correct CSS class and console method call. Verify suppression when minLevel is set above the message level. Verify graceful behavior when `#logConsole` is missing.
+- **DSP classes**: Verify known FFT outputs for simple inputs (e.g., all-ones input, single-impulse input). Verify ZadoffChu sequence for known root/length pairs. Verify GoldSequence for known seed values.
+- **DroneID Decoder**: Verify `parseCoordinate`, `parseInt16`, `parseUInt16`, `parseString` with known byte arrays. Verify `parseDJIDroneID` and `parseRemoteID` with crafted packet bytes containing known OUI signatures. Verify `parsePacket` returns null when no OUI is found.
+- **Frequency Controller**: Verify each band maps to the correct frequency constant. Verify custom frequency calculation from slider value.
+- **File structure**: Verify `index.html` has no inline `<script>` or `<style>` blocks. Verify all expected files exist at the correct paths.
+
+### Property-Based Tests
+
+Property-based tests verify universal properties across randomly generated inputs. Use **fast-check** as the PBT library (JavaScript, browser-compatible, well-maintained).
+
+Configuration:
+- Minimum 100 iterations per property test
+- Each test tagged with: `Feature: hackrf-drone-detector-refactor, Property {N}: {title}`
+
+Properties to implement:
+
+1. **Property 1 (DOM ID Preservation)**: Parse both HTML files, extract all `id` attributes, verify the refactored set is a superset of the original set. (Single execution, not randomized — implemented as unit test.)
+2. **Property 3 (Logger Message Format)**: Generate random module names and messages, verify output format.
+3. **Property 4 (Logger Output Routing)**: Generate random log levels, verify DOM and console output.
+4. **Property 5 (Logger Level Filtering)**: Generate random (minLevel, messageLevel) pairs, verify suppression.
+5. **Property 6 (Complex Arithmetic)**: Generate random Complex number pairs, verify arithmetic identities.
+6. **Property 7 (FFT Size Invariant)**: Generate random Complex arrays of power-of-2 sizes, verify output length.
+7. **Property 8 (ZadoffChu Length & Magnitude)**: Generate random root/length, verify output length and unit magnitude.
+8. **Property 9 (GoldSequence Binary)**: Generate random seeds and lengths, verify output is binary.
+9. **Property 10 (QPSK Output Size)**: Generate random Complex arrays, verify output length = 2× input length and values are binary.
+10. **Property 11 (Coordinate Round Trip)**: Generate random integers in valid range, verify encode→parse round trip.
+11. **Property 12 (Band Mapping)**: Generate random band selections from the valid set, verify frequency.
+12. **Property 13 (ES Module Syntax)**: Read each JS file, verify export presence and no window.* assignments.
+
+Each correctness property is implemented by a single property-based test. Unit tests complement these by covering specific edge cases, integration points, and error conditions that property tests don't address (e.g., USB error handling, DOM element missing scenarios).
