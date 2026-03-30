@@ -18,7 +18,6 @@ class DetectionController {
     this.scanStartTime = null;
     this.packetCount = 0;
     this.validDroneIDCount = 0;
-    this.transferLoop = null;
     this.decoder = new DroneIDDecoder();
     this.lastSignalAlertTime = 0;
     this.signalDetectionCount = 0;
@@ -88,11 +87,6 @@ class DetectionController {
   async stopDetection() {
     this.isScanning = false;
 
-    if (this.transferLoop) {
-      clearTimeout(this.transferLoop);
-      this.transferLoop = null;
-    }
-
     if (hackrfManager.isConnected) {
       await hackrfManager.setTransceiverMode(HACKRF_TRANSCEIVER_MODE_OFF);
     }
@@ -113,37 +107,32 @@ class DetectionController {
   }
 
   /**
-   * Receive loop. Ported from startReceiveLoop() in harf.html.
-   * Calls hackrfManager.transferIn, passes data to decoder.processSamples,
-   * calls uiManager updates on valid packets.
+   * Receive loop — runs entirely on the main thread.
+   * Simple while-loop with direct await on transferIn.
+   * Each await naturally yields to the browser so the UI stays responsive.
+   * No setTimeout, no Promise.race, no Workers.
    */
   async startReceiveLoop() {
-    if (!this.isScanning) return;
+    const TRANSFER_SIZE = 16384;
+    let consecutiveErrors = 0;
 
-    try {
-      logger.debug(MODULE, 'startReceiveLoop: waiting for transferIn...');
+    while (this.isScanning) {
+      try {
+        const result = await hackrfManager.transferIn(1, TRANSFER_SIZE);
+        consecutiveErrors = 0;
 
-      // Use smaller transfer size for WebUSB compatibility.
-      // Large bulk transfers (262144 bytes) can stall on some WebUSB
-      // implementations. 16384 bytes matches common USB bulk transfer sizes
-      // and keeps the main thread responsive.
-      const TRANSFER_SIZE = 16384;
-      const result = await hackrfManager.transferIn(1, TRANSFER_SIZE);
+        if (!result || !result.data || result.data.byteLength === 0) continue;
 
-      if (result && result.data) {
         const data = new Uint8Array(result.data.buffer);
         this.packetCount++;
-
-        logger.debug(MODULE, `startReceiveLoop: transfer size=${data.length} bytes`);
 
         // Update decoder step visualization
         uiManager.updateDecoderStep('iq', 'complete');
 
-        // Process through DroneID decoder
+        // Process through DroneID decoder on the main thread
         const decodeResult = this.decoder.processSamples(data);
 
         if (decodeResult) {
-          // Update decoder steps based on what happened
           uiManager.updateDecoderStep('fft', 'complete');
 
           if (decodeResult.signalDetected) {
@@ -152,7 +141,6 @@ class DetectionController {
             uiManager.updateDecoderStep('decode', decodeResult.packet ? 'complete' : 'active');
           }
 
-          // Full packet decoded
           if (decodeResult.packet) {
             uiManager.updateDecoderStep('parse', 'complete');
             this.validDroneIDCount++;
@@ -165,29 +153,31 @@ class DetectionController {
             uiManager.updateDecoderStep('parse', '');
           }
         } else {
-          // No frame processed yet (buffering)
           uiManager.updateDecoderStep('fft', '');
           uiManager.updateDecoderStep('demod', '');
           uiManager.updateDecoderStep('decode', '');
           uiManager.updateDecoderStep('parse', '');
         }
 
-        // Update stats periodically
+        // Update stats every 10 packets
         if (this.packetCount % 10 === 0) {
           uiManager.updatePacketRate(this.packetCount);
           uiManager.updateSignalStrength(data);
         }
-      }
 
-      if (this.isScanning) {
-        // Use setTimeout with 1ms to yield to the browser's rendering/event loop
-        this.transferLoop = setTimeout(() => this.startReceiveLoop(), 1);
-      }
+      } catch (error) {
+        if (!this.isScanning) break;
+        consecutiveErrors++;
+        logger.error(MODULE, `Receive error: ${error.message} (attempt ${consecutiveErrors})`);
 
-    } catch (error) {
-      if (this.isScanning) {
-        logger.error(MODULE, `Receive error: ${error.message}, retry delay=100ms`);
-        this.transferLoop = setTimeout(() => this.startReceiveLoop(), 100);
+        // Back off on repeated errors, bail after 20 consecutive failures
+        if (consecutiveErrors >= 20) {
+          logger.error(MODULE, 'Too many consecutive transfer errors, stopping detection');
+          this.stopDetection();
+          break;
+        }
+        // Small delay before retry to avoid hammering a broken endpoint
+        await new Promise(r => setTimeout(r, 50));
       }
     }
   }
