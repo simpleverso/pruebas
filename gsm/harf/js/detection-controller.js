@@ -121,7 +121,15 @@ class DetectionController {
     if (!this.isScanning) return;
 
     try {
-      const result = await hackrfManager.transferIn(1, SAMPLE_BUFFER_SIZE);
+      logger.debug(MODULE, 'startReceiveLoop: waiting for transferIn...');
+
+      // Add timeout to transferIn to prevent indefinite hanging
+      const transferPromise = hackrfManager.transferIn(1, SAMPLE_BUFFER_SIZE);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('transferIn timeout (5s)')), 5000)
+      );
+
+      const result = await Promise.race([transferPromise, timeoutPromise]);
 
       if (result && result.data) {
         const data = new Uint8Array(result.data.buffer);
