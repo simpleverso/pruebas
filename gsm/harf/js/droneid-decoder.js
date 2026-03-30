@@ -34,33 +34,41 @@ export class DroneIDDecoder {
     logger.debug(MODULE, `processSamples: raw I/Q bytes=${iqData.length}`);
 
     // Convert uint8 I/Q to complex numbers (HackRF returns interleaved I/Q)
-    const samples = [];
-    for (let i = 0; i < iqData.length; i += 2) {
-      // Convert unsigned to signed (-128 to 127)
-      const iSample = (iqData[i] & 0xFF) - 128;
-      const qSample = (iqData[i + 1] & 0xFF) - 128;
-      samples.push(new Complex(iSample / 128.0, qSample / 128.0));
+    // Use a pre-allocated array instead of push() for better performance
+    const sampleCount = iqData.length >> 1;
+    const samples = new Array(sampleCount);
+    for (let i = 0; i < sampleCount; i++) {
+      const idx = i << 1;
+      const iSample = (iqData[idx] - 128) / 128.0;
+      const qSample = (iqData[idx + 1] - 128) / 128.0;
+      samples[i] = new Complex(iSample, qSample);
     }
 
-    logger.debug(MODULE, `processSamples: Complex samples produced=${samples.length}`);
+    logger.debug(MODULE, `processSamples: Complex samples produced=${sampleCount}`);
 
-    // Add to frame buffer — use Array.prototype.push.apply or concat to avoid stack overflow
-    // push(...samples) would pass 131k arguments and exceed the call stack
-    for (let i = 0; i < samples.length; i++) {
-      this.frameBuffer.push(samples[i]);
-    }
+    // Concatenate to frame buffer (safe for any size — no spread operator)
+    this.frameBuffer = this.frameBuffer.concat(samples);
 
     logger.debug(MODULE, `processSamples: frame buffer length=${this.frameBuffer.length}`);
 
-    // Process when we have enough samples (2x FFT_SIZE for overlap)
-    if (this.frameBuffer.length >= FFT_SIZE * 2) {
+    // Process frames while we have enough samples
+    let lastPacket = null;
+    while (this.frameBuffer.length >= FFT_SIZE * 2) {
       const frame = this.frameBuffer.slice(0, FFT_SIZE);
       this.frameBuffer = this.frameBuffer.slice(FFT_SIZE / 2); // 50% overlap
 
-      return this.processFrame(frame);
+      const packet = this.processFrame(frame);
+      if (packet) {
+        lastPacket = packet;
+      }
     }
 
-    return null;
+    // Cap buffer size to prevent unbounded growth
+    if (this.frameBuffer.length > FFT_SIZE * 4) {
+      this.frameBuffer = this.frameBuffer.slice(this.frameBuffer.length - FFT_SIZE * 2);
+    }
+
+    return lastPacket;
   }
 
   processFrame(samples) {
@@ -72,8 +80,16 @@ export class DroneIDDecoder {
     const correlation2 = this.correlateZC(fftOutput, this.zcSeq2);
 
     // Check for strong correlation (indicates DroneID frame)
-    const peak1 = Math.max(...correlation1.map(Math.abs));
-    const peak2 = Math.max(...correlation2.map(Math.abs));
+    let peak1 = 0;
+    for (let i = 0; i < correlation1.length; i++) {
+      const v = Math.abs(correlation1[i]);
+      if (v > peak1) peak1 = v;
+    }
+    let peak2 = 0;
+    for (let i = 0; i < correlation2.length; i++) {
+      const v = Math.abs(correlation2[i]);
+      if (v > peak2) peak2 = v;
+    }
 
     logger.debug(MODULE, `processFrame: ZC correlation peak1=${peak1.toFixed(4)}, peak2=${peak2.toFixed(4)}, threshold=0.7`);
     logger.debug(MODULE, `processFrame: threshold check peak1>${0.7}: ${peak1 > 0.7}, peak2>${0.7}: ${peak2 > 0.7}`);
