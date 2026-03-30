@@ -44,8 +44,11 @@ export class DroneIDDecoder {
 
     logger.debug(MODULE, `processSamples: Complex samples produced=${samples.length}`);
 
-    // Add to frame buffer
-    this.frameBuffer.push(...samples);
+    // Add to frame buffer — use Array.prototype.push.apply or concat to avoid stack overflow
+    // push(...samples) would pass 131k arguments and exceed the call stack
+    for (let i = 0; i < samples.length; i++) {
+      this.frameBuffer.push(samples[i]);
+    }
 
     logger.debug(MODULE, `processSamples: frame buffer length=${this.frameBuffer.length}`);
 
