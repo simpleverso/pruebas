@@ -1,0 +1,314 @@
+[
+  {
+    "timestamp": "20:30:15.199",
+    "level": "INFO",
+    "module": "DSP",
+    "message": "FFT constructed: size=2048, bit-reversed indices count=2048"
+  },
+  {
+    "timestamp": "20:30:15.202",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "ZadoffChu.generate: root=600, length=2048, execution time=1.400ms"
+  },
+  {
+    "timestamp": "20:30:15.203",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "ZadoffChu.generate: root=147, length=2048, execution time=0.500ms"
+  },
+  {
+    "timestamp": "20:30:15.211",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "FFT.forward: input length=2048, stages=11, execution time=7.900ms"
+  },
+  {
+    "timestamp": "20:30:15.218",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "FFT.forward: input length=2048, stages=11, execution time=4.500ms"
+  },
+  {
+    "timestamp": "20:30:15.218",
+    "level": "INFO",
+    "module": "DroneIDDecoder",
+    "message": "DroneIDDecoder constructed: FFT_SIZE=2048, ZC roots=[600, 147], frequency-domain correlation enabled"
+  },
+  {
+    "timestamp": "20:30:15.220",
+    "level": "INFO",
+    "module": "Main",
+    "message": "Logger module loaded"
+  },
+  {
+    "timestamp": "20:30:15.223",
+    "level": "INFO",
+    "module": "Main",
+    "message": "HackRFManager module loaded"
+  },
+  {
+    "timestamp": "20:30:15.226",
+    "level": "INFO",
+    "module": "Main",
+    "message": "FrequencyController module loaded"
+  },
+  {
+    "timestamp": "20:30:15.228",
+    "level": "INFO",
+    "module": "Main",
+    "message": "DetectionController module loaded"
+  },
+  {
+    "timestamp": "20:30:15.229",
+    "level": "INFO",
+    "module": "Main",
+    "message": "UIManager module loaded"
+  },
+  {
+    "timestamp": "20:30:15.257",
+    "level": "INFO",
+    "module": "UIManager",
+    "message": "Map initialized: center=[16.4333,-95.0167], zoom=14, tileURL=https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+  },
+  {
+    "timestamp": "20:30:15.260",
+    "level": "INFO",
+    "module": "Main",
+    "message": "Map initialized"
+  },
+  {
+    "timestamp": "20:30:15.262",
+    "level": "SUCCESS",
+    "module": "Main",
+    "message": "WebUSB API available"
+  },
+  {
+    "timestamp": "20:30:15.264",
+    "level": "INFO",
+    "module": "Main",
+    "message": "Event handlers bound: connect, disconnect, start, stop, band selection, sliders, download logs"
+  },
+  {
+    "timestamp": "20:30:15.266",
+    "level": "SUCCESS",
+    "module": "Main",
+    "message": "Application ready"
+  },
+  {
+    "timestamp": "20:30:19.853",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Requesting USB device access..."
+  },
+  {
+    "timestamp": "20:30:21.725",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Device selected: HackRF One"
+  },
+  {
+    "timestamp": "20:30:21.734",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Device opened"
+  },
+  {
+    "timestamp": "20:30:21.741",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Configuration selected"
+  },
+  {
+    "timestamp": "20:30:21.750",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Interface claimed"
+  },
+  {
+    "timestamp": "20:30:21.756",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Reading board info..."
+  },
+  {
+    "timestamp": "20:30:21.767",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "HackRF Version: 2017.02.1"
+  },
+  {
+    "timestamp": "20:30:21.774",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "HackRF connected successfully!"
+  },
+  {
+    "timestamp": "20:30:21.780",
+    "level": "INFO",
+    "module": "UIManager",
+    "message": "updateConnectionStatus: connected"
+  },
+  {
+    "timestamp": "20:30:28.558",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting sample rate: 4000000 Hz (4.0 MS/s)"
+  },
+  {
+    "timestamp": "20:30:28.590",
+    "level": "DEBUG",
+    "module": "HackRFManager",
+    "message": "Baseband filter bandwidth set: 4.0 MHz"
+  },
+  {
+    "timestamp": "20:30:28.590",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Sample rate set: 4.0 MS/s"
+  },
+  {
+    "timestamp": "20:30:28.594",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting LNA gain: 16 dB"
+  },
+  {
+    "timestamp": "20:30:28.597",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "LNA gain set: 16 dB"
+  },
+  {
+    "timestamp": "20:30:28.600",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting VGA gain: 30 dB"
+  },
+  {
+    "timestamp": "20:30:28.604",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "VGA gain set: 30 dB"
+  },
+  {
+    "timestamp": "20:30:28.607",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting frequency: 2437000000 Hz (2437.000 MHz), MHz=2437, remainder=0 Hz"
+  },
+  {
+    "timestamp": "20:30:28.611",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Frequency set: 2437.000 MHz"
+  },
+  {
+    "timestamp": "20:30:28.614",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting transceiver mode: RECEIVE (1)"
+  },
+  {
+    "timestamp": "20:30:28.619",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Transceiver mode set: RECEIVE"
+  },
+  {
+    "timestamp": "20:30:28.621",
+    "level": "INFO",
+    "module": "DetectionController",
+    "message": "startDetection: sampleRate=4000000 Hz, LNA gain=16 dB, VGA gain=30 dB, band=2.4, frequency=2437.000 MHz"
+  },
+  {
+    "timestamp": "20:30:28.623",
+    "level": "SUCCESS",
+    "module": "DetectionController",
+    "message": "Starting DroneID detection with real-time decoding..."
+  },
+  {
+    "timestamp": "20:30:28.625",
+    "level": "DEBUG",
+    "module": "DetectionController",
+    "message": "startReceiveLoop: waiting for transferIn..."
+  },
+  {
+    "timestamp": "20:30:33.630",
+    "level": "ERROR",
+    "module": "DetectionController",
+    "message": "Receive error: transferIn timeout (5s), retry delay=100ms"
+  },
+  {
+    "timestamp": "20:30:33.738",
+    "level": "DEBUG",
+    "module": "DetectionController",
+    "message": "startReceiveLoop: waiting for transferIn..."
+  },
+  {
+    "timestamp": "20:30:38.739",
+    "level": "ERROR",
+    "module": "DetectionController",
+    "message": "Receive error: transferIn timeout (5s), retry delay=100ms"
+  },
+  {
+    "timestamp": "20:30:38.844",
+    "level": "DEBUG",
+    "module": "DetectionController",
+    "message": "startReceiveLoop: waiting for transferIn..."
+  },
+  {
+    "timestamp": "20:30:41.510",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting transceiver mode: OFF (0)"
+  },
+  {
+    "timestamp": "20:30:41.522",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Transceiver mode set: OFF"
+  },
+  {
+    "timestamp": "20:30:41.528",
+    "level": "INFO",
+    "module": "UIManager",
+    "message": "updateConnectionStatus: connected"
+  },
+  {
+    "timestamp": "20:30:41.536",
+    "level": "DEBUG",
+    "module": "UIManager",
+    "message": "updateDecoderStep: step=iq, status="
+  },
+  {
+    "timestamp": "20:30:41.536",
+    "level": "DEBUG",
+    "module": "UIManager",
+    "message": "updateDecoderStep: step=fft, status="
+  },
+  {
+    "timestamp": "20:30:41.536",
+    "level": "DEBUG",
+    "module": "UIManager",
+    "message": "updateDecoderStep: step=demod, status="
+  },
+  {
+    "timestamp": "20:30:41.537",
+    "level": "DEBUG",
+    "module": "UIManager",
+    "message": "updateDecoderStep: step=decode, status="
+  },
+  {
+    "timestamp": "20:30:41.537",
+    "level": "DEBUG",
+    "module": "UIManager",
+    "message": "updateDecoderStep: step=parse, status="
+  },
+  {
+    "timestamp": "20:30:41.538",
+    "level": "INFO",
+    "module": "DetectionController",
+    "message": "stopDetection: total duration=12s, packets=0, valid DroneIDs=0"
+  }
+]
