@@ -24,9 +24,14 @@ export class DroneIDDecoder {
     this.fft = new FFT(FFT_SIZE);
     this.zcSeq1 = ZadoffChu.generate(ZC_ROOT_1, FFT_SIZE);
     this.zcSeq2 = ZadoffChu.generate(ZC_ROOT_2, FFT_SIZE);
+
+    // Pre-compute conjugate FFTs of ZC sequences for fast frequency-domain correlation
+    this.zcFft1Conj = this.fft.forward(this.zcSeq1).map(c => c.conjugate());
+    this.zcFft2Conj = this.fft.forward(this.zcSeq2).map(c => c.conjugate());
+
     this.frameBuffer = [];
     this.state = 'SEARCH';
-    logger.info(MODULE, `DroneIDDecoder constructed: FFT_SIZE=${FFT_SIZE}, ZC roots=[${ZC_ROOT_1}, ${ZC_ROOT_2}]`);
+    logger.info(MODULE, `DroneIDDecoder constructed: FFT_SIZE=${FFT_SIZE}, ZC roots=[${ZC_ROOT_1}, ${ZC_ROOT_2}], frequency-domain correlation enabled`);
   }
 
   // Process I/Q samples from HackRF
@@ -34,7 +39,6 @@ export class DroneIDDecoder {
     logger.debug(MODULE, `processSamples: raw I/Q bytes=${iqData.length}`);
 
     // Convert uint8 I/Q to complex numbers (HackRF returns interleaved I/Q)
-    // Use a pre-allocated array instead of push() for better performance
     const sampleCount = iqData.length >> 1;
     const samples = new Array(sampleCount);
     for (let i = 0; i < sampleCount; i++) {
@@ -46,86 +50,104 @@ export class DroneIDDecoder {
 
     logger.debug(MODULE, `processSamples: Complex samples produced=${sampleCount}`);
 
-    // Concatenate to frame buffer (safe for any size — no spread operator)
+    // Concatenate to frame buffer
     this.frameBuffer = this.frameBuffer.concat(samples);
 
-    logger.debug(MODULE, `processSamples: frame buffer length=${this.frameBuffer.length}`);
-
-    // Process frames while we have enough samples
-    let lastPacket = null;
-    while (this.frameBuffer.length >= FFT_SIZE * 2) {
+    // Process only ONE frame per call to keep the main thread responsive.
+    // The receive loop calls us again quickly, so we'll catch up.
+    if (this.frameBuffer.length >= FFT_SIZE * 2) {
       const frame = this.frameBuffer.slice(0, FFT_SIZE);
-      this.frameBuffer = this.frameBuffer.slice(FFT_SIZE / 2); // 50% overlap
+      this.frameBuffer = this.frameBuffer.slice(FFT_SIZE / 2);
 
-      const packet = this.processFrame(frame);
-      if (packet) {
-        lastPacket = packet;
+      // Cap buffer to prevent unbounded growth
+      if (this.frameBuffer.length > FFT_SIZE * 8) {
+        logger.debug(MODULE, `processSamples: trimming buffer from ${this.frameBuffer.length} to ${FFT_SIZE * 2}`);
+        this.frameBuffer = this.frameBuffer.slice(this.frameBuffer.length - FFT_SIZE * 2);
       }
+
+      return this.processFrame(frame);
     }
 
-    // Cap buffer size to prevent unbounded growth
-    if (this.frameBuffer.length > FFT_SIZE * 4) {
-      this.frameBuffer = this.frameBuffer.slice(this.frameBuffer.length - FFT_SIZE * 2);
-    }
-
-    return lastPacket;
+    return null;
   }
 
   processFrame(samples) {
     // Perform FFT for OFDM demodulation
     const fftOutput = this.fft.forward(samples);
 
-    // Find Zadoff-Chu sequences for synchronization
-    const correlation1 = this.correlateZC(fftOutput, this.zcSeq1);
-    const correlation2 = this.correlateZC(fftOutput, this.zcSeq2);
+    // Frequency-domain correlation: multiply FFT(signal) * conj(FFT(ZC)), then IFFT
+    // This is O(N log N) instead of O(N²) time-domain correlation
+    const corr1 = this.correlateZCFreqDomain(fftOutput, this.zcFft1Conj);
+    const corr2 = this.correlateZCFreqDomain(fftOutput, this.zcFft2Conj);
 
-    // Check for strong correlation (indicates DroneID frame)
-    let peak1 = 0;
-    for (let i = 0; i < correlation1.length; i++) {
-      const v = Math.abs(correlation1[i]);
-      if (v > peak1) peak1 = v;
+    // Find peak correlation values
+    let peak1 = 0, peak2 = 0;
+    for (let i = 0; i < corr1.length; i++) {
+      if (corr1[i] > peak1) peak1 = corr1[i];
     }
-    let peak2 = 0;
-    for (let i = 0; i < correlation2.length; i++) {
-      const v = Math.abs(correlation2[i]);
-      if (v > peak2) peak2 = v;
+    for (let i = 0; i < corr2.length; i++) {
+      if (corr2[i] > peak2) peak2 = corr2[i];
     }
 
     logger.debug(MODULE, `processFrame: ZC correlation peak1=${peak1.toFixed(4)}, peak2=${peak2.toFixed(4)}, threshold=0.7`);
-    logger.debug(MODULE, `processFrame: threshold check peak1>${0.7}: ${peak1 > 0.7}, peak2>${0.7}: ${peak2 > 0.7}`);
+
+    // Signal detected if at least one ZC sequence correlates above threshold
+    const signalDetected = peak1 > 0.3 || peak2 > 0.3;
 
     if (peak1 > 0.7 && peak2 > 0.7) {
-      // Extract subcarriers
+      // Strong correlation on both — attempt full decode
       const subcarriers = this.extractSubcarriers(fftOutput);
-
-      // QPSK demodulation
       const bits = this.qpskDemodulate(subcarriers);
-
-      // Descramble with Gold sequence
       const descrambled = this.descramble(bits);
-
-      // Turbo decode (simplified)
       const decoded = this.turboDecode(descrambled);
-
-      // Parse DroneID packet
       const packet = this.parsePacket(decoded);
 
       if (packet) {
-        return packet;
+        return { packet, signalDetected: true, peak1, peak2 };
       }
+
+      // Decode failed but signal was strong
+      return { packet: null, signalDetected: true, peak1, peak2 };
     }
 
-    return null;
+    // Return signal detection info even without full decode
+    return { packet: null, signalDetected, peak1, peak2 };
   }
 
+  /**
+   * Frequency-domain correlation: O(N log N) instead of O(N²).
+   * Multiplies FFT(signal) * conj(FFT(ZC)), then IFFT, returns magnitude array.
+   */
+  correlateZCFreqDomain(fftSignal, zcFftConj) {
+    const N = fftSignal.length;
+    // Element-wise multiply in frequency domain
+    const product = new Array(N);
+    for (let i = 0; i < N; i++) {
+      product[i] = fftSignal[i].mul(zcFftConj[i]);
+    }
+    // IFFT via: conj(FFT(conj(X))) / N
+    const conjProduct = product.map(c => c.conjugate());
+    const fftResult = this.fft.forward(conjProduct);
+    const correlation = new Array(N);
+    for (let i = 0; i < N; i++) {
+      correlation[i] = fftResult[i].magnitude() / N;
+    }
+    return correlation;
+  }
+
+  // Keep original time-domain correlateZC for reference/testing
   correlateZC(fftOutput, zcSequence) {
     const correlation = [];
     for (let i = 0; i < fftOutput.length; i++) {
-      let sum = new Complex(0, 0);
+      let sumRe = 0, sumIm = 0;
       for (let j = 0; j < zcSequence.length && (i + j) < fftOutput.length; j++) {
-        sum = sum.add(fftOutput[(i + j) % fftOutput.length].mul(zcSequence[j].conjugate()));
+        const idx = (i + j) % fftOutput.length;
+        const aRe = fftOutput[idx].re, aIm = fftOutput[idx].im;
+        const bRe = zcSequence[j].re, bIm = -zcSequence[j].im; // conjugate
+        sumRe += aRe * bRe - aIm * bIm;
+        sumIm += aRe * bIm + aIm * bRe;
       }
-      correlation.push(sum.magnitude() / zcSequence.length);
+      correlation.push(Math.sqrt(sumRe * sumRe + sumIm * sumIm) / zcSequence.length);
     }
     return correlation;
   }

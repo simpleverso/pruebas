@@ -20,6 +20,8 @@ class DetectionController {
     this.validDroneIDCount = 0;
     this.transferLoop = null;
     this.decoder = new DroneIDDecoder();
+    this.lastSignalAlertTime = 0;
+    this.signalDetectionCount = 0;
   }
 
   /**
@@ -131,15 +133,23 @@ class DetectionController {
         uiManager.updateDecoderStep('iq', 'active');
 
         // Process through DroneID decoder
-        const packet = this.decoder.processSamples(data);
+        const result = this.decoder.processSamples(data);
 
-        if (packet) {
-          this.validDroneIDCount++;
+        if (result) {
+          // Signal detected (ZC correlation above threshold)
+          if (result.signalDetected) {
+            this._handleSignalDetected(result.peak1, result.peak2);
+          }
 
-          const validDroneIDEl = document.getElementById('validDroneID');
-          if (validDroneIDEl) validDroneIDEl.textContent = this.validDroneIDCount;
+          // Full packet decoded
+          if (result.packet) {
+            this.validDroneIDCount++;
 
-          this.processValidPacket(packet);
+            const validDroneIDEl = document.getElementById('validDroneID');
+            if (validDroneIDEl) validDroneIDEl.textContent = this.validDroneIDCount;
+
+            this.processValidPacket(result.packet);
+          }
         }
 
         // Update stats periodically
@@ -150,7 +160,8 @@ class DetectionController {
       }
 
       if (this.isScanning) {
-        this.transferLoop = setTimeout(() => this.startReceiveLoop(), 0);
+        // Use setTimeout with 1ms to yield to the browser's rendering/event loop
+        this.transferLoop = setTimeout(() => this.startReceiveLoop(), 1);
       }
 
     } catch (error) {
@@ -200,6 +211,24 @@ class DetectionController {
     uiManager.updateDroneList();
 
     logger.success(MODULE, `Detected ${drone.type} [${drone.displayId}] at ${drone.altitude.toFixed(1)}m`);
+  }
+
+  /**
+   * Handle drone signal detection (ZC correlation above threshold).
+   * Shows a warning alert in the UI, throttled to once per 3 seconds.
+   */
+  _handleSignalDetected(peak1, peak2) {
+    this.signalDetectionCount++;
+    const now = Date.now();
+
+    // Throttle UI alerts to once per 3 seconds
+    if (now - this.lastSignalAlertTime < 3000) return;
+    this.lastSignalAlertTime = now;
+
+    logger.warning(MODULE, `⚠ Drone signal detected! ZC peaks: ${peak1.toFixed(3)} / ${peak2.toFixed(3)} (count: ${this.signalDetectionCount})`);
+
+    // Update signal alert in UI
+    uiManager.showSignalAlert(peak1, peak2);
   }
 
   /**
