@@ -71,11 +71,10 @@ function bindEventHandlers() {
   // Band selection buttons
   document.querySelectorAll('.band-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const band = e.target.dataset.band || e.target.textContent.trim();
-      // Set active class on clicked button
-      document.querySelectorAll('.band-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      frequencyController.selectBand(band);
+      const band = e.target.dataset.band;
+      if (band) {
+        frequencyController.selectBand(band);
+      }
     });
   });
 

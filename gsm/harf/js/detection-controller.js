@@ -130,26 +130,39 @@ class DetectionController {
         logger.debug(MODULE, `startReceiveLoop: transfer size=${data.length} bytes`);
 
         // Update decoder step visualization
-        uiManager.updateDecoderStep('iq', 'active');
+        uiManager.updateDecoderStep('iq', 'complete');
 
         // Process through DroneID decoder
         const decodeResult = this.decoder.processSamples(data);
 
         if (decodeResult) {
-          // Signal detected (ZC correlation above threshold)
+          // Update decoder steps based on what happened
+          uiManager.updateDecoderStep('fft', 'complete');
+
           if (decodeResult.signalDetected) {
             this._handleSignalDetected(decodeResult.peak1, decodeResult.peak2);
+            uiManager.updateDecoderStep('demod', decodeResult.packet ? 'complete' : 'active');
+            uiManager.updateDecoderStep('decode', decodeResult.packet ? 'complete' : 'active');
           }
 
           // Full packet decoded
           if (decodeResult.packet) {
+            uiManager.updateDecoderStep('parse', 'complete');
             this.validDroneIDCount++;
 
             const validDroneIDEl = document.getElementById('validDroneID');
             if (validDroneIDEl) validDroneIDEl.textContent = this.validDroneIDCount;
 
             this.processValidPacket(decodeResult.packet);
+          } else {
+            uiManager.updateDecoderStep('parse', '');
           }
+        } else {
+          // No frame processed yet (buffering)
+          uiManager.updateDecoderStep('fft', '');
+          uiManager.updateDecoderStep('demod', '');
+          uiManager.updateDecoderStep('decode', '');
+          uiManager.updateDecoderStep('parse', '');
         }
 
         // Update stats periodically

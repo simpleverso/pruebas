@@ -33,10 +33,12 @@ class FrequencyController {
     const previousBand = this.currentBand;
     this.currentBand = band;
 
-    document.querySelectorAll('.band-btn').forEach(btn => btn.classList.remove('active'));
-    // Note: In the original, event.target was used. In the modular version,
-    // the caller (main.js event handler) is responsible for setting the active class
-    // on the clicked button, or we find the matching button here.
+    document.querySelectorAll('.band-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.band === band) {
+        btn.classList.add('active');
+      }
+    });
 
     const customControl = document.getElementById('customFreqControl');
     if (customControl) {
