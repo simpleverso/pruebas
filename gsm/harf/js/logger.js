@@ -109,7 +109,9 @@ class Logger {
     const a = document.createElement('a');
     a.href = url;
     a.download = `hackrf-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 }
