@@ -1,0 +1,215 @@
+System initialized. Waiting for HackRF connection...
+[19:21:57.094] [INFO] [DSP] FFT constructed: size=2048, bit-reversed indices count=2048
+[19:21:57.097] [DEBUG] [DSP] ZadoffChu.generate: root=600, length=2048, execution time=1.500ms
+[19:21:57.098] [DEBUG] [DSP] ZadoffChu.generate: root=147, length=2048, execution time=0.100ms
+[19:21:57.099] [INFO] [DroneIDDecoder] DroneIDDecoder constructed: FFT_SIZE=2048, ZC roots=[600, 147]
+[19:21:57.100] [INFO] [Main] Logger module loaded
+[19:21:57.101] [INFO] [Main] HackRFManager module loaded
+[19:21:57.101] [INFO] [Main] FrequencyController module loaded
+[19:21:57.102] [INFO] [Main] DetectionController module loaded
+[19:21:57.103] [INFO] [Main] UIManager module loaded
+[19:21:57.113] [INFO] [UIManager] Map initialized: center=[16.4333,-95.0167], zoom=14, tileURL=https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+[19:21:57.114] [INFO] [Main] Map initialized
+[19:21:57.115] [SUCCESS] [Main] WebUSB API available
+[19:21:57.116] [INFO] [Main] Event handlers bound: connect, disconnect, start, stop, band selection, sliders
+[19:21:57.117] [SUCCESS] [Main] Application ready
+[19:22:02.742] [INFO] [HackRFManager] Requesting USB device access...
+[19:22:05.203] [SUCCESS] [HackRFManager] Device selected: HackRF One
+[19:22:05.215] [SUCCESS] [HackRFManager] Device opened
+[19:22:05.224] [SUCCESS] [HackRFManager] Configuration selected
+[19:22:05.238] [SUCCESS] [HackRFManager] Interface claimed
+[19:22:05.244] [INFO] [HackRFManager] Reading board info...
+[19:22:05.254] [INFO] [HackRFManager] HackRF Version: 2017.02.1
+[19:22:05.261] [SUCCESS] [HackRFManager] HackRF connected successfully!
+[19:22:05.270] [INFO] [UIManager] updateConnectionStatus: connected
+[19:22:09.435] [INFO] [HackRFManager] Setting sample rate: 4000000 Hz (4.0 MS/s), value=2304, index=61
+[19:22:09.447] [ERROR] [HackRFManager] Sample rate set failed: Failed to execute 'controlTransferOut' on 'USBDevice': A transfer error has occurred. (request=SET_SAMPLE_RATE, rateHz=4000000)
+[19:22:09.455] [INFO] [HackRFManager] Setting LNA gain: 20 dB
+[19:22:14.462] [ERROR] [HackRFManager] LNA gain set failed: Failed to execute 'controlTransferIn' on 'USBDevice': A transfer error has occurred. (request=SET_LNA_GAIN, gain=20 dB)
+[19:22:14.465] [INFO] [HackRFManager] Setting VGA gain: 30 dB
+[19:22:14.470] [INFO] [HackRFManager] VGA gain set: 30 dB
+[19:22:14.472] [INFO] [HackRFManager] Setting frequency: 2437000000 Hz (2437.000 MHz), value=2437, index=0
+[19:22:14.477] [ERROR] [HackRFManager] Frequency set failed: Failed to execute 'controlTransferOut' on 'USBDevice': A transfer error has occurred. (request=SET_FREQUENCY, freqHz=2437000000)
+[19:22:14.479] [INFO] [HackRFManager] Setting transceiver mode: RECEIVE (1)
+[19:22:14.484] [INFO] [HackRFManager] Transceiver mode set: RECEIVE
+[19:22:14.485] [INFO] [DetectionController] startDetection: sampleRate=4000000 Hz, LNA gain=20 dB, VGA gain=30 dB, band=2.4, frequency=2437.000 MHz
+[19:22:14.487] [SUCCESS] [DetectionController] Starting DroneID detection with real-time decoding...
+[19:22:14.505] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:14.507] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:14.509] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:14.537] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:14.539] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:14.656] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:14.659] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:14.662] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:14.688] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:14.691] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:14.822] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:14.826] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:14.829] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:14.841] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:14.844] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:14.972] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:14.975] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:14.978] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.002] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.005] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:15.123] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:15.127] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:15.129] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.141] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.145] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:15.271] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:15.275] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:15.277] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.283] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.286] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:15.409] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:15.414] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:15.420] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.428] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.433] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:15.556] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:15.561] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:15.566] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.575] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.580] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:15.727] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:15.732] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:15.737] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.744] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.749] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:15.871] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:15.874] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:15.876] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:15.883] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:15.887] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.018] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.025] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:16.033] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:16.044] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:16.053] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.173] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.175] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:16.178] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:16.184] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:16.186] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.307] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.311] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:16.318] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:16.325] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:16.330] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.456] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.460] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:16.464] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:16.473] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:16.479] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.610] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.622] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:16.630] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:16.643] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:16.653] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.792] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.801] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:16.810] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:16.825] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:16.838] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:16.975] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:16.992] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.006] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.023] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.034] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:17.160] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:17.165] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.171] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.177] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.183] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:17.308] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:17.313] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.321] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.330] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.336] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:17.458] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:17.464] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.476] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.489] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.495] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:17.626] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:17.634] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.640] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.651] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.657] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:17.793] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:17.801] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.808] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.819] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.825] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:17.957] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:17.963] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:17.973] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:17.983] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:17.989] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:18.110] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:18.119] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:18.127] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:18.137] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:18.142] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:18.276] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:18.284] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:18.290] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:18.299] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:18.304] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:18.425] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:18.430] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:18.437] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:18.445] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:18.450] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:18.573] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:18.579] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:18.584] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:18.591] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:18.594] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:18.725] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:18.731] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:18.736] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:18.741] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:18.745] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:18.874] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:18.880] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:18.885] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:18.891] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:18.894] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:19.027] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:19.036] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:19.042] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:19.052] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:19.059] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:19.191] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:19.200] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:19.207] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:19.217] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:19.222] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:19.346] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:19.354] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:19.361] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:19.370] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:19.377] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:19.508] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:19.515] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:19.522] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:19.531] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:19.536] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:19.658] [DEBUG] [DetectionController] startReceiveLoop: transfer size=262144 bytes
+[19:22:19.666] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=active
+[19:22:19.673] [DEBUG] [DroneIDDecoder] processSamples: raw I/Q bytes=262144
+[19:22:19.683] [DEBUG] [DroneIDDecoder] processSamples: Complex samples produced=131072
+[19:22:19.690] [ERROR] [DetectionController] Receive error: Maximum call stack size exceeded, retry delay=100ms
+[19:22:19.709] [INFO] [HackRFManager] Setting transceiver mode: OFF (0)
+[19:22:19.724] [INFO] [HackRFManager] Transceiver mode set: OFF
+[19:22:19.732] [INFO] [UIManager] updateConnectionStatus: connected
+[19:22:19.740] [DEBUG] [UIManager] updateDecoderStep: step=iq, status=
+[19:22:19.747] [DEBUG] [UIManager] updateDecoderStep: step=fft, status=
+[19:22:19.755] [DEBUG] [UIManager] updateDecoderStep: step=demod, status=
+[19:22:19.760] [DEBUG] [UIManager] updateDecoderStep: step=decode, status=
+[19:22:19.764] [DEBUG] [UIManager] updateDecoderStep: step=parse, status=
+[19:22:19.769] [INFO] [DetectionController] stopDetection: total duration=10s, packets=34, valid DroneIDs=0
