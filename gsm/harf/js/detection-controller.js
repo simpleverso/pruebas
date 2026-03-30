@@ -4,7 +4,7 @@
  * Ported from the DETECTION CONTROL section of harf.html.
  */
 
-import hackrfManager, { HACKRF_TRANSCEIVER_MODE_RECEIVE, HACKRF_TRANSCEIVER_MODE_OFF, SAMPLE_BUFFER_SIZE } from './hackrf-manager.js';
+import hackrfManager, { HACKRF_TRANSCEIVER_MODE_RECEIVE, HACKRF_TRANSCEIVER_MODE_OFF } from './hackrf-manager.js';
 import frequencyController from './frequency-controller.js';
 import uiManager from './ui-manager.js';
 import { DroneIDDecoder } from './droneid-decoder.js';
@@ -123,13 +123,12 @@ class DetectionController {
     try {
       logger.debug(MODULE, 'startReceiveLoop: waiting for transferIn...');
 
-      // Add timeout to transferIn to prevent indefinite hanging
-      const transferPromise = hackrfManager.transferIn(1, SAMPLE_BUFFER_SIZE);
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('transferIn timeout (5s)')), 5000)
-      );
-
-      const result = await Promise.race([transferPromise, timeoutPromise]);
+      // Use smaller transfer size for WebUSB compatibility.
+      // Large bulk transfers (262144 bytes) can stall on some WebUSB
+      // implementations. 16384 bytes matches common USB bulk transfer sizes
+      // and keeps the main thread responsive.
+      const TRANSFER_SIZE = 16384;
+      const result = await hackrfManager.transferIn(1, TRANSFER_SIZE);
 
       if (result && result.data) {
         const data = new Uint8Array(result.data.buffer);
