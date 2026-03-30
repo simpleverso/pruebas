@@ -82,7 +82,13 @@ function bindEventHandlers() {
   // Slider listeners (frequency, LNA gain, VGA gain)
   frequencyController.initSliderListeners();
 
-  logger.info(MODULE, 'Event handlers bound: connect, disconnect, start, stop, band selection, sliders');
+  // Download logs button
+  const downloadLogsBtn = document.getElementById('downloadLogsBtn');
+  if (downloadLogsBtn) {
+    downloadLogsBtn.addEventListener('click', () => logger.downloadLogs());
+  }
+
+  logger.info(MODULE, 'Event handlers bound: connect, disconnect, start, stop, band selection, sliders, download logs');
 }
 
 /**

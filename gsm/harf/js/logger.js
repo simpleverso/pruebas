@@ -38,6 +38,7 @@ const LEVEL_CONSOLE_METHODS = {
 class Logger {
   constructor(minLevel = LogLevel.DEBUG) {
     this.minLevel = minLevel;
+    this.history = [];
   }
 
   setLevel(level) {
@@ -59,6 +60,8 @@ class Logger {
     const timestamp = this._formatTimestamp();
     const levelName = LEVEL_NAMES[level];
     const formatted = `[${timestamp}] [${levelName}] [${module}] ${message}`;
+
+    this.history.push({ timestamp, level: levelName, module, message, data });
 
     // DOM output
     const logConsole = document.getElementById('logConsole');
@@ -97,6 +100,17 @@ class Logger {
 
   success(module, message, data) {
     this._log(LogLevel.SUCCESS, module, message, data);
+  }
+
+  downloadLogs() {
+    const json = JSON.stringify(this.history, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hackrf-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
 

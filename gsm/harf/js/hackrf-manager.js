@@ -10,15 +10,14 @@ const MODULE = 'HackRFManager';
 // ==================== USB CONSTANTS ====================
 export const HACKRF_VENDOR_ID = 0x1d50;
 export const HACKRF_PRODUCT_ID = 0x6089;
-export const HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE = 1;
-export const HACKRF_VENDOR_REQUEST_SET_FREQUENCY = 2;
-export const HACKRF_VENDOR_REQUEST_SET_SAMPLE_RATE = 3;
-export const HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 4;
-export const HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 5;
-export const HACKRF_VENDOR_REQUEST_SET_BASEBAND_FILTER_BANDWIDTH = 8;
-export const HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14;
-export const HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15;
-export const HACKRF_VENDOR_REQUEST_SET_FREQ = 16;
+export const HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE = 0x01;
+export const HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET = 0x06;
+export const HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET = 0x07;
+export const HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 0x0e;
+export const HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 0x0f;
+export const HACKRF_VENDOR_REQUEST_SET_FREQ = 0x10;
+export const HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 0x13;
+export const HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 0x14;
 export const HACKRF_TRANSCEIVER_MODE_OFF = 0;
 export const HACKRF_TRANSCEIVER_MODE_RECEIVE = 1;
 export const SAMPLE_BUFFER_SIZE = 262144;
@@ -105,50 +104,87 @@ class HackRFManager {
             const freqMhz = Math.floor(freqHz / 1000000);
             const freqHzRemainder = freqHz % 1000000;
 
-            logger.info(MODULE, `Setting frequency: ${freqHz} Hz (${(freqHz / 1000000).toFixed(3)} MHz), value=${freqMhz & 0xFFFF}, index=${(freqMhz >> 16) & 0xFFFF}`);
+            // HackRF SET_FREQ (0x10) expects 8-byte little-endian payload:
+            // bytes 0-3: MHz part, bytes 4-7: Hz remainder
+            const buf = new Uint8Array(8);
+            buf[0] = (freqMhz >>>  0) & 0xFF;
+            buf[1] = (freqMhz >>>  8) & 0xFF;
+            buf[2] = (freqMhz >>> 16) & 0xFF;
+            buf[3] = (freqMhz >>> 24) & 0xFF;
+            buf[4] = (freqHzRemainder >>>  0) & 0xFF;
+            buf[5] = (freqHzRemainder >>>  8) & 0xFF;
+            buf[6] = (freqHzRemainder >>> 16) & 0xFF;
+            buf[7] = (freqHzRemainder >>> 24) & 0xFF;
+
+            logger.info(MODULE, `Setting frequency: ${freqHz} Hz (${(freqHz / 1000000).toFixed(3)} MHz), MHz=${freqMhz}, remainder=${freqHzRemainder} Hz`);
 
             await this.device.controlTransferOut({
                 requestType: 'vendor',
                 recipient: 'device',
-                request: HACKRF_VENDOR_REQUEST_SET_FREQUENCY,
-                value: freqMhz & 0xFFFF,
-                index: (freqMhz >> 16) & 0xFFFF
-            });
-
-            if (freqHzRemainder > 0) {
-                logger.debug(MODULE, `Setting fine frequency: remainder=${freqHzRemainder} Hz, value=${freqHzRemainder & 0xFFFF}, index=${(freqHzRemainder >> 16) & 0xFFFF}`);
-
-                await this.device.controlTransferOut({
-                    requestType: 'vendor',
-                    recipient: 'device',
-                    request: HACKRF_VENDOR_REQUEST_SET_FREQ,
-                    value: freqHzRemainder & 0xFFFF,
-                    index: (freqHzRemainder >> 16) & 0xFFFF
-                });
-            }
+                request: HACKRF_VENDOR_REQUEST_SET_FREQ,
+                value: 0,
+                index: 0
+            }, buf);
 
             logger.info(MODULE, `Frequency set: ${(freqHz / 1000000).toFixed(3)} MHz`);
         } catch (error) {
-            logger.error(MODULE, `Frequency set failed: ${error.message} (request=SET_FREQUENCY, freqHz=${freqHz})`);
+            logger.error(MODULE, `Frequency set failed: ${error.message} (request=SET_FREQ, freqHz=${freqHz})`);
         }
     }
 
     async setSampleRate(rateHz) {
         if (!this.device || !this.isConnected) return;
         try {
-            logger.info(MODULE, `Setting sample rate: ${rateHz} Hz (${(rateHz / 1000000).toFixed(1)} MS/s), value=${rateHz & 0xFFFF}, index=${(rateHz >> 16) & 0xFFFF}`);
+            // HackRF SAMPLE_RATE_SET (0x06) expects 8-byte little-endian payload:
+            // bytes 0-3: frequency in Hz, bytes 4-7: divider (1)
+            const divider = 1;
+            const buf = new Uint8Array(8);
+            buf[0] = (rateHz >>>  0) & 0xFF;
+            buf[1] = (rateHz >>>  8) & 0xFF;
+            buf[2] = (rateHz >>> 16) & 0xFF;
+            buf[3] = (rateHz >>> 24) & 0xFF;
+            buf[4] = (divider >>>  0) & 0xFF;
+            buf[5] = (divider >>>  8) & 0xFF;
+            buf[6] = (divider >>> 16) & 0xFF;
+            buf[7] = (divider >>> 24) & 0xFF;
+
+            logger.info(MODULE, `Setting sample rate: ${rateHz} Hz (${(rateHz / 1000000).toFixed(1)} MS/s)`);
 
             await this.device.controlTransferOut({
                 requestType: 'vendor',
                 recipient: 'device',
-                request: HACKRF_VENDOR_REQUEST_SET_SAMPLE_RATE,
-                value: rateHz & 0xFFFF,
-                index: (rateHz >> 16) & 0xFFFF
-            });
+                request: HACKRF_VENDOR_REQUEST_SAMPLE_RATE_SET,
+                value: 0,
+                index: 0
+            }, buf);
+
+            // Also set baseband filter bandwidth to match
+            await this.setBasebandFilterBandwidth(rateHz);
 
             logger.info(MODULE, `Sample rate set: ${(rateHz / 1000000).toFixed(1)} MS/s`);
         } catch (error) {
-            logger.error(MODULE, `Sample rate set failed: ${error.message} (request=SET_SAMPLE_RATE, rateHz=${rateHz})`);
+            logger.error(MODULE, `Sample rate set failed: ${error.message} (request=SAMPLE_RATE_SET, rateHz=${rateHz})`);
+        }
+    }
+
+    async setBasebandFilterBandwidth(bandwidthHz) {
+        if (!this.device || !this.isConnected) return;
+        try {
+            // Bandwidth is sent via value/index fields (little-endian split)
+            const lo = bandwidthHz & 0xFFFF;
+            const hi = (bandwidthHz >>> 16) & 0xFFFF;
+
+            await this.device.controlTransferOut({
+                requestType: 'vendor',
+                recipient: 'device',
+                request: HACKRF_VENDOR_REQUEST_BASEBAND_FILTER_BANDWIDTH_SET,
+                value: lo,
+                index: hi
+            });
+
+            logger.debug(MODULE, `Baseband filter bandwidth set: ${(bandwidthHz / 1000000).toFixed(1)} MHz`);
+        } catch (error) {
+            logger.error(MODULE, `Baseband filter bandwidth set failed: ${error.message}`);
         }
     }
 
@@ -157,7 +193,7 @@ class HackRFManager {
         try {
             logger.info(MODULE, `Setting LNA gain: ${gain} dB`);
 
-            await this.device.controlTransferIn({
+            const result = await this.device.controlTransferIn({
                 requestType: 'vendor',
                 recipient: 'device',
                 request: HACKRF_VENDOR_REQUEST_SET_LNA_GAIN,
@@ -165,9 +201,14 @@ class HackRFManager {
                 index: gain
             }, 1);
 
-            logger.info(MODULE, `LNA gain set: ${gain} dB`);
+            const success = new Uint8Array(result.data.buffer)[0];
+            if (success) {
+                logger.info(MODULE, `LNA gain set: ${gain} dB`);
+            } else {
+                logger.warning(MODULE, `LNA gain set returned failure for ${gain} dB (must be multiple of 8, 0-40)`);
+            }
         } catch (error) {
-            logger.error(MODULE, `LNA gain set failed: ${error.message} (request=SET_LNA_GAIN, gain=${gain} dB)`);
+            logger.error(MODULE, `LNA gain set failed: ${error.message} (request=SET_LNA_GAIN 0x13, gain=${gain} dB)`);
         }
     }
 
@@ -176,7 +217,7 @@ class HackRFManager {
         try {
             logger.info(MODULE, `Setting VGA gain: ${gain} dB`);
 
-            await this.device.controlTransferIn({
+            const result = await this.device.controlTransferIn({
                 requestType: 'vendor',
                 recipient: 'device',
                 request: HACKRF_VENDOR_REQUEST_SET_VGA_GAIN,
@@ -184,9 +225,14 @@ class HackRFManager {
                 index: gain
             }, 1);
 
-            logger.info(MODULE, `VGA gain set: ${gain} dB`);
+            const success = new Uint8Array(result.data.buffer)[0];
+            if (success) {
+                logger.info(MODULE, `VGA gain set: ${gain} dB`);
+            } else {
+                logger.warning(MODULE, `VGA gain set returned failure for ${gain} dB (must be even, 0-62)`);
+            }
         } catch (error) {
-            logger.error(MODULE, `VGA gain set failed: ${error.message} (request=SET_VGA_GAIN, gain=${gain} dB)`);
+            logger.error(MODULE, `VGA gain set failed: ${error.message} (request=SET_VGA_GAIN 0x14, gain=${gain} dB)`);
         }
     }
 
