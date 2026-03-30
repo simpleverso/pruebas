@@ -1,0 +1,230 @@
+[
+  {
+    "timestamp": "20:21:46.099",
+    "level": "INFO",
+    "module": "DSP",
+    "message": "FFT constructed: size=2048, bit-reversed indices count=2048"
+  },
+  {
+    "timestamp": "20:21:46.103",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "ZadoffChu.generate: root=600, length=2048, execution time=1.100ms"
+  },
+  {
+    "timestamp": "20:21:46.104",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "ZadoffChu.generate: root=147, length=2048, execution time=0.700ms"
+  },
+  {
+    "timestamp": "20:21:46.112",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "FFT.forward: input length=2048, stages=11, execution time=7.200ms"
+  },
+  {
+    "timestamp": "20:21:46.117",
+    "level": "DEBUG",
+    "module": "DSP",
+    "message": "FFT.forward: input length=2048, stages=11, execution time=4.600ms"
+  },
+  {
+    "timestamp": "20:21:46.118",
+    "level": "INFO",
+    "module": "DroneIDDecoder",
+    "message": "DroneIDDecoder constructed: FFT_SIZE=2048, ZC roots=[600, 147], frequency-domain correlation enabled"
+  },
+  {
+    "timestamp": "20:21:46.120",
+    "level": "INFO",
+    "module": "Main",
+    "message": "Logger module loaded"
+  },
+  {
+    "timestamp": "20:21:46.122",
+    "level": "INFO",
+    "module": "Main",
+    "message": "HackRFManager module loaded"
+  },
+  {
+    "timestamp": "20:21:46.124",
+    "level": "INFO",
+    "module": "Main",
+    "message": "FrequencyController module loaded"
+  },
+  {
+    "timestamp": "20:21:46.126",
+    "level": "INFO",
+    "module": "Main",
+    "message": "DetectionController module loaded"
+  },
+  {
+    "timestamp": "20:21:46.127",
+    "level": "INFO",
+    "module": "Main",
+    "message": "UIManager module loaded"
+  },
+  {
+    "timestamp": "20:21:46.150",
+    "level": "INFO",
+    "module": "UIManager",
+    "message": "Map initialized: center=[16.4333,-95.0167], zoom=14, tileURL=https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+  },
+  {
+    "timestamp": "20:21:46.152",
+    "level": "INFO",
+    "module": "Main",
+    "message": "Map initialized"
+  },
+  {
+    "timestamp": "20:21:46.153",
+    "level": "SUCCESS",
+    "module": "Main",
+    "message": "WebUSB API available"
+  },
+  {
+    "timestamp": "20:21:46.155",
+    "level": "INFO",
+    "module": "Main",
+    "message": "Event handlers bound: connect, disconnect, start, stop, band selection, sliders, download logs"
+  },
+  {
+    "timestamp": "20:21:46.156",
+    "level": "SUCCESS",
+    "module": "Main",
+    "message": "Application ready"
+  },
+  {
+    "timestamp": "20:21:53.367",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Requesting USB device access..."
+  },
+  {
+    "timestamp": "20:21:55.486",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Device selected: HackRF One"
+  },
+  {
+    "timestamp": "20:21:55.498",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Device opened"
+  },
+  {
+    "timestamp": "20:21:55.508",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Configuration selected"
+  },
+  {
+    "timestamp": "20:21:55.521",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "Interface claimed"
+  },
+  {
+    "timestamp": "20:21:55.533",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Reading board info..."
+  },
+  {
+    "timestamp": "20:21:55.550",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "HackRF Version: 2017.02.1"
+  },
+  {
+    "timestamp": "20:21:55.554",
+    "level": "SUCCESS",
+    "module": "HackRFManager",
+    "message": "HackRF connected successfully!"
+  },
+  {
+    "timestamp": "20:21:55.560",
+    "level": "INFO",
+    "module": "UIManager",
+    "message": "updateConnectionStatus: connected"
+  },
+  {
+    "timestamp": "20:22:00.090",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting sample rate: 4000000 Hz (4.0 MS/s)"
+  },
+  {
+    "timestamp": "20:22:00.106",
+    "level": "DEBUG",
+    "module": "HackRFManager",
+    "message": "Baseband filter bandwidth set: 4.0 MHz"
+  },
+  {
+    "timestamp": "20:22:00.106",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Sample rate set: 4.0 MS/s"
+  },
+  {
+    "timestamp": "20:22:00.115",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting LNA gain: 16 dB"
+  },
+  {
+    "timestamp": "20:22:00.129",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "LNA gain set: 16 dB"
+  },
+  {
+    "timestamp": "20:22:00.136",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting VGA gain: 30 dB"
+  },
+  {
+    "timestamp": "20:22:00.155",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "VGA gain set: 30 dB"
+  },
+  {
+    "timestamp": "20:22:00.163",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting frequency: 2437000000 Hz (2437.000 MHz), MHz=2437, remainder=0 Hz"
+  },
+  {
+    "timestamp": "20:22:00.173",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Frequency set: 2437.000 MHz"
+  },
+  {
+    "timestamp": "20:22:00.185",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Setting transceiver mode: RECEIVE (1)"
+  },
+  {
+    "timestamp": "20:22:00.196",
+    "level": "INFO",
+    "module": "HackRFManager",
+    "message": "Transceiver mode set: RECEIVE"
+  },
+  {
+    "timestamp": "20:22:00.201",
+    "level": "INFO",
+    "module": "DetectionController",
+    "message": "startDetection: sampleRate=4000000 Hz, LNA gain=16 dB, VGA gain=30 dB, band=2.4, frequency=2437.000 MHz"
+  },
+  {
+    "timestamp": "20:22:00.205",
+    "level": "SUCCESS",
+    "module": "DetectionController",
+    "message": "Starting DroneID detection with real-time decoding..."
+  }
+]
