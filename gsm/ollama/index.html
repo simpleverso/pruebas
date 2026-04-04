@@ -301,6 +301,43 @@
                         <label for="system-prompt" class="block text-sm font-medium text-gray-300 mb-2">Global System Prompt (Optional)</label>
                         <textarea id="system-prompt" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="e.g., You are a helpful assistant. (Used for Analysis & as default for new chats)"></textarea>
                     </div>
+
+                    <!-- Reference Dictionary (Poor Man's RAG) -->
+                    <div id="dict-container" class="mt-4 border border-purple-700 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <input type="checkbox" id="dict-enabled-checkbox" class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-gray-800">
+                            <label for="dict-enabled-checkbox" class="text-sm font-medium text-gray-300 cursor-pointer">Reference Dictionary (auto-context)</label>
+                            <span id="dict-status" class="text-xs text-gray-500 ml-auto">No files loaded</span>
+                        </div>
+                        <div id="dict-body">
+                            <p class="text-xs text-gray-500 mb-3">Upload txt, csv, or json files with translation pairs or reference data. Relevant lines are auto-injected as context when you chat or analyze.</p>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <input type="file" id="dict-file-input" multiple accept=".txt,.csv,.json,.tsv" class="hidden">
+                                <button id="dict-upload-btn" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition shadow focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                                    Upload Reference Files
+                                </button>
+                                <button id="dict-clear-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition shadow focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                                    Clear All
+                                </button>
+                                <div class="flex items-center ml-2">
+                                    <label for="dict-max-matches" class="text-xs text-gray-400 mr-2">Max matches:</label>
+                                    <input type="number" id="dict-max-matches" value="15" min="1" max="50" class="w-16 bg-gray-700 border border-gray-600 rounded p-1 text-gray-100 text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                </div>
+                                <div class="flex items-center ml-2">
+                                    <select id="dict-match-mode" class="bg-gray-700 border border-gray-600 rounded p-1 text-gray-100 text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                        <option value="combined">Combined (all files)</option>
+                                        <option value="per-file">Per file</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center ml-2">
+                                    <input type="checkbox" id="dict-show-refs-checkbox" class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-gray-800">
+                                    <label for="dict-show-refs-checkbox" class="ml-2 text-xs text-gray-400">Show context lines</label>
+                                </div>
+                            </div>
+                            <div id="dict-file-list" class="mt-2 flex flex-wrap gap-1"></div>
+                            <div id="dict-refs-display" class="hidden mt-2 max-h-48 overflow-y-auto bg-gray-900 border border-purple-800 rounded-lg p-3 text-xs text-purple-200 font-mono"></div>
+                        </div>
+                    </div>
                     
                     <div id="connection-status" class="mt-4 text-sm"></div>
                     
@@ -444,6 +481,12 @@
                                     <label for="batch-eta-checkbox" class="text-sm text-gray-300">Show ETA</label>
                                 </div>
 
+                                <!-- Batch Dry Run Toggle -->
+                                <div class="flex items-center gap-2 border-l border-gray-600 pl-4">
+                                    <input type="checkbox" id="batch-dry-run-checkbox" class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500">
+                                    <label for="batch-dry-run-checkbox" class="text-sm text-gray-300">Dry Run (preview, no file changes)</label>
+                                </div>
+
                                 <!-- Batch Debug Toggle -->
                                 <div class="flex items-center gap-2 ml-auto">
                                     <input type="checkbox" id="batch-debug-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-offset-gray-800">
@@ -461,9 +504,10 @@
                             <div id="batch-debug-log" class="hidden w-full p-4 bg-gray-950 rounded-lg border border-gray-700 h-64 overflow-y-auto font-mono text-xs text-gray-400 whitespace-pre-wrap"></div>
                             
                             <!-- Log Management Buttons for CSV -->
-                            <div class="flex gap-2 mt-2">
+                            <div class="flex gap-2 mt-2 flex-wrap">
                                 <button id="download-batch-logs-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 transition">Download Logs</button>
                                 <button id="clear-batch-logs-btn" class="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-xs font-semibold hover:bg-gray-600 transition">Clear Logs</button>
+                                <button id="download-batch-dryrun-btn" class="hidden px-3 py-1.5 bg-purple-600 text-white rounded text-xs font-semibold hover:bg-purple-700 transition">Download Dry Run Results (JSON)</button>
                             </div>
 
                             <!-- Download -->
@@ -832,6 +876,9 @@
             const batchDelayCheckbox = document.getElementById('batch-delay-checkbox');
             const batchDelayInput = document.getElementById('batch-delay-input');
             const batchEtaCheckbox = document.getElementById('batch-eta-checkbox');
+            const batchDryRunCheckbox = document.getElementById('batch-dry-run-checkbox');
+            const downloadBatchDryRunBtn = document.getElementById('download-batch-dryrun-btn');
+            let batchDryRunResults = [];
 
             // --- MySQL Batch Elements ---
             const tabMysql = document.getElementById('tab-mysql');
@@ -997,6 +1044,150 @@
                 };
             }
             
+            // --- Reference Dictionary (Poor Man's RAG) ---
+            let dictLines = []; // { text, file } objects
+            let dictFileNames = [];
+            const dictFileInput = document.getElementById('dict-file-input');
+            const dictUploadBtn = document.getElementById('dict-upload-btn');
+            const dictClearBtn = document.getElementById('dict-clear-btn');
+            const dictStatus = document.getElementById('dict-status');
+            const dictFileList = document.getElementById('dict-file-list');
+            const dictMaxMatches = document.getElementById('dict-max-matches');
+            const dictEnabledCheckbox = document.getElementById('dict-enabled-checkbox');
+            const dictMatchMode = document.getElementById('dict-match-mode');
+            const dictShowRefsCheckbox = document.getElementById('dict-show-refs-checkbox');
+
+            dictUploadBtn.addEventListener('click', () => dictFileInput.click());
+            dictClearBtn.addEventListener('click', () => {
+                dictLines = []; dictFileNames = [];
+                dictStatus.textContent = 'No files loaded';
+                dictFileList.innerHTML = '';
+            });
+
+            // Toggle dictionary section enabled/disabled
+            function updateDictEnabledState() {
+                const body = document.getElementById('dict-body');
+                const container = document.getElementById('dict-container');
+                if (dictEnabledCheckbox.checked) {
+                    body.classList.remove('opacity-40', 'pointer-events-none');
+                    container.classList.remove('border-gray-700');
+                    container.classList.add('border-purple-700');
+                } else {
+                    body.classList.add('opacity-40', 'pointer-events-none');
+                    container.classList.remove('border-purple-700');
+                    container.classList.add('border-gray-700');
+                }
+            }
+            dictEnabledCheckbox.addEventListener('change', updateDictEnabledState);
+            updateDictEnabledState();
+
+            dictFileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+                for (const file of files) {
+                    try {
+                        const text = await file.text();
+                        const name = file.name.toLowerCase();
+                        let lines = [];
+                        if (name.endsWith('.json')) {
+                            const data = JSON.parse(text);
+                            if (Array.isArray(data)) {
+                                lines = data.map(item => typeof item === 'string' ? item : JSON.stringify(item));
+                            } else if (typeof data === 'object') {
+                                lines = Object.entries(data).map(([k, v]) => `${k} = ${v}`);
+                            }
+                        } else if (name.endsWith('.csv') || name.endsWith('.tsv')) {
+                            const sep = name.endsWith('.tsv') ? '\t' : ',';
+                            const rows = text.split('\n').map(r => r.trim()).filter(r => r);
+                            lines = rows;
+                        } else {
+                            lines = text.split('\n').map(r => r.trim()).filter(r => r);
+                        }
+                        dictLines.push(...lines.map(l => ({ text: l, file: file.name })));
+                        dictFileNames.push(file.name);
+                        const tag = document.createElement('span');
+                        tag.className = 'inline-flex items-center gap-1 px-2 py-1 bg-purple-900 text-purple-200 rounded text-xs';
+                        tag.innerHTML = `${file.name} (${lines.length} lines)`;
+                        const removeBtn = document.createElement('button');
+                        removeBtn.className = 'ml-1 text-purple-400 hover:text-red-400 font-bold leading-none focus:outline-none';
+                        removeBtn.innerHTML = '&times;';
+                        removeBtn.title = 'Remove this file';
+                        const fileName = file.name;
+                        removeBtn.addEventListener('click', () => {
+                            dictLines = dictLines.filter(l => l.file !== fileName);
+                            dictFileNames = dictFileNames.filter(n => n !== fileName);
+                            tag.remove();
+                            dictStatus.textContent = dictLines.length > 0 ? `${dictLines.length} lines from ${dictFileNames.length} file(s)` : 'No files loaded';
+                        });
+                        tag.appendChild(removeBtn);
+                        dictFileList.appendChild(tag);
+                    } catch (err) {
+                        showMessage(`Failed to load ${file.name}: ${err.message}`, 'error');
+                    }
+                }
+                dictStatus.textContent = `${dictLines.length} lines from ${dictFileNames.length} file(s)`;
+                dictFileInput.value = '';
+            });
+
+            function searchDictionary(userText) {
+                const refsDisplay = document.getElementById('dict-refs-display');
+                refsDisplay.classList.add('hidden');
+                refsDisplay.innerHTML = '';
+                if (!dictEnabledCheckbox.checked || dictLines.length === 0) return '';
+                const maxMatches = parseInt(dictMaxMatches.value) || 15;
+                const words = userText.toLowerCase()
+                    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+                    .split(/\s+/)
+                    .filter(w => w.length >= 2);
+                if (words.length === 0) return '';
+
+                const mode = dictMatchMode.value;
+                let finalMatches = [];
+
+                if (mode === 'per-file') {
+                    const fileGroups = {};
+                    dictLines.forEach((entry, idx) => {
+                        if (!fileGroups[entry.file]) fileGroups[entry.file] = [];
+                        fileGroups[entry.file].push({ ...entry, idx });
+                    });
+                    for (const [fileName, entries] of Object.entries(fileGroups)) {
+                        const scored = entries.map(e => {
+                            const lower = e.text.toLowerCase();
+                            let score = 0;
+                            for (const w of words) { if (lower.includes(w)) score++; }
+                            return { line: e.text, score, idx: e.idx, file: fileName };
+                        }).filter(s => s.score > 0);
+                        scored.sort((a, b) => b.score - a.score || a.idx - b.idx);
+                        finalMatches.push(...scored.slice(0, maxMatches));
+                    }
+                    finalMatches.sort((a, b) => b.score - a.score || a.idx - b.idx);
+                } else {
+                    const scored = dictLines.map((entry, idx) => {
+                        const lower = entry.text.toLowerCase();
+                        let score = 0;
+                        for (const w of words) { if (lower.includes(w)) score++; }
+                        return { line: entry.text, score, idx, file: entry.file };
+                    }).filter(s => s.score > 0);
+                    scored.sort((a, b) => b.score - a.score || a.idx - b.idx);
+                    finalMatches = scored.slice(0, maxMatches);
+                }
+
+                if (finalMatches.length === 0) return '';
+
+                // Show refs panel if checkbox is on
+                if (dictShowRefsCheckbox.checked) {
+                    refsDisplay.classList.remove('hidden');
+                    refsDisplay.innerHTML = `<div class="text-purple-400 font-bold mb-1">${finalMatches.length} context line(s) sent to model [${mode}]:</div>` +
+                        finalMatches.map((s, i) =>
+                            `<div class="py-0.5 border-b border-gray-800"><span class="text-gray-500">${i+1}.</span> <span class="text-purple-300">[${s.file}]</span> ${s.line.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`
+                        ).join('');
+                }
+
+                const label = mode === 'per-file' ? 'auto-matched, per-file' : 'auto-matched';
+                return '\n\n--- Reference Dictionary (' + label + ') ---\n' +
+                    finalMatches.map(s => s.line).join('\n') +
+                    '\n--- End Reference ---\n\n';
+            }
+
             // CSV Batch State
             let currentWorkbook = null;
             let currentSheetName = null;
@@ -1369,14 +1560,17 @@
             // CSV Log Management
             downloadBatchLogsBtn.addEventListener('click', () => { const logContent = batchDebugLog.innerText; if (!logContent || logContent.trim() === '' || logContent.trim() === '--- Batch Processing Log ---') { return showMessage('No logs to download', 'error'); } const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); downloadTextFile(logContent, `batch_logs_${timestamp}.txt`); });
             clearBatchLogsBtn.addEventListener('click', () => { batchDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- Batch Processing Log ---</div>'; });
+            downloadBatchDryRunBtn.addEventListener('click', () => { if (!batchDryRunResults || batchDryRunResults.length === 0) { return showMessage('No dry run results to download', 'error'); } const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); downloadJsonFile(batchDryRunResults, `batch_dry_run_results_${timestamp}.json`); });
 
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
-                if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, null, false, onDebug); return stripThinking(result); }
-                else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, null, onDebug); }
-                else if (model.toLowerCase().includes('nova')) { return await callNova(model, prompt, null, false, onDebug); }
-                else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, null, false, onDebug); }
-                else { const payload = { model: model, prompt: prompt, stream: false }; if(onDebug) onDebug(payload); const res = await callOllama('/api/generate', payload); if (res && res.response) return res.response.trim(); else throw new Error("Ollama returned empty response"); }
+                const dictContext = searchDictionary(prompt); if (dictContext) prompt = dictContext + prompt;
+                const globalSP = systemPrompt.value.trim();
+                if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, globalSP || null, onDebug); }
+                else if (model.toLowerCase().includes('nova')) { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; return await callNova(model, fullPrompt, null, false, onDebug); }
+                else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, globalSP || null, false, onDebug); }
+                else { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; const payload = { model: model, prompt: fullPrompt, stream: false }; if(onDebug) onDebug(payload); const res = await callOllama('/api/generate', payload); if (res && res.response) return res.response.trim(); else throw new Error("Ollama returned empty response"); }
             }
 
             // --- MySQL Batch Functions ---
@@ -2016,14 +2210,17 @@
                     if (outputCol && promptTemplate) rules.push({ varCol, varName, promptTemplate, outputCol, model });
                 });
                 if (rules.length === 0) { showMessage('Please add at least one valid rule with a Prompt and Output Column.', 'error'); return; }
+                const isBatchDryRun = batchDryRunCheckbox.checked;
                 startBatchBtn.classList.add('hidden'); stopBatchBtn.classList.remove('hidden'); batchProgressContainer.classList.remove('hidden'); downloadBatchBtn.classList.add('hidden');
+                batchDryRunResults = []; downloadBatchDryRunBtn.classList.add('hidden');
                 if (batchDebugCheckbox.checked) { batchDebugLog.classList.remove('hidden'); batchDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- Batch Processing Log ---</div>'; } else { batchDebugLog.classList.add('hidden'); batchDebugLog.innerHTML = ''; }
-                batchStopRequested = false; batchStatus.textContent = 'Starting...'; batchProgressBar.style.width = '0%';
+                batchStopRequested = false; batchStatus.textContent = isBatchDryRun ? 'Starting Dry Run (Simulation)...' : 'Starting...'; batchProgressBar.style.width = '0%';
                 let batchStartTime = Date.now(); let fixedTimePer5Rows = 0; let etaCalculated = false;
                 const total = currentData.length;
                 for (let i = 0; i < total; i++) {
                     if (batchStopRequested) { batchStatus.textContent = 'Stopped by user.'; break; }
                     const row = currentData[i];
+                    let aiResultsForRow = {};
                     for (const rule of rules) {
                         const varValue = row[rule.varCol] || ''; let prompt = rule.promptTemplate;
                         prompt = prompt.replace(new RegExp(`{{${rule.varName}}}`, 'g'), varValue);
@@ -2031,15 +2228,21 @@
                         const onDebug = (payload) => { if (batchDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-2 border-l-2 border-cyan-600 pl-2'; el.innerHTML = `<div class="text-cyan-400 font-bold text-xs">Row ${i + 1} [Request] -> "${rule.outputCol}" (${rule.model})</div><div class="text-gray-500 text-[10px]">${JSON.stringify(payload, null, 2)}</div>`; batchDebugLog.appendChild(el); batchDebugLog.scrollTop = batchDebugLog.scrollHeight; } };
                         try {
                             let resultText = await executeAIModel(rule.model, prompt, onDebug);
-                            row[rule.outputCol] = resultText;
+                            aiResultsForRow[rule.outputCol] = resultText;
+                            if (!isBatchDryRun) row[rule.outputCol] = resultText;
                             if (batchDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-4 border-l-2 border-green-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-green-400 font-bold text-xs">Row ${i + 1} [Response]</div><div class="text-gray-500 text-[10px]">${resultText.substring(0, 100)}...</div>`; batchDebugLog.appendChild(el); batchDebugLog.scrollTop = batchDebugLog.scrollHeight; }
                         } catch (err) {
                             if (batchDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-2 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-red-400 font-bold text-xs">Row ${i + 1} [Error]</div><div class="text-gray-500 text-[10px]">${err.message}</div>`; batchDebugLog.appendChild(el); }
-                            row[rule.outputCol] = "Error: " + err.message;
+                            if (!isBatchDryRun) row[rule.outputCol] = "Error: " + err.message;
+                            aiResultsForRow[rule.outputCol] = "Error: " + err.message;
                         }
                     }
+                    if (isBatchDryRun && Object.keys(aiResultsForRow).length > 0) {
+                        batchDryRunResults.push({ rowIndex: i, originalData: { ...row }, proposedChanges: aiResultsForRow });
+                        if (batchDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-2 border-l-2 border-purple-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-purple-400 font-bold text-xs">DRY RUN - Row ${i + 1} proposed changes</div><div class="text-gray-500 text-[10px]">${JSON.stringify(aiResultsForRow).substring(0, 200)}</div>`; batchDebugLog.appendChild(el); batchDebugLog.scrollTop = batchDebugLog.scrollHeight; }
+                    }
                     const percent = Math.round(((i + 1) / total) * 100); batchProgressBar.style.width = `${percent}%`;
-                    let statusMsg = `Processing row ${i + 1} of ${total}...`;
+                    let statusMsg = `Processing row ${i + 1} of ${total}...`; if (isBatchDryRun) statusMsg = `[DRY RUN] ${statusMsg}`;
                     if (batchEtaCheckbox.checked) {
                         if (i === 4) { fixedTimePer5Rows = (Date.now() - batchStartTime) / 5; etaCalculated = true; }
                         if (etaCalculated) { const remainingMs = fixedTimePer5Rows * (total - (i + 1)); const s = Math.floor((remainingMs / 1000) % 60); const m = Math.floor((remainingMs / 60000) % 60); const h = Math.floor(remainingMs / 3600000); let ts = ''; if (h > 0) ts += `${h}h `; if (m > 0 || h > 0) ts += `${m}m `; ts += `${s}s`; statusMsg += ` (ETA: ${ts})`; }
@@ -2048,10 +2251,12 @@
                     batchStatus.textContent = statusMsg;
                     if (batchDelayCheckbox.checked && i < total - 1 && !batchStopRequested) { const delaySec = parseFloat(batchDelayInput.value) || 0; if (delaySec > 0) { batchStatus.textContent = `${statusMsg} [Waiting ${delaySec}s]`; await new Promise(r => setTimeout(r, delaySec * 1000)); } }
                 }
-                stopBatchBtn.classList.add('hidden'); startBatchBtn.classList.remove('hidden'); downloadBatchBtn.classList.remove('hidden');
-                if (!batchStopRequested) batchStatus.textContent = 'Processing Complete!';
-                else batchStatus.textContent = 'Stopped by user. Partial results available for download.';
-                renderBatchPreview(); 
+                stopBatchBtn.classList.add('hidden'); startBatchBtn.classList.remove('hidden');
+                if (!batchStopRequested) {
+                    if (isBatchDryRun) { batchStatus.textContent = `Dry Run Complete! ${batchDryRunResults.length} rows processed.`; if (batchDryRunResults.length > 0) downloadBatchDryRunBtn.classList.remove('hidden'); }
+                    else { batchStatus.textContent = 'Processing Complete!'; downloadBatchBtn.classList.remove('hidden'); }
+                } else { batchStatus.textContent = 'Stopped by user. Partial results available for download.'; if (!isBatchDryRun) downloadBatchBtn.classList.remove('hidden'); else if (batchDryRunResults.length > 0) downloadBatchDryRunBtn.classList.remove('hidden'); }
+                if (!isBatchDryRun) renderBatchPreview(); 
             });
             stopBatchBtn.addEventListener('click', () => { batchStopRequested = true; });
             downloadBatchBtn.addEventListener('click', () => { const newWs = XLSX.utils.json_to_sheet(currentData); const newWb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(newWb, newWs, "Processed"); XLSX.writeFile(newWb, "ollama_gemini_nova_processed.xlsx"); });
@@ -2379,6 +2584,7 @@
                 analysisOutput.value = ''; analysisOutput.classList.add('animate-pulse'); analyzeBtn.classList.add('hidden'); stopAnalysisBtn.classList.remove('hidden');
                 if (analysisAbortController) analysisAbortController.abort(); analysisAbortController = new AbortController(); const signal = analysisAbortController.signal;
                 let finalPrompt = `Text:\n"""\n${prompt}\n"""\n\n`; if(userSystemPrompt) finalPrompt = `System Instruction: ${userSystemPrompt}\n\n` + finalPrompt;
+                const dictContext = searchDictionary(prompt); if (dictContext) finalPrompt = dictContext + finalPrompt;
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) { analysisOutput.value = `--- DEBUG REQUEST (${model}) ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\nAnalyzing...\n\n`; } };
                 try {
                     let responseText = "";
@@ -2399,7 +2605,8 @@
                 const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB; const stagedImage = (panelSuffix === 'a') ? stagedImageA : stagedImageB;
                 const message = inputEl.value.trim(); if (!message && !stagedImage) return;
                 const globalSP = systemPrompt.value.trim(); const chat = allChats[activeChatId]; if (!chat) return;
-                const model = chat.model; const localSP = chat.systemPrompt ? chat.systemPrompt.trim() : ''; const finalSP = localSP || globalSP;
+                const model = chat.model; const localSP = chat.systemPrompt ? chat.systemPrompt.trim() : ''; let finalSP = localSP || globalSP;
+                const dictContext = searchDictionary(message); if (dictContext) finalSP = (finalSP ? finalSP + '\n' : '') + dictContext;
                 addMessageToChatUI(historyEl, 'user', message, stagedImage ? stagedImage.dataUrl : null);
                 const userMessage = { role: 'user', content: message }; if (stagedImage) userMessage.images = [stagedImage.base64]; chat.messages.push(userMessage);
                 inputEl.value = ''; clearStagedImage(panelSuffix);
