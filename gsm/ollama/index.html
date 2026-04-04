@@ -14,6 +14,9 @@
         window.webllm = webllm;
         window.webllmReady = true;
         window.dispatchEvent(new Event('webllm-loaded'));
+        // Legacy web-llm v0.2.79 for models using ndarray-cache.json format
+        import * as webllmLegacy from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.79/+esm";
+        window.webllmLegacy = webllmLegacy;
     </script>
     <script>
         tailwind.config = {
@@ -286,6 +289,11 @@
                         <div class="flex items-center">
                             <input type="checkbox" id="debug-mode-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2 focus:ring-offset-gray-800">
                             <label for="debug-mode-checkbox" class="ml-2 text-sm font-medium text-gray-300">Show raw request payloads (Debug Mode)</label>
+                        </div>
+                        <!-- Show Thinking Toggle -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="show-thinking-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2 focus:ring-offset-gray-800">
+                            <label for="show-thinking-checkbox" class="ml-2 text-sm font-medium text-gray-300">Show &lt;think&gt; reasoning (Thinking models)</label>
                         </div>
                     </div>
 
@@ -776,6 +784,7 @@
             const systemPrompt = document.getElementById('system-prompt');
             const testConnectionBtn = document.getElementById('test-connection-btn');
             const debugModeCheckbox = document.getElementById('debug-mode-checkbox');
+            const showThinkingCheckbox = document.getElementById('show-thinking-checkbox');
 
             // Analysis Elements
             const analysisInput = document.getElementById('analysis-input');
@@ -942,6 +951,51 @@
             let webllmLoadedModelId = null;
             let webllmAvailableModels = [];
             let webllmLoading = false;
+
+            // Custom WebLLM models (not in prebuilt list)
+            // Models using legacy ndarray-cache.json format need web-llm v0.2.79
+            const customWebLLMModels = [
+                {
+                    model: 'https://huggingface.co/vladbuinceanu/Qwen3-4B-Thinking-2507-q4f32_1-MLC',
+                    model_id: 'Qwen3-4B-Thinking-2507-q4f32_1-MLC',
+                    model_lib: null, // set dynamically
+                    vram_required_MB: 4328,
+                    low_resource_required: true,
+                    overrides: { context_window_size: 4096 },
+                    _useLegacy: true, // flag: use web-llm v0.2.79 for ndarray-cache.json compat
+                },
+            ];
+            const legacyModelIds = new Set(customWebLLMModels.filter(m => m._useLegacy).map(m => m.model_id));
+
+            // Strip <think>...</think> blocks from model output
+            function stripThinking(text) {
+                if (showThinkingCheckbox.checked) return text;
+                return text.replace(/<think>[\s\S]*?<\/think>/g, '').trimStart();
+            }
+            // For streaming: accumulate text and strip thinking progressively
+            function createThinkingFilter() {
+                let buffer = '';
+                let thinkingDone = false;
+                let showThinking = showThinkingCheckbox.checked;
+                return {
+                    push(chunk) {
+                        buffer += chunk;
+                        if (showThinking) return chunk;
+                        if (thinkingDone) return chunk;
+                        // Check if we have a complete </think> tag
+                        const endIdx = buffer.indexOf('</think>');
+                        if (endIdx !== -1) {
+                            thinkingDone = true;
+                            return buffer.slice(endIdx + '</think>'.length).trimStart();
+                        }
+                        // Still inside <think> block or haven't started — emit nothing
+                        if (buffer.includes('<think>')) return '';
+                        // No think tag at all — pass through
+                        thinkingDone = true;
+                        return buffer;
+                    }
+                };
+            }
             
             // CSV Batch State
             let currentWorkbook = null;
@@ -1318,7 +1372,7 @@
 
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
-                if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); return await callWebLLM(rawModel, prompt, null, false, onDebug); }
+                if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, null, false, onDebug); return stripThinking(result); }
                 else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { return await callNova(model, prompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, null, false, onDebug); }
@@ -2081,21 +2135,71 @@
             tabCommands.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabCommands, panelCommands); });
 
             // --- WebLLM Functions ---
+            function getWebLLMAppConfig() {
+                if (!window.webllm) return null;
+                const resolvedCustom = customWebLLMModels.filter(m => !m._useLegacy).map(m => ({
+                    ...m,
+                    model_lib: m.model_lib || (window.webllm.modelLibURLPrefix + window.webllm.modelVersion + '/Qwen3-4B-q4f32_1-ctx4k_cs1k-webgpu.wasm'),
+                }));
+                return {
+                    ...window.webllm.prebuiltAppConfig,
+                    useIndexedDBCache: true,
+                    model_list: [
+                        ...window.webllm.prebuiltAppConfig.model_list,
+                        ...resolvedCustom,
+                    ],
+                };
+            }
+
+            function getLegacyAppConfig() {
+                if (!window.webllmLegacy) return null;
+                const legacyPrefix = 'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/';
+                const legacyVersion = 'v0_2_48';
+                const resolvedLegacy = customWebLLMModels.filter(m => m._useLegacy).map(m => ({
+                    model: m.model,
+                    model_id: m.model_id,
+                    model_lib: m.model_lib || (legacyPrefix + legacyVersion + '/Qwen3-4B-q4f32_1-ctx4k_cs1k-webgpu.wasm'),
+                    vram_required_MB: m.vram_required_MB,
+                    low_resource_required: m.low_resource_required,
+                    overrides: m.overrides,
+                }));
+                return { useIndexedDBCache: true, model_list: resolvedLegacy };
+            }
+
+            let webllmLegacyEngine = null;
+            let webllmLegacyLoadedModelId = null;
+
             async function ensureWebLLMModel(modelId) {
-                if (webllmLoadedModelId === modelId && webllmEngine) return;
+                const isLegacy = legacyModelIds.has(modelId);
+
+                if (isLegacy) {
+                    if (webllmLegacyLoadedModelId === modelId && webllmLegacyEngine) return;
+                } else {
+                    if (webllmLoadedModelId === modelId && webllmEngine) return;
+                }
                 if (webllmLoading) throw new Error('WebLLM is already loading a model. Please wait.');
                 webllmLoading = true;
-                showMessage(`WebLLM: Downloading/loading ${modelId}... This may take a while on first run.`, 'success');
+                showMessage(`WebLLM: Downloading/loading ${modelId}...${isLegacy ? ' (legacy engine)' : ''} This may take a while on first run.`, 'success');
                 try {
-                    if (!window.webllm) throw new Error('WebLLM library not loaded yet. Please wait a moment and try again.');
-                    if (!webllmEngine) {
-                        webllmEngine = new window.webllm.MLCEngine();
+                    if (isLegacy) {
+                        if (!window.webllmLegacy) throw new Error('Legacy WebLLM library not loaded yet. Please wait.');
+                        const appConfig = getLegacyAppConfig();
+                        webllmLegacyEngine = new window.webllmLegacy.MLCEngine({ appConfig });
+                        webllmLegacyEngine.setInitProgressCallback((report) => {
+                            showMessage(`WebLLM: ${report.text}`, 'success');
+                        });
+                        await webllmLegacyEngine.reload(modelId, { temperature: 1.0, top_p: 1 });
+                        webllmLegacyLoadedModelId = modelId;
+                    } else {
+                        if (!window.webllm) throw new Error('WebLLM library not loaded yet. Please wait a moment and try again.');
+                        const appConfig = getWebLLMAppConfig();
+                        webllmEngine = new window.webllm.MLCEngine({ appConfig });
                         webllmEngine.setInitProgressCallback((report) => {
                             showMessage(`WebLLM: ${report.text}`, 'success');
                         });
+                        await webllmEngine.reload(modelId, { temperature: 1.0, top_p: 1 });
+                        webllmLoadedModelId = modelId;
                     }
-                    await webllmEngine.reload(modelId, { temperature: 1.0, top_p: 1 });
-                    webllmLoadedModelId = modelId;
                     showMessage(`WebLLM: ${modelId} loaded and ready.`, 'success');
                 } catch (err) {
                     showMessage(`WebLLM load failed: ${err.message}`, 'error');
@@ -2107,6 +2211,7 @@
 
             async function callWebLLM(modelId, promptOrMessages, systemInstruction = null, stream = false, onDebug = null) {
                 await ensureWebLLMModel(modelId);
+                const engine = legacyModelIds.has(modelId) ? webllmLegacyEngine : webllmEngine;
                 let messages = [];
                 if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
                 if (typeof promptOrMessages === 'string') {
@@ -2119,7 +2224,7 @@
                 const payload = { model: modelId, messages, stream };
                 if (onDebug) onDebug(payload);
                 if (stream) {
-                    const completion = await webllmEngine.chat.completions.create({ stream: true, messages, stream_options: { include_usage: true } });
+                    const completion = await engine.chat.completions.create({ stream: true, messages, stream_options: { include_usage: true } });
                     // Return a reader-like interface matching the pattern used by other providers
                     let chunks = [];
                     let resolveNext = null;
@@ -2153,7 +2258,7 @@
                     };
                 }
                 // Non-streaming
-                const result = await webllmEngine.chat.completions.create({ messages });
+                const result = await engine.chat.completions.create({ messages });
                 return result.choices[0]?.message?.content || '';
             }
 
@@ -2277,7 +2382,7 @@
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) { analysisOutput.value = `--- DEBUG REQUEST (${model}) ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\nAnalyzing...\n\n`; } };
                 try {
                     let responseText = "";
-                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += responseText; } }
+                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
                     else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
                     else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
@@ -2304,7 +2409,7 @@
 
                 if (model.startsWith('webllm:')) {
                     const rawModel = model.replace('webllm:', '');
-                    try { const sh = await callWebLLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`WebLLM response received (${rawModel}).`, 'success'); }
+                    try { const sh = await callWebLLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; let displayResponse = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; const filtered = tf.push(chunk); if (filtered) { displayResponse += filtered; typingBubble.innerHTML = mdToHtml(displayResponse); historyEl.scrollTop = historyEl.scrollHeight; } }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`WebLLM response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model === GEMINI_MODEL_NAME) {
@@ -2438,13 +2543,19 @@
                             const isPhi = lower.includes('phi');
                             const isMinistral = lower.includes('ministral');
                             // Remove Phi, Ministral, 0.5B models, and 1B models unless Llama
-                            if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || lower.includes('q4f32_1')) return false;
+                            if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || (lower.includes('q4f32_1') && !lower.includes('qwen3'))) return false;
                             // Remove specific models
                             if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
                             if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
                             if (is05B || is06B || is70B) return false;
                             return !is1B || isLlama;
                         });
+                    // Append custom WebLLM models
+                    customWebLLMModels.forEach(m => {
+                        if (!webllmAvailableModels.includes(m.model_id)) {
+                            webllmAvailableModels.push(m.model_id);
+                        }
+                    });
                 }
                 const ollamaPromise = (async () => { try { const ep = ollamaEndpoint.value; const url = new URL(ep); url.pathname = '/api/tags'; const response = await fetchWithTimeout(url.toString(), {}, TIMEOUT_CONNECT_TEST); if (response.ok) { const data = await response.json(); return { type: 'ollama', models: data.models || [], success: true }; } return { type: 'ollama', models: [], success: false, error: 'HTTP ' + response.status }; } catch (e) { return { type: 'ollama', models: [], success: false, error: e.message }; } })();
                 const lmStudioPromise = (async () => { try { const ep = lmstudioEndpoint.value.replace(/\/+$/, ''); const url = `${ep}/models`; const response = await fetchWithTimeout(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } }, TIMEOUT_CONNECT_TEST); if (response.ok) { const data = await response.json(); const models = data.data || []; return { type: 'lmstudio', models: models.map(m => ({ id: m.id })), success: true }; } return { type: 'lmstudio', models: [], success: false, error: 'HTTP ' + response.status }; } catch (e) { return { type: 'lmstudio', models: [], success: false, error: e.message }; } })();
