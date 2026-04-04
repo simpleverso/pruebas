@@ -8,6 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load SheetJS for Excel/CSV processing -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Load WebLLM for in-browser inference -->
+    <script type="module">
+        import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+        window.webllm = webllm;
+        window.webllmReady = true;
+        window.dispatchEvent(new Event('webllm-loaded'));
+    </script>
     <script>
         tailwind.config = {
             darkMode: 'class', // 'media' or 'class'
@@ -45,7 +52,7 @@
 
         <header class="text-center">
             <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Universal AI Client</h1>
-            <p class="text-lg text-gray-400 mt-2">Ollama • LM Studio • Google Gemini • Amazon Nova</p>
+            <p class="text-lg text-gray-400 mt-2">Ollama • LM Studio • Google Gemini • Amazon Nova • WebLLM (In-Browser)</p>
         </header>
 
         <!-- Tab Navigation -->
@@ -488,10 +495,25 @@
                     <!-- Step 1: Database Setup -->
                     <div class="mb-6 p-4 bg-gray-700 rounded-lg border border-gray-600">
                         <h3 class="text-lg font-semibold text-gray-300 mb-4">1. Database Connection & Proxy</h3>
+                        <div class="bg-gray-800 border border-gray-600 text-gray-300 px-4 py-3 rounded-lg mb-4 text-xs space-y-2">
+                            <p class="font-semibold text-cyan-400">Proxy Setup Instructions:</p>
+                            <p>A proxy script is required to connect to your database. Download one below and run it:</p>
+                            <ul class="list-disc list-inside space-y-1 text-gray-400">
+                                <li><span class="text-purple-400 font-semibold">MySQL (Python):</span> <code class="bg-gray-900 px-1 rounded">python mysql_proxy.py</code> — auto-installs Flask + mysql-connector-python</li>
+                                <li><span class="text-indigo-400 font-semibold">MySQL (PHP):</span> Place <code class="bg-gray-900 px-1 rounded">mysql_proxy.php</code> in your web server (Apache/Nginx/XAMPP)</li>
+                                <li><span class="text-teal-400 font-semibold">PostgreSQL (Python):</span> <code class="bg-gray-900 px-1 rounded">python postgres_proxy.py</code> — auto-installs Flask + psycopg2</li>
+                            </ul>
+                            <p class="text-gray-500">All Python proxies listen on <code class="bg-gray-900 px-1 rounded">http://0.0.0.0:8080</code> by default. Set the Proxy URL below to match (e.g. <code class="bg-gray-900 px-1 rounded">http://localhost:8080</code>). Credentials (host, user, password, database) are sent from the browser — no need to edit the proxy files.</p>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div class="sm:col-span-2 lg:col-span-5">
                                 <label class="block text-xs text-gray-400 mb-1">PHP Proxy URL</label>
-                                <input type="text" id="mysql-proxy-url" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500" placeholder="http://localhost/mysql_proxy.php" value="http://192.168.100.28:8080/phpmyadmin/proxy/mysql_proxy.php">
+                                <div class="flex gap-2">
+                                    <input type="text" id="mysql-proxy-url" class="flex-grow bg-gray-800 border border-gray-600 rounded p-2 text-sm text-gray-200 focus:ring-1 focus:ring-cyan-500" placeholder="http://localhost/mysql_proxy.php" value="http://192.168.100.28:8080/phpmyadmin/proxy/mysql_proxy.php">
+                                    <button id="download-proxy-btn" class="flex-shrink-0 px-3 py-2 bg-purple-600 text-white rounded font-semibold hover:bg-purple-700 transition text-xs" title="Download Python Proxy Script">⬇ Proxy .py</button>
+                                    <button id="download-proxy-php-btn" class="flex-shrink-0 px-3 py-2 bg-indigo-600 text-white rounded font-semibold hover:bg-indigo-700 transition text-xs" title="Download PHP Proxy Script">⬇ Proxy .php</button>
+                                    <button id="download-proxy-pg-btn" class="flex-shrink-0 px-3 py-2 bg-teal-600 text-white rounded font-semibold hover:bg-teal-700 transition text-xs" title="Download PostgreSQL Python Proxy">⬇ PostgreSQL .py</button>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-400 mb-1">Host</label>
@@ -914,6 +936,12 @@
             let novaModels = []; 
             let lmStudioModels = [];
             let analysisAbortController = null; 
+
+            // WebLLM State
+            let webllmEngine = null;
+            let webllmLoadedModelId = null;
+            let webllmAvailableModels = [];
+            let webllmLoading = false;
             
             // CSV Batch State
             let currentWorkbook = null;
@@ -1290,7 +1318,8 @@
 
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
-                if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, null, onDebug); }
+                if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); return await callWebLLM(rawModel, prompt, null, false, onDebug); }
+                else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { return await callNova(model, prompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, null, false, onDebug); }
                 else { const payload = { model: model, prompt: prompt, stream: false }; if(onDebug) onDebug(payload); const res = await callOllama('/api/generate', payload); if (res && res.response) return res.response.trim(); else throw new Error("Ollama returned empty response"); }
@@ -1476,6 +1505,332 @@
                     importMysqlProjectInput.value = '';
                 };
                 reader.readAsText(file);
+            });
+
+            // Download Python Proxy Script
+            document.getElementById('download-proxy-btn').addEventListener('click', () => {
+                const lines = [
+                    '#!/usr/bin/env python3',
+                    '"""',
+                    'MySQL Proxy for Universal AI Client.',
+                    'Drop-in Python replacement for mysql_proxy.php.',
+                    '',
+                    'Usage:',
+                    '    python mysql_proxy.py',
+                    '',
+                    'Listens on http://0.0.0.0:8080 by default.',
+                    'Dependencies are auto-installed on first run.',
+                    '"""',
+                    '',
+                    'import subprocess',
+                    'import sys',
+                    '',
+                    'REQUIRED = ["flask", "mysql-connector-python", "flask-cors"]',
+                    '',
+                    'def ensure_deps():',
+                    '    for pkg in REQUIRED:',
+                    '        try:',
+                    '            __import__(pkg.replace("-", "_").split("_")[0] if pkg != "mysql-connector-python" else "mysql.connector")',
+                    '        except ImportError:',
+                    '            print(f"Installing {pkg}...")',
+                    '            subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])',
+                    '',
+                    'ensure_deps()',
+                    '',
+                    'from flask import Flask, request, jsonify',
+                    'from flask_cors import CORS',
+                    'import mysql.connector',
+                    '',
+                    'app = Flask(__name__)',
+                    'CORS(app)',
+                    '',
+                    '',
+                    '@app.route("/", methods=["POST"])',
+                    '@app.route("/mysql_proxy.py", methods=["POST"])',
+                    '@app.route("/phpmyadmin/proxy/mysql_proxy.php", methods=["POST"])',
+                    'def proxy():',
+                    '    try:',
+                    '        data = request.get_json(force=True)',
+                    '        action = data.get("action")',
+                    '        config = data.get("config", {})',
+                    '',
+                    '        conn = mysql.connector.connect(',
+                    '            host=config.get("host", "localhost"),',
+                    '            user=config.get("user", "root"),',
+                    '            password=config.get("pass", ""),',
+                    '            database=config.get("db", ""),',
+                    '        )',
+                    '        cursor = conn.cursor(dictionary=True)',
+                    '',
+                    '        if action == "fetch":',
+                    '            query = data.get("query", "")',
+                    '            cursor.execute(query)',
+                    '            rows = cursor.fetchall()',
+                    '            for row in rows:',
+                    '                for k, v in row.items():',
+                    '                    if not isinstance(v, (str, int, float, bool, type(None))):',
+                    '                        row[k] = str(v)',
+                    '            cursor.close()',
+                    '            conn.close()',
+                    '            return jsonify({"data": rows})',
+                    '',
+                    '        elif action == "update":',
+                    '            table = data.get("table", "")',
+                    '            updates = data.get("updates", {})',
+                    '            where = data.get("where", {})',
+                    '',
+                    '            if not table or not updates or not where:',
+                    '                return jsonify({"error": "Missing table, updates, or where clause"}), 400',
+                    '',
+                    '            set_parts = []',
+                    '            params = []',
+                    '            for col, val in updates.items():',
+                    '                set_parts.append(f"`{col}` = %s")',
+                    '                params.append(val)',
+                    '',
+                    '            where_parts = []',
+                    '            for col, val in where.items():',
+                    '                where_parts.append(f"`{col}` = %s")',
+                    '                params.append(val)',
+                    '',
+                    '            sql = f"UPDATE `{table}` SET {\', \'.join(set_parts)} WHERE {\' AND \'.join(where_parts)}"',
+                    '            cursor.execute(sql, params)',
+                    '            conn.commit()',
+                    '            affected = cursor.rowcount',
+                    '            cursor.close()',
+                    '            conn.close()',
+                    '            return jsonify({"affected_rows": affected})',
+                    '',
+                    '        else:',
+                    '            return jsonify({"error": f"Unknown action: {action}"}), 400',
+                    '',
+                    '    except mysql.connector.Error as e:',
+                    '        return jsonify({"error": f"MySQL error: {str(e)}"}), 500',
+                    '    except Exception as e:',
+                    '        return jsonify({"error": str(e)}), 500',
+                    '',
+                    '',
+                    'if __name__ == "__main__":',
+                    '    print("MySQL Proxy running on http://0.0.0.0:8080")',
+                    '    app.run(host="0.0.0.0", port=8080, debug=True)',
+                    ''
+                ];
+                downloadTextFile(lines.join('\n'), 'mysql_proxy.py', 'text/x-python');
+            });
+
+            // Download PHP Proxy Script
+            document.getElementById('download-proxy-php-btn').addEventListener('click', () => {
+                const lines = [
+                    '<?php',
+                    '/**',
+                    ' * MySQL Proxy for Universal AI Client.',
+                    ' * Place this file on a PHP-enabled web server.',
+                    ' * Handles fetch (SELECT) and update (UPDATE) actions via JSON POST.',
+                    ' */',
+                    '',
+                    '// CORS headers',
+                    'header("Access-Control-Allow-Origin: *");',
+                    'header("Access-Control-Allow-Methods: POST, OPTIONS");',
+                    'header("Access-Control-Allow-Headers: Content-Type");',
+                    'header("Content-Type: application/json; charset=utf-8");',
+                    '',
+                    '// Handle preflight',
+                    'if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {',
+                    '    http_response_code(204);',
+                    '    exit;',
+                    '}',
+                    '',
+                    '$input = json_decode(file_get_contents("php://input"), true);',
+                    'if (!$input) {',
+                    '    echo json_encode(["error" => "Invalid JSON input"]);',
+                    '    exit;',
+                    '}',
+                    '',
+                    '$action = $input["action"] ?? "";',
+                    '$config = $input["config"] ?? [];',
+                    '$host = $config["host"] ?? "localhost";',
+                    '$user = $config["user"] ?? "root";',
+                    '$pass = $config["pass"] ?? "";',
+                    '$db   = $config["db"] ?? "";',
+                    '',
+                    'try {',
+                    '    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [',
+                    '        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,',
+                    '        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,',
+                    '    ]);',
+                    '} catch (PDOException $e) {',
+                    '    echo json_encode(["error" => "Connection failed: " . $e->getMessage()]);',
+                    '    exit;',
+                    '}',
+                    '',
+                    'if ($action === "fetch") {',
+                    '    $query = $input["query"] ?? "";',
+                    '    if (!$query) {',
+                    '        echo json_encode(["error" => "No query provided"]);',
+                    '        exit;',
+                    '    }',
+                    '    try {',
+                    '        $stmt = $pdo->query($query);',
+                    '        $rows = $stmt->fetchAll();',
+                    '        echo json_encode(["data" => $rows]);',
+                    '    } catch (PDOException $e) {',
+                    '        echo json_encode(["error" => "Query failed: " . $e->getMessage()]);',
+                    '    }',
+                    '',
+                    '} elseif ($action === "update") {',
+                    '    $table   = $input["table"] ?? "";',
+                    '    $updates = $input["updates"] ?? [];',
+                    '    $where   = $input["where"] ?? [];',
+                    '',
+                    '    if (!$table || empty($updates) || empty($where)) {',
+                    '        echo json_encode(["error" => "Missing table, updates, or where clause"]);',
+                    '        exit;',
+                    '    }',
+                    '',
+                    '    $setParts = [];',
+                    '    $params = [];',
+                    '    foreach ($updates as $col => $val) {',
+                    '        $setParts[] = "`$col` = ?";',
+                    '        $params[] = $val;',
+                    '    }',
+                    '',
+                    '    $whereParts = [];',
+                    '    foreach ($where as $col => $val) {',
+                    '        $whereParts[] = "`$col` = ?";',
+                    '        $params[] = $val;',
+                    '    }',
+                    '',
+                    '    $sql = "UPDATE `$table` SET " . implode(", ", $setParts) . " WHERE " . implode(" AND ", $whereParts);',
+                    '    try {',
+                    '        $stmt = $pdo->prepare($sql);',
+                    '        $stmt->execute($params);',
+                    '        echo json_encode(["affected_rows" => $stmt->rowCount()]);',
+                    '    } catch (PDOException $e) {',
+                    '        echo json_encode(["error" => "Update failed: " . $e->getMessage()]);',
+                    '    }',
+                    '',
+                    '} else {',
+                    '    echo json_encode(["error" => "Unknown action: $action"]);',
+                    '}',
+                ];
+                downloadTextFile(lines.join('\n'), 'mysql_proxy.php', 'application/x-php');
+            });
+
+            // Download PostgreSQL Python Proxy Script
+            document.getElementById('download-proxy-pg-btn').addEventListener('click', () => {
+                const lines = [
+                    '#!/usr/bin/env python3',
+                    '"""',
+                    'PostgreSQL Proxy for Universal AI Client.',
+                    'Drop-in replacement for mysql_proxy.py targeting PostgreSQL.',
+                    '',
+                    'Usage:',
+                    '    python postgres_proxy.py',
+                    '',
+                    'Listens on http://0.0.0.0:8080 by default.',
+                    'Dependencies are auto-installed on first run.',
+                    '"""',
+                    '',
+                    'import subprocess',
+                    'import sys',
+                    '',
+                    'REQUIRED = {"flask": "flask", "psycopg2-binary": "psycopg2", "flask-cors": "flask_cors"}',
+                    '',
+                    'def ensure_deps():',
+                    '    for pkg, import_name in REQUIRED.items():',
+                    '        try:',
+                    '            __import__(import_name)',
+                    '        except ImportError:',
+                    '            print(f"Installing {pkg}...")',
+                    '            subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])',
+                    '',
+                    'ensure_deps()',
+                    '',
+                    'from flask import Flask, request, jsonify',
+                    'from flask_cors import CORS',
+                    'import psycopg2',
+                    'import psycopg2.extras',
+                    '',
+                    'app = Flask(__name__)',
+                    'CORS(app)',
+                    '',
+                    '',
+                    '@app.route("/", methods=["POST"])',
+                    '@app.route("/postgres_proxy.py", methods=["POST"])',
+                    '@app.route("/phpmyadmin/proxy/mysql_proxy.php", methods=["POST"])',
+                    'def proxy():',
+                    '    try:',
+                    '        data = request.get_json(force=True)',
+                    '        action = data.get("action")',
+                    '        config = data.get("config", {})',
+                    '',
+                    '        conn = psycopg2.connect(',
+                    '            host=config.get("host", "localhost"),',
+                    '            user=config.get("user", "postgres"),',
+                    '            password=config.get("pass", ""),',
+                    '            dbname=config.get("db", ""),',
+                    '        )',
+                    '        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)',
+                    '',
+                    '        if action == "fetch":',
+                    '            query = data.get("query", "")',
+                    '            cursor.execute(query)',
+                    '            rows = cursor.fetchall()',
+                    '            clean_rows = []',
+                    '            for row in rows:',
+                    '                clean = {}',
+                    '                for k, v in row.items():',
+                    '                    if not isinstance(v, (str, int, float, bool, type(None))):',
+                    '                        clean[k] = str(v)',
+                    '                    else:',
+                    '                        clean[k] = v',
+                    '                clean_rows.append(clean)',
+                    '            cursor.close()',
+                    '            conn.close()',
+                    '            return jsonify({"data": clean_rows})',
+                    '',
+                    '        elif action == "update":',
+                    '            table = data.get("table", "")',
+                    '            updates = data.get("updates", {})',
+                    '            where = data.get("where", {})',
+                    '',
+                    '            if not table or not updates or not where:',
+                    '                return jsonify({"error": "Missing table, updates, or where clause"}), 400',
+                    '',
+                    '            set_parts = []',
+                    '            params = []',
+                    '            for col, val in updates.items():',
+                    '                set_parts.append(f\'"{col}" = %s\')',
+                    '                params.append(val)',
+                    '',
+                    '            where_parts = []',
+                    '            for col, val in where.items():',
+                    '                where_parts.append(f\'"{col}" = %s\')',
+                    '                params.append(val)',
+                    '',
+                    '            sql = f\'UPDATE "{table}" SET {\', \'.join(set_parts)} WHERE {\' AND \'.join(where_parts)}\'',
+                    '            cursor.execute(sql, params)',
+                    '            conn.commit()',
+                    '            affected = cursor.rowcount',
+                    '            cursor.close()',
+                    '            conn.close()',
+                    '            return jsonify({"affected_rows": affected})',
+                    '',
+                    '        else:',
+                    '            return jsonify({"error": f"Unknown action: {action}"}), 400',
+                    '',
+                    '    except psycopg2.Error as e:',
+                    '        return jsonify({"error": f"PostgreSQL error: {str(e)}"}), 500',
+                    '    except Exception as e:',
+                    '        return jsonify({"error": str(e)}), 500',
+                    '',
+                    '',
+                    'if __name__ == "__main__":',
+                    '    print("PostgreSQL Proxy running on http://0.0.0.0:8080")',
+                    '    app.run(host="0.0.0.0", port=8080, debug=True)',
+                    ''
+                ];
+                downloadTextFile(lines.join('\n'), 'postgres_proxy.py', 'text/x-python');
             });
 
             // --- CSV Batch Project Export/Import ---
@@ -1725,6 +2080,83 @@
             tabMysql.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabMysql, panelMysql); });
             tabCommands.addEventListener('click', (e) => { e.preventDefault(); switchTab(tabCommands, panelCommands); });
 
+            // --- WebLLM Functions ---
+            async function ensureWebLLMModel(modelId) {
+                if (webllmLoadedModelId === modelId && webllmEngine) return;
+                if (webllmLoading) throw new Error('WebLLM is already loading a model. Please wait.');
+                webllmLoading = true;
+                showMessage(`WebLLM: Downloading/loading ${modelId}... This may take a while on first run.`, 'success');
+                try {
+                    if (!window.webllm) throw new Error('WebLLM library not loaded yet. Please wait a moment and try again.');
+                    if (!webllmEngine) {
+                        webllmEngine = new window.webllm.MLCEngine();
+                        webllmEngine.setInitProgressCallback((report) => {
+                            showMessage(`WebLLM: ${report.text}`, 'success');
+                        });
+                    }
+                    await webllmEngine.reload(modelId, { temperature: 1.0, top_p: 1 });
+                    webllmLoadedModelId = modelId;
+                    showMessage(`WebLLM: ${modelId} loaded and ready.`, 'success');
+                } catch (err) {
+                    showMessage(`WebLLM load failed: ${err.message}`, 'error');
+                    throw err;
+                } finally {
+                    webllmLoading = false;
+                }
+            }
+
+            async function callWebLLM(modelId, promptOrMessages, systemInstruction = null, stream = false, onDebug = null) {
+                await ensureWebLLMModel(modelId);
+                let messages = [];
+                if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+                if (typeof promptOrMessages === 'string') {
+                    messages.push({ role: 'user', content: promptOrMessages });
+                } else if (Array.isArray(promptOrMessages)) {
+                    promptOrMessages.filter(m => m.role !== 'system').forEach(msg => {
+                        messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content });
+                    });
+                }
+                const payload = { model: modelId, messages, stream };
+                if (onDebug) onDebug(payload);
+                if (stream) {
+                    const completion = await webllmEngine.chat.completions.create({ stream: true, messages, stream_options: { include_usage: true } });
+                    // Return a reader-like interface matching the pattern used by other providers
+                    let chunks = [];
+                    let resolveNext = null;
+                    let done = false;
+                    (async () => {
+                        try {
+                            for await (const chunk of completion) {
+                                const delta = chunk.choices[0]?.delta?.content;
+                                if (delta) chunks.push(delta);
+                                if (resolveNext) { const r = resolveNext; resolveNext = null; r(); }
+                            }
+                        } finally { done = true; if (resolveNext) { const r = resolveNext; resolveNext = null; r(); } }
+                    })();
+                    return {
+                        reader: {
+                            async read() {
+                                if (chunks.length > 0) {
+                                    const batch = chunks.splice(0, chunks.length).join('');
+                                    return { done: false, value: batch };
+                                }
+                                if (done) return { done: true, value: undefined };
+                                await new Promise(r => { resolveNext = r; });
+                                if (chunks.length > 0) {
+                                    const batch = chunks.splice(0, chunks.length).join('');
+                                    return { done: false, value: batch };
+                                }
+                                return { done: true, value: undefined };
+                            }
+                        },
+                        processChunk: (value) => [value] // value is already a string
+                    };
+                }
+                // Non-streaming
+                const result = await webllmEngine.chat.completions.create({ messages });
+                return result.choices[0]?.message?.content || '';
+            }
+
             // --- API Call Functions (Full streaming support from original) ---
             async function callLMStudio(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
                 const endpoint = lmstudioEndpoint.value.replace(/\/+$/, '');
@@ -1845,7 +2277,8 @@
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) { analysisOutput.value = `--- DEBUG REQUEST (${model}) ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\nAnalyzing...\n\n`; } };
                 try {
                     let responseText = "";
-                    if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
+                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += responseText; } }
+                    else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
                     else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else { const payload = { model: model, prompt: finalPrompt, stream: shouldStream }; onDebug(payload); if (shouldStream) { analysisOutput.value = ''; await callOllama('/api/generate', payload, (chunk) => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }, null, signal); } else { const data = await callOllama('/api/generate', payload, null, null, signal); if (data && data.response) analysisOutput.value += data.response.trim(); else throw new Error("No response from Ollama"); } }
@@ -1869,7 +2302,12 @@
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) addMessageToChatUI(historyEl, 'debug', JSON.stringify(payload, null, 2)); };
                 function saveAndRenameChat() { const userMessages = chat.messages.filter(m => m.role === 'user'); if (userMessages.length === 1) { chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`; renderChatListDropdowns(); } saveChats(); }
 
-                if (model === GEMINI_MODEL_NAME) {
+                if (model.startsWith('webllm:')) {
+                    const rawModel = model.replace('webllm:', '');
+                    try { const sh = await callWebLLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`WebLLM response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model === GEMINI_MODEL_NAME) {
                     try { const responseText = await callGemini(model, chat.messages, finalSP, onDebug); typingBubble.innerHTML = mdToHtml(responseText); chat.messages.push({ role: 'assistant', content: responseText }); saveAndRenameChat(); showMessage(`Gemini response received.`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
@@ -1978,6 +2416,7 @@
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
                 if (lmStudioModels.length > 0) { const lmsHeader = document.createElement('option'); lmsHeader.disabled = true; lmsHeader.textContent = '--- LM Studio Models ---'; selectElement.appendChild(lmsHeader); lmStudioModels.forEach(m => { const opt = document.createElement('option'); opt.value = `lmstudio:${m.id}`; opt.textContent = `🖥️ [LM Studio] ${m.id}`; selectElement.appendChild(opt); }); }
+                if (webllmAvailableModels.length > 0) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
                 else { const noOllama = document.createElement('option'); noOllama.disabled = true; noOllama.textContent = '(No Local Ollama Models Found)'; selectElement.appendChild(noOllama); }
                 if (currentValue) { const allOpts = Array.from(selectElement.options); if(allOpts.some(o => o.value === currentValue)) selectElement.value = currentValue; }
@@ -1985,6 +2424,28 @@
 
             async function checkConnectionAndLoadModels() {
                 showMessage('Connecting to backends...', 'success');
+                // Load WebLLM model list if available
+                if (window.webllm && window.webllm.prebuiltAppConfig) {
+                    webllmAvailableModels = window.webllm.prebuiltAppConfig.model_list
+                        .map(m => m.model_id)
+                        .filter(id => {
+                            const lower = id.toLowerCase();
+                            const is1B = /[\-_]1b[\-_]|[\-_]1\.[\d]b[\-_]/i.test(id);
+                            const is05B = /[\-_]0\.5b[\-_]/i.test(id);
+                            const is06B = /[\-_]0\.6b[\-_]/i.test(id);
+                            const is70B = /[\-_]70b[\-_]/i.test(id);
+                            const isLlama = lower.includes('llama');
+                            const isPhi = lower.includes('phi');
+                            const isMinistral = lower.includes('ministral');
+                            // Remove Phi, Ministral, 0.5B models, and 1B models unless Llama
+                            if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || lower.includes('q4f32_1')) return false;
+                            // Remove specific models
+                            if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
+                            if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
+                            if (is05B || is06B || is70B) return false;
+                            return !is1B || isLlama;
+                        });
+                }
                 const ollamaPromise = (async () => { try { const ep = ollamaEndpoint.value; const url = new URL(ep); url.pathname = '/api/tags'; const response = await fetchWithTimeout(url.toString(), {}, TIMEOUT_CONNECT_TEST); if (response.ok) { const data = await response.json(); return { type: 'ollama', models: data.models || [], success: true }; } return { type: 'ollama', models: [], success: false, error: 'HTTP ' + response.status }; } catch (e) { return { type: 'ollama', models: [], success: false, error: e.message }; } })();
                 const lmStudioPromise = (async () => { try { const ep = lmstudioEndpoint.value.replace(/\/+$/, ''); const url = `${ep}/models`; const response = await fetchWithTimeout(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } }, TIMEOUT_CONNECT_TEST); if (response.ok) { const data = await response.json(); const models = data.data || []; return { type: 'lmstudio', models: models.map(m => ({ id: m.id })), success: true }; } return { type: 'lmstudio', models: [], success: false, error: 'HTTP ' + response.status }; } catch (e) { return { type: 'lmstudio', models: [], success: false, error: e.message }; } })();
                 const results = await Promise.allSettled([ollamaPromise, lmStudioPromise]);
@@ -2006,6 +2467,10 @@
             loadChats();
             checkConnectionAndLoadModels();
             updateSavedRulesDropdown();
+            // Re-populate models when WebLLM finishes loading (async ESM import)
+            if (!window.webllmReady) {
+                window.addEventListener('webllm-loaded', () => checkConnectionAndLoadModels(), { once: true });
+            }
 
             // --- Save Inputs on Change ---
             ollamaEndpoint.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_ENDPOINT, ollamaEndpoint.value));
