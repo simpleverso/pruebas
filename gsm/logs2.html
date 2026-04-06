@@ -828,6 +828,10 @@
         function addMessage(role, text, skipSave) {
             const div = document.createElement('div');
             div.className = 'chat-msg ' + (role === 'user' ? 'user' : role === 'assistant' ? 'assistant' : 'system-msg');
+            // Track index in chatHistory for deletion
+            const msgIndex = (role === 'user' || role === 'assistant') ? chatHistory.length : -1;
+            div._chatIndex = msgIndex;
+            div._chatRole = role;
             const content = document.createElement('span');
             if (role === 'assistant' && text !== '...') {
                 renderMarkdown(content, text);
@@ -839,6 +843,13 @@
             if (role === 'user' || role === 'assistant') {
                 const btnGroup = document.createElement('div');
                 btnGroup.className = 'chat-btn-group';
+                // Delete button
+                const btnDel = document.createElement('button');
+                btnDel.textContent = '✕';
+                btnDel.title = 'Delete this message';
+                btnDel.style.color = '#f85149';
+                btnDel.onclick = () => deleteMessage(div);
+                btnGroup.appendChild(btnDel);
                 // Resend button (for user messages)
                 if (role === 'user') {
                     const btnResend = document.createElement('button');
@@ -873,6 +884,21 @@
             messagesEl.appendChild(div);
             messagesEl.scrollTop = messagesEl.scrollHeight;
             return content;
+        }
+
+        function deleteMessage(msgDiv) {
+            // Rebuild chatHistory from remaining DOM elements
+            msgDiv.remove();
+            chatHistory = [];
+            messagesEl.querySelectorAll('.chat-msg').forEach(el => {
+                if (el._chatRole === 'user' || el._chatRole === 'assistant') {
+                    const span = el.querySelector('span');
+                    if (span && span._rawText) {
+                        chatHistory.push({ role: el._chatRole, content: span._rawText });
+                    }
+                }
+            });
+            saveToStorage();
         }
 
         async function resendMessage(text) {
