@@ -827,8 +827,7 @@
             div.className = 'chat-msg ' + (role === 'user' ? 'user' : role === 'assistant' ? 'assistant' : 'system-msg');
             const content = document.createElement('span');
             if (role === 'assistant' && text !== '...') {
-                content.className = 'md-content';
-                content.innerHTML = marked.parse(text);
+                renderMarkdown(content, text);
             } else {
                 content.textContent = text;
             }
