@@ -239,6 +239,28 @@
             font-size: 0.85em;
             user-select: none;
         }
+        .chat-resend-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: #484f58;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            width: auto;
+            font-weight: normal;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .chat-msg:hover .chat-resend-btn {
+            opacity: 1;
+        }
+        .chat-resend-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #58a6ff;
+            transform: none;
+            box-shadow: none;
+        }
         .chat-msg.system-msg {
             align-self: center;
             background: none;
@@ -718,6 +740,7 @@
         <div class="chat-input-row">
             <textarea id="chatInput" rows="3" placeholder="Type a message (will auto-load default model)..."></textarea>
             <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button">Send</button>
+            <button onclick="clearConversation()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;" title="Clear entire conversation and storage">🗑️</button>
         </div>
     </div>
 
@@ -776,6 +799,7 @@
         let loadedModelId = null;
         let chatHistory = [];
         let isLoading = false;
+        const STORAGE_KEY = 'webllm_chat_history';
         const messagesEl = document.getElementById('chatMessages');
         const inputEl = document.getElementById('chatInput');
         const sendBtn = document.getElementById('chatSendBtn');
@@ -783,7 +807,22 @@
         const progressEl = document.getElementById('llmProgress');
         const progressBar = document.getElementById('llmProgressBar');
 
-        function addMessage(role, text) {
+        function saveToStorage() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory)); } catch(e) {}
+        }
+
+        function loadFromStorage() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                if (data) {
+                    chatHistory = JSON.parse(data);
+                    messagesEl.innerHTML = '';
+                    chatHistory.forEach(msg => addMessage(msg.role, msg.content, true));
+                }
+            } catch(e) {}
+        }
+
+        function addMessage(role, text, skipSave) {
             const div = document.createElement('div');
             div.className = 'chat-msg ' + (role === 'user' ? 'user' : role === 'assistant' ? 'assistant' : 'system-msg');
             const content = document.createElement('span');
@@ -793,13 +832,20 @@
             } else {
                 content.textContent = text;
             }
-            // Store raw markdown source for copy
             content._rawText = text;
             div.appendChild(content);
             if (role === 'user' || role === 'assistant') {
                 const btnGroup = document.createElement('div');
                 btnGroup.className = 'chat-btn-group';
-                // Copy raw (original markdown/text)
+                // Resend button (for user messages)
+                if (role === 'user') {
+                    const btnResend = document.createElement('button');
+                    btnResend.className = 'chat-resend-btn';
+                    btnResend.textContent = '↻';
+                    btnResend.title = 'Resend this message';
+                    btnResend.onclick = () => resendMessage(content._rawText);
+                    btnGroup.appendChild(btnResend);
+                }
                 const btnRaw = document.createElement('button');
                 btnRaw.textContent = 'Raw';
                 btnRaw.title = 'Copy original text';
@@ -809,7 +855,6 @@
                         setTimeout(() => btnRaw.textContent = 'Raw', 1500);
                     });
                 };
-                // Copy rendered (visible text)
                 const btnCopy = document.createElement('button');
                 btnCopy.textContent = 'Copy';
                 btnCopy.title = 'Copy rendered text';
@@ -826,6 +871,16 @@
             messagesEl.appendChild(div);
             messagesEl.scrollTop = messagesEl.scrollHeight;
             return content;
+        }
+
+        async function resendMessage(text) {
+            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+            if (!activeEngine) {
+                addMessage('system', 'No model loaded. Loading default model...');
+                await window.loadLLMModel();
+            }
+            inputEl.value = text;
+            await window.sendChatMessage();
         }
 
         function renderMarkdown(el, text) {
@@ -955,6 +1010,7 @@
                 renderMarkdown(assistantDiv, full);
                 messagesEl.scrollTop = messagesEl.scrollHeight;
                 chatHistory.push({ role: 'assistant', content: full });
+                saveToStorage();
             } catch (err) {
                 assistantDiv.textContent = 'Error: ' + err.message;
             }
@@ -968,22 +1024,26 @@
             chatHistory = [];
             messagesEl.innerHTML = '';
             const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            addMessage('system', activeEngine ? 'Chat cleared. Ready.' : 'No model loaded yet.');
+            addMessage('system', activeEngine ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
+        };
+
+        window.clearConversation = function() {
+            chatHistory = [];
+            messagesEl.innerHTML = '';
+            localStorage.removeItem(STORAGE_KEY);
+            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+            addMessage('system', activeEngine ? 'Conversation cleared.' : 'No model loaded yet.');
         };
 
         window.resendLast = async function() {
-            // Find the last user message in history
             let lastUserIdx = -1;
             for (let i = chatHistory.length - 1; i >= 0; i--) {
                 if (chatHistory[i].role === 'user') { lastUserIdx = i; break; }
             }
             if (lastUserIdx === -1) return;
             const lastMsg = chatHistory[lastUserIdx].content;
-            // Trim history back to before that user message (remove the user msg + its assistant reply)
             chatHistory = chatHistory.slice(0, lastUserIdx);
-            // Remove the last user bubble and assistant bubble from the DOM
             const bubbles = messagesEl.querySelectorAll('.chat-msg:not(.system-msg)');
-            // Remove from the end: assistant reply (if exists) then user message
             if (bubbles.length > 0) {
                 const lastBubble = bubbles[bubbles.length - 1];
                 if (lastBubble.classList.contains('assistant')) lastBubble.remove();
@@ -993,10 +1053,13 @@
                 const lastBubble = bubbles2[bubbles2.length - 1];
                 if (lastBubble.classList.contains('user')) lastBubble.remove();
             }
-            // Re-send via the input
+            saveToStorage();
             inputEl.value = lastMsg;
             await window.sendChatMessage();
         };
+
+        // Restore chat from localStorage on load
+        loadFromStorage();
 
         inputEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
