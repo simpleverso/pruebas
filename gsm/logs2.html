@@ -846,9 +846,14 @@
             <div id="llmProgress"><div id="llmProgressBar"></div></div>
             <div style="margin-top:0.5rem;">
                 <textarea id="llmSystemPrompt" rows="2" placeholder="System prompt (optional)..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
-                <label style="display:flex;align-items:center;gap:6px;margin-top:0.4rem;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
-                    <input type="checkbox" id="llmShowThinking" style="width:14px;height:14px;accent-color:#58a6ff;"> Show &lt;think&gt; reasoning
-                </label>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:0.4rem;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="checkbox" id="llmUseSystemPrompt" checked style="width:14px;height:14px;accent-color:#58a6ff;"> Use system prompt
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="checkbox" id="llmShowThinking" style="width:14px;height:14px;accent-color:#58a6ff;"> Show &lt;think&gt; reasoning
+                    </label>
+                </div>
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
@@ -963,7 +968,22 @@
                     chatHistory.forEach(msg => addMessage(msg.role, msg.content, true));
                 }
             } catch(e) {}
+            // Restore system prompt and toggle
+            try {
+                const savedSP = localStorage.getItem('webllm_system_prompt');
+                if (savedSP !== null) document.getElementById('llmSystemPrompt').value = savedSP;
+                const savedToggle = localStorage.getItem('webllm_use_system_prompt');
+                if (savedToggle !== null) document.getElementById('llmUseSystemPrompt').checked = savedToggle === 'true';
+            } catch(e) {}
         }
+
+        // Persist system prompt on change
+        document.getElementById('llmSystemPrompt').addEventListener('input', function() {
+            try { localStorage.setItem('webllm_system_prompt', this.value); } catch(e) {}
+        });
+        document.getElementById('llmUseSystemPrompt').addEventListener('change', function() {
+            try { localStorage.setItem('webllm_use_system_prompt', String(this.checked)); } catch(e) {}
+        });
 
         function addMessage(role, text, skipSave) {
             const div = document.createElement('div');
@@ -1149,7 +1169,8 @@
             const assistantDiv = addMessage('assistant', '...');
 
             try {
-                const sysPrompt = document.getElementById('llmSystemPrompt').value.trim();
+                const useSystemPrompt = document.getElementById('llmUseSystemPrompt').checked;
+                const sysPrompt = useSystemPrompt ? document.getElementById('llmSystemPrompt').value.trim() : '';
                 const msgs = sysPrompt
                     ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
                     : chatHistory;
