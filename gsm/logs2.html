@@ -8,31 +8,270 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+            background-color: #0f1117;
+            color: #c9d1d9;
             margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 1.5rem;
             min-height: 100vh;
         }
+        .page-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
         .container {
-            background-color: #ffffff;
+            background-color: #161b22;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #30363d;
             width: 100%;
             max-width: 700px;
+            flex-shrink: 0;
+        }
+        /* --- WebLLM Chat Panel --- */
+        .chat-panel {
+            background-color: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #30363d;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 3rem);
+            position: sticky;
+            top: 1.5rem;
+        }
+        .chat-panel-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #30363d;
+            flex-shrink: 0;
+        }
+        .chat-panel-header h2 {
+            margin: 0 0 0.75rem 0;
+            font-size: 1.25rem;
+        }
+        .chat-model-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .chat-model-row select {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+        .chat-model-row button {
+            width: auto;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        #llmStatus {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-top: 0.5rem;
+            min-height: 1.2em;
+        }
+        #llmProgress {
+            width: 100%;
+            height: 4px;
+            background: #21262d;
+            border-radius: 2px;
+            margin-top: 0.4rem;
+            overflow: hidden;
+            display: none;
+        }
+        #llmProgressBar {
+            height: 100%;
+            background: linear-gradient(90deg, #58a6ff, #388bfd);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb:hover { background: #484f58; }
+        .chat-msg {
+            max-width: 85%;
+            padding: 0.65rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background-color: #1f6feb;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-msg.assistant {
+            align-self: flex-start;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border-bottom-left-radius: 4px;
+            position: relative;
+        }
+        .chat-msg.user {
+            position: relative;
+        }
+        .chat-btn-group {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .chat-msg:hover .chat-btn-group {
+            opacity: 1;
+        }
+        .chat-btn-group button {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            width: auto;
+            font-weight: normal;
+        }
+        .chat-btn-group button:hover {
+            background: rgba(255,255,255,0.15);
+            color: #e6edf3;
+            transform: none;
+            box-shadow: none;
+        }
+        /* Markdown rendered content inside assistant messages */
+        .chat-msg.assistant .md-content {
+            white-space: normal;
+        }
+        .chat-msg.assistant .md-content p {
+            text-align: left;
+            color: inherit;
+            margin: 0.4em 0;
+        }
+        .chat-msg.assistant .md-content p:first-child { margin-top: 0; }
+        .chat-msg.assistant .md-content p:last-child { margin-bottom: 0; }
+        .chat-msg.assistant .md-content pre {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.6em 0.8em;
+            overflow-x: auto;
+            font-size: 0.85em;
+            min-height: auto;
+            margin: 0.5em 0;
+        }
+        .chat-msg.assistant .md-content code {
+            background-color: rgba(110,118,129,0.2);
+            padding: 0.15em 0.35em;
+            border-radius: 4px;
+            font-size: 0.88em;
+        }
+        .chat-msg.assistant .md-content pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+        }
+        .chat-msg.assistant .md-content ul,
+        .chat-msg.assistant .md-content ol {
+            padding-left: 1.4em;
+            margin: 0.4em 0;
+        }
+        .chat-msg.assistant .md-content blockquote {
+            border-left: 3px solid #30363d;
+            padding-left: 0.8em;
+            color: #8b949e;
+            margin: 0.4em 0;
+        }
+        .chat-msg.assistant .md-content h1,
+        .chat-msg.assistant .md-content h2,
+        .chat-msg.assistant .md-content h3 {
+            color: #e6edf3;
+            margin: 0.6em 0 0.3em;
+        }
+        .chat-msg.assistant .md-content table {
+            border-collapse: collapse;
+            margin: 0.5em 0;
+            font-size: 0.88em;
+        }
+        .chat-msg.assistant .md-content th,
+        .chat-msg.assistant .md-content td {
+            border: 1px solid #30363d;
+            padding: 0.3em 0.6em;
+        }
+        .chat-msg.assistant .md-content th {
+            background-color: #161b22;
+        }
+        .chat-msg.system-msg {
+            align-self: center;
+            background: none;
+            color: #484f58;
+            font-size: 0.8rem;
+            font-style: italic;
+            padding: 0.25rem;
+        }
+        .chat-input-row {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #30363d;
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .chat-input-row input {
+            flex: 1;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+        }
+        .chat-input-row button {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 1100px) {
+            .page-layout {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .container {
+                max-width: 100%;
+            }
+            .chat-panel {
+                position: static;
+                height: 600px;
+            }
         }
         h1 {
-            color: #1a1a1a;
+            color: #e6edf3;
             text-align: center;
             margin-bottom: 1.5rem;
         }
+        h2 {
+            color: #e6edf3;
+        }
         p {
             text-align: center;
-            color: #555;
+            color: #8b949e;
             margin-bottom: 2rem;
         }
         .form-group {
@@ -43,7 +282,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
+            flex-wrap: wrap;
         }
         .label-group h2, .label-group label {
             margin-bottom: 0;
@@ -52,21 +291,33 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: bold;
+            color: #c9d1d9;
         }
         textarea, input[type="text"], select {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid #ccc;
+            border: 1px solid #30363d;
+            background-color: #0d1117;
+            color: #c9d1d9;
             font-size: 1rem;
-            box-sizing: border-box; 
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+        textarea:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
         }
         textarea {
             min-height: 150px;
             resize: vertical;
         }
+        select {
+            appearance: auto;
+        }
 
-        /* --- New Base64 Tool Styles --- */
+        /* --- Base64 Tool Styles --- */
         .tool-selector {
             display: flex;
             flex-wrap: wrap;
@@ -74,7 +325,8 @@
             justify-content: center;
             margin-bottom: 1.5rem;
             padding: 1rem;
-            background-color: #f9f9f9;
+            background-color: #1c2128;
+            border: 1px solid #30363d;
             border-radius: 8px;
         }
         .tool-selector label {
@@ -83,17 +335,23 @@
             gap: 0.5rem;
             cursor: pointer;
             font-weight: 500;
+            color: #8b949e;
+            transition: color 0.2s ease;
+        }
+        .tool-selector label:hover {
+            color: #e6edf3;
         }
         .tool-selector input[type="radio"] {
             width: auto;
+            accent-color: #58a6ff;
         }
         #imagePreview {
-            display: none; /* Hidden by default */
+            display: none;
             margin-top: 1rem;
-            border: 1px solid #ddd;
+            border: 1px solid #30363d;
             border-radius: 8px;
             padding: 0.5rem;
-            background-color: #fdfdfd;
+            background-color: #0d1117;
         }
         #imagePreview img {
             max-width: 100%;
@@ -102,8 +360,6 @@
             margin: 0 auto;
             border-radius: 4px;
         }
-        /* --- End New Base64 Styles --- */
-
 
         /* Epoch section styles */
         .epoch-container {
@@ -112,39 +368,38 @@
             align-items: center;
         }
         .epoch-input-field {
-            flex-grow: 1; /* Input takes available space */
-            width: auto; /* Override default 100% */
+            flex-grow: 1;
+            width: auto;
         }
         .epoch-button-group {
             display: flex;
             gap: 0.5rem;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
+            flex-shrink: 0;
         }
         .epoch-specific-button {
-            width: auto; /* Override default 100% width from 'button' rule */
-            padding: 12px 15px; /* Adjust padding to match input height */
-            font-size: 0.9rem; /* Slightly smaller text to fit */
+            width: auto;
+            padding: 12px 15px;
+            font-size: 0.9rem;
         }
 
         /* Drag and Drop & File Input Styles */
         .drop-zone {
-            border: 2px dashed #ccc;
+            border: 2px dashed #30363d;
             border-radius: 8px;
             padding: 1.5rem;
             text-align: center;
-            color: #aaa;
+            color: #484f58;
             cursor: pointer;
             transition: border-color 0.3s, background-color 0.3s;
             margin-bottom: 1rem;
+            background-color: #0d1117;
         }
-        /* Will be toggled by JS */
         .drop-zone.hidden {
             display: none;
         }
-
         .drop-zone--over {
-            border-color: #007bff;
-            background-color: #f0f8ff;
+            border-color: #58a6ff;
+            background-color: rgba(88, 166, 255, 0.06);
         }
         .drop-zone__input {
             display: none;
@@ -156,15 +411,15 @@
             display: flex;
             align-items: center;
             margin-bottom: 1.5rem;
-            gap: 10px; /* space between checkbox and label */
+            gap: 10px;
         }
         input[type="checkbox"] {
             width: 18px;
             height: 18px;
+            accent-color: #58a6ff;
         }
         .button-group {
             display: grid;
-            /* Updated to 3 columns for better layout */
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
             margin-bottom: 1rem;
@@ -179,63 +434,60 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
         }
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
         }
         .primary-button {
-             background: linear-gradient(45deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #1f6feb, #388bfd);
         }
-         .secondary-button {
-            background: linear-gradient(45deg, #6c757d, #5a6268);
+        .secondary-button {
+            background: linear-gradient(135deg, #484f58, #6e7681);
         }
         .tertiary-button {
-            background: linear-gradient(45deg, #28a745, #218838);
+            background: linear-gradient(135deg, #238636, #2ea043);
         }
         .quaternary-button {
-            background: linear-gradient(45deg, #fd7e14, #d35400); /* Orange gradient */
+            background: linear-gradient(135deg, #d29922, #e3b341);
         }
         .quinary-button {
-            background: linear-gradient(45deg, #6f42c1, #4a148c); /* Purple gradient */
+            background: linear-gradient(135deg, #8957e5, #a371f7);
         }
         .senary-button {
-            background: linear-gradient(45deg, #20c997, #00796b); /* Teal gradient */
+            background: linear-gradient(135deg, #1b7c83, #3fb950);
         }
         .septenary-button {
-            background: linear-gradient(45deg, #dc3545, #b02a37); /* Red gradient */
+            background: linear-gradient(135deg, #da3633, #f85149);
         }
-        /* New button style for Base64 */
         .octonary-button {
-            background: linear-gradient(45deg, #d946ef, #a21caf); /* Fuchsia gradient */
+            background: linear-gradient(135deg, #bc4c9c, #d2a8ff);
         }
-        /* New button style for AWS Request IDs */
         .nonary-button {
-            background: linear-gradient(45deg, #0dcaf0, #08a5c7); /* Cyan gradient */
+            background: linear-gradient(135deg, #0dcaf0, #58a6ff);
         }
-        /* New button style for WebLLM */
         .denary-button {
-            background: linear-gradient(45deg, #4e54c8, #8f94fb); /* Indigo gradient */
+            background: linear-gradient(135deg, #6e40c9, #8b5cf6);
         }
-
         .epoch-button-gmt {
-            background: linear-gradient(45deg, #17a2b8, #117a8b); /* Info/Cyan gradient */
+            background: linear-gradient(135deg, #0d8a9e, #39d2c0);
         }
         .epoch-button-utc {
-            background: linear-gradient(45deg, #ffc107, #d39e00); /* Warning/Yellow gradient */
+            background: linear-gradient(135deg, #9e6a03, #d29922);
+            color: #fff;
         }
         .utility-button {
             padding: 5px 12px;
             font-size: 0.9rem;
             font-weight: 600;
-            background: #e9ecef;
-            color: #333;
-            border: 1px solid #ccc;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
             border-radius: 5px;
         }
         .utility-button:hover {
-            background-color: #d8dde1;
+            background-color: #30363d;
             transform: none;
             box-shadow: none;
         }
@@ -245,32 +497,33 @@
             font-weight: bold;
             padding: 10px;
             border-radius: 5px;
-            display: none; /* Hidden by default */
+            display: none;
         }
         .validation-message.valid {
-            color: #155724;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
+            color: #3fb950;
+            background-color: rgba(46, 160, 67, 0.1);
+            border: 1px solid #238636;
             display: block;
         }
         .validation-message.invalid {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
+            color: #f85149;
+            background-color: rgba(248, 81, 73, 0.1);
+            border: 1px solid #da3633;
             display: block;
         }
         #output {
             margin-top: 1.5rem;
         }
         pre {
-            background-color: #e9ecef;
+            background-color: #0d1117;
             padding: 1rem;
             border-radius: 8px;
-            white-space: pre-wrap; 
-            word-wrap: break-word; 
+            white-space: pre-wrap;
+            word-wrap: break-word;
             min-height: 150px;
-            border: 1px solid #ddd;
+            border: 1px solid #30363d;
             font-size: 1rem;
+            color: #c9d1d9;
         }
         .result-controls {
             display: flex;
@@ -281,24 +534,26 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            margin-left: auto; /* Pushes download to the right */
+            margin-left: auto;
         }
         #xmlOptions {
-            display: none; /* Hidden by default */
+            display: none;
             margin-top: 1rem;
             padding: 1rem;
-            border: 1px solid #eee;
+            border: 1px solid #30363d;
             border-radius: 8px;
-            background-color: #f9f9f9;
+            background-color: #1c2128;
         }
         #xmlOptions.visible {
             display: block;
         }
 
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
+    <div class="page-layout">
     <div class="container">
         <h1>Text, JSON & Base64 Tools</h1>
         <p>A versatile tool to format text, validate JSON, convert Epoch time, and encode/decode Base64.</p>
@@ -408,6 +663,266 @@
             <pre id="outputText">Your formatted text will appear here.</pre>
         </div>
     </div>
+
+    <!-- WebLLM Chat Panel (Right Side) -->
+    <div class="chat-panel">
+        <div class="chat-panel-header">
+            <h2>WebLLM Chat</h2>
+            <div class="chat-model-row">
+                <select id="llmModelSelect">
+                    <option value="Llama-3.1-8B-Instruct-q4f16_1-MLC">🧠 Llama 3.1 8B</option>
+                    <option value="Llama-3-8B-Instruct-q4f16_1-MLC">🧠 Llama 3 8B</option>
+                    <option value="DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC">🧠 DeepSeek R1 Qwen 7B</option>
+                    <option value="DeepSeek-R1-Distill-Llama-8B-q4f16_1-MLC">🧠 DeepSeek R1 Llama 8B</option>
+                    <option value="Qwen3-4B-q4f16_1-MLC">🧠 Qwen3 4B</option>
+                    <option value="Qwen3-8B-q4f16_1-MLC" selected>🧠 Qwen3 8B</option>
+                    <option value="Qwen3-4B-Thinking-2507-q4f32_1-MLC">🧠 Qwen3 4B Thinking</option>
+                </select>
+                <button onclick="loadLLMModel()" class="primary-button">Load</button>
+                <button onclick="clearChat()" class="secondary-button">Clear</button>
+            </div>
+            <div id="llmStatus">Select a model and click Load to start.</div>
+            <div id="llmProgress"><div id="llmProgressBar"></div></div>
+            <div style="margin-top:0.5rem;">
+                <textarea id="llmSystemPrompt" rows="2" placeholder="System prompt (optional)..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg system-msg">No model loaded yet. Pick one above and hit Load.</div>
+        </div>
+        <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Type a message..." disabled>
+            <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button" disabled>Send</button>
+        </div>
+    </div>
+
+    </div><!-- end page-layout -->
+
+    <!-- WebLLM Module -->
+    <script type="module">
+        import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+        import * as webllmLegacy from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.79/+esm";
+
+        // Custom models not in prebuilt list (legacy engine for ndarray-cache.json format)
+        const customModels = [
+            {
+                model: 'https://huggingface.co/vladbuinceanu/Qwen3-4B-Thinking-2507-q4f32_1-MLC',
+                model_id: 'Qwen3-4B-Thinking-2507-q4f32_1-MLC',
+                model_lib: null,
+                vram_required_MB: 4328,
+                low_resource_required: true,
+                overrides: { context_window_size: 4096 },
+                _useLegacy: true,
+            },
+        ];
+        const legacyModelIds = new Set(customModels.filter(m => m._useLegacy).map(m => m.model_id));
+
+        function getAppConfig() {
+            const resolvedCustom = customModels.filter(m => !m._useLegacy).map(m => ({
+                ...m,
+                model_lib: m.model_lib || (webllm.modelLibURLPrefix + webllm.modelVersion + '/Qwen3-4B-q4f32_1-ctx4k_cs1k-webgpu.wasm'),
+            }));
+            return {
+                ...webllm.prebuiltAppConfig,
+                useIndexedDBCache: true,
+                model_list: [
+                    ...webllm.prebuiltAppConfig.model_list,
+                    ...resolvedCustom,
+                ],
+            };
+        }
+
+        function getLegacyAppConfig() {
+            const legacyPrefix = 'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/';
+            const legacyVersion = 'v0_2_48';
+            const resolved = customModels.filter(m => m._useLegacy).map(m => ({
+                model: m.model,
+                model_id: m.model_id,
+                model_lib: `${legacyPrefix}${m.model_id.replace(/-MLC$/, '')}-${legacyVersion}/lib/${m.model_id.replace(/-MLC$/, '')}-${legacyVersion}-ctx4k_cs1k-webgpu.wasm`,
+                vram_required_MB: m.vram_required_MB || 4096,
+                low_resource_required: m.low_resource_required ?? true,
+                overrides: m.overrides || {},
+            }));
+            return { model_list: resolved, useIndexedDBCache: true };
+        }
+
+        let engine = null;
+        let legacyEngine = null;
+        let loadedModelId = null;
+        let chatHistory = [];
+        let isLoading = false;
+        const messagesEl = document.getElementById('chatMessages');
+        const inputEl = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('chatSendBtn');
+        const statusEl = document.getElementById('llmStatus');
+        const progressEl = document.getElementById('llmProgress');
+        const progressBar = document.getElementById('llmProgressBar');
+
+        function addMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg ' + (role === 'user' ? 'user' : role === 'assistant' ? 'assistant' : 'system-msg');
+            const content = document.createElement('span');
+            if (role === 'assistant' && text !== '...') {
+                content.className = 'md-content';
+                content.innerHTML = marked.parse(text);
+            } else {
+                content.textContent = text;
+            }
+            // Store raw markdown source for copy
+            content._rawText = text;
+            div.appendChild(content);
+            if (role === 'user' || role === 'assistant') {
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'chat-btn-group';
+                // Copy raw (original markdown/text)
+                const btnRaw = document.createElement('button');
+                btnRaw.textContent = 'Raw';
+                btnRaw.title = 'Copy original text';
+                btnRaw.onclick = () => {
+                    navigator.clipboard.writeText(content._rawText).then(() => {
+                        btnRaw.textContent = '✓';
+                        setTimeout(() => btnRaw.textContent = 'Raw', 1500);
+                    });
+                };
+                // Copy rendered (visible text)
+                const btnCopy = document.createElement('button');
+                btnCopy.textContent = 'Copy';
+                btnCopy.title = 'Copy rendered text';
+                btnCopy.onclick = () => {
+                    navigator.clipboard.writeText(content.innerText).then(() => {
+                        btnCopy.textContent = '✓';
+                        setTimeout(() => btnCopy.textContent = 'Copy', 1500);
+                    });
+                };
+                btnGroup.appendChild(btnRaw);
+                btnGroup.appendChild(btnCopy);
+                div.appendChild(btnGroup);
+            }
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+            return content;
+        }
+
+        function renderMarkdown(el, text) {
+            el._rawText = text;
+            el.className = 'md-content';
+            el.innerHTML = marked.parse(text);
+        }
+
+        window.loadLLMModel = async function() {
+            const modelId = document.getElementById('llmModelSelect').value;
+            if (isLoading) return;
+            isLoading = true;
+            const isLegacy = legacyModelIds.has(modelId);
+
+            statusEl.textContent = 'Loading ' + modelId + (isLegacy ? ' (legacy)...' : '...');
+            progressEl.style.display = 'block';
+            progressBar.style.width = '0%';
+            inputEl.disabled = true;
+            sendBtn.disabled = true;
+            messagesEl.innerHTML = '';
+            chatHistory = [];
+            addMessage('system', 'Loading model: ' + modelId + '...');
+
+            try {
+                if (isLegacy) {
+                    const appConfig = getLegacyAppConfig();
+                    legacyEngine = new webllmLegacy.MLCEngine({ appConfig });
+                    legacyEngine.setInitProgressCallback((report) => {
+                        statusEl.textContent = report.text || 'Loading...';
+                        if (report.progress !== undefined) {
+                            progressBar.style.width = (report.progress * 100) + '%';
+                        }
+                    });
+                    await legacyEngine.reload(modelId, { temperature: 1.0, top_p: 1 });
+                    engine = null;
+                } else {
+                    const appConfig = getAppConfig();
+                    engine = new webllm.MLCEngine({ appConfig });
+                    engine.setInitProgressCallback((report) => {
+                        statusEl.textContent = report.text || 'Loading...';
+                        if (report.progress !== undefined) {
+                            progressBar.style.width = (report.progress * 100) + '%';
+                        }
+                    });
+                    await engine.reload(modelId, { temperature: 1.0, top_p: 1 });
+                    legacyEngine = null;
+                }
+                loadedModelId = modelId;
+                statusEl.textContent = 'Ready — ' + modelId;
+                progressEl.style.display = 'none';
+                inputEl.disabled = false;
+                sendBtn.disabled = false;
+                messagesEl.innerHTML = '';
+                addMessage('system', 'Model loaded. Start chatting.');
+                inputEl.focus();
+            } catch (err) {
+                statusEl.textContent = 'Error: ' + err.message;
+                progressEl.style.display = 'none';
+                addMessage('system', 'Failed to load model: ' + err.message);
+            } finally {
+                isLoading = false;
+            }
+        };
+
+        window.sendChatMessage = async function() {
+            const text = inputEl.value.trim();
+            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+            if (!text || !activeEngine) return;
+            inputEl.value = '';
+            inputEl.disabled = true;
+            sendBtn.disabled = true;
+
+            addMessage('user', text);
+            chatHistory.push({ role: 'user', content: text });
+
+            const assistantDiv = addMessage('assistant', '...');
+
+            try {
+                const sysPrompt = document.getElementById('llmSystemPrompt').value.trim();
+                const msgs = sysPrompt
+                    ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
+                    : chatHistory;
+                const reply = await activeEngine.chat.completions.create({
+                    messages: msgs,
+                    stream: true
+                });
+
+                let full = '';
+                for await (const chunk of reply) {
+                    const delta = chunk.choices[0]?.delta?.content || '';
+                    full += delta;
+                    assistantDiv.textContent = full;
+                    messagesEl.scrollTop = messagesEl.scrollHeight;
+                }
+
+                // Render final markdown
+                renderMarkdown(assistantDiv, full);
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+                chatHistory.push({ role: 'assistant', content: full });
+            } catch (err) {
+                assistantDiv.textContent = 'Error: ' + err.message;
+            }
+
+            inputEl.disabled = false;
+            sendBtn.disabled = false;
+            inputEl.focus();
+        };
+
+        window.clearChat = function() {
+            chatHistory = [];
+            messagesEl.innerHTML = '';
+            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+            addMessage('system', activeEngine ? 'Chat cleared. Ready.' : 'No model loaded yet.');
+        };
+
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                window.sendChatMessage();
+            }
+        });
+    </script>
 
     <script>
         // --- Global Element References ---
