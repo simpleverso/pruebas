@@ -726,6 +726,7 @@
                 <button onclick="resendLast()" class="tertiary-button" title="Resend last message with current model">Resend</button>
             </div>
             <div id="llmStatus">Select a model and click Load to start.</div>
+            <div id="llmStats" style="font-size:0.75rem;color:#484f58;margin-top:0.2rem;min-height:1em;"></div>
             <div id="llmProgress"><div id="llmProgressBar"></div></div>
             <div style="margin-top:0.5rem;">
                 <textarea id="llmSystemPrompt" rows="2" placeholder="System prompt (optional)..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
@@ -984,15 +985,30 @@
                     : chatHistory;
                 const reply = await activeEngine.chat.completions.create({
                     messages: msgs,
-                    stream: true
+                    stream: true,
+                    stream_options: { include_usage: true }
                 });
 
                 let full = '';
                 const showThinking = document.getElementById('llmShowThinking').checked;
                 let inThink = false;
+                const statsEl = document.getElementById('llmStats');
+                const genStart = performance.now();
+                let tokenCount = 0;
+                let firstTokenTime = null;
                 for await (const chunk of reply) {
                     const delta = chunk.choices[0]?.delta?.content || '';
-                    full += delta;
+                    if (delta) {
+                        tokenCount++;
+                        if (!firstTokenTime) firstTokenTime = performance.now();
+                        full += delta;
+                        // Live stats
+                        const elapsed = (performance.now() - firstTokenTime) / 1000;
+                        const tps = elapsed > 0 ? (tokenCount / elapsed).toFixed(1) : '—';
+                        const ttft = firstTokenTime ? ((firstTokenTime - genStart) / 1000).toFixed(2) : '—';
+                        statsEl.textContent = `⚡ ${tps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${elapsed.toFixed(1)}s`;
+                        statsEl.style.color = '#58a6ff';
+                    }
                     // Real-time: show thinking in different color
                     if (showThinking) {
                         inThink = full.includes('<think>') && !full.includes('</think>');
@@ -1002,6 +1018,13 @@
                     assistantDiv.textContent = showThinking ? full : full.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*/g, '').trimStart();
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }
+
+                // Final stats
+                const totalTime = ((performance.now() - genStart) / 1000).toFixed(2);
+                const finalTps = firstTokenTime && (performance.now() - firstTokenTime) > 0 ? (tokenCount / ((performance.now() - firstTokenTime) / 1000)).toFixed(1) : '—';
+                const ttft = firstTokenTime ? ((firstTokenTime - genStart) / 1000).toFixed(2) : '—';
+                statsEl.textContent = `✅ ${finalTps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${totalTime}s total`;
+                statsEl.style.color = '#3fb950';
 
                 // Render final markdown with thinking support
                 assistantDiv.style.color = '';
