@@ -741,6 +741,7 @@
         <div class="chat-input-row">
             <textarea id="chatInput" rows="3" placeholder="Type a message (will auto-load default model)..."></textarea>
             <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button">Send</button>
+            <button id="chatStopBtn" onclick="stopGeneration()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;display:none;" title="Stop generation">Stop</button>
             <button onclick="clearConversation()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;" title="Clear entire conversation and storage">🗑️</button>
         </div>
     </div>
@@ -800,6 +801,7 @@
         let loadedModelId = null;
         let chatHistory = [];
         let isLoading = false;
+        let stopRequested = false;
         const STORAGE_KEY = 'webllm_chat_history';
         const messagesEl = document.getElementById('chatMessages');
         const inputEl = document.getElementById('chatInput');
@@ -972,6 +974,8 @@
             inputEl.value = '';
             inputEl.disabled = true;
             sendBtn.disabled = true;
+            stopRequested = false;
+            document.getElementById('chatStopBtn').style.display = '';
 
             addMessage('user', text);
             chatHistory.push({ role: 'user', content: text });
@@ -997,6 +1001,7 @@
                 let tokenCount = 0;
                 let firstTokenTime = null;
                 for await (const chunk of reply) {
+                    if (stopRequested) break;
                     const delta = chunk.choices[0]?.delta?.content || '';
                     if (delta) {
                         tokenCount++;
@@ -1019,27 +1024,42 @@
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }
 
+                // Try to abort the engine generation if stopped early
+                if (stopRequested && activeEngine.interruptGenerate) {
+                    try { activeEngine.interruptGenerate(); } catch(e) {}
+                }
+
                 // Final stats
+                const stopped = stopRequested;
                 const totalTime = ((performance.now() - genStart) / 1000).toFixed(2);
                 const finalTps = firstTokenTime && (performance.now() - firstTokenTime) > 0 ? (tokenCount / ((performance.now() - firstTokenTime) / 1000)).toFixed(1) : '—';
                 const ttft = firstTokenTime ? ((firstTokenTime - genStart) / 1000).toFixed(2) : '—';
-                statsEl.textContent = `✅ ${finalTps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${totalTime}s total`;
-                statsEl.style.color = '#3fb950';
+                statsEl.textContent = `${stopped ? '⏹️' : '✅'} ${finalTps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${totalTime}s total${stopped ? ' (stopped)' : ''}`;
+                statsEl.style.color = stopped ? '#d29922' : '#3fb950';
 
                 // Render final markdown with thinking support
                 assistantDiv.style.color = '';
                 assistantDiv.style.fontStyle = '';
-                renderMarkdown(assistantDiv, full);
+                if (full) {
+                    renderMarkdown(assistantDiv, full);
+                }
                 messagesEl.scrollTop = messagesEl.scrollHeight;
-                chatHistory.push({ role: 'assistant', content: full });
-                saveToStorage();
+                if (full) {
+                    chatHistory.push({ role: 'assistant', content: full });
+                    saveToStorage();
+                }
             } catch (err) {
                 assistantDiv.textContent = 'Error: ' + err.message;
             }
 
+            document.getElementById('chatStopBtn').style.display = 'none';
             inputEl.disabled = false;
             sendBtn.disabled = false;
             inputEl.focus();
+        };
+
+        window.stopGeneration = function() {
+            stopRequested = true;
         };
 
         window.clearChat = function() {
