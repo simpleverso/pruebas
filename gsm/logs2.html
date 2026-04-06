@@ -3203,12 +3203,14 @@
         }
     </script>
 
-    <!-- Snippets Panel Logic -->
+    <!-- Snippets Panel Logic (AES-GCM Encrypted Storage) -->
     <script>
     (function(){
-        const SP_KEY = 'snippetManagerData';
-        let spData = JSON.parse(localStorage.getItem(SP_KEY) || '[]');
+        const SP_KEY = 'snippetManagerDataEnc';
+        const SP_SALT_KEY = 'snippetManagerSalt';
+        let spData = [];
         let spActiveId = null;
+        let spCryptoKey = null; // derived AES key kept in memory only
 
         const spSidebar = document.getElementById('spSidebar');
         const spEditor = document.getElementById('spEditor');
@@ -3216,8 +3218,83 @@
         const spContent = document.getElementById('spContent');
         const spSearch = document.getElementById('spSearch');
 
-        const spSave = () => localStorage.setItem(SP_KEY, JSON.stringify(spData));
+        // --- Crypto helpers (AES-256-GCM via Web Crypto API) ---
+        function getSalt() {
+            let b64 = localStorage.getItem(SP_SALT_KEY);
+            if (b64) return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            localStorage.setItem(SP_SALT_KEY, btoa(String.fromCharCode(...salt)));
+            return salt;
+        }
 
+        async function deriveKey(password) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt: getSalt(), iterations: 310000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function encryptData(key, data) {
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encoded = new TextEncoder().encode(JSON.stringify(data));
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+            // store as iv:ciphertext both base64
+            const ivB64 = btoa(String.fromCharCode(...iv));
+            const ctB64 = btoa(String.fromCharCode(...new Uint8Array(cipher)));
+            return ivB64 + ':' + ctB64;
+        }
+
+        async function decryptData(key, stored) {
+            const [ivB64, ctB64] = stored.split(':');
+            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+            const ct = Uint8Array.from(atob(ctB64), c => c.charCodeAt(0));
+            const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+            return JSON.parse(new TextDecoder().decode(plain));
+        }
+
+        // --- Save / Load ---
+        async function spSave() {
+            if (!spCryptoKey) return;
+            const encrypted = await encryptData(spCryptoKey, spData);
+            localStorage.setItem(SP_KEY, encrypted);
+        }
+
+        async function spLoad() {
+            const stored = localStorage.getItem(SP_KEY);
+            if (!stored) { spData = []; return true; }
+            try {
+                spData = await decryptData(spCryptoKey, stored);
+                return true;
+            } catch(e) {
+                return false; // wrong password
+            }
+        }
+
+        // --- Password prompt (unlock / set) ---
+        async function spUnlock() {
+            const hasData = !!localStorage.getItem(SP_KEY);
+            const msg = hasData ? 'Enter your Snippets password to unlock:' : 'Set a password to encrypt your Snippets:';
+            let attempts = 0;
+            while (true) {
+                const pw = prompt(attempts > 0 ? 'Wrong password. Try again:' : msg);
+                if (pw === null) {
+                    // user cancelled — show locked state
+                    spSidebar.innerHTML = '<div style="padding:1rem;color:#8b949e;text-align:center;font-size:0.85rem;">🔒 Locked. Reload to retry.</div>';
+                    return false;
+                }
+                if (!pw.trim()) { alert('Password cannot be empty.'); continue; }
+                spCryptoKey = await deriveKey(pw);
+                if (await spLoad()) return true;
+                attempts++;
+            }
+        }
+
+        // --- Tree helpers ---
         const spFind = (id, items=spData) => {
             for(const it of items){
                 if(it.id===id) return it;
@@ -3264,54 +3341,93 @@
             render(spData);
         }
 
-        // Auto-save on edit
-        spTitle.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.name=spTitle.value; spSave(); spRender(spSearch.value);} });
-        spContent.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.text=spContent.value; spSave();} });
+        // --- Init & wire up events ---
+        async function spInit() {
+            const unlocked = await spUnlock();
+            if (!unlocked) return;
 
-        spSearch.addEventListener('input', () => spRender(spSearch.value));
+            spRender();
 
-        document.getElementById('spAddText').addEventListener('click', () => {
-            const name = prompt('Snippet name:');
-            if(!name) return;
-            const item = {id:Date.now(), name, text:'', type:'text'};
-            spData.unshift(item); spSave(); spActiveId=item.id;
-            spEditor.style.display='flex'; spTitle.value=name; spContent.value='';
-            spRender(spSearch.value);
-        });
-        document.getElementById('spAddFolder').addEventListener('click', () => {
-            const name = prompt('Folder name:');
-            if(!name) return;
-            const item = {id:Date.now(), name, items:[], type:'folder'};
-            spData.unshift(item); spSave(); spActiveId=item.id;
-            spEditor.style.display='none'; spRender(spSearch.value);
-        });
-        document.getElementById('spCopyBtn').addEventListener('click', () => {
-            navigator.clipboard.writeText(spContent.value).catch(()=>{});
-        });
-        document.getElementById('spDeleteBtn').addEventListener('click', () => {
-            if(!spActiveId || !confirm('Delete this item?')) return;
-            spRemove(spActiveId); spActiveId=null; spSave();
-            spEditor.style.display='none'; spRender(spSearch.value);
-        });
-        document.getElementById('spExportBtn').addEventListener('click', () => {
-            const blob = new Blob([JSON.stringify(spData,null,2)], {type:'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `snippets-${new Date().toISOString().slice(0,10)}.txt`;
-            a.click(); URL.revokeObjectURL(a.href);
-        });
-        document.getElementById('spImportBtn').addEventListener('click', () => document.getElementById('spImportFile').click());
-        document.getElementById('spImportFile').addEventListener('change', e => {
-            const file = e.target.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = ev => {
-                try { const d=JSON.parse(ev.target.result); if(Array.isArray(d)){spData=d; spActiveId=null; spSave(); spEditor.style.display='none'; spRender();} }
-                catch(err){ alert('Invalid file'); }
-            };
-            reader.readAsText(file); e.target.value='';
-        });
+            spTitle.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.name=spTitle.value; spSave(); spRender(spSearch.value);} });
+            spContent.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.text=spContent.value; spSave();} });
+            spSearch.addEventListener('input', () => spRender(spSearch.value));
 
-        spRender();
+            document.getElementById('spAddText').addEventListener('click', () => {
+                const name = prompt('Snippet name:');
+                if(!name) return;
+                const item = {id:Date.now(), name, text:'', type:'text'};
+                spData.unshift(item); spSave(); spActiveId=item.id;
+                spEditor.style.display='flex'; spTitle.value=name; spContent.value='';
+                spRender(spSearch.value);
+            });
+            document.getElementById('spAddFolder').addEventListener('click', () => {
+                const name = prompt('Folder name:');
+                if(!name) return;
+                const item = {id:Date.now(), name, items:[], type:'folder'};
+                spData.unshift(item); spSave(); spActiveId=item.id;
+                spEditor.style.display='none'; spRender(spSearch.value);
+            });
+            document.getElementById('spCopyBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(spContent.value).catch(()=>{});
+            });
+            document.getElementById('spDeleteBtn').addEventListener('click', () => {
+                if(!spActiveId || !confirm('Delete this item?')) return;
+                spRemove(spActiveId); spActiveId=null; spSave();
+                spEditor.style.display='none'; spRender(spSearch.value);
+            });
+            // Export decrypted (plaintext JSON file)
+            document.getElementById('spExportBtn').addEventListener('click', () => {
+                const blob = new Blob([JSON.stringify(spData,null,2)], {type:'text/plain'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `snippets-${new Date().toISOString().slice(0,10)}.txt`;
+                a.click(); URL.revokeObjectURL(a.href);
+            });
+            // Import plaintext JSON → encrypt and store
+            document.getElementById('spImportBtn').addEventListener('click', () => document.getElementById('spImportFile').click());
+            document.getElementById('spImportFile').addEventListener('change', e => {
+                const file = e.target.files[0]; if(!file) return;
+                const reader = new FileReader();
+                reader.onload = async ev => {
+                    try {
+                        const d = JSON.parse(ev.target.result);
+                        if(Array.isArray(d)){
+                            spData = d; spActiveId = null;
+                            await spSave();
+                            spEditor.style.display='none'; spRender();
+                        } else { alert('Invalid file: expected JSON array.'); }
+                    } catch(err){ alert('Invalid file: ' + err.message); }
+                };
+                reader.readAsText(file); e.target.value='';
+            });
+        }
+
+        // Migrate any existing unencrypted data on first run
+        (async function migrateLegacy() {
+            const legacy = localStorage.getItem('snippetManagerData');
+            if (legacy && !localStorage.getItem(SP_KEY)) {
+                try {
+                    const parsed = JSON.parse(legacy);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        alert('Existing unencrypted snippets found. You will set a password to encrypt them.');
+                        const pw = prompt('Set a password to encrypt your existing snippets:');
+                        if (pw && pw.trim()) {
+                            spCryptoKey = await deriveKey(pw);
+                            spData = parsed;
+                            await spSave();
+                            localStorage.removeItem('snippetManagerData');
+                            spRender();
+                            // wire events
+                            spTitle.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.name=spTitle.value; spSave(); spRender(spSearch.value);} });
+                            spContent.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.text=spContent.value; spSave();} });
+                            spSearch.addEventListener('input', () => spRender(spSearch.value));
+                            return; // skip normal init
+                        }
+                    }
+                } catch(e) {}
+            }
+            spInit();
+        })();
     })();
     </script>
 </body>
