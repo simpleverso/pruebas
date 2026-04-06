@@ -223,6 +223,22 @@
         .chat-msg.assistant .md-content th {
             background-color: #161b22;
         }
+        /* Thinking block styles */
+        .think-block {
+            color: #8b949e;
+            font-style: italic;
+            border-left: 3px solid #6e40c9;
+            padding-left: 0.7em;
+            margin: 0.4em 0;
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+        .think-block summary {
+            cursor: pointer;
+            color: #a371f7;
+            font-size: 0.85em;
+            user-select: none;
+        }
         .chat-msg.system-msg {
             align-self: center;
             background: none;
@@ -686,6 +702,9 @@
             <div id="llmProgress"><div id="llmProgressBar"></div></div>
             <div style="margin-top:0.5rem;">
                 <textarea id="llmSystemPrompt" rows="2" placeholder="System prompt (optional)..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
+                <label style="display:flex;align-items:center;gap:6px;margin-top:0.4rem;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                    <input type="checkbox" id="llmShowThinking" style="width:14px;height:14px;accent-color:#58a6ff;"> Show &lt;think&gt; reasoning
+                </label>
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
@@ -807,7 +826,20 @@
         function renderMarkdown(el, text) {
             el._rawText = text;
             el.className = 'md-content';
-            el.innerHTML = marked.parse(text);
+            const showThinking = document.getElementById('llmShowThinking').checked;
+            // Process <think>...</think> blocks
+            const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
+            let processed = text;
+            if (showThinking) {
+                // Wrap thinking in a collapsible details with distinct styling
+                processed = text.replace(thinkRegex, (_, content) => {
+                    return `<details open class="think-block"><summary>💭 Thinking</summary>\n\n${content.trim()}\n\n</details>`;
+                });
+            } else {
+                // Strip thinking blocks entirely
+                processed = text.replace(thinkRegex, '').trimStart();
+            }
+            el.innerHTML = marked.parse(processed);
         }
 
         window.loadLLMModel = async function() {
@@ -890,14 +922,24 @@
                 });
 
                 let full = '';
+                const showThinking = document.getElementById('llmShowThinking').checked;
+                let inThink = false;
                 for await (const chunk of reply) {
                     const delta = chunk.choices[0]?.delta?.content || '';
                     full += delta;
-                    assistantDiv.textContent = full;
+                    // Real-time: show thinking in different color
+                    if (showThinking) {
+                        inThink = full.includes('<think>') && !full.includes('</think>');
+                        assistantDiv.style.color = inThink ? '#a371f7' : '';
+                        assistantDiv.style.fontStyle = inThink ? 'italic' : '';
+                    }
+                    assistantDiv.textContent = showThinking ? full : full.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*/g, '').trimStart();
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }
 
-                // Render final markdown
+                // Render final markdown with thinking support
+                assistantDiv.style.color = '';
+                assistantDiv.style.fontStyle = '';
                 renderMarkdown(assistantDiv, full);
                 messagesEl.scrollTop = messagesEl.scrollHeight;
                 chatHistory.push({ role: 'assistant', content: full });
