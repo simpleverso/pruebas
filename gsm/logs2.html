@@ -29,6 +29,10 @@
             border: 1px solid #30363d;
             flex: 1 1 0;
             min-width: 0;
+            height: calc(100vh - 3rem);
+            overflow-y: auto;
+            position: sticky;
+            top: 1.5rem;
         }
         /* --- WebLLM Chat Panel --- */
         .chat-panel {
@@ -371,6 +375,10 @@
             .container {
                 flex: 1 1 100%;
                 order: 1;
+                position: static;
+                height: auto;
+                max-height: none;
+                overflow-y: visible;
             }
             .chat-panel {
                 position: static;
@@ -394,7 +402,7 @@
                 align-items: stretch;
                 gap: 1rem;
             }
-            .container { max-width: 100%; padding: 1rem; }
+            .container { max-width: 100%; padding: 1rem; position: static; height: auto; overflow-y: visible; }
             .chat-panel {
                 position: static;
                 height: 500px;
