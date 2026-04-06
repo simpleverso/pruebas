@@ -27,9 +27,7 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             border: 1px solid #30363d;
-            width: 100%;
-            max-width: 700px;
-            flex-shrink: 0;
+            flex: 1 1 0;
             min-width: 0;
         }
         /* --- WebLLM Chat Panel --- */
@@ -38,7 +36,7 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             border: 1px solid #30363d;
-            flex: 1;
+            flex: 1 1 0;
             min-width: 0;
             display: flex;
             flex-direction: column;
@@ -298,8 +296,8 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             border: 1px solid #30363d;
-            width: 340px;
-            flex-shrink: 0;
+            flex: 1 1 0;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             height: calc(100vh - 3rem);
@@ -366,30 +364,25 @@
             outline: none;
         }
 
-        @media (max-width: 1600px) {
-            .snippets-panel { width: 300px; }
-        }
         @media (max-width: 1350px) {
             .page-layout {
                 flex-wrap: wrap;
             }
             .container {
-                max-width: 100%;
                 flex: 1 1 100%;
                 order: 1;
             }
             .chat-panel {
                 position: static;
                 height: 600px;
-                flex: 1 1 55%;
+                flex: 1 1 45%;
                 min-width: 300px;
                 order: 2;
             }
             .snippets-panel {
                 position: static;
                 height: 600px;
-                flex: 1 1 40%;
-                width: auto;
+                flex: 1 1 45%;
                 min-width: 280px;
                 order: 3;
             }
@@ -3045,14 +3038,42 @@
                 outputTextarea.textContent = "Input is empty.";
                 return;
             }
-            // Split by lines, strip each line of special chars/tabs but keep the text
             const cleaned = input.split('\n').map(line => {
                 return line
-                    .replace(/\t/g, ' ')                    // tabs to space
-                    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, '') // non-printable control chars
-                    .replace(/[\u200B-\u200F\u2028-\u202F\uFEFF]/g, '') // zero-width/unicode format chars
-                    .replace(/  +/g, ' ')                   // collapse multiple spaces
-                    .trimEnd();                             // trailing whitespace
+                    // HTML tags
+                    .replace(/<[^>]*>/g, '')
+                    // Markdown images ![alt](url)
+                    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+                    // Markdown links [text](url)
+                    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+                    // Markdown bold/italic ***text***, **text**, *text*, ___text___, __text__, _text_
+                    .replace(/(\*{1,3}|_{1,3})(.+?)\1/g, '$2')
+                    // Markdown strikethrough ~~text~~
+                    .replace(/~~(.+?)~~/g, '$1')
+                    // Markdown inline code `text`
+                    .replace(/`([^`]+)`/g, '$1')
+                    // Markdown headings # ## ### etc
+                    .replace(/^#{1,6}\s+/g, '')
+                    // Markdown blockquotes >
+                    .replace(/^>\s?/g, '')
+                    // Markdown horizontal rules --- ___ ***
+                    .replace(/^[-_*]{3,}\s*$/g, '')
+                    // Markdown unordered list markers - * +
+                    .replace(/^[\s]*[-*+]\s+/g, '')
+                    // Markdown ordered list markers 1. 2. etc
+                    .replace(/^[\s]*\d+\.\s+/g, '')
+                    // HTML entities
+                    .replace(/&[a-zA-Z]+;/g, ' ')
+                    .replace(/&#\d+;/g, ' ')
+                    // Tabs to space
+                    .replace(/\t/g, ' ')
+                    // Non-printable control chars
+                    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, '')
+                    // Zero-width/unicode format chars
+                    .replace(/[\u200B-\u200F\u2028-\u202F\uFEFF]/g, '')
+                    // Collapse multiple spaces
+                    .replace(/  +/g, ' ')
+                    .trimEnd();
             }).join('\n');
             inputTextarea.value = cleaned;
             outputTextarea.textContent = cleaned;
