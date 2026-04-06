@@ -253,16 +253,21 @@
             display: flex;
             gap: 0.5rem;
             flex-shrink: 0;
+            align-items: flex-end;
         }
-        .chat-input-row input {
+        .chat-input-row textarea {
             flex: 1;
             padding: 10px 14px;
             font-size: 0.9rem;
+            resize: none;
+            min-height: 80px;
+            font-family: inherit;
         }
         .chat-input-row button {
             width: auto;
             padding: 10px 20px;
             font-size: 0.9rem;
+            align-self: flex-end;
         }
         @media (max-width: 1100px) {
             .page-layout {
@@ -711,8 +716,8 @@
             <div class="chat-msg system-msg">No model loaded yet. Pick one above and hit Load.</div>
         </div>
         <div class="chat-input-row">
-            <input type="text" id="chatInput" placeholder="Type a message..." disabled>
-            <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button" disabled>Send</button>
+            <textarea id="chatInput" rows="3" placeholder="Type a message (will auto-load default model)..."></textarea>
+            <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button">Send</button>
         </div>
     </div>
 
@@ -900,8 +905,15 @@
 
         window.sendChatMessage = async function() {
             const text = inputEl.value.trim();
-            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            if (!text || !activeEngine) return;
+            if (!text) return;
+            let activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+            if (!activeEngine) {
+                // Auto-load the default (selected) model
+                addMessage('system', 'No model loaded. Loading default model...');
+                await window.loadLLMModel();
+                activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+                if (!activeEngine) return; // load failed
+            }
             inputEl.value = '';
             inputEl.disabled = true;
             sendBtn.disabled = true;
