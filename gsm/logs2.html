@@ -18,7 +18,7 @@
             display: flex;
             gap: 1.5rem;
             align-items: flex-start;
-            max-width: 2200px;
+            max-width: 1600px;
             margin: 0 auto;
         }
         .container {
@@ -34,19 +34,14 @@
             position: sticky;
             top: 1.5rem;
         }
-        /* --- WebLLM Chat Panel --- */
-        .chat-panel {
-            background-color: #161b22;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            border: 1px solid #30363d;
-            flex: 1 1 0;
-            min-width: 0;
+        /* --- WebLLM Chat Panel (embedded in container) --- */
+        .chat-panel-embedded {
+            margin-top: 1.5rem;
+            border-top: 1px solid #30363d;
+            padding-top: 1.5rem;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 3rem);
-            position: sticky;
-            top: 1.5rem;
+            height: 500px;
         }
         .chat-panel-header {
             padding: 1.25rem 1.5rem;
@@ -370,29 +365,18 @@
 
         @media (max-width: 1350px) {
             .page-layout {
-                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: stretch;
             }
             .container {
-                flex: 1 1 100%;
-                order: 1;
                 position: static;
                 height: auto;
-                max-height: none;
                 overflow-y: visible;
-            }
-            .chat-panel {
-                position: static;
-                height: 600px;
-                flex: 1 1 45%;
-                min-width: 300px;
-                order: 2;
             }
             .snippets-panel {
                 position: static;
                 height: 600px;
-                flex: 1 1 45%;
-                min-width: 280px;
-                order: 3;
+                width: 100%;
             }
         }
         @media (max-width: 768px) {
@@ -402,18 +386,14 @@
                 align-items: stretch;
                 gap: 1rem;
             }
-            .container { max-width: 100%; padding: 1rem; position: static; height: auto; overflow-y: visible; }
-            .chat-panel {
-                position: static;
-                height: 500px;
-                flex: none;
-                width: 100%;
-            }
+            .container { padding: 1rem; position: static; height: auto; overflow-y: visible; }
             .snippets-panel {
                 position: static;
                 height: 500px;
-                flex: none;
                 width: 100%;
+            }
+            .chat-panel-embedded {
+                height: 400px;
             }
             .button-group {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -821,10 +801,9 @@
             </div>
             <pre id="outputText">Your formatted text will appear here.</pre>
         </div>
-    </div>
 
-    <!-- WebLLM Chat Panel (Right Side) -->
-    <div class="chat-panel">
+    <!-- Offline Chat (embedded) -->
+    <div class="chat-panel-embedded">
         <div class="chat-panel-header">
             <h2>Offline chat</h2>
             <div class="chat-model-row">
@@ -862,7 +841,9 @@
         </div>
     </div>
 
-    <!-- Snippets Panel (Third Column) -->
+    </div>
+
+    <!-- Snippets Panel (Right Column) -->
     <div class="snippets-panel" id="snippetsPanel">
         <div class="sp-header">
             <h2>Snippets</h2>
