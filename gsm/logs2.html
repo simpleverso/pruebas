@@ -667,7 +667,7 @@
     <!-- WebLLM Chat Panel (Right Side) -->
     <div class="chat-panel">
         <div class="chat-panel-header">
-            <h2>WebLLM Chat</h2>
+            <h2>Offline chat</h2>
             <div class="chat-model-row">
                 <select id="llmModelSelect">
                     <option value="Llama-3.1-8B-Instruct-q4f16_1-MLC">🧠 Llama 3.1 8B</option>
@@ -738,12 +738,12 @@
             const resolved = customModels.filter(m => m._useLegacy).map(m => ({
                 model: m.model,
                 model_id: m.model_id,
-                model_lib: `${legacyPrefix}${m.model_id.replace(/-MLC$/, '')}-${legacyVersion}/lib/${m.model_id.replace(/-MLC$/, '')}-${legacyVersion}-ctx4k_cs1k-webgpu.wasm`,
+                model_lib: m.model_lib || (legacyPrefix + legacyVersion + '/Qwen3-4B-q4f32_1-ctx4k_cs1k-webgpu.wasm'),
                 vram_required_MB: m.vram_required_MB || 4096,
                 low_resource_required: m.low_resource_required ?? true,
                 overrides: m.overrides || {},
             }));
-            return { model_list: resolved, useIndexedDBCache: true };
+            return { useIndexedDBCache: true, model_list: resolved };
         }
 
         let engine = null;
