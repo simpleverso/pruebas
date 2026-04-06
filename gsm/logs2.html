@@ -18,7 +18,7 @@
             display: flex;
             gap: 1.5rem;
             align-items: flex-start;
-            max-width: 1500px;
+            max-width: 2200px;
             margin: 0 auto;
         }
         .container {
@@ -30,6 +30,7 @@
             width: 100%;
             max-width: 700px;
             flex-shrink: 0;
+            min-width: 0;
         }
         /* --- WebLLM Chat Panel --- */
         .chat-panel {
@@ -291,17 +292,130 @@
             font-size: 0.9rem;
             align-self: flex-end;
         }
-        @media (max-width: 1100px) {
+        /* --- Snippets Panel (Third Column) --- */
+        .snippets-panel {
+            background-color: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #30363d;
+            width: 340px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 3rem);
+            position: sticky;
+            top: 1.5rem;
+            overflow: hidden;
+        }
+        .snippets-panel .sp-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #30363d;
+            flex-shrink: 0;
+        }
+        .snippets-panel .sp-header h2 { margin: 0 0 0.75rem 0; font-size: 1.15rem; }
+        .snippets-panel .sp-btn-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .snippets-panel .sp-btn {
+            padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer;
+            border: none; color: #fff; font-weight: 600; white-space: nowrap;
+        }
+        .snippets-panel .sp-btn.blue { background: #1f6feb; }
+        .snippets-panel .sp-btn.green { background: #238636; }
+        .snippets-panel .sp-btn.gray { background: #484f58; }
+        .snippets-panel .sp-btn.purple { background: #8957e5; }
+        .snippets-panel .sp-btn:hover { opacity: 0.85; }
+        .snippets-panel .sp-search {
+            width: 100%; padding: 8px 10px; font-size: 0.85rem; margin-top: 0.5rem;
+            background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;
+            box-sizing: border-box;
+        }
+        .snippets-panel .sp-search:focus { outline: none; border-color: #58a6ff; }
+        .snippets-panel .sp-sidebar {
+            flex: 1; overflow-y: auto; border-bottom: 1px solid #30363d;
+        }
+        .snippets-panel .sp-sidebar::-webkit-scrollbar { width: 6px; }
+        .snippets-panel .sp-sidebar::-webkit-scrollbar-track { background: transparent; }
+        .snippets-panel .sp-sidebar::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+        .snippets-panel .sp-item {
+            padding: 8px 12px; cursor: pointer; font-size: 0.85rem;
+            border-bottom: 1px solid #21262d; display: flex; align-items: center; gap: 6px;
+            color: #8b949e; transition: background 0.15s;
+        }
+        .snippets-panel .sp-item:hover { background: #21262d; color: #c9d1d9; }
+        .snippets-panel .sp-item.active { background: #30363d; color: #e6edf3; }
+        .snippets-panel .sp-item .sp-icon { flex-shrink: 0; font-size: 0.9rem; }
+        .snippets-panel .sp-item .sp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .snippets-panel .sp-editor {
+            display: flex; flex-direction: column; flex-shrink: 0; max-height: 45%;
+        }
+        .snippets-panel .sp-editor-bar {
+            display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+            border-bottom: 1px solid #30363d; flex-shrink: 0;
+        }
+        .snippets-panel .sp-editor-bar input {
+            flex: 1; background: transparent; border: none; color: #e6edf3;
+            font-size: 0.9rem; font-weight: 600; outline: none; min-width: 0;
+        }
+        .snippets-panel .sp-editor-bar button {
+            width: auto; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px;
+            font-weight: 600; background: #21262d; color: #c9d1d9; border: 1px solid #30363d;
+        }
+        .snippets-panel .sp-editor-bar button:hover { background: #30363d; transform: none; box-shadow: none; }
+        .snippets-panel .sp-editor textarea {
+            flex: 1; resize: none; background: #0d1117; color: #c9d1d9; border: none;
+            padding: 10px; font-family: monospace; font-size: 0.85rem; min-height: 120px;
+            outline: none;
+        }
+
+        @media (max-width: 1600px) {
+            .snippets-panel { width: 300px; }
+        }
+        @media (max-width: 1350px) {
             .page-layout {
-                flex-direction: column;
-                align-items: stretch;
+                flex-wrap: wrap;
             }
             .container {
                 max-width: 100%;
+                flex: 1 1 100%;
+                order: 1;
             }
             .chat-panel {
                 position: static;
                 height: 600px;
+                flex: 1 1 55%;
+                min-width: 300px;
+                order: 2;
+            }
+            .snippets-panel {
+                position: static;
+                height: 600px;
+                flex: 1 1 40%;
+                width: auto;
+                min-width: 280px;
+                order: 3;
+            }
+        }
+        @media (max-width: 768px) {
+            body { padding: 0.75rem; }
+            .page-layout {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            .container { max-width: 100%; padding: 1rem; }
+            .chat-panel {
+                position: static;
+                height: 500px;
+                flex: none;
+                width: 100%;
+            }
+            .snippets-panel {
+                position: static;
+                height: 500px;
+                flex: none;
+                width: 100%;
+            }
+            .button-group {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
         }
         h1 {
@@ -744,6 +858,30 @@
             <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button">Send</button>
             <button id="chatStopBtn" onclick="stopGeneration()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;display:none;" title="Stop generation">Stop</button>
             <button onclick="clearConversation()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;" title="Clear entire conversation and storage">🗑️</button>
+        </div>
+    </div>
+
+    <!-- Snippets Panel (Third Column) -->
+    <div class="snippets-panel" id="snippetsPanel">
+        <div class="sp-header">
+            <h2>Snippets</h2>
+            <div class="sp-btn-row">
+                <button class="sp-btn blue" id="spAddText">+ Text</button>
+                <button class="sp-btn green" id="spAddFolder">+ Folder</button>
+                <button class="sp-btn gray" id="spImportBtn">Import</button>
+                <button class="sp-btn purple" id="spExportBtn">Export</button>
+                <input type="file" id="spImportFile" accept=".txt,.json" style="display:none">
+            </div>
+            <input type="text" class="sp-search" id="spSearch" placeholder="Search snippets...">
+        </div>
+        <div class="sp-sidebar" id="spSidebar"></div>
+        <div class="sp-editor" id="spEditor" style="display:none;">
+            <div class="sp-editor-bar">
+                <input id="spTitle" placeholder="Name...">
+                <button id="spCopyBtn">Copy</button>
+                <button id="spDeleteBtn" style="color:#f85149;">Del</button>
+            </div>
+            <textarea id="spContent" placeholder="Snippet content..."></textarea>
         </div>
     </div>
 
@@ -3036,5 +3174,116 @@
         }
     </script>
 
+    <!-- Snippets Panel Logic -->
+    <script>
+    (function(){
+        const SP_KEY = 'snippetManagerData';
+        let spData = JSON.parse(localStorage.getItem(SP_KEY) || '[]');
+        let spActiveId = null;
+
+        const spSidebar = document.getElementById('spSidebar');
+        const spEditor = document.getElementById('spEditor');
+        const spTitle = document.getElementById('spTitle');
+        const spContent = document.getElementById('spContent');
+        const spSearch = document.getElementById('spSearch');
+
+        const spSave = () => localStorage.setItem(SP_KEY, JSON.stringify(spData));
+
+        const spFind = (id, items=spData) => {
+            for(const it of items){
+                if(it.id===id) return it;
+                if(it.items){ const f=spFind(id,it.items); if(f) return f; }
+            }
+            return null;
+        };
+        const spRemove = (id, items=spData) => {
+            for(let i=items.length-1;i>=0;i--){
+                if(items[i].id===id) return items.splice(i,1)[0];
+                if(items[i].items){ const r=spRemove(id,items[i].items); if(r) return r; }
+            }
+            return null;
+        };
+
+        function spRender(filter=''){
+            spSidebar.innerHTML='';
+            const lf = filter.toLowerCase();
+            const render = (items, depth=0) => {
+                items.forEach(it => {
+                    const match = !lf || it.name.toLowerCase().includes(lf) || (it.text && it.text.toLowerCase().includes(lf));
+                    const childMatch = it.items && it.items.some(c => c.name.toLowerCase().includes(lf) || (c.text && c.text.toLowerCase().includes(lf)));
+                    if(!match && !childMatch) return;
+                    const el = document.createElement('div');
+                    el.className = 'sp-item' + (it.id===spActiveId?' active':'');
+                    el.style.paddingLeft = (12 + depth*16)+'px';
+                    const icon = it.type==='folder' ? '📁' : '📄';
+                    el.innerHTML = `<span class="sp-icon">${icon}</span><span class="sp-name">${it.name}</span>`;
+                    el.addEventListener('click', () => {
+                        spActiveId = it.id;
+                        if(it.type==='text'){
+                            spEditor.style.display='flex';
+                            spTitle.value = it.name;
+                            spContent.value = it.text||'';
+                        } else {
+                            spEditor.style.display='none';
+                        }
+                        spRender(spSearch.value);
+                    });
+                    spSidebar.appendChild(el);
+                    if(it.items) render(it.items, depth+1);
+                });
+            };
+            render(spData);
+        }
+
+        // Auto-save on edit
+        spTitle.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.name=spTitle.value; spSave(); spRender(spSearch.value);} });
+        spContent.addEventListener('input', () => { const it=spFind(spActiveId); if(it){it.text=spContent.value; spSave();} });
+
+        spSearch.addEventListener('input', () => spRender(spSearch.value));
+
+        document.getElementById('spAddText').addEventListener('click', () => {
+            const name = prompt('Snippet name:');
+            if(!name) return;
+            const item = {id:Date.now(), name, text:'', type:'text'};
+            spData.unshift(item); spSave(); spActiveId=item.id;
+            spEditor.style.display='flex'; spTitle.value=name; spContent.value='';
+            spRender(spSearch.value);
+        });
+        document.getElementById('spAddFolder').addEventListener('click', () => {
+            const name = prompt('Folder name:');
+            if(!name) return;
+            const item = {id:Date.now(), name, items:[], type:'folder'};
+            spData.unshift(item); spSave(); spActiveId=item.id;
+            spEditor.style.display='none'; spRender(spSearch.value);
+        });
+        document.getElementById('spCopyBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText(spContent.value).catch(()=>{});
+        });
+        document.getElementById('spDeleteBtn').addEventListener('click', () => {
+            if(!spActiveId || !confirm('Delete this item?')) return;
+            spRemove(spActiveId); spActiveId=null; spSave();
+            spEditor.style.display='none'; spRender(spSearch.value);
+        });
+        document.getElementById('spExportBtn').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(spData,null,2)], {type:'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `snippets-${new Date().toISOString().slice(0,10)}.txt`;
+            a.click(); URL.revokeObjectURL(a.href);
+        });
+        document.getElementById('spImportBtn').addEventListener('click', () => document.getElementById('spImportFile').click());
+        document.getElementById('spImportFile').addEventListener('change', e => {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try { const d=JSON.parse(ev.target.result); if(Array.isArray(d)){spData=d; spActiveId=null; spSave(); spEditor.style.display='none'; spRender();} }
+                catch(err){ alert('Invalid file'); }
+            };
+            reader.readAsText(file); e.target.value='';
+        });
+
+        spRender();
+    })();
+    </script>
 </body>
 </html>
