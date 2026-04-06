@@ -677,6 +677,7 @@
             <!-- <button onclick="extractAwsRequestIds()" class="nonary-button">Extract AWS Request IDs</button> --> <!-- This button is now merged -->
             
             <button onclick="window.open('https://chat.webllm.ai', '_blank')" class="denary-button">WebLLM local</button>
+            <button onclick="quitarFormato()" class="nonary-button">Quitar Formato</button>
         </div>
         
         <p id="jsonValidationResult" class="validation-message"></p>
@@ -2899,6 +2900,25 @@
         /* This function is now merged into extractAwsResources() */
 
         // --- Utility Functions ---
+
+        function quitarFormato() {
+            const input = inputTextarea.value;
+            if (!input.trim()) {
+                outputTextarea.textContent = "Input is empty.";
+                return;
+            }
+            // Split by lines, strip each line of special chars/tabs but keep the text
+            const cleaned = input.split('\n').map(line => {
+                return line
+                    .replace(/\t/g, ' ')                    // tabs to space
+                    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, '') // non-printable control chars
+                    .replace(/[\u200B-\u200F\u2028-\u202F\uFEFF]/g, '') // zero-width/unicode format chars
+                    .replace(/  +/g, ' ')                   // collapse multiple spaces
+                    .trimEnd();                             // trailing whitespace
+            }).join('\n');
+            inputTextarea.value = cleaned;
+            outputTextarea.textContent = cleaned;
+        }
 
         function clearInput() {
             inputTextarea.value = '';
