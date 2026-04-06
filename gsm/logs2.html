@@ -3219,11 +3219,23 @@
         const spSearch = document.getElementById('spSearch');
 
         // --- Crypto helpers (AES-256-GCM via Web Crypto API) ---
+        function uint8ToB64(bytes) {
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin);
+        }
+        function b64ToUint8(b64) {
+            const bin = atob(b64);
+            const arr = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+            return arr;
+        }
+
         function getSalt() {
             let b64 = localStorage.getItem(SP_SALT_KEY);
-            if (b64) return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+            if (b64) return b64ToUint8(b64);
             const salt = crypto.getRandomValues(new Uint8Array(16));
-            localStorage.setItem(SP_SALT_KEY, btoa(String.fromCharCode(...salt)));
+            localStorage.setItem(SP_SALT_KEY, uint8ToB64(salt));
             return salt;
         }
 
@@ -3243,16 +3255,13 @@
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const encoded = new TextEncoder().encode(JSON.stringify(data));
             const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
-            // store as iv:ciphertext both base64
-            const ivB64 = btoa(String.fromCharCode(...iv));
-            const ctB64 = btoa(String.fromCharCode(...new Uint8Array(cipher)));
-            return ivB64 + ':' + ctB64;
+            return uint8ToB64(iv) + ':' + uint8ToB64(new Uint8Array(cipher));
         }
 
         async function decryptData(key, stored) {
             const [ivB64, ctB64] = stored.split(':');
-            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
-            const ct = Uint8Array.from(atob(ctB64), c => c.charCodeAt(0));
+            const iv = b64ToUint8(ivB64);
+            const ct = b64ToUint8(ctB64);
             const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
             return JSON.parse(new TextDecoder().decode(plain));
         }
