@@ -680,6 +680,7 @@
                 </select>
                 <button onclick="loadLLMModel()" class="primary-button">Load</button>
                 <button onclick="clearChat()" class="secondary-button">Clear</button>
+                <button onclick="resendLast()" class="tertiary-button" title="Resend last message with current model">Resend</button>
             </div>
             <div id="llmStatus">Select a model and click Load to start.</div>
             <div id="llmProgress"><div id="llmProgressBar"></div></div>
@@ -914,6 +915,33 @@
             messagesEl.innerHTML = '';
             const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
             addMessage('system', activeEngine ? 'Chat cleared. Ready.' : 'No model loaded yet.');
+        };
+
+        window.resendLast = async function() {
+            // Find the last user message in history
+            let lastUserIdx = -1;
+            for (let i = chatHistory.length - 1; i >= 0; i--) {
+                if (chatHistory[i].role === 'user') { lastUserIdx = i; break; }
+            }
+            if (lastUserIdx === -1) return;
+            const lastMsg = chatHistory[lastUserIdx].content;
+            // Trim history back to before that user message (remove the user msg + its assistant reply)
+            chatHistory = chatHistory.slice(0, lastUserIdx);
+            // Remove the last user bubble and assistant bubble from the DOM
+            const bubbles = messagesEl.querySelectorAll('.chat-msg:not(.system-msg)');
+            // Remove from the end: assistant reply (if exists) then user message
+            if (bubbles.length > 0) {
+                const lastBubble = bubbles[bubbles.length - 1];
+                if (lastBubble.classList.contains('assistant')) lastBubble.remove();
+            }
+            const bubbles2 = messagesEl.querySelectorAll('.chat-msg:not(.system-msg)');
+            if (bubbles2.length > 0) {
+                const lastBubble = bubbles2[bubbles2.length - 1];
+                if (lastBubble.classList.contains('user')) lastBubble.remove();
+            }
+            // Re-send via the input
+            inputEl.value = lastMsg;
+            await window.sendChatMessage();
         };
 
         inputEl.addEventListener('keydown', (e) => {
