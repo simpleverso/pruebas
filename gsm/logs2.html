@@ -3094,6 +3094,21 @@
                     // HTML entities
                     .replace(/&[a-zA-Z]+;/g, ' ')
                     .replace(/&#\d+;/g, ' ')
+                    // Emojis and symbols (Unicode emoji blocks, dingbats, symbols, pictographs)
+                    .replace(/[\u{1F600}-\u{1F64F}]/gu, '')  // emoticons
+                    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '')  // misc symbols & pictographs
+                    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '')  // transport & map
+                    .replace(/[\u{1F900}-\u{1F9FF}]/gu, '')  // supplemental symbols
+                    .replace(/[\u{1FA00}-\u{1FA6F}]/gu, '')  // chess symbols
+                    .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '')  // symbols extended-A
+                    .replace(/[\u{2600}-\u{26FF}]/gu, '')    // misc symbols
+                    .replace(/[\u{2700}-\u{27BF}]/gu, '')    // dingbats
+                    .replace(/[\u{FE00}-\u{FE0F}]/gu, '')    // variation selectors
+                    .replace(/[\u{200D}]/gu, '')              // zero-width joiner
+                    .replace(/[\u{20E3}]/gu, '')              // combining enclosing keycap
+                    .replace(/[\u{E0020}-\u{E007F}]/gu, '')   // tags
+                    // Common symbols: bullets, arrows, math, misc
+                    .replace(/[•◦▪▸▹►▻→←↑↓↔↕⇒⇐⇑⇓⇔★☆✓✔✗✘✕✖✦✧◆◇○●□■△▲▽▼◁◀▷▶♠♣♥♦♩♪♫♬§¶†‡©®™°±×÷≠≈≤≥∞∑∏√∫∂∆∇∈∉⊂⊃⊆⊇∪∩∧∨¬∀∃∅⊕⊗⊥∥⟨⟩⌈⌉⌊⌋«»‹›¡¿]/g, '')
                     // Tabs to space
                     .replace(/\t/g, ' ')
                     // Non-printable control chars
@@ -3102,6 +3117,8 @@
                     .replace(/[\u200B-\u200F\u2028-\u202F\uFEFF]/g, '')
                     // Collapse multiple spaces
                     .replace(/  +/g, ' ')
+                    // Remove leading spaces
+                    .trimStart()
                     .trimEnd();
             }).join('\n');
             inputTextarea.value = cleaned;
