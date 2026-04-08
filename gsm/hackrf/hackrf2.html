@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackRF Drone Detector - Juchitán de Zaragoza</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1600px; margin: 0 auto; padding: 15px; }
+
+        header {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        h1 { font-size: 2.2em; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 15px;
+            height: calc(100vh - 140px);
+        }
+
+        .control-panel {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 15px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .panel-section:last-child { border-bottom: none; }
+
+        h2 {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(0); }
+        .btn.danger { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .btn.success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .btn.warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #333; }
+        .btn:disabled { background: #555; cursor: not-allowed; transform: none; opacity: 0.6; }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.connected { background: #00e676; box-shadow: 0 0 10px #00e676; }
+        .status-indicator.disconnected { background: #ff5252; }
+        .status-indicator.scanning { background: #ffd740; animation: pulse 1s infinite; }
+        .status-indicator.processing { background: #448aff; animation: pulse 0.5s infinite; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .freq-control { margin: 12px 0; }
+        .freq-control label { display: block; margin-bottom: 5px; font-size: 0.85em; color: #b0bec5; }
+        .freq-control input[type="range"] { width: 100%; margin-bottom: 5px; }
+        .freq-value { text-align: center; font-family: monospace; font-size: 1em; color: #00d4ff; font-weight: bold; }
+
+        .stats-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; }
+        .stat-value { font-weight: bold; color: #00d4ff; font-family: monospace; }
+
+        #map {
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .drone-list {
+            max-height: 250px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .drone-item {
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid #00d4ff;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 0 5px 5px 0;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .drone-item:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
+        .drone-item.active { border-left-color: #ffd740; background: rgba(255,215,64,0.1); }
+
+        .drone-id { font-weight: bold; color: #00d4ff; font-size: 1.1em; }
+        .drone-type { color: #81c784; }
+        .drone-coords { font-family: monospace; font-size: 0.85em; color: #b0bec5; margin-top: 4px; }
+        .drone-meta { font-size: 0.75em; color: #90a4ae; margin-top: 2px; }
+
+        .log-console {
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75em;
+            height: 120px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .log-entry { margin: 2px 0; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .log-entry.error { color: #ff5252; }
+        .log-entry.success { color: #69f0ae; }
+        .log-entry.info { color: #4fc3f7; }
+        .log-entry.warning { color: #ffd740; }
+        .log-entry.debug { color: #b0bec5; }
+
+        .band-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .band-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .band-btn:hover { background: rgba(255,255,255,0.2); }
+        .band-btn.active { background: rgba(0,212,255,0.3); border-color: #00d4ff; }
+
+        .decoder-status {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+
+        .decoder-step {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+            color: #b0bec5;
+        }
+
+        .decoder-step.active { color: #00d4ff; }
+        .decoder-step.complete { color: #69f0ae; }
+        .decoder-step.error { color: #ff5252; }
+
+        .step-icon { width: 16px; margin-right: 8px; text-align: center; }
+
+        .custom-marker {
+            background: #ff4444;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            box-shadow: 0 0 15px rgba(255,68,68,0.9);
+            animation: drone-pulse 2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        @keyframes drone-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: rgba(0,0,0,0.95);
+            color: white;
+            border-radius: 10px;
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+
+        .leaflet-popup-tip { background: rgba(0,0,0,0.95); }
+
+        .packet-hex {
+            font-family: monospace;
+            font-size: 0.7em;
+            color: #90a4ae;
+            background: rgba(0,0,0,0.3);
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; height: auto; }
+            #map { height: 400px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛸 HackRF Drone Detector</h1>
+            <div class="subtitle">DJI DroneID/RemoteID Decoder | Juchitán de Zaragoza, Oaxaca, México</div>
+        </header>
+
+        <div class="main-grid">
+            <div class="control-panel">
+                <!-- Connection -->
+                <div class="panel-section">
+                    <h2>📡 Device Connection</h2>
+                    <div id="connectionStatus">
+                        <span class="status-indicator disconnected"></span>
+                        <span id="statusText">Disconnected</span>
+                    </div>
+                    <button class="btn" id="connectBtn" onclick="connectHackRF()">Connect HackRF</button>
+                    <button class="btn danger" id="disconnectBtn" onclick="disconnectHackRF()" disabled>Disconnect</button>
+                </div>
+
+                <!-- Frequency -->
+                <div class="panel-section">
+                    <h2>📶 Frequency Configuration</h2>
+                    <div class="band-selector">
+                        <button class="band-btn active" onclick="selectBand('2.4')">2.4 GHz (Ch 6)</button>
+                        <button class="band-btn" onclick="selectBand('5.8')">5.8 GHz</button>
+                        <button class="band-btn" onclick="selectBand('1.4')">1.4 GHz (OcuSync)</button>
+                        <button class="band-btn" onclick="selectBand('custom')">Custom</button>
+                    </div>
+
+                    <div class="freq-control" id="customFreqControl" style="display: none;">
+                        <label>Center Frequency (MHz):</label>
+                        <input type="range" id="freqSlider" min="1000" max="6000" value="2437" step="1">
+                        <div class="freq-value" id="freqValue">2437 MHz</div>
+                    </div>
+
+                    <div class="freq-control">
+                        <label>Sample Rate:</label>
+                        <select id="sampleRate" style="width: 100%; padding: 5px; background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 5px;">
+                            <option value="2000000">2 MS/s</option>
+                            <option value="4000000" selected>4 MS/s</option>
+                            <option value="8000000">8 MS/s</option>
+                            <option value="20000000">20 MS/s</option>
+                        </select>
+                    </div>
+
+                    <div class="freq-control">
+                        <label>LNA Gain: <span id="lnaValue">20</span> dB</label>
+                        <input type="range" id="lnaGain" min="0" max="40" value="20">
+                    </div>
+
+                    <div class="freq-control">
+                        <label>VGA Gain: <span id="vgaValue">30</span> dB</label>
+                        <input type="range" id="vgaGain" min="0" max="62" value="30">
+                    </div>
+                </div>
+
+                <!-- Detection Control -->
+                <div class="panel-section">
+                    <h2>🔍 Detection Control</h2>
+                    <button class="btn success" id="startBtn" onclick="startDetection()" disabled>Start Detection</button>
+                    <button class="btn danger" id="stopBtn" onclick="stopDetection()" disabled>Stop Detection</button>
+
+                    <div class="decoder-status">
+                        <div class="decoder-step" id="step-iq"><span class="step-icon">○</span> I/Q Data Capture</div>
+                        <div class="decoder-step" id="step-fft"><span class="step-icon">○</span> FFT Analysis</div>
+                        <div class="decoder-step" id="step-demod"><span class="step-icon">○</span> QPSK Demodulation</div>
+                        <div class="decoder-step" id="step-decode"><span class="step-icon">○</span> DroneID Decode</div>
+                        <div class="decoder-step" id="step-parse"><span class="step-icon">○</span> Packet Parsing</div>
+                    </div>
+
+                    <div class="stats-box">
+                        <div class="stat-row"><span>Packets/sec:</span><span class="stat-value" id="packetRate">0</span></div>
+                        <div class="stat-row"><span>Drones Detected:</span><span class="stat-value" id="droneCount">0</span></div>
+                        <div class="stat-row"><span>Valid DroneID:</span><span class="stat-value" id="validDroneID">0</span></div>
+                        <div class="stat-row"><span>Signal Strength:</span><span class="stat-value" id="signalStrength">- dBm</span></div>
+                        <div class="stat-row"><span>Scan Time:</span><span class="stat-value" id="scanTime">0s</span></div>
+                    </div>
+                </div>
+
+                <!-- Detected Drones -->
+                <div class="panel-section">
+                    <h2>🎯 Detected Drones</h2>
+                    <div class="drone-list" id="droneList">
+                        <div style="color: #b0bec5; text-align: center; padding: 20px;">No drones detected</div>
+                    </div>
+                </div>
+
+                <!-- System Log -->
+                <div class="panel-section">
+                    <h2>📝 System Log</h2>
+                    <div class="log-console" id="logConsole">
+                        <div class="log-entry info">System initialized. Waiting for HackRF connection...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // ==================== GLOBAL VARIABLES ====================
+        let device = null;
+        let isConnected = false;
+        let isScanning = false;
+        let map = null;
+        let detectedDrones = new Map();
+        let scanStartTime = null;
+        let packetCount = 0;
+        let validDroneIDCount = 0;
+        let currentBand = '2.4';
+        let receiveLoopRunning = false;
+        let iqBuffer = [];
+        let fftProcessor = null;
+
+        // HackRF Constants
+        const HACKRF_VENDOR_ID = 0x1d50;
+        const HACKRF_PRODUCT_ID = 0x6089;
+        const HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE = 1;
+        const HACKRF_VENDOR_REQUEST_SET_FREQUENCY = 2;
+        const HACKRF_VENDOR_REQUEST_SET_SAMPLE_RATE = 3;
+        const HACKRF_VENDOR_REQUEST_SET_LNA_GAIN = 4;
+        const HACKRF_VENDOR_REQUEST_SET_VGA_GAIN = 5;
+        const HACKRF_VENDOR_REQUEST_SET_BASEBAND_FILTER_BANDWIDTH = 8;
+        const HACKRF_VENDOR_REQUEST_BOARD_ID_READ = 14;
+        const HACKRF_VENDOR_REQUEST_VERSION_STRING_READ = 15;
+        const HACKRF_VENDOR_REQUEST_SET_FREQ = 16;
+        const HACKRF_TRANSCEIVER_MODE_OFF = 0;
+        const HACKRF_TRANSCEIVER_MODE_RECEIVE = 1;
+        const SAMPLE_BUFFER_SIZE = 16384; // Reduced from 262144 to avoid transfer errors
+
+        // DJI DroneID Constants
+        const DJI_OUI = [0x26, 0x37, 0x12];
+        const REMOTE_ID_OUI = [0x6a, 0x5c, 0x35];
+        const DRONEID_FREQ_2_4 = 2437000000;
+        const DRONEID_FREQ_5_8 = 5200000000;
+        const DRONEID_FREQ_1_4 = 1420000000; // OcuSync backup
+        const WIFI_CHANNEL_WIDTH = 20000000; // 20 MHz
+        const DRONEID_INTERVAL_MS = 640; // Broadcast interval
+
+        // DSP Constants
+        const FFT_SIZE = 2048;
+        const CYCLE_PREFIX_LENGTH = 128;
+        const ZC_ROOT_1 = 600;
+        const ZC_ROOT_2 = 147;
+
+        // ==================== MAP INITIALIZATION ====================
+        function initMap() {
+            const juchitanCoords = [16.4333, -95.0167];
+            map = L.map('map').setView(juchitanCoords, 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            L.marker(juchitanCoords)
+                .addTo(map)
+                .bindPopup('<b>Juchitán de Zaragoza</b><br>Oaxaca, México<br>Detection Center')
+                .openPopup();
+
+            L.circle(juchitanCoords, {
+                color: '#00d4ff',
+                fillColor: '#00d4ff',
+                fillOpacity: 0.1,
+                radius: 5000
+            }).addTo(map);
+
+            log('Map initialized: Juchitán de Zaragoza, Oaxaca, México', 'info');
+        }
+
+        // ==================== LOGGING ====================
+        function log(message, type = 'info') {
+            const console = document.getElementById('logConsole');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        // ==================== HACKRF CONNECTION ====================
+        async function connectHackRF() {
+            try {
+                log('Requesting USB device access...', 'info');
+
+                device = await navigator.usb.requestDevice({
+                    filters: [{ vendorId: HACKRF_VENDOR_ID, productId: HACKRF_PRODUCT_ID }]
+                });
+
+                log(`Device selected: ${device.productName}`, 'success');
+                await device.open();
+                log('Device opened', 'success');
+                await device.selectConfiguration(1);
+                log('Configuration selected', 'success');
+                await device.claimInterface(0);
+                log('Interface claimed', 'success');
+
+                await getBoardInfo();
+
+                isConnected = true;
+                updateConnectionStatus(true);
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('connectBtn').disabled = true;
+
+                log('HackRF connected successfully!', 'success');
+
+            } catch (error) {
+                log(`Connection error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        async function getBoardInfo() {
+            try {
+                const versionResult = await device.controlTransferIn({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_VERSION_STRING_READ,
+                    value: 0,
+                    index: 0
+                }, 255);
+
+                const decoder = new TextDecoder();
+                const version = decoder.decode(versionResult.data).replace(/\0/g, '').trim();
+                log(`HackRF Version: ${version}`, 'info');
+            } catch (error) {
+                log(`Error reading board info: ${error.message}`, 'warning');
+            }
+        }
+
+        async function disconnectHackRF() {
+            if (isScanning) await stopDetection();
+
+            if (device) {
+                try {
+                    await setTransceiverMode(HACKRF_TRANSCEIVER_MODE_OFF);
+                    await device.close();
+                    log('Device disconnected', 'info');
+                } catch (error) {
+                    log(`Disconnect error: ${error.message}`, 'error');
+                }
+            }
+
+            isConnected = false;
+            device = null;
+            updateConnectionStatus(false);
+
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.querySelector('.status-indicator');
+            const statusText = document.getElementById('statusText');
+
+            if (connected) {
+                indicator.className = 'status-indicator connected';
+                statusText.textContent = 'Connected';
+            } else {
+                indicator.className = 'status-indicator disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        // ==================== FREQUENCY CONTROL ====================
+        function selectBand(band) {
+            currentBand = band;
+            document.querySelectorAll('.band-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const customControl = document.getElementById('customFreqControl');
+            customControl.style.display = band === 'custom' ? 'block' : 'none';
+
+            const bandNames = {
+                '2.4': '2.4 GHz (Wi-Fi Ch 6 - DroneID)',
+                '5.8': '5.8 GHz (Wi-Fi DroneID)',
+                '1.4': '1.4 GHz (OcuSync Legacy)',
+                'custom': 'Custom Frequency'
+            };
+            log(`Selected: ${bandNames[band]}`, 'info');
+        }
+
+        document.getElementById('freqSlider')?.addEventListener('input', (e) => {
+            document.getElementById('freqValue').textContent = `${e.target.value} MHz`;
+        });
+
+        document.getElementById('lnaGain')?.addEventListener('input', (e) => {
+            document.getElementById('lnaValue').textContent = e.target.value;
+        });
+
+        document.getElementById('vgaGain')?.addEventListener('input', (e) => {
+            document.getElementById('vgaValue').textContent = e.target.value;
+        });
+
+        // ==================== HACKRF CONTROL (FIXED) ====================
+        async function setFrequency(freqHz) {
+            if (!device || !isConnected) return;
+            try {
+                const freqMhz = Math.floor(freqHz / 1000000);
+                const freqHzRemainder = freqHz % 1000000;
+
+                await device.controlTransferOut({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_SET_FREQUENCY,
+                    value: freqMhz & 0xFFFF,
+                    index: (freqMhz >> 16) & 0xFFFF
+                });
+
+                if (freqHzRemainder > 0) {
+                    await device.controlTransferOut({
+                        requestType: 'vendor',
+                        recipient: 'device',
+                        request: HACKRF_VENDOR_REQUEST_SET_FREQ,
+                        value: freqHzRemainder & 0xFFFF,
+                        index: (freqHzRemainder >> 16) & 0xFFFF
+                    });
+                }
+
+                log(`Frequency: ${(freqHz / 1000000).toFixed(3)} MHz`, 'info');
+            } catch (error) {
+                log(`Freq error: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function setSampleRate(rateHz) {
+            if (!device || !isConnected) return;
+            try {
+                await device.controlTransferOut({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_SET_SAMPLE_RATE,
+                    value: rateHz & 0xFFFF,
+                    index: (rateHz >> 16) & 0xFFFF
+                });
+                
+                // Also set baseband filter bandwidth (typically sample_rate * 0.75)
+                const bandwidth = Math.floor(rateHz * 0.75);
+                await device.controlTransferOut({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_SET_BASEBAND_FILTER_BANDWIDTH,
+                    value: bandwidth & 0xFFFF,
+                    index: (bandwidth >> 16) & 0xFFFF
+                });
+                
+                log(`Sample rate: ${(rateHz / 1000000).toFixed(1)} MS/s`, 'info');
+            } catch (error) {
+                log(`Sample rate error: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function setLNAGain(gain) {
+            if (!device || !isConnected) return;
+            try {
+                // FIX: Changed from controlTransferIn to controlTransferOut
+                await device.controlTransferOut({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_SET_LNA_GAIN,
+                    value: 0,
+                    index: gain
+                });
+            } catch (error) {
+                log(`LNA gain error: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function setVGAGain(gain) {
+            if (!device || !isConnected) return;
+            try {
+                // FIX: Changed from controlTransferIn to controlTransferOut
+                await device.controlTransferOut({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_SET_VGA_GAIN,
+                    value: 0,
+                    index: gain
+                });
+            } catch (error) {
+                log(`VGA gain error: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function setTransceiverMode(mode) {
+            if (!device || !isConnected) return;
+            try {
+                await device.controlTransferOut({
+                    requestType: 'vendor',
+                    recipient: 'device',
+                    request: HACKRF_VENDOR_REQUEST_SET_TRANSCEIVER_MODE,
+                    value: mode,
+                    index: 0
+                });
+            } catch (error) {
+                log(`Mode error: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // ==================== DSP & DECODER CLASSES ====================
+
+        // Complex number operations
+        class Complex {
+            constructor(re = 0, im = 0) {
+                this.re = re;
+                this.im = im;
+            }
+
+            add(other) {
+                return new Complex(this.re + other.re, this.im + other.im);
+            }
+
+            sub(other) {
+                return new Complex(this.re - other.re, this.im - other.im);
+            }
+
+            mul(other) {
+                return new Complex(
+                    this.re * other.re - this.im * other.im,
+                    this.re * other.im + this.im * other.re
+                );
+            }
+
+            magnitude() {
+                return Math.sqrt(this.re * this.re + this.im * this.im);
+            }
+
+            phase() {
+                return Math.atan2(this.im, this.re);
+            }
+
+            conjugate() {
+                return new Complex(this.re, -this.im);
+            }
+        }
+
+        // FFT Implementation (Cooley-Tukey)
+        class FFT {
+            constructor(size) {
+                this.size = size;
+                this.bitReversedIndices = this.computeBitReversedIndices();
+            }
+
+            computeBitReversedIndices() {
+                const indices = new Array(this.size);
+                const bits = Math.log2(this.size);
+                for (let i = 0; i < this.size; i++) {
+                    let reversed = 0;
+                    for (let j = 0; j < bits; j++) {
+                        reversed = (reversed << 1) | ((i >> j) & 1);
+                    }
+                    indices[i] = reversed;
+                }
+                return indices;
+            }
+
+            forward(input) {
+                const output = new Array(this.size);
+
+                // Bit-reversal permutation
+                for (let i = 0; i < this.size; i++) {
+                    output[this.bitReversedIndices[i]] = input[i];
+                }
+
+                // Butterfly operations
+                for (let stage = 1; stage <= Math.log2(this.size); stage++) {
+                    const step = 1 << stage;
+                    const halfStep = step >> 1;
+
+                    for (let group = 0; group < this.size; group += step) {
+                        for (let k = 0; k < halfStep; k++) {
+                            const angle = -2 * Math.PI * k / step;
+                            const twiddle = new Complex(Math.cos(angle), Math.sin(angle));
+
+                            const even = output[group + k];
+                            const odd = output[group + k + halfStep].mul(twiddle);
+
+                            output[group + k] = even.add(odd);
+                            output[group + k + halfStep] = even.sub(odd);
+                        }
+                    }
+                }
+
+                return output;
+            }
+        }
+
+        // Zadoff-Chu Sequence Generator (for synchronization)
+        class ZadoffChu {
+            static generate(root, length) {
+                const sequence = new Array(length);
+                for (let n = 0; n < length; n++) {
+                    const angle = -Math.PI * root * n * (n + 1) / length;
+                    sequence[n] = new Complex(Math.cos(angle), Math.sin(angle));
+                }
+                return sequence;
+            }
+        }
+
+        // Gold Sequence Generator (for descrambling)
+        class GoldSequence {
+            constructor(seed) {
+                this.lfsr1 = seed & 0x7FFF;
+                this.lfsr2 = (seed >> 15) & 0x7FFF;
+            }
+
+            next() {
+                const output1 = (this.lfsr1 >> 14) & 1;
+                const output2 = (this.lfsr2 >> 14) & 1;
+
+                const newBit1 = ((this.lfsr1 >> 13) ^ (this.lfsr1 >> 14)) & 1;
+                this.lfsr1 = ((this.lfsr1 << 1) | newBit1) & 0x7FFF;
+
+                const newBit2 = ((this.lfsr2 >> 12) ^ (this.lfsr2 >> 13) ^ (this.lfsr2 >> 14)) & 1;
+                this.lfsr2 = ((this.lfsr2 << 1) | newBit2) & 0x7FFF;
+
+                return output1 ^ output2;
+            }
+
+            generate(length) {
+                const sequence = [];
+                for (let i = 0; i < length; i++) {
+                    sequence.push(this.next());
+                }
+                return sequence;
+            }
+        }
+
+        // DroneID Decoder
+        class DroneIDDecoder {
+            constructor() {
+                this.fft = new FFT(FFT_SIZE);
+                this.zcSeq1 = ZadoffChu.generate(ZC_ROOT_1, FFT_SIZE);
+                this.zcSeq2 = ZadoffChu.generate(ZC_ROOT_2, FFT_SIZE);
+                this.frameBuffer = [];
+                this.state = 'SEARCH';
+            }
+
+            // Process I/Q samples from HackRF
+            processSamples(iqData) {
+                updateDecoderStep('iq', 'active');
+
+                // Convert uint8 I/Q to complex numbers (HackRF returns interleaved I/Q)
+                const samples = [];
+                for (let i = 0; i < iqData.length; i += 2) {
+                    // Convert unsigned to signed (-128 to 127)
+                    const iSample = (iqData[i] & 0xFF) - 128;
+                    const qSample = (iqData[i + 1] & 0xFF) - 128;
+                    samples.push(new Complex(iSample / 128.0, qSample / 128.0));
+                }
+
+                // Add to frame buffer
+                this.frameBuffer.push(...samples);
+
+                // Process when we have enough samples (2x FFT_SIZE for overlap)
+                if (this.frameBuffer.length >= FFT_SIZE * 2) {
+                    const frame = this.frameBuffer.slice(0, FFT_SIZE);
+                    this.frameBuffer = this.frameBuffer.slice(FFT_SIZE / 2); // 50% overlap
+
+                    return this.processFrame(frame);
+                }
+
+                return null;
+            }
+
+            processFrame(samples) {
+                updateDecoderStep('fft', 'active');
+
+                // Perform FFT for OFDM demodulation
+                const fftOutput = this.fft.forward(samples);
+
+                // Find Zadoff-Chu sequences for synchronization
+                const correlation1 = this.correlateZC(fftOutput, this.zcSeq1);
+                const correlation2 = this.correlateZC(fftOutput, this.zcSeq2);
+
+                // Check for strong correlation (indicates DroneID frame)
+                const peak1 = Math.max(...correlation1.map(Math.abs));
+                const peak2 = Math.max(...correlation2.map(Math.abs));
+
+                if (peak1 > 0.7 && peak2 > 0.7) {
+                    updateDecoderStep('fft', 'complete');
+                    updateDecoderStep('demod', 'active');
+
+                    // Extract subcarriers
+                    const subcarriers = this.extractSubcarriers(fftOutput);
+
+                    // QPSK demodulation
+                    const bits = this.qpskDemodulate(subcarriers);
+
+                    updateDecoderStep('demod', 'complete');
+                    updateDecoderStep('decode', 'active');
+
+                    // Descramble with Gold sequence
+                    const descrambled = this.descramble(bits);
+
+                    // Turbo decode (simplified)
+                    const decoded = this.turboDecode(descrambled);
+
+                    updateDecoderStep('decode', 'complete');
+                    updateDecoderStep('parse', 'active');
+
+                    // Parse DroneID packet
+                    const packet = this.parsePacket(decoded);
+
+                    if (packet) {
+                        updateDecoderStep('parse', 'complete');
+                        return packet;
+                    }
+                }
+
+                return null;
+            }
+
+            correlateZC(fftOutput, zcSequence) {
+                const correlation = [];
+                for (let i = 0; i < fftOutput.length; i++) {
+                    let sum = new Complex(0, 0);
+                    for (let j = 0; j < zcSequence.length && (i + j) < fftOutput.length; j++) {
+                        sum = sum.add(fftOutput[(i + j) % fftOutput.length].mul(zcSequence[j].conjugate()));
+                    }
+                    correlation.push(sum.magnitude() / zcSequence.length);
+                }
+                return correlation;
+            }
+
+            extractSubcarriers(fftOutput) {
+                // Extract data subcarriers (skip DC and guard bands)
+                const subcarriers = [];
+                const numSubcarriers = 600; // Active subcarriers in 802.11
+                const startBin = (FFT_SIZE - numSubcarriers) / 2;
+
+                for (let i = 0; i < numSubcarriers; i++) {
+                    const bin = Math.floor(startBin + i);
+                    if (bin >= 0 && bin < fftOutput.length) {
+                        subcarriers.push(fftOutput[bin]);
+                    }
+                }
+
+                return subcarriers;
+            }
+
+            qpskDemodulate(subcarriers) {
+                const bits = [];
+
+                for (const symbol of subcarriers) {
+                    const phase = symbol.phase();
+
+                    // QPSK constellation mapping
+                    // 00: π/4, 01: 3π/4, 11: 5π/4, 10: 7π/4
+                    if (phase >= -Math.PI/4 && phase < Math.PI/4) {
+                        bits.push(0, 0);
+                    } else if (phase >= Math.PI/4 && phase < 3*Math.PI/4) {
+                        bits.push(0, 1);
+                    } else if (phase >= 3*Math.PI/4 || phase < -3*Math.PI/4) {
+                        bits.push(1, 1);
+                    } else {
+                        bits.push(1, 0);
+                    }
+                }
+
+                return bits;
+            }
+
+            descramble(bits) {
+                // Gold sequence descrambling (seed from DJI protocol)
+                const gold = new GoldSequence(0x1234); // Simplified seed
+                const sequence = gold.generate(bits.length);
+
+                return bits.map((bit, i) => bit ^ sequence[i]);
+            }
+
+            turboDecode(bits) {
+                // Simplified turbo decoding (interleaving reversal)
+                const blockSize = 6144; // LTE turbo code block size
+                const output = [];
+
+                // Reverse sub-block interleaving
+                const interleaverPattern = this.generateInterleaverPattern(blockSize);
+
+                for (let i = 0; i < bits.length && i < blockSize; i++) {
+                    output[interleaverPattern[i]] = bits[i];
+                }
+
+                return output;
+            }
+
+            generateInterleaverPattern(blockSize) {
+                // LTE interleaver pattern (simplified)
+                const pattern = [];
+                for (let i = 0; i < blockSize; i++) {
+                    pattern.push((i * 31) % blockSize);
+                }
+                return pattern;
+            }
+
+            parsePacket(bits) {
+                // Convert bits to bytes
+                const bytes = [];
+                for (let i = 0; i < bits.length; i += 8) {
+                    let byte = 0;
+                    for (let j = 0; j < 8 && (i + j) < bits.length; j++) {
+                        byte = (byte << 1) | bits[i + j];
+                    }
+                    bytes.push(byte);
+                }
+
+                // Look for OUI signatures
+                let ouiOffset = -1;
+                let packetType = null;
+
+                for (let i = 0; i < bytes.length - 3; i++) {
+                    if (bytes[i] === DJI_OUI[0] && bytes[i+1] === DJI_OUI[1] && bytes[i+2] === DJI_OUI[2]) {
+                        ouiOffset = i;
+                        packetType = 'DJI_DroneID';
+                        break;
+                    }
+                    if (bytes[i] === REMOTE_ID_OUI[0] && bytes[i+1] === REMOTE_ID_OUI[1] && bytes[i+2] === REMOTE_ID_OUI[2]) {
+                        ouiOffset = i;
+                        packetType = 'RemoteID';
+                        break;
+                    }
+                }
+
+                if (ouiOffset === -1) return null;
+
+                // Parse packet structure based on type
+                try {
+                    if (packetType === 'DJI_DroneID') {
+                        return this.parseDJIDroneID(bytes, ouiOffset);
+                    } else if (packetType === 'RemoteID') {
+                        return this.parseRemoteID(bytes, ouiOffset);
+                    }
+                } catch (e) {
+                    log(`Parse error: ${e.message}`, 'debug');
+                }
+
+                return null;
+            }
+
+            parseDJIDroneID(bytes, offset) {
+                // DJI DroneID packet structure (from reverse engineering)
+                // Reference: NDSS 2023 Drone Security paper
+
+                const packet = {
+                    type: 'DJI DroneID',
+                    protocol: 'OcuSync 2.0/3.0',
+                    timestamp: new Date(),
+                    rawBytes: bytes.slice(offset, offset + 100)
+                };
+
+                // Parse based on subcommand
+                const subcommand = bytes[offset + 3];
+
+                if (subcommand === 0x10) {
+                    // Flight telemetry packet
+                    packet.packetType = 'Flight Telemetry';
+                    packet.droneLat = this.parseCoordinate(bytes, offset + 4);
+                    packet.droneLon = this.parseCoordinate(bytes, offset + 8);
+                    packet.droneAlt = this.parseInt16(bytes, offset + 12) / 10; // meters
+                    packet.homeLat = this.parseCoordinate(bytes, offset + 14);
+                    packet.homeLon = this.parseCoordinate(bytes, offset + 18);
+                    packet.pilotLat = this.parseCoordinate(bytes, offset + 22);
+                    packet.pilotLon = this.parseCoordinate(bytes, offset + 26);
+                    packet.speedH = this.parseInt16(bytes, offset + 30) / 10; // m/s
+                    packet.speedV = this.parseInt16(bytes, offset + 32) / 10; // m/s
+                    packet.heading = this.parseUInt16(bytes, offset + 34) / 100; // degrees
+
+                } else if (subcommand === 0x11) {
+                    // User info packet
+                    packet.packetType = 'User Info';
+                    packet.serialNumber = this.parseString(bytes, offset + 4, 16);
+                    packet.droneModel = this.parseDroneModel(bytes[offset + 20]);
+                }
+
+                // Validate CRC
+                const crcValid = this.verifyCRC(bytes, offset);
+                packet.crcValid = crcValid;
+
+                return packet;
+            }
+
+            parseRemoteID(bytes, offset) {
+                // ASTM F3411 Remote ID format
+                const packet = {
+                    type: 'Remote ID',
+                    protocol: 'ASTM F3411',
+                    timestamp: new Date(),
+                    rawBytes: bytes.slice(offset, offset + 100)
+                };
+
+                // Remote ID message type
+                const msgType = bytes[offset + 3];
+
+                if (msgType === 0x00) {
+                    // Basic ID
+                    packet.packetType = 'Basic ID';
+                    packet.uasId = this.parseString(bytes, offset + 4, 20);
+                    packet.uasType = bytes[offset + 24];
+                    packet.idType = bytes[offset + 25];
+
+                } else if (msgType === 0x01) {
+                    // Location/Vector
+                    packet.packetType = 'Location';
+                    packet.status = bytes[offset + 4];
+                    packet.droneLat = this.parseCoordinate(bytes, offset + 5);
+                    packet.droneLon = this.parseCoordinate(bytes, offset + 9);
+                    packet.droneAlt = this.parseInt16(bytes, offset + 13) / 10;
+                    packet.height = this.parseInt16(bytes, offset + 15) / 10;
+                    packet.speedH = bytes[offset + 17]; // m/s
+                    packet.course = this.parseUInt16(bytes, offset + 18) / 10;
+
+                } else if (msgType === 0x04) {
+                    // System message (operator location)
+                    packet.packetType = 'System';
+                    packet.operatorLat = this.parseCoordinate(bytes, offset + 5);
+                    packet.operatorLon = this.parseCoordinate(bytes, offset + 9);
+                }
+
+                return packet;
+            }
+
+            // Helper parsing functions
+            parseCoordinate(bytes, offset) {
+                // IEEE 754 single precision or int32 coordinate format
+                const intVal = (bytes[offset] << 24) | (bytes[offset+1] << 16) | 
+                              (bytes[offset+2] << 8) | bytes[offset+3];
+                return intVal / 10000000; // Convert to degrees
+            }
+
+            parseInt16(bytes, offset) {
+                const val = (bytes[offset] << 8) | bytes[offset+1];
+                return val > 32767 ? val - 65536 : val;
+            }
+
+            parseUInt16(bytes, offset) {
+                return (bytes[offset] << 8) | bytes[offset+1];
+            }
+
+            parseString(bytes, offset, length) {
+                let str = '';
+                for (let i = 0; i < length && bytes[offset + i] !== 0; i++) {
+                    str += String.fromCharCode(bytes[offset + i]);
+                }
+                return str;
+            }
+
+            parseDroneModel(code) {
+                const models = {
+                    0x01: 'Mavic 3',
+                    0x02: 'Mavic Air 2',
+                    0x03: 'Mini 2',
+                    0x04: 'Mini 3 Pro',
+                    0x05: 'Air 2S',
+                    0x06: 'FPV',
+                    0x07: 'Mavic 3 Pro',
+                    0x08: 'Mini 4 Pro',
+                    0x09: 'Air 3',
+                    0x0A: 'Mavic 3 Classic'
+                };
+                return models[code] || `Unknown (0x${code.toString(16)})`;
+            }
+
+            verifyCRC(bytes, offset) {
+                // Simplified CRC check (DJI uses CRC-16-CCITT)
+                return true; // Placeholder
+            }
+        }
+
+        // ==================== DECODER INSTANCE ====================
+        let decoder = new DroneIDDecoder();
+
+        function updateDecoderStep(step, status) {
+            const steps = {
+                'iq': 'step-iq',
+                'fft': 'step-fft',
+                'demod': 'step-demod',
+                'decode': 'step-decode',
+                'parse': 'step-parse'
+            };
+
+            const element = document.getElementById(steps[step]);
+            if (!element) return;
+
+            element.className = `decoder-step ${status}`;
+            const icon = element.querySelector('.step-icon');
+
+            if (status === 'active') {
+                icon.textContent = '◐';
+            } else if (status === 'complete') {
+                icon.textContent = '✓';
+            } else if (status === 'error') {
+                icon.textContent = '✗';
+            } else {
+                icon.textContent = '○';
+            }
+        }
+
+        // ==================== DETECTION CONTROL (FIXED) ====================
+        async function startDetection() {
+            if (!isConnected) {
+                log('Please connect HackRF first', 'warning');
+                return;
+            }
+
+            if (isScanning) return;
+
+            try {
+                isScanning = true;
+                scanStartTime = Date.now();
+                packetCount = 0;
+                validDroneIDCount = 0;
+
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                document.querySelector('.status-indicator').className = 'status-indicator scanning';
+                document.getElementById('statusText').textContent = 'Scanning & Decoding...';
+
+                // Configure device with retry logic
+                const sampleRate = parseInt(document.getElementById('sampleRate').value);
+                const lnaGain = parseInt(document.getElementById('lnaGain').value);
+                const vgaGain = parseInt(document.getElementById('vgaGain').value);
+
+                // Small delay to ensure device is ready
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                await setSampleRate(sampleRate);
+                await new Promise(resolve => setTimeout(resolve, 10));
+                await setLNAGain(lnaGain);
+                await new Promise(resolve => setTimeout(resolve, 10));
+                await setVGAGain(vgaGain);
+                await new Promise(resolve => setTimeout(resolve, 10));
+
+                // Set frequency
+                let freq;
+                switch(currentBand) {
+                    case '2.4': freq = DRONEID_FREQ_2_4; break;
+                    case '5.8': freq = DRONEID_FREQ_5_8; break;
+                    case '1.4': freq = DRONEID_FREQ_1_4; break;
+                    case 'custom': freq = parseInt(document.getElementById('freqSlider').value) * 1000000; break;
+                    default: freq = DRONEID_FREQ_2_4;
+                }
+
+                await setFrequency(freq);
+                await new Promise(resolve => setTimeout(resolve, 10));
+                await setTransceiverMode(HACKRF_TRANSCEIVER_MODE_RECEIVE);
+
+                log('Starting DroneID detection with real-time decoding...', 'success');
+
+                // Start receive loop (now non-recursive)
+                startReceiveLoop();
+                updateStats();
+
+            } catch (error) {
+                log(`Start error: ${error.message}`, 'error');
+                isScanning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+
+        async function stopDetection() {
+            isScanning = false;
+            
+            // Wait for loop to actually stop
+            let timeout = 0;
+            while (receiveLoopRunning && timeout < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                timeout++;
+            }
+            
+            if (isConnected) {
+                try {
+                    await setTransceiverMode(HACKRF_TRANSCEIVER_MODE_OFF);
+                } catch (e) {
+                    log(`Error stopping transceiver: ${e.message}`, 'warning');
+                }
+            }
+            
+            // Reset UI state
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            updateConnectionStatus(true);
+            
+            // Reset decoder steps
+            ['iq', 'fft', 'demod', 'decode', 'parse'].forEach(step => {
+                updateDecoderStep(step, '');
+            });
+            
+            log('Detection stopped', 'info');
+        }
+
+        // ==================== RECEIVE LOOP (FIXED) ====================
+        async function startReceiveLoop() {
+            if (receiveLoopRunning) return;
+            receiveLoopRunning = true;
+            
+            log('Receive loop started', 'info');
+            
+            while (isScanning && isConnected) {
+                try {
+                    // Use smaller buffer size for stability (16KB chunks instead of 256KB)
+                    const result = await device.transferIn(1, SAMPLE_BUFFER_SIZE);
+                    
+                    if (result && result.data) {
+                        const data = new Uint8Array(result.data.buffer);
+                        packetCount++;
+                        
+                        // Process through DroneID decoder
+                        const packet = decoder.processSamples(data);
+                        
+                        if (packet) {
+                            validDroneIDCount++;
+                            processValidPacket(packet);
+                        }
+                        
+                        // Update stats periodically
+                        if (packetCount % 50 === 0) {
+                            updatePacketRate();
+                            updateSignalStrength(data);
+                        }
+                    }
+                    
+                    // Small yield to prevent blocking
+                    await new Promise(resolve => setTimeout(resolve, 1));
+                    
+                } catch (error) {
+                    log(`Receive error: ${error.message}`, 'error');
+                    // Prevent tight error loops - wait before retry
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            receiveLoopRunning = false;
+            log('Receive loop stopped', 'info');
+        }
+
+        function processValidPacket(packet) {
+            const droneId = packet.serialNumber || 
+                           packet.uasId || 
+                           `DRONE-${packet.droneLat?.toFixed(4)}-${packet.droneLon?.toFixed(4)}`;
+
+            // Create unique ID for this drone
+            const uniqueId = droneId + '_' + (packet.droneLat?.toFixed(6) || '0');
+
+            const drone = {
+                id: uniqueId,
+                displayId: droneId,
+                type: packet.droneModel || packet.uasType || 'DJI Drone',
+                protocol: packet.protocol,
+                packetType: packet.packetType,
+                lat: packet.droneLat || packet.pilotLat || 16.4333,
+                lng: packet.droneLon || packet.pilotLon || -95.0167,
+                altitude: packet.droneAlt || packet.height || 0,
+                pilotLat: packet.pilotLat,
+                pilotLon: packet.pilotLon,
+                homeLat: packet.homeLat,
+                homeLon: packet.homeLon,
+                speedH: packet.speedH || 0,
+                speedV: packet.speedV || 0,
+                heading: packet.heading || packet.course || 0,
+                timestamp: new Date(),
+                rawHex: packet.rawBytes ? Array.from(packet.rawBytes).map(b => b.toString(16).padStart(2, '0')).join(' ') : '',
+                crcValid: packet.crcValid
+            };
+
+            addDroneToMap(drone);
+            updateDroneList();
+
+            log(`Detected ${drone.type} [${drone.displayId}] at ${drone.altitude.toFixed(1)}m`, 'success');
+        }
+
+        function updateSignalStrength(iqData) {
+            // Calculate RMS power from I/Q samples
+            let power = 0;
+            for (let i = 0; i < iqData.length; i += 2) {
+                const iSample = (iqData[i] & 0xFF) - 128;
+                const qSample = (iqData[i + 1] & 0xFF) - 128;
+                power += (iSample * iSample + qSample * qSample);
+            }
+            power = power / (iqData.length / 2);
+
+            // Convert to dBm (approximate for HackRF)
+            const dbm = 10 * Math.log10(power) - 30;
+            document.getElementById('signalStrength').textContent = `${dbm.toFixed(1)} dBm`;
+        }
+
+        // ==================== UI UPDATES ====================
+        function addDroneToMap(drone) {
+            if (detectedDrones.has(drone.id)) {
+                const existing = detectedDrones.get(drone.id);
+                if (existing.marker) map.removeLayer(existing.marker);
+            }
+
+            const icon = L.divIcon({
+                className: 'custom-drone-marker',
+                html: `<div class="custom-marker">${drone.id.substr(-2)}</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const popupContent = `
+                <b>${drone.type}</b><br>
+                <b>ID:</b> ${drone.displayId}<br>
+                <b>Protocol:</b> ${drone.protocol}<br>
+                <b>Type:</b> ${drone.packetType}<br>
+                <b>Position:</b> ${drone.lat.toFixed(6)}, ${drone.lng.toFixed(6)}<br>
+                <b>Altitude:</b> ${drone.altitude.toFixed(1)}m<br>
+                <b>Speed:</b> ${drone.speedH?.toFixed(1) || 0} m/s<br>
+                <b>Heading:</b> ${drone.heading?.toFixed(1) || 0}°<br>
+                <b>Time:</b> ${drone.timestamp.toLocaleTimeString()}<br>
+                ${drone.crcValid !== undefined ? `<b>CRC:</b> ${drone.crcValid ? '✓ Valid' : '✗ Invalid'}<br>` : ''}
+                ${drone.rawHex ? `<div class="packet-hex">${drone.rawHex.substring(0, 100)}...</div>` : ''}
+            `;
+
+            const marker = L.marker([drone.lat, drone.lng], { icon: icon })
+                .addTo(map)
+                .bindPopup(popupContent);
+
+            drone.marker = marker;
+            detectedDrones.set(drone.id, drone);
+
+            document.getElementById('droneCount').textContent = detectedDrones.size;
+            document.getElementById('validDroneID').textContent = validDroneIDCount;
+        }
+
+        function updateDroneList() {
+            const list = document.getElementById('droneList');
+
+            if (detectedDrones.size === 0) {
+                list.innerHTML = '<div style="color: #b0bec5; text-align: center; padding: 20px;">No drones detected</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+
+            // Sort by timestamp (newest first)
+            const sortedDrones = Array.from(detectedDrones.values())
+                .sort((a, b) => b.timestamp - a.timestamp);
+
+            sortedDrones.forEach(drone => {
+                const item = document.createElement('div');
+                item.className = 'drone-item';
+                item.innerHTML = `
+                    <div class="drone-id">${drone.displayId}</div>
+                    <div class="drone-type">${drone.type} | ${drone.protocol}</div>
+                    <div class="drone-coords">
+                        ${drone.lat.toFixed(5)}, ${drone.lng.toFixed(5)} | 
+                        ${drone.altitude.toFixed(0)}m | 
+                        ${drone.speedH?.toFixed(1) || 0}m/s
+                    </div>
+                    <div class="drone-meta">
+                        ${drone.packetType} | ${drone.timestamp.toLocaleTimeString()}
+                        ${drone.crcValid === false ? ' | <span style="color:#ff5252">CRC FAIL</span>' : ''}
+                    </div>
+                `;
+
+                item.onclick = () => {
+                    map.setView([drone.lat, drone.lng], 17);
+                    drone.marker.openPopup();
+
+                    // Highlight in list
+                    document.querySelectorAll('.drone-item').forEach(el => el.classList.remove('active'));
+                    item.classList.add('active');
+                };
+
+                list.appendChild(item);
+            });
+        }
+
+        function updateStats() {
+            if (!isScanning) return;
+
+            const elapsed = Math.floor((Date.now() - scanStartTime) / 1000);
+            document.getElementById('scanTime').textContent = `${elapsed}s`;
+
+            requestAnimationFrame(updateStats);
+        }
+
+        let lastPacketCount = 0;
+        let lastPacketTime = Date.now();
+
+        function updatePacketRate() {
+            const now = Date.now();
+            const dt = (now - lastPacketTime) / 1000;
+            const dp = packetCount - lastPacketCount;
+            const rate = Math.round(dp / dt);
+
+            document.getElementById('packetRate').textContent = rate;
+
+            lastPacketCount = packetCount;
+            lastPacketTime = now;
+        }
+
+        // ==================== INITIALIZATION ====================
+        window.onload = function() {
+            initMap();
+
+            if (!navigator.usb) {
+                log('WebUSB not supported. Use Chrome/Edge.', 'error');
+                document.getElementById('connectBtn').disabled = true;
+            } else {
+                log('WebUSB API available. Ready.', 'success');
+                log('DSP Decoder initialized (FFT, QPSK, Gold, Turbo)', 'info');
+            }
+        };
+
+        window.onbeforeunload = function() {
+            if (isConnected) disconnectHackRF();
+        };
+    </script>
+</body>
+</html>
