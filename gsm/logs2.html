@@ -948,6 +948,7 @@
         let chatHistory = [];
         let isLoading = false;
         let stopRequested = false;
+        let currentActiveEngine = null; // reference for stop button
         const STORAGE_KEY = 'webllm_chat_history';
         const messagesEl = document.getElementById('chatMessages');
         const inputEl = document.getElementById('chatInput');
@@ -984,6 +985,16 @@
         });
         document.getElementById('llmUseSystemPrompt').addEventListener('change', function() {
             try { localStorage.setItem('webllm_use_system_prompt', String(this.checked)); } catch(e) {}
+        });
+
+        // Re-render all assistant messages when "Show thinking" is toggled
+        document.getElementById('llmShowThinking').addEventListener('change', function() {
+            messagesEl.querySelectorAll('.chat-msg.assistant').forEach(div => {
+                const span = div.querySelector('span');
+                if (span && span._rawText) {
+                    renderMarkdown(span, span._rawText);
+                }
+            });
         });
 
         function addMessage(role, text, skipSave) {
@@ -1193,6 +1204,7 @@
             inputEl.disabled = true;
             sendBtn.disabled = true;
             stopRequested = false;
+            currentActiveEngine = activeEngine;
             document.getElementById('chatStopBtn').style.display = '';
 
             addMessage('user', text);
@@ -1223,7 +1235,6 @@
                 });
 
                 let full = '';
-                const showThinking = document.getElementById('llmShowThinking').checked;
                 let inThink = false;
                 const statsEl = document.getElementById('llmStats');
                 const genStart = performance.now();
@@ -1243,20 +1254,22 @@
                         statsEl.textContent = `⚡ ${tps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${elapsed.toFixed(1)}s`;
                         statsEl.style.color = '#58a6ff';
                     }
-                    // Real-time: show thinking in different color
-                    if (showThinking) {
+                    // Read checkbox live on every chunk
+                    const liveShowThinking = document.getElementById('llmShowThinking').checked;
+                    if (liveShowThinking) {
                         inThink = full.includes('<think>') && !full.includes('</think>');
                         assistantDiv.style.color = inThink ? '#a371f7' : '';
                         assistantDiv.style.fontStyle = inThink ? 'italic' : '';
+                        assistantDiv.textContent = full;
+                    } else {
+                        assistantDiv.style.color = '';
+                        assistantDiv.style.fontStyle = '';
+                        assistantDiv.textContent = full.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*/g, '').trimStart();
                     }
-                    assistantDiv.textContent = showThinking ? full : full.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*/g, '').trimStart();
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }
 
-                // Try to abort the engine generation if stopped early
-                if (stopRequested && activeEngine.interruptGenerate) {
-                    try { activeEngine.interruptGenerate(); } catch(e) {}
-                }
+                // Engine already interrupted by stopGeneration button if needed
 
                 // Final stats
                 const stopped = stopRequested;
@@ -1282,6 +1295,7 @@
             }
 
             document.getElementById('chatStopBtn').style.display = 'none';
+            currentActiveEngine = null;
             inputEl.disabled = false;
             sendBtn.disabled = false;
             inputEl.focus();
@@ -1289,6 +1303,16 @@
 
         window.stopGeneration = function() {
             stopRequested = true;
+            // Immediately interrupt the engine so the stream loop unblocks
+            if (currentActiveEngine) {
+                if (typeof currentActiveEngine.interruptGenerate === 'function') {
+                    try { currentActiveEngine.interruptGenerate(); } catch(e) {}
+                }
+                // Also try abort() for newer WebLLM versions
+                if (typeof currentActiveEngine.abort === 'function') {
+                    try { currentActiveEngine.abort(); } catch(e) {}
+                }
+            }
         };
 
         window.clearChat = function() {
