@@ -1182,6 +1182,17 @@
             addMessage('system', 'Loading model: ' + modelId + '...');
 
             try {
+                // Clean up previous engines
+                if (engine && typeof engine.unload === 'function') {
+                    try { await engine.unload(); } catch(e) {}
+                }
+                if (legacyEngine && typeof legacyEngine.unload === 'function') {
+                    try { await legacyEngine.unload(); } catch(e) {}
+                }
+                engine = null;
+                legacyEngine = null;
+                loadedModelId = null;
+
                 if (isLegacy) {
                     const appConfig = getLegacyAppConfig();
                     legacyEngine = new webllmLegacy.MLCEngine({ appConfig });
@@ -1225,10 +1236,11 @@
         window.sendChatMessage = async function() {
             const text = inputEl.value.trim();
             if (!text) return;
+            const selectedModelId = document.getElementById('llmModelSelect').value;
             let activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            if (!activeEngine) {
-                // Auto-load the default (selected) model
-                addMessage('system', 'No model loaded. Loading default model...');
+            // Auto-load if no engine or if user switched to a different model
+            if (!activeEngine || selectedModelId !== loadedModelId) {
+                addMessage('system', activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...');
                 await window.loadLLMModel();
                 activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
                 if (!activeEngine) return; // load failed
