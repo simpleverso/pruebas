@@ -711,6 +711,46 @@
 </head>
 <body>
 
+    <div class="section-toggles" style="display:flex;justify-content:center;gap:0.5rem;padding:0.5rem 1.5rem 0;max-width:2200px;margin:0 auto;">
+        <button id="toggleTools" onclick="toggleSection('container','toggleTools')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">🛠 Tools</button>
+        <button id="toggleChat" onclick="toggleSection('chat-panel','toggleChat')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">💬 Chat</button>
+        <button id="toggleSnippets" onclick="toggleSection('snippets-panel','toggleSnippets')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📋 Snippets</button>
+    </div>
+
+    <script>
+    function toggleSection(className, btnId) {
+        const el = document.querySelector('.' + className);
+        const btn = document.getElementById(btnId);
+        if (!el || !btn) return;
+        const hidden = el.style.display === 'none';
+        el.style.display = hidden ? '' : 'none';
+        btn.style.background = hidden ? '#1f6feb' : '#21262d';
+        btn.style.color = hidden ? '#fff' : '#484f58';
+        // Persist
+        try { localStorage.setItem('section_vis_' + className, hidden ? '1' : '0'); } catch(e) {}
+    }
+    // Restore on load
+    (function() {
+        const sections = [
+            { cls: 'container', btn: 'toggleTools' },
+            { cls: 'chat-panel', btn: 'toggleChat' },
+            { cls: 'snippets-panel', btn: 'toggleSnippets' }
+        ];
+        sections.forEach(s => {
+            const saved = localStorage.getItem('section_vis_' + s.cls);
+            if (saved === '0') {
+                // Defer until DOM is ready
+                document.addEventListener('DOMContentLoaded', () => {
+                    const el = document.querySelector('.' + s.cls);
+                    const btn = document.getElementById(s.btn);
+                    if (el) el.style.display = 'none';
+                    if (btn) { btn.style.background = '#21262d'; btn.style.color = '#484f58'; }
+                });
+            }
+        });
+    })();
+    </script>
+
     <div class="page-layout">
     <div class="container">
         <h1>Text, JSON & Base64 Tools <span style="font-size:0.45em;color:#484f58;font-weight:normal;">v2.0</span></h1>
