@@ -846,7 +846,20 @@
             <div id="llmStats" style="font-size:0.75rem;color:#484f58;margin-top:0.2rem;min-height:1em;"></div>
             <div id="llmProgress"><div id="llmProgressBar"></div></div>
             <div style="margin-top:0.5rem;">
-                <textarea id="llmSystemPrompt" rows="2" placeholder="System prompt (optional)..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.3rem;">
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="1" checked style="accent-color:#58a6ff;width:14px;height:14px;"> 1
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="2" style="accent-color:#58a6ff;width:14px;height:14px;"> 2
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="3" style="accent-color:#58a6ff;width:14px;height:14px;"> 3
+                    </label>
+                </div>
+                <textarea id="llmSystemPrompt1" rows="2" placeholder="System prompt 1..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
+                <textarea id="llmSystemPrompt2" rows="2" placeholder="System prompt 2..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
+                <textarea id="llmSystemPrompt3" rows="2" placeholder="System prompt 3..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
                 <div style="display:flex;align-items:center;gap:12px;margin-top:0.4rem;flex-wrap:wrap;">
                     <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
                         <input type="checkbox" id="llmUseSystemPrompt" checked style="width:14px;height:14px;accent-color:#58a6ff;"> Use system prompt
@@ -864,7 +877,6 @@
             <textarea id="chatInput" rows="3" placeholder="Type a message (will auto-load default model)..."></textarea>
             <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button">Send</button>
             <button id="chatStopBtn" onclick="stopGeneration()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;display:none;" title="Stop generation">Stop</button>
-            <button onclick="clearConversation()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;" title="Clear entire conversation and storage">🗑️</button>
         </div>
     </div>
 
@@ -970,19 +982,40 @@
                     chatHistory.forEach(msg => addMessage(msg.role, msg.content, true));
                 }
             } catch(e) {}
-            // Restore system prompt and toggle
+            // Restore system prompts, active slot, and toggle
             try {
-                const savedSP = localStorage.getItem('webllm_system_prompt');
-                if (savedSP !== null) document.getElementById('llmSystemPrompt').value = savedSP;
+                for (let i = 1; i <= 3; i++) {
+                    const saved = localStorage.getItem('webllm_system_prompt_' + i);
+                    if (saved !== null) document.getElementById('llmSystemPrompt' + i).value = saved;
+                }
+                const savedSlot = localStorage.getItem('webllm_sp_slot') || '1';
+                const radio = document.querySelector(`input[name="spSlot"][value="${savedSlot}"]`);
+                if (radio) radio.checked = true;
+                switchSpSlot(savedSlot);
                 const savedToggle = localStorage.getItem('webllm_use_system_prompt');
                 if (savedToggle !== null) document.getElementById('llmUseSystemPrompt').checked = savedToggle === 'true';
             } catch(e) {}
         }
 
-        // Persist system prompt on change
-        document.getElementById('llmSystemPrompt').addEventListener('input', function() {
-            try { localStorage.setItem('webllm_system_prompt', this.value); } catch(e) {}
+        // --- System prompt slot switching ---
+        function switchSpSlot(slot) {
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('llmSystemPrompt' + i).style.display = (String(i) === String(slot)) ? '' : 'none';
+            }
+        }
+        document.querySelectorAll('input[name="spSlot"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                switchSpSlot(this.value);
+                try { localStorage.setItem('webllm_sp_slot', this.value); } catch(e) {}
+            });
         });
+
+        // Persist each system prompt on change
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById('llmSystemPrompt' + i).addEventListener('input', function() {
+                try { localStorage.setItem('webllm_system_prompt_' + i, this.value); } catch(e) {}
+            });
+        }
         document.getElementById('llmUseSystemPrompt').addEventListener('change', function() {
             try { localStorage.setItem('webllm_use_system_prompt', String(this.checked)); } catch(e) {}
         });
@@ -1214,7 +1247,8 @@
 
             try {
                 const useSystemPrompt = document.getElementById('llmUseSystemPrompt').checked;
-                const sysPrompt = useSystemPrompt ? document.getElementById('llmSystemPrompt').value.trim() : '';
+                const activeSlot = document.querySelector('input[name="spSlot"]:checked')?.value || '1';
+                const sysPrompt = useSystemPrompt ? document.getElementById('llmSystemPrompt' + activeSlot).value.trim() : '';
                 const msgs = sysPrompt
                     ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
                     : chatHistory;
@@ -1320,14 +1354,6 @@
             messagesEl.innerHTML = '';
             const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
             addMessage('system', activeEngine ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
-        };
-
-        window.clearConversation = function() {
-            chatHistory = [];
-            messagesEl.innerHTML = '';
-            localStorage.removeItem(STORAGE_KEY);
-            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            addMessage('system', activeEngine ? 'Conversation cleared.' : 'No model loaded yet.');
         };
 
         window.resendLast = async function() {
