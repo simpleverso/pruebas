@@ -707,7 +707,7 @@
         }
 
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
 </head>
 <body>
 
@@ -840,6 +840,7 @@
                 <button onclick="loadLLMModel()" class="primary-button">Load</button>
                 <button onclick="clearChat()" class="secondary-button">Clear</button>
                 <button onclick="resendLast()" class="tertiary-button" title="Resend last message with current model">Resend</button>
+                <button id="thinkToggleBtn" onclick="toggleThinking()" title="Enable/disable reasoning (thinking)" style="width:auto;padding:8px 12px;font-size:1rem;background:#21262d;border:1px solid #30363d;border-radius:8px;cursor:pointer;color:#484f58;line-height:1;">🧠</button>
             </div>
             <div id="llmStatus">Select a model and click Load to start.</div>
             <div id="llmStats" style="font-size:0.75rem;color:#484f58;margin-top:0.2rem;min-height:1em;"></div>
@@ -1079,16 +1080,47 @@
             const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
             let processed = text;
             if (showThinking) {
-                // Wrap thinking in a collapsible details with distinct styling
                 processed = text.replace(thinkRegex, (_, content) => {
                     return `<details open class="think-block"><summary>💭 Thinking</summary>\n\n${content.trim()}\n\n</details>`;
                 });
             } else {
-                // Strip thinking blocks entirely
                 processed = text.replace(thinkRegex, '').trimStart();
             }
-            el.innerHTML = marked.parse(processed);
+            try {
+                // marked may be window.marked or window.marked.marked depending on version
+                const markedParse = (typeof marked.parse === 'function') ? marked.parse : (typeof marked === 'function') ? marked : null;
+                if (markedParse) {
+                    el.innerHTML = markedParse(processed, { breaks: true, gfm: true });
+                } else {
+                    // Fallback: basic newline-to-br
+                    el.innerHTML = processed.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+                }
+            } catch(e) {
+                // Fallback on any parse error
+                el.innerHTML = processed.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+            }
         }
+
+        // --- Thinking toggle ---
+        window.toggleThinking = function() {
+            const btn = document.getElementById('thinkToggleBtn');
+            const active = btn.dataset.active !== 'true';
+            btn.dataset.active = String(active);
+            btn.style.color = active ? '#58a6ff' : '#484f58';
+            btn.style.borderColor = active ? '#58a6ff' : '#30363d';
+            btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
+            try { localStorage.setItem('webllm_thinking_enabled', String(active)); } catch(e) {}
+        };
+        // Restore thinking toggle state (default: off)
+        (function() {
+            const btn = document.getElementById('thinkToggleBtn');
+            const saved = localStorage.getItem('webllm_thinking_enabled');
+            const active = saved === 'true';
+            btn.dataset.active = String(active);
+            btn.style.color = active ? '#58a6ff' : '#484f58';
+            btn.style.borderColor = active ? '#58a6ff' : '#30363d';
+            btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
+        })();
 
         window.loadLLMModel = async function() {
             const modelId = document.getElementById('llmModelSelect').value;
@@ -1174,8 +1206,18 @@
                 const msgs = sysPrompt
                     ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
                     : chatHistory;
+                const thinkingEnabled = document.getElementById('thinkToggleBtn').dataset.active === 'true';
+                // For models that support thinking, add /no_think to suppress reasoning
+                let finalMsgs = msgs;
+                if (!thinkingEnabled && finalMsgs.length > 0) {
+                    finalMsgs = [...finalMsgs];
+                    const lastIdx = finalMsgs.length - 1;
+                    if (finalMsgs[lastIdx].role === 'user') {
+                        finalMsgs[lastIdx] = { ...finalMsgs[lastIdx], content: finalMsgs[lastIdx].content + '\n/no_think' };
+                    }
+                }
                 const reply = await activeEngine.chat.completions.create({
-                    messages: msgs,
+                    messages: finalMsgs,
                     stream: true,
                     stream_options: { include_usage: true }
                 });
