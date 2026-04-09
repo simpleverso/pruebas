@@ -846,7 +846,7 @@
             <div id="llmStats" style="font-size:0.75rem;color:#484f58;margin-top:0.2rem;min-height:1em;"></div>
             <div id="llmProgress"><div id="llmProgressBar"></div></div>
             <div style="margin-top:0.5rem;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.3rem;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.3rem;flex-wrap:wrap;">
                     <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
                         <input type="radio" name="spSlot" value="1" checked style="accent-color:#58a6ff;width:14px;height:14px;"> 1
                     </label>
@@ -856,10 +856,26 @@
                     <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
                         <input type="radio" name="spSlot" value="3" style="accent-color:#58a6ff;width:14px;height:14px;"> 3
                     </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="4" style="accent-color:#58a6ff;width:14px;height:14px;"> 4
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="5" style="accent-color:#58a6ff;width:14px;height:14px;"> 5
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="6" style="accent-color:#58a6ff;width:14px;height:14px;"> 6
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
+                        <input type="radio" name="spSlot" value="7" style="accent-color:#58a6ff;width:14px;height:14px;"> 7
+                    </label>
                 </div>
                 <textarea id="llmSystemPrompt1" rows="2" placeholder="System prompt 1..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;"></textarea>
                 <textarea id="llmSystemPrompt2" rows="2" placeholder="System prompt 2..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
                 <textarea id="llmSystemPrompt3" rows="2" placeholder="System prompt 3..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
+                <textarea id="llmSystemPrompt4" rows="2" placeholder="System prompt 4..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
+                <textarea id="llmSystemPrompt5" rows="2" placeholder="System prompt 5..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
+                <textarea id="llmSystemPrompt6" rows="2" placeholder="System prompt 6..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
+                <textarea id="llmSystemPrompt7" rows="2" placeholder="System prompt 7..." style="width:100%;padding:8px 10px;font-size:0.85rem;resize:vertical;min-height:2.4em;display:none;"></textarea>
                 <div style="display:flex;align-items:center;gap:12px;margin-top:0.4rem;flex-wrap:wrap;">
                     <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:normal;color:#8b949e;cursor:pointer;">
                         <input type="checkbox" id="llmUseSystemPrompt" checked style="width:14px;height:14px;accent-color:#58a6ff;"> Use system prompt
@@ -984,7 +1000,7 @@
             } catch(e) {}
             // Restore system prompts, active slot, and toggle
             try {
-                for (let i = 1; i <= 3; i++) {
+                for (let i = 1; i <= 7; i++) {
                     const saved = localStorage.getItem('webllm_system_prompt_' + i);
                     if (saved !== null) document.getElementById('llmSystemPrompt' + i).value = saved;
                 }
@@ -999,7 +1015,7 @@
 
         // --- System prompt slot switching ---
         function switchSpSlot(slot) {
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 7; i++) {
                 document.getElementById('llmSystemPrompt' + i).style.display = (String(i) === String(slot)) ? '' : 'none';
             }
         }
@@ -1011,7 +1027,7 @@
         });
 
         // Persist each system prompt on change
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 7; i++) {
             document.getElementById('llmSystemPrompt' + i).addEventListener('input', function() {
                 try { localStorage.setItem('webllm_system_prompt_' + i, this.value); } catch(e) {}
             });
