@@ -729,17 +729,17 @@
         // Persist
         try { localStorage.setItem('section_vis_' + className, hidden ? '1' : '0'); } catch(e) {}
     }
-    // Restore on load
+    // Restore on load (Tools and Snippets hidden by default)
     (function() {
         const sections = [
-            { cls: 'container', btn: 'toggleTools' },
-            { cls: 'chat-panel', btn: 'toggleChat' },
-            { cls: 'snippets-panel', btn: 'toggleSnippets' }
+            { cls: 'container', btn: 'toggleTools', defaultHidden: true },
+            { cls: 'chat-panel', btn: 'toggleChat', defaultHidden: false },
+            { cls: 'snippets-panel', btn: 'toggleSnippets', defaultHidden: true }
         ];
         sections.forEach(s => {
             const saved = localStorage.getItem('section_vis_' + s.cls);
-            if (saved === '0') {
-                // Defer until DOM is ready
+            const shouldHide = saved !== null ? saved === '0' : s.defaultHidden;
+            if (shouldHide) {
                 document.addEventListener('DOMContentLoaded', () => {
                     const el = document.querySelector('.' + s.cls);
                     const btn = document.getElementById(s.btn);
@@ -3198,6 +3198,441 @@
                     output += `"${entry.line}" ===> ${entry.timestamp} ===> ${entry.utcDate}\n`;
                 });
                 output += "\n";
+            }
+
+            // --- Additional VPC Troubleshooting & Networking CLI Commands ---
+            const extraCli = [];
+
+            // VPC-specific troubleshooting commands
+            if (vpcs.length > 0) {
+                extraCli.push('\n--- VPC Troubleshooting Commands ---');
+                vpcs.forEach(vpcId => {
+                    extraCli.push(`# VPC flow logs, CIDR, and attribute details for ${vpcId}`);
+                    extraCli.push(`aws ec2 describe-flow-logs --filter Name=resource-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-vpc-attribute --vpc-id ${vpcId} --attribute enableDnsSupport`);
+                    extraCli.push(`aws ec2 describe-vpc-attribute --vpc-id ${vpcId} --attribute enableDnsHostnames`);
+                    extraCli.push(`aws ec2 describe-subnets --filters Name=vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-route-tables --filters Name=vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-network-acls --filters Name=vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-security-groups --filters Name=vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-internet-gateways --filters Name=attachment.vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-nat-gateways --filter Name=vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-vpc-peering-connections --filters Name=requester-vpc-info.vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-vpc-peering-connections --filters Name=accepter-vpc-info.vpc-id,Values=${vpcId}`);
+                    extraCli.push(`aws ec2 describe-network-interfaces --filters Name=vpc-id,Values=${vpcId}`);
+                });
+            }
+
+            // Subnet AZ info and add-subnet helpers
+            if (subnets.length > 0) {
+                extraCli.push('\n--- Subnet & Availability Zone Commands ---');
+                extraCli.push(`aws ec2 describe-subnets --subnet-ids ${subnets.join(' ')} --query "Subnets[*].{SubnetId:SubnetId,VpcId:VpcId,AZ:AvailabilityZone,CIDR:CidrBlock,AvailableIPs:AvailableIpAddressCount}"`);
+                if (vpcs.length > 0) {
+                    vpcs.forEach(vpcId => {
+                        extraCli.push(`# List AZs available for creating subnets in ${vpcId}'s region`);
+                        extraCli.push(`aws ec2 describe-availability-zones --query "AvailabilityZones[?State=='available'].{Zone:ZoneName,ZoneId:ZoneId}"`);
+                        extraCli.push(`# Example: create subnet in specific AZ for ${vpcId}`);
+                        extraCli.push(`# aws ec2 create-subnet --vpc-id ${vpcId} --cidr-block <CIDR> --availability-zone <AZ>`);
+                    });
+                }
+            }
+
+            // SageMaker model/endpoint VPC networking config
+            const smEndpointNames = smEndpoints.map(m => m[1]);
+            const smEndpointConfigNames = smEndpointConfigs.map(m => m[1]);
+            const smDomainIds = smDomains.map(m => m[1]);
+            const smNotebookNames = smNotebookInstances.map(m => m[1]);
+            const smTrainingJobNames = smTrainingJobs.map(m => m[1]);
+            const smProcessingJobNames = smProcessingJobs.map(m => m[1]);
+
+            if (smEndpointNames.length > 0 || smEndpointConfigNames.length > 0 || smDomainIds.length > 0 || smNotebookNames.length > 0 || smTrainingJobNames.length > 0 || smProcessingJobNames.length > 0) {
+                extraCli.push('\n--- SageMaker VPC/Networking Config Commands ---');
+
+                smEndpointNames.forEach(name => {
+                    const r = smEndpoints.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Endpoint VPC config for ${name}`);
+                    extraCli.push(`aws sagemaker describe-endpoint --endpoint-name ${name}${rf} --query "{EndpointName:EndpointName,VpcConfig:VpcConfig}"`);
+                });
+
+                smEndpointConfigNames.forEach(name => {
+                    const r = smEndpointConfigs.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Endpoint config VPC/subnets/SGs for ${name}`);
+                    extraCli.push(`aws sagemaker describe-endpoint-config --endpoint-config-name ${name}${rf} --query "{EndpointConfigName:EndpointConfigName,ProductionVariants:ProductionVariants[*].{VariantName:VariantName,ModelName:ModelName}}"`);
+                });
+
+                smDomainIds.forEach(id => {
+                    const r = smDomains.find(m => m[1] === id);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Domain VPC config for ${id}`);
+                    extraCli.push(`aws sagemaker describe-domain --domain-id ${id}${rf} --query "{DomainId:DomainId,VpcId:SubnetIds[0],SubnetIds:SubnetIds,SecurityGroupIds:SecurityGroupIds,AppNetworkAccessType:AppNetworkAccessType}"`);
+                });
+
+                smNotebookNames.forEach(name => {
+                    const r = smNotebookInstances.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Notebook instance networking for ${name}`);
+                    extraCli.push(`aws sagemaker describe-notebook-instance --notebook-instance-name ${name}${rf} --query "{NotebookInstanceName:NotebookInstanceName,SubnetId:SubnetId,SecurityGroups:SecurityGroups,DirectInternetAccess:DirectInternetAccess}"`);
+                });
+
+                smTrainingJobNames.forEach(name => {
+                    const r = smTrainingJobs.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Training job VPC config for ${name}`);
+                    extraCli.push(`aws sagemaker describe-training-job --training-job-name ${name}${rf} --query "{TrainingJobName:TrainingJobName,VpcConfig:VpcConfig,EnableInterContainerTrafficEncryption:EnableInterContainerTrafficEncryption,EnableNetworkIsolation:EnableNetworkIsolation}"`);
+                });
+
+                smProcessingJobNames.forEach(name => {
+                    const r = smProcessingJobs.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Processing job VPC config for ${name}`);
+                    extraCli.push(`aws sagemaker describe-processing-job --processing-job-name ${name}${rf} --query "{ProcessingJobName:ProcessingJobName,NetworkConfig:NetworkConfig}"`);
+                });
+            }
+
+            // --- SageMaker HyperPod Cluster Diagnostics ---
+            const smClusterNames = smClusters.map(m => m[1]);
+            if (smClusterNames.length > 0) {
+                extraCli.push('\n--- SageMaker HyperPod Cluster Diagnostics ---');
+                const uniqueClusterNames = [...new Set(smClusterNames)];
+                uniqueClusterNames.forEach(name => {
+                    const r = smClusters.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# HyperPod cluster details for ${name}`);
+                    extraCli.push(`aws sagemaker describe-cluster --cluster-name ${name}${rf}`);
+                    extraCli.push(`aws sagemaker list-cluster-nodes --cluster-name ${name}${rf}`);
+                    extraCli.push(`# Check cluster node health and status`);
+                    extraCli.push(`aws sagemaker list-cluster-nodes --cluster-name ${name}${rf} --query "ClusterNodeSummaries[*].{InstanceId:InstanceId,InstanceType:InstanceType,InstanceStatus:InstanceStatus,LaunchTime:LaunchTime}"`);
+                });
+            }
+
+            // --- SageMaker IAM Permission Diagnostics ---
+            if (roles.length > 0) {
+                extraCli.push('\n--- SageMaker IAM Permission Diagnostics ---');
+                const uniqueRoles = [...new Set(roles)];
+                uniqueRoles.forEach(roleArn => {
+                    const roleName = roleArn.split('/').pop();
+                    extraCli.push(`# IAM role details and policies for ${roleName}`);
+                    extraCli.push(`aws iam get-role --role-name ${roleName}`);
+                    extraCli.push(`aws iam list-attached-role-policies --role-name ${roleName}`);
+                    extraCli.push(`aws iam list-role-policies --role-name ${roleName}`);
+                    extraCli.push(`# Simulate SageMaker permissions for this role`);
+                    extraCli.push(`aws iam simulate-principal-policy --policy-source-arn ${roleArn} --action-names sagemaker:CreateEndpoint sagemaker:CreateModel sagemaker:CreateTrainingJob sagemaker:InvokeEndpoint`);
+                    extraCli.push(`# Check if role can pass to SageMaker`);
+                    extraCli.push(`aws iam simulate-principal-policy --policy-source-arn ${roleArn} --action-names iam:PassRole --resource-arns ${roleArn}`);
+                });
+            }
+
+            // --- Lambda Function Diagnostics ---
+            const lambdaArnRegex = /arn:[^:]+:lambda:[^:]*:[^:]*:function:([\w\-]+)/g;
+            const lambdaMatches = [...inputText.matchAll(lambdaArnRegex)];
+            const lambdaNames = [...new Set(lambdaMatches.map(m => m[1]))];
+            if (lambdaNames.length > 0) {
+                extraCli.push('\n--- Lambda Function Diagnostics ---');
+                lambdaMatches.forEach(m => {
+                    const name = m[1];
+                    const region = getRegionFromArn(m[0]);
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Lambda function config and VPC for ${name}`);
+                    extraCli.push(`aws lambda get-function-configuration --function-name ${name}${rf}`);
+                    extraCli.push(`aws lambda get-function --function-name ${name}${rf} --query "{FunctionName:Configuration.FunctionName,Runtime:Configuration.Runtime,Role:Configuration.Role,VpcConfig:Configuration.VpcConfig,Timeout:Configuration.Timeout,MemorySize:Configuration.MemorySize}"`);
+                    extraCli.push(`aws lambda get-policy --function-name ${name}${rf}`);
+                    extraCli.push(`# Recent invocations and errors`);
+                    extraCli.push(`aws logs describe-log-groups --log-group-name-prefix /aws/lambda/${name}${rf}`);
+                    extraCli.push(`aws logs filter-log-events --log-group-name /aws/lambda/${name} --filter-pattern "ERROR" --limit 20${rf}`);
+                });
+            }
+
+            // --- SageMaker Endpoint Autoscaling & Latency Diagnostics ---
+            if (smEndpointNames.length > 0) {
+                extraCli.push('\n--- SageMaker Endpoint Autoscaling & Latency Diagnostics ---');
+                const uniqueEpNames = [...new Set(smEndpointNames)];
+                uniqueEpNames.forEach(name => {
+                    const r = smEndpoints.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Autoscaling targets and policies for endpoint ${name}`);
+                    extraCli.push(`aws application-autoscaling describe-scalable-targets --service-namespace sagemaker --resource-ids endpoint/${name}/variant/AllTraffic${rf}`);
+                    extraCli.push(`aws application-autoscaling describe-scaling-policies --service-namespace sagemaker --resource-id endpoint/${name}/variant/AllTraffic${rf}`);
+                    extraCli.push(`aws application-autoscaling describe-scaling-activities --service-namespace sagemaker --resource-id endpoint/${name}/variant/AllTraffic${rf}`);
+                    extraCli.push(`# Endpoint invocation metrics (latency, errors, invocations)`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name Invocations --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Sum${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name ModelLatency --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Average${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name OverheadLatency --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Average${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name Invocation4XXErrors --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Sum${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name Invocation5XXErrors --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Sum${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name CPUUtilization --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Average${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name MemoryUtilization --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Average${rf}`);
+                    extraCli.push(`aws cloudwatch get-metric-statistics --namespace AWS/SageMaker --metric-name GPUUtilization --dimensions Name=EndpointName,Value=${name} Name=VariantName,Value=AllTraffic --start-time $(date -u -v-1H +%Y-%m-%dT%H:%M:%S) --end-time $(date -u +%Y-%m-%dT%H:%M:%S) --period 300 --statistics Average${rf}`);
+                });
+            }
+
+            // --- SageMaker CloudWatch Log Diagnostics ---
+            if (smEndpointNames.length > 0 || smTrainingJobNames.length > 0 || smProcessingJobNames.length > 0 || smClusterNames.length > 0) {
+                extraCli.push('\n--- SageMaker CloudWatch Log Diagnostics ---');
+                const uniqueEpNames2 = [...new Set(smEndpointNames)];
+                uniqueEpNames2.forEach(name => {
+                    extraCli.push(`# Check if endpoint log group exists for ${name}`);
+                    extraCli.push(`aws logs describe-log-groups --log-group-name-prefix /aws/sagemaker/Endpoints/${name}`);
+                    extraCli.push(`aws logs filter-log-events --log-group-name /aws/sagemaker/Endpoints/${name} --filter-pattern "ERROR" --limit 20`);
+                });
+                const uniqueTjNames = [...new Set(smTrainingJobNames)];
+                uniqueTjNames.forEach(name => {
+                    extraCli.push(`# Training job logs for ${name}`);
+                    extraCli.push(`aws logs describe-log-groups --log-group-name-prefix /aws/sagemaker/TrainingJobs`);
+                    extraCli.push(`aws logs filter-log-events --log-group-name /aws/sagemaker/TrainingJobs --log-stream-name-prefix ${name} --limit 30`);
+                });
+                const uniquePjNames = [...new Set(smProcessingJobNames)];
+                uniquePjNames.forEach(name => {
+                    extraCli.push(`# Processing job logs for ${name}`);
+                    extraCli.push(`aws logs describe-log-groups --log-group-name-prefix /aws/sagemaker/ProcessingJobs`);
+                    extraCli.push(`aws logs filter-log-events --log-group-name /aws/sagemaker/ProcessingJobs --log-stream-name-prefix ${name} --limit 30`);
+                });
+                const uniqueClNames = [...new Set(smClusterNames)];
+                uniqueClNames.forEach(name => {
+                    extraCli.push(`# HyperPod cluster logs for ${name}`);
+                    extraCli.push(`aws logs describe-log-groups --log-group-name-prefix /aws/sagemaker/Clusters/${name}`);
+                });
+
+                // IAM permission checks for CloudWatch Logs access
+                extraCli.push('\n# --- IAM Permissions Required for SageMaker CloudWatch Logs ---');
+                if (roles.length > 0) {
+                    const uniqueLogRoles = [...new Set(roles)];
+                    uniqueLogRoles.forEach(roleArn => {
+                        const roleName = roleArn.split('/').pop();
+                        extraCli.push(`# Check if ${roleName} has CloudWatch Logs permissions`);
+                        extraCli.push(`aws iam simulate-principal-policy --policy-source-arn ${roleArn} --action-names logs:CreateLogGroup logs:CreateLogStream logs:PutLogEvents logs:DescribeLogGroups logs:DescribeLogStreams logs:GetLogEvents logs:FilterLogEvents`);
+                        extraCli.push(`aws iam list-attached-role-policies --role-name ${roleName} --query "AttachedPolicies[*].{PolicyName:PolicyName,PolicyArn:PolicyArn}"`);
+                        extraCli.push(`aws iam list-role-policies --role-name ${roleName}`);
+                    });
+                } else {
+                    extraCli.push(`# No IAM roles detected. To check a SageMaker execution role manually:`);
+                    extraCli.push(`# aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::<ACCOUNT>:role/<SAGEMAKER_ROLE> --action-names logs:CreateLogGroup logs:CreateLogStream logs:PutLogEvents logs:DescribeLogGroups logs:DescribeLogStreams logs:GetLogEvents`);
+                    extraCli.push(`# aws iam get-role --role-name <SAGEMAKER_ROLE> --query "Role.AssumeRolePolicyDocument"`);
+                }
+                extraCli.push(`# Check CloudWatch Logs resource policy (may block SageMaker)`);
+                extraCli.push(`aws logs describe-resource-policies`);
+            }
+
+            // --- SageMaker Domain & Notebook Common Diagnostics ---
+            if (smDomainIds.length > 0) {
+                extraCli.push('\n--- SageMaker Domain Diagnostics ---');
+                const uniqueDomains = [...new Set(smDomainIds)];
+                uniqueDomains.forEach(id => {
+                    const r = smDomains.find(m => m[1] === id);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`aws sagemaker list-apps --domain-id-equals ${id}${rf}`);
+                    extraCli.push(`aws sagemaker list-user-profiles --domain-id-equals ${id}${rf}`);
+                    extraCli.push(`aws sagemaker list-spaces --domain-id-equals ${id}${rf}`);
+                });
+            }
+
+            // --- DataZone Diagnostics (Access, Projects, Permissions, Users) ---
+            const dzDomainIds = [...new Set(dzDomains.map(m => m[1]))];
+            const dzProjectIds = dzProjects.map(m => ({ domain: m[1], project: m[2], arn: m[0] }));
+            const dzEnvIds = dzEnvironments.map(m => ({ domain: m[1], env: m[2], arn: m[0] }));
+            const dzDsIds = dzDataSources.map(m => ({ domain: m[1], ds: m[2], arn: m[0] }));
+
+            if (dzDomainIds.length > 0 || dzProjectIds.length > 0 || dzEnvIds.length > 0 || dzDsIds.length > 0) {
+                extraCli.push('\n--- DataZone / SageMaker Unified Studio Diagnostics ---');
+                dzDomainIds.forEach(domainId => {
+                    const r = dzDomains.find(m => m[1] === domainId);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# DataZone domain details and portal access for ${domainId}`);
+                    extraCli.push(`aws datazone get-domain --identifier ${domainId}${rf}`);
+                    extraCli.push(`aws datazone list-projects --domain-identifier ${domainId}${rf}`);
+                    extraCli.push(`aws datazone list-environments --domain-identifier ${domainId} --project-identifier all${rf}`);
+                    extraCli.push(`aws datazone list-data-sources --domain-identifier ${domainId} --project-identifier all${rf}`);
+                    extraCli.push(`# List domain user profiles and permissions`);
+                    extraCli.push(`aws datazone list-domain-units-for-parent --domain-identifier ${domainId}${rf}`);
+                    extraCli.push(`# Check IAM Identity Center (SSO) integration`);
+                    extraCli.push(`aws datazone get-domain --identifier ${domainId}${rf} --query "{DomainId:id,Status:status,SingleSignOn:singleSignOn,PortalUrl:portalUrl}"`);
+                });
+                dzProjectIds.forEach(p => {
+                    const region = getRegionFromArn(p.arn);
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# DataZone project details for ${p.project} in domain ${p.domain}`);
+                    extraCli.push(`aws datazone get-project --domain-identifier ${p.domain} --identifier ${p.project}${rf}`);
+                    extraCli.push(`aws datazone list-project-memberships --domain-identifier ${p.domain} --project-identifier ${p.project}${rf}`);
+                    extraCli.push(`aws datazone list-environments --domain-identifier ${p.domain} --project-identifier ${p.project}${rf}`);
+                    extraCli.push(`aws datazone list-subscriptions --domain-identifier ${p.domain} --owning-project-identifier ${p.project}${rf}`);
+                    extraCli.push(`aws datazone list-subscription-requests --domain-identifier ${p.domain} --owning-project-identifier ${p.project}${rf}`);
+                });
+                dzEnvIds.forEach(e => {
+                    const region = getRegionFromArn(e.arn);
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# DataZone environment details for ${e.env}`);
+                    extraCli.push(`aws datazone get-environment --domain-identifier ${e.domain} --identifier ${e.env}${rf}`);
+                });
+                dzDsIds.forEach(d => {
+                    const region = getRegionFromArn(d.arn);
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# DataZone data source details for ${d.ds}`);
+                    extraCli.push(`aws datazone get-data-source --domain-identifier ${d.domain} --identifier ${d.ds}${rf}`);
+                    extraCli.push(`aws datazone list-data-source-run-activities --domain-identifier ${d.domain} --identifier ${d.ds}${rf}`);
+                });
+            }
+
+            // --- Glue Diagnostics (Catalog, Jobs, Crawlers, Permissions) ---
+            const glueJobRegex = /arn:[^:]+:glue:[^:]*:[^:]*:job\/([\w\-\.]+)/g;
+            const glueCrawlerRegex = /arn:[^:]+:glue:[^:]*:[^:]*:crawler\/([\w\-\.]+)/g;
+            const glueDbRegex = /arn:[^:]+:glue:[^:]*:[^:]*:database\/([\w\-\.]+)\/([\w\-\.]+)/g;
+            const glueCatalogRegex = /arn:[^:]+:glue:[^:]*:[^:]*:catalog/g;
+            const glueConnectionRegex = /arn:[^:]+:glue:[^:]*:[^:]*:connection\/([\w\-\.]+)/g;
+
+            const glueJobs = [...inputText.matchAll(glueJobRegex)];
+            const glueCrawlers = [...inputText.matchAll(glueCrawlerRegex)];
+            const glueDbs = [...inputText.matchAll(glueDbRegex)];
+            const glueCatalogs = [...inputText.matchAll(glueCatalogRegex)];
+            const glueConnections = [...inputText.matchAll(glueConnectionRegex)];
+
+            if (glueJobs.length > 0 || glueCrawlers.length > 0 || glueDbs.length > 0 || glueCatalogs.length > 0 || glueConnections.length > 0) {
+                extraCli.push('\n--- AWS Glue Diagnostics ---');
+                const uniqueGlueJobs = [...new Set(glueJobs.map(m => m[1]))];
+                uniqueGlueJobs.forEach(name => {
+                    const r = glueJobs.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Glue job details and run history for ${name}`);
+                    extraCli.push(`aws glue get-job --job-name ${name}${rf}`);
+                    extraCli.push(`aws glue get-job-runs --job-name ${name} --max-items 10${rf}`);
+                    extraCli.push(`aws glue get-job-run --job-name ${name} --run-id \$(aws glue get-job-runs --job-name ${name} --max-items 1${rf} --query "JobRuns[0].Id" --output text)${rf}`);
+                    extraCli.push(`# Glue job CloudWatch logs`);
+                    extraCli.push(`aws logs describe-log-groups --log-group-name-prefix /aws-glue/jobs/${rf}`);
+                });
+                const uniqueCrawlers = [...new Set(glueCrawlers.map(m => m[1]))];
+                uniqueCrawlers.forEach(name => {
+                    const r = glueCrawlers.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Glue crawler details for ${name}`);
+                    extraCli.push(`aws glue get-crawler --name ${name}${rf}`);
+                    extraCli.push(`aws glue get-crawler-metrics --crawler-name-list ${name}${rf}`);
+                });
+                const uniqueGlueDbs = [...new Set(glueDbs.map(m => m[2]))];
+                uniqueGlueDbs.forEach(db => {
+                    const r = glueDbs.find(m => m[2] === db);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Glue catalog database for ${db}`);
+                    extraCli.push(`aws glue get-database --name ${db}${rf}`);
+                    extraCli.push(`aws glue get-tables --database-name ${db} --max-items 20${rf}`);
+                });
+                if (glueCatalogs.length > 0) {
+                    const r = glueCatalogs[0];
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Glue catalog resource policy (cross-account access)`);
+                    extraCli.push(`aws glue get-resource-policy${rf}`);
+                    extraCli.push(`aws glue get-resource-policies${rf}`);
+                }
+                const uniqueConns = [...new Set(glueConnections.map(m => m[1]))];
+                uniqueConns.forEach(name => {
+                    const r = glueConnections.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Glue connection (VPC/networking) for ${name}`);
+                    extraCli.push(`aws glue get-connection --name ${name}${rf}`);
+                });
+            }
+
+            // --- Redshift Diagnostics (Clusters, Serverless, Permissions, Cross-Account) ---
+            const rsClusterRegex = /arn:[^:]+:redshift:[^:]*:[^:]*:cluster:([\w\-]+)/g;
+            const rsServerlessWgRegex = /arn:[^:]+:redshift-serverless:[^:]*:[^:]*:workgroup\/([\w\-]+)/g;
+            const rsServerlessNsRegex = /arn:[^:]+:redshift-serverless:[^:]*:[^:]*:namespace\/([\w\-]+)/g;
+
+            const rsClusters = [...inputText.matchAll(rsClusterRegex)];
+            const rsWorkgroups = [...inputText.matchAll(rsServerlessWgRegex)];
+            const rsNamespaces = [...inputText.matchAll(rsServerlessNsRegex)];
+
+            if (rsClusters.length > 0 || rsWorkgroups.length > 0 || rsNamespaces.length > 0) {
+                extraCli.push('\n--- Amazon Redshift Diagnostics ---');
+                const uniqueRsClusters = [...new Set(rsClusters.map(m => m[1]))];
+                uniqueRsClusters.forEach(name => {
+                    const r = rsClusters.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Redshift cluster details for ${name}`);
+                    extraCli.push(`aws redshift describe-clusters --cluster-identifier ${name}${rf}`);
+                    extraCli.push(`aws redshift describe-clusters --cluster-identifier ${name}${rf} --query "Clusters[0].{ClusterIdentifier:ClusterIdentifier,VpcId:VpcId,VpcSecurityGroups:VpcSecurityGroups,ClusterSubnetGroupName:ClusterSubnetGroupName,PubliclyAccessible:PubliclyAccessible,Encrypted:Encrypted,IamRoles:IamRoles}"`);
+                    extraCli.push(`aws redshift describe-cluster-subnet-groups --cluster-subnet-group-name \$(aws redshift describe-clusters --cluster-identifier ${name}${rf} --query "Clusters[0].ClusterSubnetGroupName" --output text)${rf}`);
+                    extraCli.push(`# Redshift cluster IAM roles`);
+                    extraCli.push(`aws redshift describe-clusters --cluster-identifier ${name}${rf} --query "Clusters[0].IamRoles[*].{IamRoleArn:IamRoleArn,ApplyStatus:ApplyStatus}"`);
+                    extraCli.push(`# Redshift logging and audit`);
+                    extraCli.push(`aws redshift describe-logging-status --cluster-identifier ${name}${rf}`);
+                    extraCli.push(`# Redshift recent events`);
+                    extraCli.push(`aws redshift describe-events --source-identifier ${name} --source-type cluster --duration 1440${rf}`);
+                    extraCli.push(`# Cross-account snapshot access`);
+                    extraCli.push(`aws redshift describe-cluster-snapshots --cluster-identifier ${name} --max-items 5${rf}`);
+                    extraCli.push(`aws redshift describe-snapshot-copy-grants${rf}`);
+                });
+                const uniqueWgs = [...new Set(rsWorkgroups.map(m => m[1]))];
+                uniqueWgs.forEach(name => {
+                    const r = rsWorkgroups.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Redshift Serverless workgroup for ${name}`);
+                    extraCli.push(`aws redshift-serverless get-workgroup --workgroup-name ${name}${rf}`);
+                    extraCli.push(`aws redshift-serverless get-workgroup --workgroup-name ${name}${rf} --query "{WorkgroupName:workgroup.workgroupName,Status:workgroup.status,SubnetIds:workgroup.subnetIds,SecurityGroupIds:workgroup.securityGroupIds,PubliclyAccessible:workgroup.publiclyAccessible}"`);
+                    extraCli.push(`aws redshift-serverless list-endpoint-access --workgroup-name ${name}${rf}`);
+                });
+                const uniqueNss = [...new Set(rsNamespaces.map(m => m[1]))];
+                uniqueNss.forEach(name => {
+                    const r = rsNamespaces.find(m => m[1] === name);
+                    const region = r ? getRegionFromArn(r[0]) : null;
+                    const rf = region ? ` --region ${region}` : '';
+                    extraCli.push(`# Redshift Serverless namespace for ${name}`);
+                    extraCli.push(`aws redshift-serverless get-namespace --namespace-name ${name}${rf}`);
+                    extraCli.push(`aws redshift-serverless get-namespace --namespace-name ${name}${rf} --query "{NamespaceName:namespace.namespaceName,Status:namespace.status,IamRoles:namespace.iamRoles,AdminUsername:namespace.adminUsername}"`);
+                });
+            }
+
+            // --- Cross-Account Troubleshooting ---
+            const awsAccountRegex = /\b(\d{12})\b/g;
+            const detectedAccounts = [...new Set((inputText.match(awsAccountRegex) || []))];
+            // Filter out likely non-account numbers (timestamps etc)
+            const likelyAccounts = detectedAccounts.filter(a => !a.startsWith('0') && !a.startsWith('19') && !a.startsWith('20'));
+            if (likelyAccounts.length > 1 || roles.length > 0) {
+                extraCli.push('\n--- Cross-Account Troubleshooting ---');
+                if (likelyAccounts.length > 1) {
+                    extraCli.push(`# Multiple AWS accounts detected: ${likelyAccounts.join(', ')}`);
+                    extraCli.push(`# Verify current caller identity`);
+                    extraCli.push(`aws sts get-caller-identity`);
+                    likelyAccounts.forEach(acct => {
+                        extraCli.push(`# Check if you can assume a role in account ${acct}`);
+                        extraCli.push(`# aws sts assume-role --role-arn arn:aws:iam::${acct}:role/<ROLE_NAME> --role-session-name cross-account-debug`);
+                    });
+                }
+                if (roles.length > 0) {
+                    const uniqueRolesXA = [...new Set(roles)];
+                    uniqueRolesXA.forEach(roleArn => {
+                        const roleName = roleArn.split('/').pop();
+                        extraCli.push(`# Trust policy for cross-account role ${roleName}`);
+                        extraCli.push(`aws iam get-role --role-name ${roleName} --query "Role.AssumeRolePolicyDocument"`);
+                    });
+                }
+                extraCli.push(`# Check resource-based policies that may grant cross-account access`);
+                if (dzDomainIds.length > 0) {
+                    extraCli.push(`# DataZone cross-account: check domain authorization policies`);
+                    dzDomainIds.forEach(id => {
+                        extraCli.push(`aws datazone get-domain --identifier ${id} --query "{DomainId:id,Status:status,SingleSignOn:singleSignOn}"`);
+                    });
+                }
+            }
+
+            // Append extra CLI commands to cliOutput
+            if (extraCli.length > 0) {
+                cliOutput.push(...extraCli);
             }
 
             // --- Finalize Output ---
