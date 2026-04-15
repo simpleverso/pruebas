@@ -679,9 +679,12 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             min-height: 150px;
+            max-height: 600px;
+            overflow-y: auto;
             border: 1px solid #30363d;
             font-size: 1rem;
             color: #c9d1d9;
+            contain: content;
         }
         .result-controls {
             display: flex;
@@ -1477,6 +1480,23 @@
         const imagePreview = document.getElementById('imagePreview');
         const previewImageTag = document.getElementById('previewImageTag');
         const jsonValidationResult = document.getElementById('jsonValidationResult');
+
+        // --- Large file optimization ---
+        const OUTPUT_DISPLAY_LIMIT = 50000; // chars shown in DOM
+        let _fullOutput = ''; // full output kept in memory
+
+        function setOutput(text) {
+            _fullOutput = text;
+            if (text.length > OUTPUT_DISPLAY_LIMIT) {
+                outputTextarea.textContent = text.slice(0, OUTPUT_DISPLAY_LIMIT) + '\n\n--- Output truncated for display (' + (text.length / 1024).toFixed(0) + ' KB total). Use Copy or Download for full content. ---';
+            } else {
+                outputTextarea.textContent = text;
+            }
+        }
+
+        function getFullOutput() {
+            return _fullOutput || outputTextarea.textContent;
+        }
         
         // --- Page Load Initializer ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -1528,14 +1548,21 @@
                     previewImageTag.src = e.target.result;
                     imagePreview.style.display = 'block';
                     // Put the Base64 string in the output
-                    outputTextarea.textContent = e.target.result;
+                    setOutput(e.target.result);
                     jsonValidationResult.style.display = 'none';
                 };
                 reader.readAsDataURL(file); // Reads as Base64 Data URL
             } else {
                 // Default behavior: read as text
+                // Show progress for large files
+                if (file.size > 1024 * 1024) {
+                    setOutput("Loading file (" + (file.size / 1024 / 1024).toFixed(1) + " MB)...");
+                }
                 reader.onload = (e) => {
                     inputTextarea.value = e.target.result;
+                    if (file.size > 1024 * 1024) {
+                        setOutput("File loaded (" + (file.size / 1024 / 1024).toFixed(1) + " MB). Ready to process.");
+                    }
                 };
                 reader.readAsText(file);
             }
@@ -1594,7 +1621,7 @@
             jsonValidationResult.style.display = 'none';
             
             if (!selectedTool) {
-                outputTextarea.textContent = 'Error: Please select a Base64 tool first.';
+                setOutput('Error: Please select a Base64 tool first.');
                 return;
             }
 
@@ -1602,25 +1629,25 @@
                 switch (selectedTool) {
                     case 'textEncode':
                         if (!input) {
-                            outputTextarea.textContent = 'Error: No text provided to encode.';
+                            setOutput('Error: No text provided to encode.');
                             return;
                         }
                         // Use btoa() to encode
                         // Handle Unicode characters correctly
                         const utf8Bytes = new TextEncoder().encode(input);
                         const base64String = btoa(String.fromCharCode.apply(null, utf8Bytes));
-                        outputTextarea.textContent = base64String;
+                        setOutput(base64String);
                         break;
                         
                     case 'textDecode':
                         if (!input) {
-                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
+                            setOutput('Error: No Base64 string provided to decode.');
                             return;
                         }
                         // Use atob() to decode
                         const decodedBytes = atob(input).split('').map(c => c.charCodeAt(0));
                         const decodedText = new TextDecoder().decode(new Uint8Array(decodedBytes));
-                        outputTextarea.textContent = decodedText;
+                        setOutput(decodedText);
                         break;
 
                     case 'imgEncode':
@@ -1630,29 +1657,29 @@
                              jsonValidationResult.textContent = 'Success: Image encoded. Base64 string is in the result box.';
                              jsonValidationResult.className = 'validation-message valid';
                         } else {
-                            outputTextarea.textContent = 'Error: Please drop or select an image file using the area above.';
+                            setOutput('Error: Please drop or select an image file using the area above.');
                         }
                         break;
 
                     case 'imgDecode':
                         if (!input) {
-                            outputTextarea.textContent = 'Error: No Base64 string provided to decode.';
+                            setOutput('Error: No Base64 string provided to decode.');
                             return;
                         }
                         // Check if it's a valid Data URL
                         if (input.startsWith('data:image')) {
                             previewImageTag.src = input;
                             imagePreview.style.display = 'block';
-                            outputTextarea.textContent = 'Preview updated. You can copy the Base64 string from the input.';
+                            setOutput('Preview updated. You can copy the Base64 string from the input.');
                         } else {
-                            outputTextarea.textContent = 'Error: Invalid Base64 string. Expected format: "data:image/png;base64,..."';
+                            setOutput('Error: Invalid Base64 string. Expected format: "data:image/png;base64,..."');
                         }
                         break;
                 }
             } catch (error) {
-                outputTextarea.textContent = 'Error: Failed to process. ' + error.message;
+                setOutput('Error: Failed to process. ' + error.message);
                 if (selectedTool === 'textDecode') {
-                     outputTextarea.textContent = 'Error: Invalid Base64 string. ' + error.message;
+                     setOutput('Error: Invalid Base64 string. ' + error.message);
                 }
             }
         }
@@ -1665,14 +1692,14 @@
             jsonValidationResult.style.display = 'none';
 
             if (!epochInput) {
-                outputTextarea.textContent = "Error: Please enter an Epoch timestamp.";
+                setOutput("Error: Please enter an Epoch timestamp.");
                 return null;
             }
 
             let timestamp = Number(epochInput);
 
             if (isNaN(timestamp)) {
-                outputTextarea.textContent = "Error: Invalid timestamp. Please enter numbers only.";
+                setOutput("Error: Invalid timestamp. Please enter numbers only.");
                 return null;
             }
 
@@ -1701,16 +1728,16 @@
 
             try {
                 const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-                outputTextarea.textContent = `GMT-6: ${formattedDate}`;
+                setOutput(`GMT-6: ${formattedDate}`);
             } catch (e) {
-                outputTextarea.textContent = `Error formatting date: ${e.message}`;
+                setOutput(`Error formatting date: ${e.message}`);
             }
         }
 
         function convertEpochToUtc() {
             const date = getEpochDate();
             if (!date) return; 
-            outputTextarea.textContent = `UTC: ${date.toUTCString()}`;
+            setOutput(`UTC: ${date.toUTCString()}`);
         }
 
 
@@ -1723,7 +1750,7 @@
             jsonValidationResult.style.display = 'none';
 
             if (!delimiter) {
-                outputTextarea.textContent = "Error: Please enter a delimiter to convert text.";
+                setOutput("Error: Please enter a delimiter to convert text.");
                 return;
             }
 
@@ -1731,12 +1758,12 @@
             const regex = new RegExp(escapedDelimiter, 'g');
             const replacement = shouldRemoveDelimiter ? '\n' : delimiter + '\n';
             const formattedText = inputText.replace(regex, replacement);
-            outputTextarea.textContent = formattedText;
+            setOutput(formattedText);
         }
         
         function validateJson() {
             const inputText = inputTextarea.value;
-            outputTextarea.textContent = "Your formatted text will appear here.";
+            setOutput("Your formatted text will appear here.");
             
             if (!inputText.trim()) {
                 jsonValidationResult.textContent = 'Input is empty. Cannot validate.';
@@ -1756,7 +1783,7 @@
         
         function formatJson() {
             const inputText = inputTextarea.value;
-            outputTextarea.textContent = "Your formatted text will appear here.";
+            setOutput("Your formatted text will appear here.");
 
             if (!inputText.trim()) {
                 jsonValidationResult.textContent = 'Input is empty. Cannot format.';
@@ -1767,7 +1794,7 @@
             try {
                 const jsonObject = JSON.parse(inputText);
                 const formattedJson = JSON.stringify(jsonObject, null, 2); 
-                outputTextarea.textContent = formattedJson;
+                setOutput(formattedJson);
                 jsonValidationResult.textContent = 'Success: JSON formatted!';
                 jsonValidationResult.className = 'validation-message valid';
             } catch (error) {
@@ -1782,7 +1809,7 @@
             jsonValidationResult.style.display = 'none';
 
             if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
+                setOutput("Input is empty. Cannot anonymize.");
                 return;
             }
 
@@ -1802,7 +1829,7 @@
                 return prefix + newId + suffix;
             });
 
-            outputTextarea.textContent = anonymizedText;
+            setOutput(anonymizedText);
         }
         
         // --- Bucket Anonymizer Function ---
@@ -1811,7 +1838,7 @@
             jsonValidationResult.style.display = 'none';
         
             if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
+                setOutput("Input is empty. Cannot anonymize.");
                 return;
             }
         
@@ -1831,7 +1858,7 @@
                 return prefix + newId + suffix;
             });
         
-            outputTextarea.textContent = anonymizedText;
+            setOutput(anonymizedText);
         }
 
         // --- Role Anonymizer Function ---
@@ -1840,7 +1867,7 @@
             jsonValidationResult.style.display = 'none';
         
             if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot anonymize.";
+                setOutput("Input is empty. Cannot anonymize.");
                 return;
             }
         
@@ -1860,7 +1887,7 @@
                 return prefix + newId;
             });
         
-            outputTextarea.textContent = anonymizedText;
+            setOutput(anonymizedText);
         }
 
         // --- AWS Resource Extractor Function ---
@@ -1869,9 +1896,20 @@
             jsonValidationResult.style.display = 'none';
 
             if (!inputText.trim()) {
-                outputTextarea.textContent = "Input is empty. Cannot extract resources.";
+                setOutput("Input is empty. Cannot extract resources.");
                 return;
             }
+
+            // Show processing indicator for large inputs
+            if (inputText.length > 500000) {
+                setOutput("Processing " + (inputText.length / 1024 / 1024).toFixed(1) + " MB of text...");
+                setTimeout(() => _extractAwsResourcesCore(inputText), 50);
+                return;
+            }
+            _extractAwsResourcesCore(inputText);
+        }
+
+        function _extractAwsResourcesCore(inputText) {
 
             // --- Helper: Extract Region from ARN ---
             const getRegionFromArn = (arn) => {
@@ -3647,7 +3685,7 @@
             if (output === "") {
                 // --- MODIFICATION START: Updated "no resources found" message ---
                 // --- USER REQUESTED UPDATE ---
-                outputTextarea.textContent = "No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, Access Errors, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Secrets Manager secrets, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.";
+                setOutput("No AWS VPCs, Subnets, Security Groups, EC2 Instances, Network Interfaces, Network ACLs, Route Tables, ARNs, STS Assumed Roles, Access Errors, SageMaker resources (domains, endpoints, configs, notebook instances, lifecycle configs, jobs, pipelines, pipeline executions, AutoML jobs, images, clusters), Bedrock resources, Comprehend resources, DataZone resources, EFS file systems, Textract resources, KMS keys, Personalize resources, Secrets Manager secrets, Request IDs, Base64 strings, Epoch timestamps, URLs, or Emails found.");
                 // --- END USER REQUESTED UPDATE ---
                 // --- MODIFICATION END ---
             } else {
@@ -3655,7 +3693,7 @@
                     output += "--- AWS CLI Describe Commands ---\n";
                     output += cliOutput.join('\n');
                 }
-                outputTextarea.textContent = output.trim();
+                setOutput(output.trim());
             }
         }
 
@@ -3667,7 +3705,7 @@
         function quitarFormato() {
             const input = inputTextarea.value;
             if (!input.trim()) {
-                outputTextarea.textContent = "Input is empty.";
+                setOutput("Input is empty.");
                 return;
             }
             const cleaned = input.split('\n').map(line => {
@@ -3725,13 +3763,13 @@
                     .trimEnd();
             }).join('\n');
             inputTextarea.value = cleaned;
-            outputTextarea.textContent = cleaned;
+            setOutput(cleaned);
         }
 
         function clearInput() {
             inputTextarea.value = '';
             document.getElementById('epochInput').value = ''; 
-            outputTextarea.textContent = 'Your formatted text will appear here.';
+            setOutput('Your formatted text will appear here.');
             jsonValidationResult.style.display = 'none';
             fileInput.value = ''; // Clear file input selection
             
@@ -3748,37 +3786,30 @@
         }
 
         function copyResult(copyButton) {
-            const outputText = outputTextarea.textContent;
+            const outputText = getFullOutput();
 
-            if (outputText === 'Your formatted text will appear here.' || !outputText.trim()) {
+            if (!outputText || outputText === 'Your formatted text will appear here.' || !outputText.trim()) {
                 copyButton.textContent = 'Nothing to copy!';
-                setTimeout(() => {
-                    copyButton.textContent = 'Copy';
-                }, 2000);
+                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
                 return;
             }
 
-            const textarea = document.createElement('textarea');
-            textarea.value = outputText;
-            textarea.style.position = 'fixed'; 
-            textarea.style.opacity = 0;
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                // Use execCommand as a fallback for environments where clipboard API might be restricted
-                document.execCommand('copy');
+            navigator.clipboard.writeText(outputText).then(() => {
                 copyButton.textContent = 'Copied!';
-            } catch (err) {
-                copyButton.textContent = 'Failed!';
-                console.error('Failed to copy text: ', err);
-            }
-            
-            document.body.removeChild(textarea);
-
-            setTimeout(() => {
-                copyButton.textContent = 'Copy';
-            }, 2000);
+                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const ta = document.createElement('textarea');
+                ta.value = outputText;
+                ta.style.position = 'fixed';
+                ta.style.opacity = 0;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); copyButton.textContent = 'Copied!'; }
+                catch(e) { copyButton.textContent = 'Failed!'; }
+                document.body.removeChild(ta);
+                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+            });
         }
 
         function toggleXmlOptions() {
@@ -3792,7 +3823,7 @@
         }
 
         function downloadResult() {
-            let content = outputTextarea.textContent;
+            let content = getFullOutput();
             const format = document.getElementById('downloadFormat').value;
             let mimeType = 'text/plain';
             let filename = `result.${format}`;

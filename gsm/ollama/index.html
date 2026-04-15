@@ -2386,6 +2386,14 @@
                 webllmLoading = true;
                 showMessage(`WebLLM: Downloading/loading ${modelId}...${isLegacy ? ' (legacy engine)' : ''} This may take a while on first run.`, 'success');
                 try {
+                    // Clean up previous engines
+                    if (webllmEngine && typeof webllmEngine.unload === 'function') { try { await webllmEngine.unload(); } catch(e) {} }
+                    if (webllmLegacyEngine && typeof webllmLegacyEngine.unload === 'function') { try { await webllmLegacyEngine.unload(); } catch(e) {} }
+                    webllmEngine = null;
+                    webllmLegacyEngine = null;
+                    webllmLoadedModelId = null;
+                    webllmLegacyLoadedModelId = null;
+
                     if (isLegacy) {
                         if (!window.webllmLegacy) throw new Error('Legacy WebLLM library not loaded yet. Please wait.');
                         const appConfig = getLegacyAppConfig();
@@ -2425,6 +2433,13 @@
                     promptOrMessages.filter(m => m.role !== 'system').forEach(msg => {
                         messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content });
                     });
+                }
+                // Append /no_think to last user message when thinking is disabled (matches logs2.html behavior)
+                if (!showThinkingCheckbox.checked && messages.length > 0) {
+                    const lastIdx = messages.length - 1;
+                    if (messages[lastIdx].role === 'user') {
+                        messages[lastIdx] = { ...messages[lastIdx], content: messages[lastIdx].content + '\n/no_think' };
+                    }
                 }
                 const payload = { model: modelId, messages, stream };
                 if (onDebug) onDebug(payload);
