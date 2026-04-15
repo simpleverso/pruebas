@@ -1918,16 +1918,51 @@
                 return;
             }
 
-            // Show processing indicator for large inputs
-            if (inputText.length > 500000) {
-                setOutput("Processing " + (inputText.length / 1024 / 1024).toFixed(1) + " MB of text...");
-                setTimeout(() => _extractAwsResourcesCore(inputText), 50);
+            // For large files, show progress and process in a non-blocking way
+            const sizeMB = (inputText.length / 1024 / 1024).toFixed(1);
+            if (inputText.length > 2000000) {
+                setOutput("⏳ Processing " + sizeMB + " MB of text... (this may take a moment)");
+                // Use setTimeout to let the UI update before heavy processing
+                setTimeout(() => {
+                    try {
+                        _extractAwsResourcesCore(inputText);
+                    } catch(e) {
+                        setOutput("Error processing: " + e.message);
+                    }
+                }, 100);
                 return;
             }
             _extractAwsResourcesCore(inputText);
         }
 
+        // For very large inputs, limit regex scope to avoid catastrophic backtracking
+        function _safeMatch(text, regex, limit) {
+            // For texts > limit chars, only scan first + last portions
+            if (text.length <= limit) return text.match(regex) || [];
+            const head = text.slice(0, limit);
+            const tail = text.slice(-Math.min(limit, text.length));
+            const headMatches = head.match(regex) || [];
+            const tailMatches = tail.match(regex) || [];
+            return [...new Set([...headMatches, ...tailMatches])];
+        }
+
+        function _safeMatchAll(text, regex, limit) {
+            if (text.length <= limit) return [...text.matchAll(regex)];
+            const head = text.slice(0, limit);
+            const tail = text.slice(-Math.min(limit, text.length));
+            const results = [...head.matchAll(regex), ...tail.matchAll(regex)];
+            // Deduplicate by full match string
+            const seen = new Set();
+            return results.filter(m => {
+                if (seen.has(m[0])) return false;
+                seen.add(m[0]);
+                return true;
+            });
+        }
+
         function _extractAwsResourcesCore(inputText) {
+            // For very large files (>10MB), limit regex scan range to avoid freezing
+            const REGEX_LIMIT = 10 * 1024 * 1024; // 10MB max per regex scan
 
             // --- Helper: Extract Region from ARN ---
             const getRegionFromArn = (arn) => {
@@ -1950,15 +1985,21 @@
             const isPrintable = (text) => !/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text);
 
             // --- Base64 Detection ---
+            // For large files, limit base64 scanning to first/last 2MB
+            const b64ScanText = inputText.length > REGEX_LIMIT
+                ? inputText.slice(0, 2 * 1024 * 1024) + '\n' + inputText.slice(-2 * 1024 * 1024)
+                : inputText;
             const base64Regex = /\b[A-Za-z0-9+/=]{20,}\b/g;
             const decodedBase64Map = new Map();
             let b64Match;
-            while ((b64Match = base64Regex.exec(inputText)) !== null) {
+            let b64Count = 0;
+            const MAX_B64 = 50;
+            while ((b64Match = base64Regex.exec(b64ScanText)) !== null && b64Count < MAX_B64) {
                 const potentialB64 = b64Match[0];
                 if (potentialB64.length % 4 !== 0 || !/^[A-Za-z0-9+/]*=?=?$/.test(potentialB64)) {
-                    continue; // Not a likely Base64 string
+                    continue;
                 }
-                if (decodedBase64Map.has(potentialB64)) continue; // Already processed
+                if (decodedBase64Map.has(potentialB64)) continue;
 
                 try {
                     const decodedBytes = atob(potentialB64).split('').map(c => c.charCodeAt(0));
@@ -1966,6 +2007,7 @@
                     
                     if (isPrintable(decodedText) && decodedText.trim().length > 0) { 
                         decodedBase64Map.set(potentialB64, decodedText);
+                        b64Count++;
                     }
                 } catch (e) {
                     // Not valid Base64, ignore
@@ -1973,41 +2015,41 @@
             }
 
             // --- Epoch Detection ---
-            const lines = inputText.split('\n');
-            const epochRegex = /\b(\d{10}|\d{13})\b/g; // Regex to find *all* timestamps *within* a line
-            const convertedEpochList = []; // Use a list of objects
-            // Min date: 2001-01-01. Max date: 1 year in the future.
+            // For large files, limit epoch scanning to first/last 5MB to avoid freezing
+            const epochScanText = inputText.length > REGEX_LIMIT
+                ? inputText.slice(0, 5 * 1024 * 1024) + '\n' + inputText.slice(-5 * 1024 * 1024)
+                : inputText;
+            const lines = epochScanText.split('\n');
+            const epochRegex = /\b(\d{10}|\d{13})\b/g;
+            const convertedEpochList = [];
             const minDate = new Date('2001-01-01T00:00:00Z').getTime();
-            const maxDate = new Date().getTime() + (1000 * 60 * 60 * 24 * 365); 
+            const maxDate = new Date().getTime() + (1000 * 60 * 60 * 24 * 365);
+            const MAX_EPOCH_RESULTS = 200; // cap results to avoid huge output
             
-            lines.forEach(line => {
+            for (let li = 0; li < lines.length && convertedEpochList.length < MAX_EPOCH_RESULTS; li++) {
+                const line = lines[li];
                 let epochMatch;
-                // Reset lastIndex for each new line because we are using exec() with the /g flag
                 epochRegex.lastIndex = 0; 
                 while ((epochMatch = epochRegex.exec(line)) !== null) {
-                    const tsString = epochMatch[0]; // The timestamp string (e.g., '1223324589738')
-
-                    // Avoid matching AWS Account IDs (12 digits)
+                    const tsString = epochMatch[0];
                     if (tsString.length === 12) continue; 
-                    
                     const timestampNum = Number(tsString);
                     let date;
-
                     if (tsString.length === 10) {
-                        date = new Date(timestampNum * 1000); // seconds
+                        date = new Date(timestampNum * 1000);
                     } else {
-                        date = new Date(timestampNum); // milliseconds
+                        date = new Date(timestampNum);
                     }
-
                     if (date.getTime() >= minDate && date.getTime() <= maxDate) {
                         convertedEpochList.push({
-                            line: line.trim(),
+                            line: line.trim().slice(0, 200),
                             timestamp: tsString,
                             utcDate: date.toUTCString()
                         });
+                        if (convertedEpochList.length >= MAX_EPOCH_RESULTS) break;
                     }
                 }
-            });
+            }
 
             // --- AWS Resource Regex Definitions ---
             const vpcRegex = /(vpc-[0-9a-fA-F]{8,17})/g;
@@ -2187,57 +2229,57 @@
             // --- END USER REQUESTED ADDITION ---
 
             // --- Extract Resources ---
-            const vpcs = [...new Set(inputText.match(vpcRegex) || [])];
-            const subnets = [...new Set(inputText.match(subnetRegex) || [])];
-            const sgs = [...new Set(inputText.match(sgRegex) || [])];
-            const enis = [...new Set(inputText.match(eniRegex) || [])];
+            const vpcs = [...new Set(_safeMatch(inputText, vpcRegex, REGEX_LIMIT) || [])];
+            const subnets = [...new Set(_safeMatch(inputText, subnetRegex, REGEX_LIMIT) || [])];
+            const sgs = [...new Set(_safeMatch(inputText, sgRegex, REGEX_LIMIT) || [])];
+            const enis = [...new Set(_safeMatch(inputText, eniRegex, REGEX_LIMIT) || [])];
             
             // --- USER REQUESTED ADDITION (EC2 Instance) ---
-            const instances = [...new Set(inputText.match(instanceRegex) || [])];
+            const instances = [...new Set(_safeMatch(inputText, instanceRegex, REGEX_LIMIT) || [])];
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Extract Network ACLs and Route Tables ---
-            const naclIds = [...new Set(inputText.match(naclRegex) || [])];
-            const routeTableIds = [...new Set(inputText.match(routeTableRegex) || [])];
-            const naclArns = [...new Set(inputText.match(naclArnRegex) || [])];
-            const routeTableArns = [...new Set(inputText.match(routeTableArnRegex) || [])];
+            const naclIds = [...new Set(_safeMatch(inputText, naclRegex, REGEX_LIMIT) || [])];
+            const routeTableIds = [...new Set(_safeMatch(inputText, routeTableRegex, REGEX_LIMIT) || [])];
+            const naclArns = [...new Set(_safeMatch(inputText, naclArnRegex, REGEX_LIMIT) || [])];
+            const routeTableArns = [...new Set(_safeMatch(inputText, routeTableArnRegex, REGEX_LIMIT) || [])];
             // --- MODIFICATION END ---
             
             // --- USER REQUESTED ADDITION (URL) ---
-            const urls = [...new Set(inputText.match(urlRegex) || [])];
+            const urls = [...new Set(_safeMatch(inputText, urlRegex, REGEX_LIMIT) || [])];
             // --- END USER REQUESTED ADDITION ---
             
             // --- USER REQUESTED ADDITION (Email) ---
-            const emails = [...new Set(inputText.match(emailRegex) || [])];
+            const emails = [...new Set(_safeMatch(inputText, emailRegex, REGEX_LIMIT) || [])];
             // --- END USER REQUESTED ADDITION ---
             
             // --- MODIFICATION START: Extract and filter ARNs ---
             // Extract all ARNs
-            const allArns = [...new Set(inputText.match(arnRegex) || [])];
+            const allArns = [...new Set(_safeMatch(inputText, arnRegex, REGEX_LIMIT) || [])];
             // Extract just roles (using the more specific regex)
-            const roles = [...new Set(inputText.match(roleRegex) || [])];
+            const roles = [...new Set(_safeMatch(inputText, roleRegex, REGEX_LIMIT) || [])];
             // --- USER REQUESTED ADDITION: Extract IAM Users ---
-            const iamUsers = [...new Set(inputText.match(userRegex) || [])];
+            const iamUsers = [...new Set(_safeMatch(inputText, userRegex, REGEX_LIMIT) || [])];
             // --- END USER REQUESTED ADDITION ---
             
             // --- USER REQUESTED ADDITION: STS Assumed Roles ---
-            const assumedRoles = [...inputText.matchAll(assumedRoleRegex)];
+            const assumedRoles = [..._safeMatchAll(inputText, assumedRoleRegex, REGEX_LIMIT)];
             const assumedRoleArns = assumedRoles.map(match => match[0]);
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Extract SageMaker resources ---
             // Use matchAll to get capture groups
-            const smDomains = [...inputText.matchAll(smDomainRegex)];
-            const smEndpoints = [...inputText.matchAll(smEndpointRegex)];
-            const smEndpointConfigs = [...inputText.matchAll(smEndpointConfigRegex)];
+            const smDomains = [..._safeMatchAll(inputText, smDomainRegex, REGEX_LIMIT)];
+            const smEndpoints = [..._safeMatchAll(inputText, smEndpointRegex, REGEX_LIMIT)];
+            const smEndpointConfigs = [..._safeMatchAll(inputText, smEndpointConfigRegex, REGEX_LIMIT)];
             // --- USER REQUESTED ADDITIONS START ---
-            const smNotebookLifecycleConfigs = [...inputText.matchAll(smNotebookLifecycleConfigRegex)];
-            const smNotebookInstances = [...inputText.matchAll(smNotebookInstanceRegex)];
-            const smTransformJobs = [...inputText.matchAll(smTransformJobRegex)];
-            const smTrainingJobs = [...inputText.matchAll(smTrainingJobRegex)];
-            const smPipelines = [...inputText.matchAll(smPipelineRegex)];
-            const smStudioLifecycleConfigs = [...inputText.matchAll(smStudioLifecycleConfigRegex)];
-            const smProcessingJobs = [...inputText.matchAll(smProcessingJobRegex)];
+            const smNotebookLifecycleConfigs = [..._safeMatchAll(inputText, smNotebookLifecycleConfigRegex, REGEX_LIMIT)];
+            const smNotebookInstances = [..._safeMatchAll(inputText, smNotebookInstanceRegex, REGEX_LIMIT)];
+            const smTransformJobs = [..._safeMatchAll(inputText, smTransformJobRegex, REGEX_LIMIT)];
+            const smTrainingJobs = [..._safeMatchAll(inputText, smTrainingJobRegex, REGEX_LIMIT)];
+            const smPipelines = [..._safeMatchAll(inputText, smPipelineRegex, REGEX_LIMIT)];
+            const smStudioLifecycleConfigs = [..._safeMatchAll(inputText, smStudioLifecycleConfigRegex, REGEX_LIMIT)];
+            const smProcessingJobs = [..._safeMatchAll(inputText, smProcessingJobRegex, REGEX_LIMIT)];
             // --- USER REQUESTED ADDITIONS END ---
 
 
@@ -2256,37 +2298,37 @@
             // --- USER REQUESTED ADDITIONS END ---
             
             // --- MODIFICATION START: Extract Personalize ARNs ---
-            const psAlgorithms = [...inputText.matchAll(psAlgorithmRegex)];
-            const psBatchInferenceJobs = [...inputText.matchAll(psBatchInferenceJobRegex)];
-            const psCampaigns = [...inputText.matchAll(psCampaignRegex)];
-            const psDatasets = [...inputText.matchAll(psDatasetRegex)];
-            const psDatasetGroups = [...inputText.matchAll(psDatasetGroupRegex)];
-            const psFilters = [...inputText.matchAll(psFilterRegex)];
-            const psRecipes = [...inputText.matchAll(psRecipeRegex)];
-            const psRecommenders = [...inputText.matchAll(psRecommenderRegex)];
-            const psSchemas = [...inputText.matchAll(psSchemaRegex)];
-            const psSolutions = [...inputText.matchAll(psSolutionRegex)];
-            const psSolutionVersions = [...inputText.matchAll(psSolutionVersionRegex)];
+            const psAlgorithms = [..._safeMatchAll(inputText, psAlgorithmRegex, REGEX_LIMIT)];
+            const psBatchInferenceJobs = [..._safeMatchAll(inputText, psBatchInferenceJobRegex, REGEX_LIMIT)];
+            const psCampaigns = [..._safeMatchAll(inputText, psCampaignRegex, REGEX_LIMIT)];
+            const psDatasets = [..._safeMatchAll(inputText, psDatasetRegex, REGEX_LIMIT)];
+            const psDatasetGroups = [..._safeMatchAll(inputText, psDatasetGroupRegex, REGEX_LIMIT)];
+            const psFilters = [..._safeMatchAll(inputText, psFilterRegex, REGEX_LIMIT)];
+            const psRecipes = [..._safeMatchAll(inputText, psRecipeRegex, REGEX_LIMIT)];
+            const psRecommenders = [..._safeMatchAll(inputText, psRecommenderRegex, REGEX_LIMIT)];
+            const psSchemas = [..._safeMatchAll(inputText, psSchemaRegex, REGEX_LIMIT)];
+            const psSolutions = [..._safeMatchAll(inputText, psSolutionRegex, REGEX_LIMIT)];
+            const psSolutionVersions = [..._safeMatchAll(inputText, psSolutionVersionRegex, REGEX_LIMIT)];
 
             // --- USER REQUESTED ADDITION (Pipeline Execution) ---
-            const smPipelineExecutions = [...inputText.matchAll(smPipelineExecutionRegex)];
+            const smPipelineExecutions = [..._safeMatchAll(inputText, smPipelineExecutionRegex, REGEX_LIMIT)];
             // --- END USER REQUESTED ADDITION ---
 
             // --- USER REQUESTED ADDITION (AutoML Job) ---
-            const smAutoMLJobs = [...inputText.matchAll(smAutoMLJobRegex)]; // v1
-            const smAutoMLJobV2s = [...inputText.matchAll(smAutoMLJobV2Regex)]; // v2
+            const smAutoMLJobs = [..._safeMatchAll(inputText, smAutoMLJobRegex, REGEX_LIMIT)]; // v1
+            const smAutoMLJobV2s = [..._safeMatchAll(inputText, smAutoMLJobV2Regex, REGEX_LIMIT)]; // v2
             // --- END USER REQUESTED ADDITION ---
 
             // --- USER REQUESTED ADDITION (Image) ---
-            const smImages = [...inputText.matchAll(smImageRegex)];
+            const smImages = [..._safeMatchAll(inputText, smImageRegex, REGEX_LIMIT)];
             // --- END USER REQUESTED ADDITION ---
 
             // --- USER REQUESTED ADDITION (SM Cluster) ---
-            const smClusters = [...inputText.matchAll(smClusterRegex)];
+            const smClusters = [..._safeMatchAll(inputText, smClusterRegex, REGEX_LIMIT)];
             // --- END USER REQUESTED ADDITION ---
 
             // --- USER REQUESTED ADDITION (Secrets Manager Secret) ---
-            const smSecrets = [...inputText.matchAll(smSecretRegex)];
+            const smSecrets = [..._safeMatchAll(inputText, smSecretRegex, REGEX_LIMIT)];
             // --- END USER REQUESTED ADDITION ---
 
             const psAlgorithmArns = psAlgorithms.map(match => match[0]);
@@ -2325,24 +2367,24 @@
             // --- END USER REQUESTED ADDITION ---
 
             // --- MODIFICATION START: Extract Bedrock resources ---
-            const brGuardrails = [...inputText.matchAll(brGuardrailRegex)];
-            const brInferenceProfiles = [...inputText.matchAll(brInferenceProfileRegex)];
+            const brGuardrails = [..._safeMatchAll(inputText, brGuardrailRegex, REGEX_LIMIT)];
+            const brInferenceProfiles = [..._safeMatchAll(inputText, brInferenceProfileRegex, REGEX_LIMIT)];
 
             const brGuardrailArns = brGuardrails.map(match => match[0]);
             const brInferenceProfileArns = brInferenceProfiles.map(match => match[0]);
             
             // --- MODIFICATION START: Extract Comprehend resources ---
-            const compDatasets = [...inputText.matchAll(compDatasetRegex)];
-            const compEndpoints = [...inputText.matchAll(compEndpointRegex)];
+            const compDatasets = [..._safeMatchAll(inputText, compDatasetRegex, REGEX_LIMIT)];
+            const compEndpoints = [..._safeMatchAll(inputText, compEndpointRegex, REGEX_LIMIT)];
 
             const compDatasetArns = compDatasets.map(match => match[0]);
             const compEndpointArns = compEndpoints.map(match => match[0]);
             
             // --- MODIFICATION START: Extract DataZone resources ---
-            const dzDomains = [...inputText.matchAll(dzDomainRegex)];
-            const dzProjects = [...inputText.matchAll(dzProjectRegex)];
-            const dzEnvironments = [...inputText.matchAll(dzEnvironmentRegex)];
-            const dzDataSources = [...inputText.matchAll(dzDataSourceRegex)];
+            const dzDomains = [..._safeMatchAll(inputText, dzDomainRegex, REGEX_LIMIT)];
+            const dzProjects = [..._safeMatchAll(inputText, dzProjectRegex, REGEX_LIMIT)];
+            const dzEnvironments = [..._safeMatchAll(inputText, dzEnvironmentRegex, REGEX_LIMIT)];
+            const dzDataSources = [..._safeMatchAll(inputText, dzDataSourceRegex, REGEX_LIMIT)];
 
             const dzDomainArns = dzDomains.map(match => match[0]);
             const dzProjectArns = dzProjects.map(match => match[0]);
@@ -2351,20 +2393,20 @@
             // --- MODIFICATION END ---
 
             // --- MODIFICATION START: Extract EFS resources ---
-            const efsFileSystems = [...inputText.matchAll(efsRegex)];
+            const efsFileSystems = [..._safeMatchAll(inputText, efsRegex, REGEX_LIMIT)];
             const efsArnList = efsFileSystems.map(match => match[0]);
             // --- MODIFICATION END ---
 
             // --- MODIFICATION START: Extract Textract resources ---
-            const textractAdapters = [...inputText.matchAll(textractAdapterRegex)];
-            const textractAdapterVersions = [...inputText.matchAll(textractAdapterVersionRegex)];
+            const textractAdapters = [..._safeMatchAll(inputText, textractAdapterRegex, REGEX_LIMIT)];
+            const textractAdapterVersions = [..._safeMatchAll(inputText, textractAdapterVersionRegex, REGEX_LIMIT)];
 
             const textractAdapterArns = textractAdapters.map(match => match[0]);
             const textractAdapterVersionArns = textractAdapterVersions.map(match => match[0]);
             // --- MODIFICATION END ---
 
             // --- MODIFICATION START: Extract KMS resources ---
-            const kmsKeys = [...inputText.matchAll(kmsKeyRegex)];
+            const kmsKeys = [..._safeMatchAll(inputText, kmsKeyRegex, REGEX_LIMIT)];
             const kmsKeyArns = kmsKeys.map(match => match[0]);
             // --- MODIFICATION END ---
 
@@ -2452,28 +2494,28 @@
             // --- MODIFICATION END ---
             
             // Find request IDs
-            const requestIds = [...inputText.matchAll(requestIdRegex)];
-            const id2s = [...inputText.matchAll(id2Regex)];
-            const uuidRequestIds = [...inputText.matchAll(uuidRequestIdRegex)]; 
+            const requestIds = [..._safeMatchAll(inputText, requestIdRegex, REGEX_LIMIT)];
+            const id2s = [..._safeMatchAll(inputText, id2Regex, REGEX_LIMIT)];
+            const uuidRequestIds = [..._safeMatchAll(inputText, uuidRequestIdRegex, REGEX_LIMIT)]; 
 
             // --- USER REQUESTED ADDITION: Access Error Matches ---
-            const accessErrorMatches = [...inputText.matchAll(accessErrorRegex)];
-            const scpImplicitDenyMatches = [...inputText.matchAll(scpImplicitDenyRegex)];
-            const resourcePolicyErrorMatches = [...inputText.matchAll(resourcePolicyErrorRegex)];
-            const vpcEndpointErrorMatches = [...inputText.matchAll(vpcEndpointErrorRegex)];
-            const vpcEndpointExplicitDenyMatches = [...inputText.matchAll(vpcEndpointExplicitDenyRegex)];
-            const permissionsBoundaryImplicitDenyMatches = [...inputText.matchAll(permissionsBoundaryImplicitDenyRegex)];
-            const permissionsBoundaryExplicitDenyMatches = [...inputText.matchAll(permissionsBoundaryExplicitDenyRegex)];
-            const sessionPolicyImplicitDenyMatches = [...inputText.matchAll(sessionPolicyImplicitDenyRegex)];
-            const sessionPolicyExplicitDenyMatches = [...inputText.matchAll(sessionPolicyExplicitDenyRegex)];
-            const resourceBasedPolicyImplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyImplicitDenyRegex)];
-            const resourceBasedPolicyExplicitDenyMatches = [...inputText.matchAll(resourceBasedPolicyExplicitDenyRegex)];
+            const accessErrorMatches = [..._safeMatchAll(inputText, accessErrorRegex, REGEX_LIMIT)];
+            const scpImplicitDenyMatches = [..._safeMatchAll(inputText, scpImplicitDenyRegex, REGEX_LIMIT)];
+            const resourcePolicyErrorMatches = [..._safeMatchAll(inputText, resourcePolicyErrorRegex, REGEX_LIMIT)];
+            const vpcEndpointErrorMatches = [..._safeMatchAll(inputText, vpcEndpointErrorRegex, REGEX_LIMIT)];
+            const vpcEndpointExplicitDenyMatches = [..._safeMatchAll(inputText, vpcEndpointExplicitDenyRegex, REGEX_LIMIT)];
+            const permissionsBoundaryImplicitDenyMatches = [..._safeMatchAll(inputText, permissionsBoundaryImplicitDenyRegex, REGEX_LIMIT)];
+            const permissionsBoundaryExplicitDenyMatches = [..._safeMatchAll(inputText, permissionsBoundaryExplicitDenyRegex, REGEX_LIMIT)];
+            const sessionPolicyImplicitDenyMatches = [..._safeMatchAll(inputText, sessionPolicyImplicitDenyRegex, REGEX_LIMIT)];
+            const sessionPolicyExplicitDenyMatches = [..._safeMatchAll(inputText, sessionPolicyExplicitDenyRegex, REGEX_LIMIT)];
+            const resourceBasedPolicyImplicitDenyMatches = [..._safeMatchAll(inputText, resourceBasedPolicyImplicitDenyRegex, REGEX_LIMIT)];
+            const resourceBasedPolicyExplicitDenyMatches = [..._safeMatchAll(inputText, resourceBasedPolicyExplicitDenyRegex, REGEX_LIMIT)];
             
-            const trustPolicyImplicitDenyMatches = [...inputText.matchAll(trustPolicyImplicitDenyRegex)];
-            const trustPolicyExplicitDenyMatches = [...inputText.matchAll(trustPolicyExplicitDenyRegex)];
+            const trustPolicyImplicitDenyMatches = [..._safeMatchAll(inputText, trustPolicyImplicitDenyRegex, REGEX_LIMIT)];
+            const trustPolicyExplicitDenyMatches = [..._safeMatchAll(inputText, trustPolicyExplicitDenyRegex, REGEX_LIMIT)];
             
-            const identityPolicyImplicitDenyMatches = [...inputText.matchAll(identityPolicyImplicitDenyRegex)];
-            const identityPolicyExplicitDenyMatches = [...inputText.matchAll(identityPolicyExplicitDenyRegex)];
+            const identityPolicyImplicitDenyMatches = [..._safeMatchAll(inputText, identityPolicyImplicitDenyRegex, REGEX_LIMIT)];
+            const identityPolicyExplicitDenyMatches = [..._safeMatchAll(inputText, identityPolicyExplicitDenyRegex, REGEX_LIMIT)];
             // --- END USER REQUESTED ADDITION ---
 
             const allRequestIds = new Set();
@@ -3397,7 +3439,7 @@
 
             // --- Lambda Function Diagnostics ---
             const lambdaArnRegex = /arn:[^:]+:lambda:[^:]*:[^:]*:function:([\w\-]+)/g;
-            const lambdaMatches = [...inputText.matchAll(lambdaArnRegex)];
+            const lambdaMatches = [..._safeMatchAll(inputText, lambdaArnRegex, REGEX_LIMIT)];
             const lambdaNames = [...new Set(lambdaMatches.map(m => m[1]))];
             if (lambdaNames.length > 0) {
                 extraCli.push('\n--- Lambda Function Diagnostics ---');
@@ -3554,11 +3596,11 @@
             const glueCatalogRegex = /arn:[^:]+:glue:[^:]*:[^:]*:catalog/g;
             const glueConnectionRegex = /arn:[^:]+:glue:[^:]*:[^:]*:connection\/([\w\-\.]+)/g;
 
-            const glueJobs = [...inputText.matchAll(glueJobRegex)];
-            const glueCrawlers = [...inputText.matchAll(glueCrawlerRegex)];
-            const glueDbs = [...inputText.matchAll(glueDbRegex)];
-            const glueCatalogs = [...inputText.matchAll(glueCatalogRegex)];
-            const glueConnections = [...inputText.matchAll(glueConnectionRegex)];
+            const glueJobs = [..._safeMatchAll(inputText, glueJobRegex, REGEX_LIMIT)];
+            const glueCrawlers = [..._safeMatchAll(inputText, glueCrawlerRegex, REGEX_LIMIT)];
+            const glueDbs = [..._safeMatchAll(inputText, glueDbRegex, REGEX_LIMIT)];
+            const glueCatalogs = [..._safeMatchAll(inputText, glueCatalogRegex, REGEX_LIMIT)];
+            const glueConnections = [..._safeMatchAll(inputText, glueConnectionRegex, REGEX_LIMIT)];
 
             if (glueJobs.length > 0 || glueCrawlers.length > 0 || glueDbs.length > 0 || glueCatalogs.length > 0 || glueConnections.length > 0) {
                 extraCli.push('\n--- AWS Glue Diagnostics ---');
@@ -3615,9 +3657,9 @@
             const rsServerlessWgRegex = /arn:[^:]+:redshift-serverless:[^:]*:[^:]*:workgroup\/([\w\-]+)/g;
             const rsServerlessNsRegex = /arn:[^:]+:redshift-serverless:[^:]*:[^:]*:namespace\/([\w\-]+)/g;
 
-            const rsClusters = [...inputText.matchAll(rsClusterRegex)];
-            const rsWorkgroups = [...inputText.matchAll(rsServerlessWgRegex)];
-            const rsNamespaces = [...inputText.matchAll(rsServerlessNsRegex)];
+            const rsClusters = [..._safeMatchAll(inputText, rsClusterRegex, REGEX_LIMIT)];
+            const rsWorkgroups = [..._safeMatchAll(inputText, rsServerlessWgRegex, REGEX_LIMIT)];
+            const rsNamespaces = [..._safeMatchAll(inputText, rsServerlessNsRegex, REGEX_LIMIT)];
 
             if (rsClusters.length > 0 || rsWorkgroups.length > 0 || rsNamespaces.length > 0) {
                 extraCli.push('\n--- Amazon Redshift Diagnostics ---');
@@ -3663,7 +3705,7 @@
 
             // --- Cross-Account Troubleshooting ---
             const awsAccountRegex = /\b(\d{12})\b/g;
-            const detectedAccounts = [...new Set((inputText.match(awsAccountRegex) || []))];
+            const detectedAccounts = [...new Set((_safeMatch(inputText, awsAccountRegex, REGEX_LIMIT) || []))];
             // Filter out likely non-account numbers (timestamps etc)
             const likelyAccounts = detectedAccounts.filter(a => !a.startsWith('0') && !a.startsWith('19') && !a.startsWith('20'));
             if (likelyAccounts.length > 1 || roles.length > 0) {
@@ -3726,6 +3768,14 @@
                 setOutput("Input is empty.");
                 return;
             }
+            if (input.length > 2000000) {
+                setOutput("⏳ Cleaning format from " + (input.length / 1024 / 1024).toFixed(1) + " MB...");
+                setTimeout(() => _quitarFormatoCore(input), 100);
+                return;
+            }
+            _quitarFormatoCore(input);
+        }
+        function _quitarFormatoCore(input) {
             const cleaned = input.split('\n').map(line => {
                 return line
                     // HTML tags
