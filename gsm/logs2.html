@@ -1483,7 +1483,9 @@
 
         // --- Large file optimization ---
         const OUTPUT_DISPLAY_LIMIT = 50000; // chars shown in DOM
+        const INPUT_DISPLAY_LIMIT = 200000; // chars shown in textarea
         let _fullOutput = ''; // full output kept in memory
+        let _fullInput = '';  // full input kept in memory for large files
 
         function setOutput(text) {
             _fullOutput = text;
@@ -1496,6 +1498,23 @@
 
         function getFullOutput() {
             return _fullOutput || outputTextarea.textContent;
+        }
+
+        function setInput(text) {
+            _fullInput = text;
+            if (text.length > INPUT_DISPLAY_LIMIT) {
+                inputTextarea.value = text.slice(0, INPUT_DISPLAY_LIMIT) + '\n\n--- Preview truncated (' + (text.length / 1024 / 1024).toFixed(1) + ' MB total). Full content is loaded in memory. ---';
+            } else {
+                inputTextarea.value = text;
+            }
+        }
+
+        function getFullInput() {
+            // If we have a buffered large input, return it; otherwise return textarea value
+            if (_fullInput && _fullInput.length > INPUT_DISPLAY_LIMIT) {
+                return _fullInput;
+            }
+            return getFullInput();
         }
         
         // --- Page Load Initializer ---
@@ -1554,14 +1573,13 @@
                 reader.readAsDataURL(file); // Reads as Base64 Data URL
             } else {
                 // Default behavior: read as text
-                // Show progress for large files
                 if (file.size > 1024 * 1024) {
                     setOutput("Loading file (" + (file.size / 1024 / 1024).toFixed(1) + " MB)...");
                 }
                 reader.onload = (e) => {
-                    inputTextarea.value = e.target.result;
+                    setInput(e.target.result);
                     if (file.size > 1024 * 1024) {
-                        setOutput("File loaded (" + (file.size / 1024 / 1024).toFixed(1) + " MB). Ready to process.");
+                        setOutput("File loaded (" + (file.size / 1024 / 1024).toFixed(1) + " MB, " + e.target.result.split('\n').length + " lines). Ready to process.");
                     }
                 };
                 reader.readAsText(file);
@@ -1617,7 +1635,7 @@
 
         function runBase64Tool() {
             const selectedTool = getSelectedTool();
-            const input = inputTextarea.value;
+            const input = getFullInput();
             jsonValidationResult.style.display = 'none';
             
             if (!selectedTool) {
@@ -1744,7 +1762,7 @@
         // --- Core Tool Logic ---
         function addNewLines() {
             const delimiter = document.getElementById('delimiter').value;
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             const shouldRemoveDelimiter = document.getElementById('removeDelimiterCheckbox').checked;
             
             jsonValidationResult.style.display = 'none';
@@ -1762,7 +1780,7 @@
         }
         
         function validateJson() {
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             setOutput("Your formatted text will appear here.");
             
             if (!inputText.trim()) {
@@ -1782,7 +1800,7 @@
         }
         
         function formatJson() {
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             setOutput("Your formatted text will appear here.");
 
             if (!inputText.trim()) {
@@ -1805,7 +1823,7 @@
 
         // --- ARN Anonymizer Function ---
         function anonymizeAwsArns() {
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             jsonValidationResult.style.display = 'none';
 
             if (!inputText.trim()) {
@@ -1834,7 +1852,7 @@
         
         // --- Bucket Anonymizer Function ---
         function anonymizeAwsBuckets() {
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             jsonValidationResult.style.display = 'none';
         
             if (!inputText.trim()) {
@@ -1863,7 +1881,7 @@
 
         // --- Role Anonymizer Function ---
         function anonymizeAwsRoles() {
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             jsonValidationResult.style.display = 'none';
         
             if (!inputText.trim()) {
@@ -1892,7 +1910,7 @@
 
         // --- AWS Resource Extractor Function ---
         function extractAwsResources() {
-            const inputText = inputTextarea.value;
+            const inputText = getFullInput();
             jsonValidationResult.style.display = 'none';
 
             if (!inputText.trim()) {
@@ -3703,7 +3721,7 @@
         // --- Utility Functions ---
 
         function quitarFormato() {
-            const input = inputTextarea.value;
+            const input = getFullInput();
             if (!input.trim()) {
                 setOutput("Input is empty.");
                 return;
@@ -3762,12 +3780,13 @@
                     .trimStart()
                     .trimEnd();
             }).join('\n');
-            inputTextarea.value = cleaned;
+            setInput(cleaned);
             setOutput(cleaned);
         }
 
         function clearInput() {
             inputTextarea.value = '';
+            _fullInput = '';
             document.getElementById('epochInput').value = ''; 
             setOutput('Your formatted text will appear here.');
             jsonValidationResult.style.display = 'none';
