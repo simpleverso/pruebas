@@ -55,7 +55,7 @@
 
         <header class="text-center">
             <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Universal AI Client</h1>
-            <p class="text-lg text-gray-400 mt-2">Ollama • LM Studio • Google Gemini • Amazon Nova • NVIDIA NIM • WebLLM (In-Browser)</p>
+            <p class="text-lg text-gray-400 mt-2">Ollama • LM Studio • Google Gemini • Amazon Nova • WebLLM (In-Browser)</p>
         </header>
 
         <!-- Tab Navigation -->
@@ -270,11 +270,6 @@
                             <div>
                                 <label for="nova-api-key" class="block text-sm font-medium text-gray-300 mb-2">Amazon Nova API Key</label>
                                 <input type="password" id="nova-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Nova API Key here..." value="">
-                            </div>
-                            <!-- NVIDIA NIM API Key -->
-                            <div>
-                                <label for="nvidia-api-key" class="block text-sm font-medium text-gray-300 mb-2">NVIDIA NIM API Key</label>
-                                <input type="password" id="nvidia-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your NVIDIA NIM API Key here (nvapi-...)..." value="">
                             </div>
                         </div>
                         <div>
@@ -801,7 +796,6 @@
             const STORAGE_KEY_LMSTUDIO_ENDPOINT = 'lmstudio_endpoint';
             const STORAGE_KEY_GEMINI_KEY = 'gemini_api_key';
             const STORAGE_KEY_NOVA_KEY = 'nova_api_key'; 
-            const STORAGE_KEY_NVIDIA_KEY = 'nvidia_api_key';
             const STORAGE_KEY_MODEL = 'ollama_model';
             const STORAGE_KEY_SYSTEM_PROMPT = 'ollama_system_prompt';
             const STORAGE_KEY_ANALYSIS_INPUT = 'ollama_analysis_input';
@@ -829,7 +823,6 @@
             const lmstudioEndpoint = document.getElementById('lmstudio-endpoint');
             const geminiApiKeyInput = document.getElementById('gemini-api-key');
             const novaApiKeyInput = document.getElementById('nova-api-key'); 
-            const nvidiaApiKeyInput = document.getElementById('nvidia-api-key');
             const modelSelect = document.getElementById('model-select');
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
@@ -1213,12 +1206,6 @@
             const DEFAULT_NOVA_MODELS = [
                 { id: 'Nova Pro v3', name: 'Nova Pro v3 (DEFAULT LOCAL)' },
             ];
-            const DEFAULT_NVIDIA_MODELS = [
-                { id: 'nvidia/nemotron-3-nano-30b-a3b', name: 'Nemotron 3 Nano 30B' },
-                { id: 'nvidia/llama-3.1-nemotron-ultra-253b-v1', name: 'Llama 3.1 Nemotron Ultra 253B' },
-                { id: 'meta/llama-3.3-70b-instruct', name: 'Llama 3.3 70B Instruct' },
-                { id: 'deepseek-ai/deepseek-r1', name: 'DeepSeek R1' },
-            ];
 
             // --- Load Saved Values ---
             const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
@@ -1229,8 +1216,6 @@
             if (savedGeminiKey) geminiApiKeyInput.value = savedGeminiKey;
             const savedNovaKey = localStorage.getItem(STORAGE_KEY_NOVA_KEY);
             if (savedNovaKey) novaApiKeyInput.value = savedNovaKey;
-            const savedNvidiaKey = localStorage.getItem(STORAGE_KEY_NVIDIA_KEY);
-            if (savedNvidiaKey) nvidiaApiKeyInput.value = savedNvidiaKey;
             const savedSystemPrompt = localStorage.getItem(STORAGE_KEY_SYSTEM_PROMPT);
             if (savedSystemPrompt) systemPrompt.value = savedSystemPrompt;
             const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
@@ -1585,7 +1570,6 @@
                 else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, globalSP || null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; return await callNova(model, fullPrompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, globalSP || null, false, onDebug); }
-                else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); return await callNvidia(rawModel, prompt, globalSP || null, false, onDebug); }
                 else { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; const payload = { model: model, prompt: fullPrompt, stream: false }; if(onDebug) onDebug(payload); const res = await callOllama('/api/generate', payload); if (res && res.response) return res.response.trim(); else throw new Error("Ollama returned empty response"); }
             }
 
@@ -2543,27 +2527,6 @@
                 throw new Error('Invalid Nova response format');
             }
 
-            async function callNvidia(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
-                const apiKey = nvidiaApiKeyInput.value.trim();
-                if (!apiKey) { showMessage('NVIDIA NIM API Key is missing.', 'error'); throw new Error('NVIDIA NIM API Key missing'); }
-                const url = 'https://integrate.api.nvidia.com/v1/chat/completions';
-                let messages = [];
-                if (systemInstruction) messages.push({ role: "system", content: systemInstruction });
-                if (typeof promptOrMessages === 'string') { messages.push({ role: 'user', content: promptOrMessages }); }
-                else if (Array.isArray(promptOrMessages)) { promptOrMessages.filter(m => m.role !== 'system').forEach(msg => { messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content }); }); }
-                const payload = { model: model, messages: messages, stream: stream, max_tokens: 4096 };
-                if (onDebug) onDebug(payload);
-                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(payload), signal: signal });
-                if (!response.ok) { const errorText = await response.text(); throw new Error(`NVIDIA NIM API Error ${response.status}: ${errorText}`); }
-                if (stream) {
-                    const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
-                    return { reader, processChunk: (chunkValue) => { buffer += decoder.decode(chunkValue, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop(); const chunks = []; for (const line of lines) { const trimmed = line.trim(); if (!trimmed || trimmed === 'data: [DONE]') continue; if (trimmed.startsWith('data: ')) { try { const json = JSON.parse(trimmed.substring(6)); if (json.choices && json.choices.length > 0) { const delta = json.choices[0].delta; if (delta && delta.content) chunks.push(delta.content); } } catch (e) { console.warn('NVIDIA stream parse error', e); } } } return chunks; } };
-                }
-                const data = await response.json();
-                if (data.choices && data.choices.length > 0 && data.choices[0].message) return data.choices[0].message.content;
-                throw new Error('Invalid NVIDIA NIM response format');
-            }
-
             async function callGemini(model, promptOrMessages, systemInstruction = null, onDebug = null, signal = null) {
                 const apiKey = geminiApiKeyInput.value.trim();
                 if (!apiKey) { showMessage('Gemini API Key is missing.', 'error'); throw new Error('Gemini API Key missing'); }
@@ -2644,7 +2607,6 @@
                     else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
                     else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
-                    else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); if (shouldStream) { const sh = await callNvidia(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNvidia(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else { const payload = { model: model, prompt: finalPrompt, stream: shouldStream }; onDebug(payload); if (shouldStream) { analysisOutput.value = ''; await callOllama('/api/generate', payload, (chunk) => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }, null, signal); } else { const data = await callOllama('/api/generate', payload, null, null, signal); if (data && data.response) analysisOutput.value += data.response.trim(); else throw new Error("No response from Ollama"); } }
                     showMessage(`Analysis complete with ${model}.`, 'success');
                 } catch (err) { if (err.name === 'AbortError') { analysisOutput.value += '\n\n[Analysis Stopped by User]'; showMessage('Analysis stopped.', 'error'); } else { analysisOutput.value += '\nError: ' + err.message; showMessage('Analysis failed.', 'error'); } }
@@ -2683,11 +2645,6 @@
                 } else if (model.startsWith('lmstudio:')) {
                     const rawModel = model.replace('lmstudio:', '');
                     try { const sh = await callLMStudio(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`LM Studio response received.`, 'success'); }
-                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
-                    finally { sendBtnEl.disabled = false; }
-                } else if (model.startsWith('nvidia:')) {
-                    const rawModel = model.replace('nvidia:', '');
-                    try { const sh = await callNvidia(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`NVIDIA NIM response received.`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else {
@@ -2785,9 +2742,6 @@
                 const novaHeader = document.createElement('option'); novaHeader.disabled = true; novaHeader.textContent = '--- Amazon Nova Models ---'; selectElement.appendChild(novaHeader);
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
-                // NVIDIA NIM Models
-                const nvHeader = document.createElement('option'); nvHeader.disabled = true; nvHeader.textContent = '--- NVIDIA NIM Models ---'; selectElement.appendChild(nvHeader);
-                DEFAULT_NVIDIA_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `nvidia:${m.id}`; opt.textContent = `🟢 [NVIDIA] ${m.name || m.id}`; selectElement.appendChild(opt); });
                 if (lmStudioModels.length > 0) { const lmsHeader = document.createElement('option'); lmsHeader.disabled = true; lmsHeader.textContent = '--- LM Studio Models ---'; selectElement.appendChild(lmsHeader); lmStudioModels.forEach(m => { const opt = document.createElement('option'); opt.value = `lmstudio:${m.id}`; opt.textContent = `🖥️ [LM Studio] ${m.id}`; selectElement.appendChild(opt); }); }
                 if (webllmAvailableModels.length > 0) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
@@ -2856,7 +2810,6 @@
             lmstudioEndpoint.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_LMSTUDIO_ENDPOINT, lmstudioEndpoint.value));
             geminiApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_GEMINI_KEY, geminiApiKeyInput.value));
             novaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NOVA_KEY, novaApiKeyInput.value));
-            nvidiaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NVIDIA_KEY, nvidiaApiKeyInput.value));
             modelSelect.addEventListener('change', () => { savedModel = modelSelect.value; localStorage.setItem(STORAGE_KEY_MODEL, savedModel); });
             systemPrompt.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
             analysisInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
