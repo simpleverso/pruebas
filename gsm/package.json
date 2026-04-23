@@ -1,0 +1,15 @@
+{
+  "name": "logs2-bugfix-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Lightweight PBT harness for logs2.html bugfix specs.",
+  "type": "module",
+  "scripts": {
+    "test:bug-condition": "node tests/get-full-input.bug-condition.test.mjs",
+    "test:fix-checking": "node tests/get-full-input.fix-checking.test.mjs",
+    "test:preservation": "node tests/get-full-input.preservation.test.mjs"
+  },
+  "devDependencies": {
+    "fast-check": "^3.19.0"
+  }
+}
