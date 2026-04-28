@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas Numéricos: Decimal, Binario y Hexadecimal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            overflow: hidden;
+        }
+        .slide {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            padding: 40px 60px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        .slide.active { display: flex; }
+
+        h1 { font-size: 3em; margin-bottom: 20px; color: #00d4ff; text-shadow: 0 0 20px rgba(0,212,255,0.3); }
+        h2 { font-size: 2.2em; margin-bottom: 25px; color: #ff6b6b; }
+        h3 { font-size: 1.6em; margin: 15px 0; color: #ffd93d; }
+        p, li { font-size: 1.3em; line-height: 1.6; margin: 10px 0; }
+        ul { text-align: left; max-width: 800px; }
+        li { margin: 8px 0; }
+
+        .highlight { color: #00d4ff; font-weight: bold; }
+        .example-box {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin: 15px 0;
+            max-width: 900px;
+            text-align: left;
+        }
+        .example-box h4 { color: #ffd93d; margin-bottom: 10px; font-size: 1.2em; }
+        .example-box p { font-size: 1.1em; margin: 5px 0; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+        }
+        .card {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .card h4 { color: #00d4ff; margin-bottom: 10px; }
+
+        .big-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffd93d;
+            margin: 10px 0;
+        }
+        .binary-visual {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .bit {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .bit.on { background: #00d4ff; color: #1a1a2e; }
+        .bit.off { background: #333; color: #666; }
+        .bit-label {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .bit-container { text-align: center; }
+
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+            font-size: 1.2em;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 12px 20px;
+            text-align: center;
+        }
+        th { background: rgba(0,212,255,0.2); color: #00d4ff; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: #00d4ff;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover { background: #ffd93d; transform: scale(1.05); }
+        .slide-counter {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            font-size: 1em;
+            color: #888;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #ffd93d);
+            transition: width 0.3s;
+            z-index: 100;
+        }
+
+        .practice-box {
+            background: rgba(255,107,107,0.1);
+            border: 2px solid #ff6b6b;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            max-width: 350px;
+        }
+        .practice-box h4 { color: #ff6b6b; margin-bottom: 10px; }
+
+        .answer-section {
+            background: rgba(0,212,255,0.05);
+            border: 2px solid #00d4ff;
+        }
+        .answer-box {
+            background: rgba(0,255,136,0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .answer-box strong { color: #00ff88; }
+
+        .emoji { font-size: 1.3em; }
+        .timer { color: #888; font-size: 0.9em; margin-top: 10px; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse { animation: pulse 2s infinite; }
+
+        .conversion-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .arrow { font-size: 1.5em; color: #ffd93d; }
+
+        .hex-color {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 10px;
+            border: 2px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- SLIDE 1: Bienvenida -->
+    <div class="slide active">
+        <div style="font-size: 5em; margin-bottom: 20px;">💻 🔢 🎯</div>
+        <h1>Sistemas Numéricos</h1>
+        <h2 style="color: #ffd93d;">Decimal · Binario · Hexadecimal</h2>
+        <p style="font-size: 1.4em; max-width: 700px;">
+            Un viaje desde los números que usamos todos los días hasta el lenguaje secreto de las computadoras.
+        </p>
+        <div class="timer">⏱️ Duración total: 120 minutos</div>
+        <div style="margin-top: 30px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+            <span style="background: rgba(0,212,255,0.2); padding: 10px 20px; border-radius: 20px;">🎓 Aprende</span>
+            <span style="background: rgba(255,107,107,0.2); padding: 10px 20px; border-radius: 20px;">✏️ Practica</span>
+            <span style="background: rgba(255,217,61,0.2); padding: 10px 20px; border-radius: 20px;">🎮 Juega</span>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Agenda -->
+    <div class="slide">
+        <h1>📋 Agenda del Día</h1>
+        <div style="max-width: 700px; text-align: left;">
+            <div style="display: flex; align-items: center; margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid #00d4ff;">
+                <span style="font-size: 1.5em; margin-right: 15px;">1️⃣</span>
+                <div><strong>Bienvenida e Introducción</strong> <span style="color: #888;">— 10 min</span></div>
+            </div>
+            <div style="display: flex; align-items: center; margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid #00d4ff;">
+                <span style="font-size: 1.5em; margin-right: 15px;">2️⃣</span>
+                <div><strong>Sistema Decimal</strong> — Repaso base 10 <span style="color: #888;">— 15 min</span></div>
+            </div>
+            <div style="display: flex; align-items: center; margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid #ff6b6b;">
+                <span style="font-size: 1.5em; margin-right: 15px;">3️⃣</span>
+                <div><strong>Sistema Binario</strong> — El idioma de las computadoras <span style="color: #888;">— 25 min</span></div>
+            </div>
+            <div style="display: flex; align-items: center; margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid #ffd93d;">
+                <span style="font-size: 1.5em; margin-right: 15px;">4️⃣</span>
+                <div><strong>Sistema Hexadecimal</strong> — El atajo de los programadores <span style="color: #888;">— 25 min</span></div>
+            </div>
+            <div style="display: flex; align-items: center; margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid #00ff88;">
+                <span style="font-size: 1.5em; margin-right: 15px;">5️⃣</span>
+                <div><strong>Práctica y Ejercicios</strong> — Conversiones y juegos <span style="color: #888;">— 30 min</span></div>
+            </div>
+            <div style="display: flex; align-items: center; margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid #888;">
+                <span style="font-size: 1.5em; margin-right: 15px;">6️⃣</span>
+                <div><strong>Cierre y Preguntas</strong> — Resumen y aclaraciones <span style="color: #888;">— 15 min</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Dinámica de Apertura -->
+    <div class="slide">
+        <h1>🎲 Dinámica de Apertura</h1>
+        <h2>"¿Cuántos dedos ves?"</h2>
+        <div style="max-width: 800px;">
+            <div class="example-box">
+                <h4>🤔 Piensa rápido:</h4>
+                <p>Si levantas <span class="highlight">3 dedos</span> de una mano y <span class="highlight">2 dedos</span> de la otra...</p>
+                <p>¿Cuántos dedos levantaste en total? <strong>→ 5</strong> (¡fácil!)</p>
+                <p>Pero... ¿y si solo pudieras usar los números <span class="highlight">0 y 1</span>?</p>
+                <p>¿Cómo escribirías el número 5?</p>
+            </div>
+            <div class="example-box" style="border-color: #ffd93d;">
+                <h4>💡 La respuesta es: 101</h4>
+                <p>¡Sí! En binario, 5 se escribe <span class="highlight">101</span>.</p>
+                <p>Hoy aprenderemos por qué las computadoras "piensan" así.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Sistema Decimal -->
+    <div class="slide">
+        <h1>🔟 Sistema Decimal (Base 10)</h1>
+        <h2>El sistema que usamos todos los días</h2>
+        <div style="max-width: 900px;">
+            <p style="margin-bottom: 20px;">Usamos <span class="highlight">10 dígitos</span>: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9</p>
+            <p>Cada posición vale <span class="highlight">10 veces</span> más que la de su derecha.</p>
+
+            <div class="example-box">
+                <h4>📐 Descomposición del número 2,547:</h4>
+                <table>
+                    <tr>
+                        <th>2</th><th>5</th><th>4</th><th>7</th>
+                    </tr>
+                    <tr>
+                        <td>Millares<br>10³ = 1,000</td>
+                        <td>Centenas<br>10² = 100</td>
+                        <td>Decenas<br>10¹ = 10</td>
+                        <td>Unidades<br>10⁰ = 1</td>
+                    </tr>
+                    <tr style="background: rgba(0,212,255,0.1);">
+                        <td>2 × 1,000 = 2,000</td>
+                        <td>5 × 100 = 500</td>
+                        <td>4 × 10 = 40</td>
+                        <td>7 × 1 = 7</td>
+                    </tr>
+                </table>
+                <p style="text-align: center; margin-top: 15px;"><strong>2,000 + 500 + 40 + 7 = 2,547 ✓</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Decimal - Ejemplos -->
+    <div class="slide">
+        <h1>✏️ Ejemplos: Valor Posicional Decimal</h1>
+        <div class="grid-2" style="max-width: 1000px;">
+            <div class="example-box">
+                <h4>Ejemplo 1: Descompón 739</h4>
+                <p>7 × 100 = 700</p>
+                <p>3 × 10 = 30</p>
+                <p>9 × 1 = 9</p>
+                <p><strong>Total: 700 + 30 + 9 = 739</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: Descompón 4,062</h4>
+                <p>4 × 1,000 = 4,000</p>
+                <p>0 × 100 = 0</p>
+                <p>6 × 10 = 60</p>
+                <p>2 × 1 = 2</p>
+                <p><strong>Total: 4,000 + 0 + 60 + 2 = 4,062</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 3: Descompón 50,803</h4>
+                <p>5 × 10,000 = 50,000</p>
+                <p>0 × 1,000 = 0</p>
+                <p>8 × 100 = 800</p>
+                <p>0 × 10 = 0</p>
+                <p>3 × 1 = 3</p>
+                <p><strong>Total: 50,000 + 800 + 3 = 50,803</strong></p>
+            </div>
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>🎯 Ejercicio para ti:</h4>
+                <p>Descompón el número <span class="highlight">12,456</span></p>
+                <p style="color: #888;">(Respuesta al final de la presentación)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Introducción al Binario -->
+    <div class="slide">
+        <h1>💻 Sistema Binario (Base 2)</h1>
+        <h2>El idioma de las computadoras</h2>
+        <div style="max-width: 900px;">
+            <p>Las computadoras solo entienden <span class="highlight">dos estados</span>:</p>
+            <div style="display: flex; justify-content: center; gap: 40px; margin: 25px 0;">
+                <div style="text-align: center;">
+                    <div style="font-size: 4em;">⚡</div>
+                    <p><strong>1 = ENCENDIDO</strong></p>
+                    <p style="color: #888;">Hay electricidad</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 4em;">🚫</div>
+                    <p><strong>0 = APAGADO</strong></p>
+                    <p style="color: #888;">No hay electricidad</p>
+                </div>
+            </div>
+            <div class="example-box">
+                <h4>🧠 ¿Por qué binario?</h4>
+                <p>• Es más fácil detectar "sí/no" que 10 niveles diferentes de voltaje</p>
+                <p>• Menos errores en circuitos electrónicos</p>
+                <p>• Todo se representa con combinaciones de 0 y 1</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Binario - Valor Posicional -->
+    <div class="slide">
+        <h1>🔢 Valor Posicional en Binario</h1>
+        <p>En binario, cada posición vale <span class="highlight">2 veces</span> más que la anterior.</p>
+        <div style="max-width: 900px; margin-top: 20px;">
+            <table>
+                <tr>
+                    <th>Posición</th>
+                    <th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th>
+                </tr>
+                <tr>
+                    <td><strong>Potencia</strong></td>
+                    <td>2⁷</td><td>2⁶</td><td>2⁵</td><td>2⁴</td><td>2³</td><td>2²</td><td>2¹</td><td>2⁰</td>
+                </tr>
+                <tr>
+                    <td><strong>Valor</strong></td>
+                    <td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td>
+                </tr>
+            </table>
+            <div class="example-box" style="margin-top: 25px;">
+                <h4>📐 Ejemplo: Convertir 1011₂ a decimal</h4>
+                <div class="binary-visual">
+                    <div class="bit-container">
+                        <div class="bit on">1</div>
+                        <div class="bit-label">8 (2³)</div>
+                    </div>
+                    <div class="bit-container">
+                        <div class="bit off">0</div>
+                        <div class="bit-label">4 (2²)</div>
+                    </div>
+                    <div class="bit-container">
+                        <div class="bit on">1</div>
+                        <div class="bit-label">2 (2¹)</div>
+                    </div>
+                    <div class="bit-container">
+                        <div class="bit on">1</div>
+                        <div class="bit-label">1 (2⁰)</div>
+                    </div>
+                </div>
+                <p style="text-align: center;"><strong>8 + 0 + 2 + 1 = 11₁₀</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Binario a Decimal - Ejemplos -->
+    <div class="slide">
+        <h1>✏️ Binario → Decimal: Ejemplos</h1>
+        <div class="grid-2" style="max-width: 1000px;">
+            <div class="example-box">
+                <h4>Ejemplo 1: 1101₂</h4>
+                <p>1×8 + 1×4 + 0×2 + 1×1</p>
+                <p>= 8 + 4 + 0 + 1</p>
+                <p><strong>= 13₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: 10010₂</h4>
+                <p>1×16 + 0×8 + 0×4 + 1×2 + 0×1</p>
+                <p>= 16 + 0 + 0 + 2 + 0</p>
+                <p><strong>= 18₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 3: 111111₂</h4>
+                <p>1×32 + 1×16 + 1×8 + 1×4 + 1×2 + 1×1</p>
+                <p>= 32 + 16 + 8 + 4 + 2 + 1</p>
+                <p><strong>= 63₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 4: 101010₂</h4>
+                <p>1×32 + 0×16 + 1×8 + 0×4 + 1×2 + 0×1</p>
+                <p>= 32 + 8 + 2</p>
+                <p><strong>= 42₁₀</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Binario - Más Ejercicios -->
+    <div class="slide">
+        <h1>🎯 Practica: Binario → Decimal</h1>
+        <div class="grid-2" style="max-width: 900px;">
+            <div class="practice-box">
+                <h4>Ejercicio 1</h4>
+                <p class="big-number" style="font-size: 2.5em;">1010₂</p>
+                <p style="color: #888;">= ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Ejercicio 2</h4>
+                <p class="big-number" style="font-size: 2.5em;">110011₂</p>
+                <p style="color: #888;">= ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Ejercicio 3</h4>
+                <p class="big-number" style="font-size: 2.5em;">100000₂</p>
+                <p style="color: #888;">= ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Ejercicio 4</h4>
+                <p class="big-number" style="font-size: 2.5em;">11110000₂</p>
+                <p style="color: #888;">= ?₁₀</p>
+            </div>
+        </div>
+        <p style="margin-top: 20px; color: #ffd93d;">✏️ Escribe tus respuestas. Las veremos al final.</p>
+    </div>
+
+    <!-- SLIDE 10: Decimal a Binario -->
+    <div class="slide">
+        <h1>🔁 Decimal → Binario</h1>
+        <h2>Método: Divisiones sucesivas entre 2</h2>
+        <div style="max-width: 900px;">
+            <div class="example-box">
+                <h4>📐 Ejemplo: Convertir 25₁₀ a binario</h4>
+                <table style="margin: 15px auto;">
+                    <tr><th>División</th><th>Cociente</th><th>Residuo</th></tr>
+                    <tr><td>25 ÷ 2</td><td>12</td><td><strong>1</strong></td></tr>
+                    <tr><td>12 ÷ 2</td><td>6</td><td><strong>0</strong></td></tr>
+                    <tr><td>6 ÷ 2</td><td>3</td><td><strong>0</strong></td></tr>
+                    <tr><td>3 ÷ 2</td><td>1</td><td><strong>1</strong></td></tr>
+                    <tr><td>1 ÷ 2</td><td>0</td><td><strong>1</strong></td></tr>
+                </table>
+                <p style="text-align: center;">Lee los residuos de <span class="highlight">abajo hacia arriba</span>:</p>
+                <p class="big-number" style="font-size: 2.5em;">25₁₀ = 11001₂</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Decimal a Binario - Ejemplos -->
+    <div class="slide">
+        <h1>✏️ Decimal → Binario: Ejemplos</h1>
+        <div class="grid-2" style="max-width: 1000px;">
+            <div class="example-box">
+                <h4>Ejemplo 1: 14₁₀</h4>
+                <p>14÷2=7 R<strong>0</strong></p>
+                <p>7÷2=3 R<strong>1</strong></p>
+                <p>3÷2=1 R<strong>1</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p><strong>→ 1110₂</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: 37₁₀</h4>
+                <p>37÷2=18 R<strong>1</strong></p>
+                <p>18÷2=9 R<strong>0</strong></p>
+                <p>9÷2=4 R<strong>1</strong></p>
+                <p>4÷2=2 R<strong>0</strong></p>
+                <p>2÷2=1 R<strong>0</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p><strong>→ 100101₂</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 3: 100₁₀</h4>
+                <p>100÷2=50 R0, 50÷2=25 R0</p>
+                <p>25÷2=12 R1, 12÷2=6 R0</p>
+                <p>6÷2=3 R0, 3÷2=1 R1</p>
+                <p>1÷2=0 R1</p>
+                <p><strong>→ 1100100₂</strong></p>
+            </div>
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>🎯 Ejercicio para ti:</h4>
+                <p>Convierte <span class="highlight">55₁₀</span> a binario</p>
+                <p style="color: #888;">(Respuesta al final)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Tabla de conversión rápida -->
+    <div class="slide">
+        <h1>📊 Tabla de Conversión: Decimal ↔ Binario</h1>
+        <div style="max-width: 700px;">
+            <table>
+                <tr><th>Decimal</th><th>Binario</th><th>Decimal</th><th>Binario</th></tr>
+                <tr><td>0</td><td>0000</td><td>8</td><td>1000</td></tr>
+                <tr><td>1</td><td>0001</td><td>9</td><td>1001</td></tr>
+                <tr><td>2</td><td>0010</td><td>10</td><td>1010</td></tr>
+                <tr><td>3</td><td>0011</td><td>11</td><td>1011</td></tr>
+                <tr><td>4</td><td>0100</td><td>12</td><td>1100</td></tr>
+                <tr><td>5</td><td>0101</td><td>13</td><td>1101</td></tr>
+                <tr><td>6</td><td>0110</td><td>14</td><td>1110</td></tr>
+                <tr><td>7</td><td>0111</td><td>15</td><td>1111</td></tr>
+            </table>
+            <p style="margin-top: 15px; color: #ffd93d;">💡 Memoriza del 0 al 15. ¡Te será muy útil!</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Introducción Hexadecimal -->
+    <div class="slide">
+        <h1>🎨 Sistema Hexadecimal (Base 16)</h1>
+        <h2>El atajo de los programadores</h2>
+        <div style="max-width: 900px;">
+            <p>Usa <span class="highlight">16 símbolos</span>: 0-9 y A-F</p>
+            <div style="display: flex; justify-content: center; gap: 8px; margin: 20px 0; flex-wrap: wrap;">
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">0</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">1</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">2</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">3</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">4</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">5</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">6</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">7</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">8</span>
+                <span style="background: #00d4ff; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">9</span>
+                <span style="background: #ff6b6b; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">A</span>
+                <span style="background: #ff6b6b; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">B</span>
+                <span style="background: #ff6b6b; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">C</span>
+                <span style="background: #ff6b6b; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">D</span>
+                <span style="background: #ff6b6b; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">E</span>
+                <span style="background: #ff6b6b; color: #1a1a2e; padding: 8px 12px; border-radius: 8px; font-weight: bold;">F</span>
+            </div>
+            <div class="example-box">
+                <h4>🧠 ¿Por qué hexadecimal?</h4>
+                <p>• Un dígito hex = exactamente <span class="highlight">4 bits</span> (un nibble)</p>
+                <p>• Más compacto que escribir largas cadenas binarias</p>
+                <p>• Usado en colores web, direcciones MAC, memoria RAM...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Hexadecimal valores -->
+    <div class="slide">
+        <h1>🔢 Valores Hexadecimales</h1>
+        <div style="max-width: 800px;">
+            <table>
+                <tr><th>Hex</th><th>Decimal</th><th>Binario</th><th>Hex</th><th>Decimal</th><th>Binario</th></tr>
+                <tr><td>0</td><td>0</td><td>0000</td><td>8</td><td>8</td><td>1000</td></tr>
+                <tr><td>1</td><td>1</td><td>0001</td><td>9</td><td>9</td><td>1001</td></tr>
+                <tr><td>2</td><td>2</td><td>0010</td><td>A</td><td>10</td><td>1010</td></tr>
+                <tr><td>3</td><td>3</td><td>0011</td><td>B</td><td>11</td><td>1011</td></tr>
+                <tr><td>4</td><td>4</td><td>0100</td><td>C</td><td>12</td><td>1100</td></tr>
+                <tr><td>5</td><td>5</td><td>0101</td><td>D</td><td>13</td><td>1101</td></tr>
+                <tr><td>6</td><td>6</td><td>0110</td><td>E</td><td>14</td><td>1110</td></tr>
+                <tr><td>7</td><td>7</td><td>0111</td><td>F</td><td>15</td><td>1111</td></tr>
+            </table>
+            <p style="margin-top: 15px;">💡 <span class="highlight">A=10, B=11, C=12, D=13, E=14, F=15</span></p>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Hex a Decimal -->
+    <div class="slide">
+        <h1>🔁 Hexadecimal → Decimal</h1>
+        <div style="max-width: 900px;">
+            <p>Cada posición vale <span class="highlight">16 veces</span> más que la anterior.</p>
+            <div class="example-box">
+                <h4>📐 Ejemplo: Convertir 2A3₁₆ a decimal</h4>
+                <table style="margin: 15px auto;">
+                    <tr><th>2</th><th>A</th><th>3</th></tr>
+                    <tr><td>16² = 256</td><td>16¹ = 16</td><td>16⁰ = 1</td></tr>
+                    <tr style="background: rgba(0,212,255,0.1);">
+                        <td>2 × 256 = 512</td>
+                        <td>10 × 16 = 160</td>
+                        <td>3 × 1 = 3</td>
+                    </tr>
+                </table>
+                <p style="text-align: center;"><strong>512 + 160 + 3 = 675₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: FF₁₆</h4>
+                <p>F × 16 + F × 1 = 15 × 16 + 15 × 1 = 240 + 15 = <strong>255₁₀</strong></p>
+                <p style="color: #888;">(¡Por eso en colores RGB, FF = 255!)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Hex a Decimal - Ejemplos -->
+    <div class="slide">
+        <h1>✏️ Hex → Decimal: Más Ejemplos</h1>
+        <div class="grid-2" style="max-width: 1000px;">
+            <div class="example-box">
+                <h4>Ejemplo 1: 1F₁₆</h4>
+                <p>1 × 16 + 15 × 1</p>
+                <p>= 16 + 15</p>
+                <p><strong>= 31₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: B4₁₆</h4>
+                <p>11 × 16 + 4 × 1</p>
+                <p>= 176 + 4</p>
+                <p><strong>= 180₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 3: 100₁₆</h4>
+                <p>1 × 256 + 0 × 16 + 0 × 1</p>
+                <p>= 256 + 0 + 0</p>
+                <p><strong>= 256₁₀</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 4: ABC₁₆</h4>
+                <p>10 × 256 + 11 × 16 + 12 × 1</p>
+                <p>= 2,560 + 176 + 12</p>
+                <p><strong>= 2,748₁₀</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Hex a Binario (truco) -->
+    <div class="slide">
+        <h1>🎯 Truco: Hex ↔ Binario</h1>
+        <h2>¡Cada dígito hex = 4 bits!</h2>
+        <div style="max-width: 900px;">
+            <div class="example-box">
+                <h4>📐 Ejemplo: Convertir 3F₂₁₆ a binario</h4>
+                <div class="conversion-step">
+                    <span style="font-size: 1.5em;">3F₁₆</span>
+                    <span class="arrow">→</span>
+                    <span>3 = 0011</span>
+                    <span class="arrow">+</span>
+                    <span>F = 1111</span>
+                    <span class="arrow">→</span>
+                    <span style="font-size: 1.5em; color: #00ff88;"><strong>00111111₂</strong></span>
+                </div>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: A5₁₆</h4>
+                <div class="conversion-step">
+                    <span style="font-size: 1.5em;">A5₁₆</span>
+                    <span class="arrow">→</span>
+                    <span>A = 1010</span>
+                    <span class="arrow">+</span>
+                    <span>5 = 0101</span>
+                    <span class="arrow">→</span>
+                    <span style="font-size: 1.5em; color: #00ff88;"><strong>10100101₂</strong></span>
+                </div>
+            </div>
+            <p style="margin-top: 15px; color: #ffd93d;">💡 Este truco funciona en ambas direcciones: de binario a hex, agrupa de 4 en 4 bits.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Binario a Hex -->
+    <div class="slide">
+        <h1>🔁 Binario → Hexadecimal</h1>
+        <div style="max-width: 900px;">
+            <div class="example-box">
+                <h4>📐 Ejemplo: Convertir 11010110₂ a hex</h4>
+                <p><strong>Paso 1:</strong> Agrupa de 4 en 4, de derecha a izquierda</p>
+                <p style="font-size: 1.4em; margin: 15px 0;">1101 0110</p>
+                <p><strong>Paso 2:</strong> Convierte cada grupo</p>
+                <p>1101 = 13 = <strong>D</strong></p>
+                <p>0110 = 6 = <strong>6</strong></p>
+                <p style="font-size: 1.5em; margin-top: 15px;"><strong>→ D6₁₆</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: 11111010001₂</h4>
+                <p>Completar con ceros a la izquierda: <span class="highlight">0111 1101 0001</span></p>
+                <p>0111 = 7, 1101 = D, 0001 = 1</p>
+                <p><strong>→ 7D1₁₆</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Practica Hex -->
+    <div class="slide">
+        <h1>🎯 Practica: Hexadecimal</h1>
+        <div class="grid-2" style="max-width: 900px;">
+            <div class="practice-box">
+                <h4>Ejercicio 1</h4>
+                <p class="big-number" style="font-size: 2.5em;">2E₁₆</p>
+                <p style="color: #888;">= ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Ejercicio 2</h4>
+                <p class="big-number" style="font-size: 2.5em;">7A₁₆</p>
+                <p style="color: #888;">= ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Ejercicio 3</h4>
+                <p class="big-number" style="font-size: 2.5em;">1010 1100₂</p>
+                <p style="color: #888;">= ?₁₆</p>
+            </div>
+            <div class="practice-box">
+                <h4>Ejercicio 4</h4>
+                <p class="big-number" style="font-size: 2.5em;">FF₁₆</p>
+                <p style="color: #888;">= ?₂ = ?₁₀</p>
+            </div>
+        </div>
+        <p style="margin-top: 20px; color: #ffd93d;">✏️ Resuelve todos. ¡Las respuestas vienen al final!</p>
+    </div>
+
+    <!-- SLIDE 20: Hex en la vida real -->
+    <div class="slide">
+        <h1>🌍 Hexadecimal en la Vida Real</h1>
+        <div class="grid-2" style="max-width: 1000px;">
+            <div class="card">
+                <h4>🎨 Colores Web</h4>
+                <div style="display: flex; align-items: center; gap: 15px; margin: 10px 0;">
+                    <div class="hex-color" style="background: #FF0000;"></div>
+                    <div>
+                        <p><strong>#FF0000</strong> = Rojo puro</p>
+                        <p>FF=255 rojo, 00=0 verde, 00=0 azul</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; margin: 10px 0;">
+                    <div class="hex-color" style="background: #00FF00;"></div>
+                    <div>
+                        <p><strong>#00FF00</strong> = Verde puro</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; margin: 10px 0;">
+                    <div class="hex-color" style="background: #0000FF;"></div>
+                    <div>
+                        <p><strong>#0000FF</strong> = Azul puro</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h4>💾 Direcciones MAC</h4>
+                <p style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                    A4:5E:60:F2:3B:91
+                </p>
+                <p>Cada dispositivo de red tiene una dirección única en hex.</p>
+            </div>
+            <div class="card">
+                <h4>🧠 Memoria RAM</h4>
+                <p style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                    0x7FFF5E400000
+                </p>
+                <p>El prefijo <strong>0x</strong> indica que es hexadecimal.</p>
+            </div>
+            <div class="card">
+                <h4>🎮 Códigos de error</h4>
+                <p><strong>0x80070005</strong> = Error de acceso denegado en Windows</p>
+                <p><strong>0xDEADBEEF</strong> = Valor mágico usado en depuración</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Comparación de Sistemas -->
+    <div class="slide">
+        <h1>📊 Comparación de los Tres Sistemas</h1>
+        <div style="max-width: 900px;">
+            <table>
+                <tr>
+                    <th>Característica</th>
+                    <th>Decimal</th>
+                    <th>Binario</th>
+                    <th>Hexadecimal</th>
+                </tr>
+                <tr>
+                    <td><strong>Base</strong></td>
+                    <td>10</td>
+                    <td>2</td>
+                    <td>16</td>
+                </tr>
+                <tr>
+                    <td><strong>Dígitos</strong></td>
+                    <td>0-9</td>
+                    <td>0, 1</td>
+                    <td>0-9, A-F</td>
+                </tr>
+                <tr>
+                    <td><strong>Usado por</strong></td>
+                    <td>Humanos</td>
+                    <td>Computadoras</td>
+                    <td>Programadores</td>
+                </tr>
+                <tr>
+                    <td><strong>Ventaja</strong></td>
+                    <td>Intuitivo</td>
+                    <td>Simple para circuitos</td>
+                    <td>Compacto</td>
+                </tr>
+                <tr>
+                    <td><strong>Ejemplo: 255</strong></td>
+                    <td>255</td>
+                    <td>11111111</td>
+                    <td>FF</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Sesión de Práctica -->
+    <div class="slide">
+        <h1>✏️ Sesión de Práctica</h1>
+        <h2>¡Manos a la obra!</h2>
+        <div class="grid-3" style="max-width: 1100px;">
+            <div class="practice-box">
+                <h4>Grupo A: Decimal → Binario</h4>
+                <p>1. 23₁₀ = ?₂</p>
+                <p>2. 64₁₀ = ?₂</p>
+                <p>3. 127₁₀ = ?₂</p>
+                <p>4. 200₁₀ = ?₂</p>
+            </div>
+            <div class="practice-box">
+                <h4>Grupo B: Binario → Decimal</h4>
+                <p>1. 1001₂ = ?₁₀</p>
+                <p>2. 11100₂ = ?₁₀</p>
+                <p>3. 1010101₂ = ?₁₀</p>
+                <p>4. 11111111₂ = ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Grupo C: Hex → Decimal</h4>
+                <p>1. 1A₁₆ = ?₁₀</p>
+                <p>2. 80₁₆ = ?₁₀</p>
+                <p>3. F0₁₆ = ?₁₀</p>
+                <p>4. ACE₁₆ = ?₁₀</p>
+            </div>
+            <div class="practice-box">
+                <h4>Grupo D: Decimal → Hex</h4>
+                <p>1. 45₁₀ = ?₁₆</p>
+                <p>2. 100₁₀ = ?₁₆</p>
+                <p>3. 255₁₀ = ?₁₆</p>
+                <p>4. 4096₁₀ = ?₁₆</p>
+            </div>
+            <div class="practice-box">
+                <h4>Grupo E: Binario ↔ Hex</h4>
+                <p>1. 1100₂ = ?₁₆</p>
+                <p>2. 11110000₂ = ?₁₆</p>
+                <p>3. BE₁₆ = ?₂</p>
+                <p>4. 2A₁₆ = ?₂</p>
+            </div>
+            <div class="practice-box" style="border-color: #ffd93d;">
+                <h4>🎮 Desafío</h4>
+                <p>Si tu edad en decimal es X, ¿cuál es en binario y en hexadecimal?</p>
+                <p style="color: #ffd93d; margin-top: 10px;">¡Comparte con un compañero!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Juego Interactivo -->
+    <div class="slide">
+        <h1>🎮 Juego: "Adivina el Número"</h1>
+        <h2>En parejas: Uno piensa, el otro adivina</h2>
+        <div style="max-width: 800px;">
+            <div class="example-box">
+                <h4>🎯 Instrucciones:</h4>
+                <p>1. El "Pensador" elige un número del 0 al 63</p>
+                <p>2. Lo escribe en binario (6 bits)</p>
+                <p>3. El "Adivinador" debe decir el número en decimal</p>
+                <p>4. ¡Intercambian roles!</p>
+            </div>
+            <div class="example-box" style="border-color: #ffd93d;">
+                <h4>💡 Ejemplo de ronda:</h4>
+                <p>Pensador escribe: <span class="highlight">10 1101</span></p>
+                <p>Adivinador calcula: 32 + 8 + 4 + 1 = <strong>45</strong></p>
+                <p>¡Correcto! 🎉</p>
+            </div>
+            <p style="margin-top: 20px; color: #00ff88;">⏱️ Tienen 10 minutos para jugar varias rondas</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Juego de Colores -->
+    <div class="slide">
+        <h1>🎨 Juego: "El Color en Hex"</h1>
+        <div style="max-width: 900px;">
+            <div class="example-box">
+                <h4>🎯 Instrucciones:</h4>
+                <p>1. Te doy un color en formato #RRGGBB</p>
+                <p>2. Tú debes decir cuánto rojo, verde y azul tiene (0-255)</p>
+                <p>3. ¡El que más acierte gana!</p>
+            </div>
+            <div class="grid-2" style="margin-top: 20px;">
+                <div class="practice-box">
+                    <h4>Color 1</h4>
+                    <div class="hex-color" style="background: #FF5733; width: 60px; height: 60px;"></div>
+                    <p>#FF5733</p>
+                    <p style="color: #888;">R=? G=? B=?</p>
+                </div>
+                <div class="practice-box">
+                    <h4>Color 2</h4>
+                    <div class="hex-color" style="background: #33FF57; width: 60px; height: 60px;"></div>
+                    <p>#33FF57</p>
+                    <p style="color: #888;">R=? G=? B=?</p>
+                </div>
+                <div class="practice-box">
+                    <h4>Color 3</h4>
+                    <div class="hex-color" style="background: #3357FF; width: 60px; height: 60px;"></div>
+                    <p>#3357FF</p>
+                    <p style="color: #888;">R=? G=? B=?</p>
+                </div>
+                <div class="practice-box">
+                    <h4>Color 4</h4>
+                    <div class="hex-color" style="background: #800080; width: 60px; height: 60px;"></div>
+                    <p>#800080</p>
+                    <p style="color: #888;">R=? G=? B=?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: Resumen -->
+    <div class="slide">
+        <h1>📚 Resumen de la Clase</h1>
+        <div style="max-width: 900px; text-align: left;">
+            <div style="display: flex; align-items: flex-start; margin: 15px 0; padding: 15px; background: rgba(0,212,255,0.1); border-radius: 10px;">
+                <span style="font-size: 2em; margin-right: 15px;">🔟</span>
+                <div>
+                    <strong>Sistema Decimal (Base 10)</strong>
+                    <p>Dígitos 0-9. Valor posicional: unidades, decenas, centenas...</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: flex-start; margin: 15px 0; padding: 15px; background: rgba(255,107,107,0.1); border-radius: 10px;">
+                <span style="font-size: 2em; margin-right: 15px;">💻</span>
+                <div>
+                    <strong>Sistema Binario (Base 2)</strong>
+                    <p>Dígitos 0 y 1. Valor posicional: 1, 2, 4, 8, 16, 32, 64, 128...</p>
+                    <p>Decimal→Binario: divisiones sucesivas entre 2</p>
+                    <p>Binario→Decimal: sumar potencias de 2 donde hay 1</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: flex-start; margin: 15px 0; padding: 15px; background: rgba(255,217,61,0.1); border-radius: 10px;">
+                <span style="font-size: 2em; margin-right: 15px;">🎨</span>
+                <div>
+                    <strong>Sistema Hexadecimal (Base 16)</strong>
+                    <p>Dígitos 0-9, A-F. Valor posicional: 1, 16, 256, 4096...</p>
+                    <p>Truco: cada dígito hex = 4 bits exactamente</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Preguntas Frecuentes -->
+    <div class="slide">
+        <h1>❓ Preguntas Frecuentes</h1>
+        <div style="max-width: 850px; text-align: left;">
+            <div class="example-box">
+                <h4>❓ ¿Por qué no usamos decimal en las computadoras?</h4>
+                <p>Es mucho más difícil y costoso construir circuitos que distingan 10 niveles de voltaje. Con solo 2 estados (encendido/apagado) es más confiable.</p>
+            </div>
+            <div class="example-box">
+                <h4>❓ ¿Por qué hexadecimal y no otro sistema?</h4>
+                <p>Porque 16 es potencia de 2 (2⁴). Esto hace que la conversión binario↔hex sea trivial: cada 4 bits = 1 dígito hex.</p>
+            </div>
+            <div class="example-box">
+                <h4>❓ ¿Dónde veo binario/hex en mi vida diaria?</h4>
+                <p>En códigos de colores de páginas web, direcciones MAC de tu WiFi, tamaños de archivos (KB, MB, GB son potencias de 2), y en cualquier dispositivo digital.</p>
+            </div>
+            <div class="example-box">
+                <h4>❓ ¿Es difícil aprender esto?</h4>
+                <p>¡No! Solo necesitas practicar. Es como aprender un nuevo idioma: al principio cuesta, pero luego es natural.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Respuestas - Decimal -->
+    <div class="slide answer-section">
+        <h1>✅ Respuestas: Sistema Decimal</h1>
+        <div style="max-width: 800px;">
+            <div class="answer-box">
+                <strong>Ejercicio (Slide 5): Descomponer 12,456</strong>
+                <p>1 × 10,000 = 10,000</p>
+                <p>2 × 1,000 = 2,000</p>
+                <p>4 × 100 = 400</p>
+                <p>5 × 10 = 50</p>
+                <p>6 × 1 = 6</p>
+                <p><strong>Total: 10,000 + 2,000 + 400 + 50 + 6 = 12,456 ✓</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Respuestas - Binario -->
+    <div class="slide answer-section">
+        <h1>✅ Respuestas: Binario → Decimal</h1>
+        <div class="grid-2" style="max-width: 900px;">
+            <div class="answer-box">
+                <strong>Ejercicio 1 (Slide 9): 1010₂</strong>
+                <p>1×8 + 0×4 + 1×2 + 0×1</p>
+                <p>= 8 + 0 + 2 + 0 = <strong>10₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Ejercicio 2 (Slide 9): 110011₂</strong>
+                <p>1×32 + 1×16 + 0×8 + 0×4 + 1×2 + 1×1</p>
+                <p>= 32 + 16 + 0 + 0 + 2 + 1 = <strong>51₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Ejercicio 3 (Slide 9): 100000₂</strong>
+                <p>1×32 + 0×16 + 0×8 + 0×4 + 0×2 + 0×1</p>
+                <p>= <strong>32₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Ejercicio 4 (Slide 9): 11110000₂</strong>
+                <p>1×128 + 1×64 + 1×32 + 1×16 + 0×8 + 0×4 + 0×2 + 0×1</p>
+                <p>= 128 + 64 + 32 + 16 = <strong>240₁₀</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: Respuestas - Decimal a Binario -->
+    <div class="slide answer-section">
+        <h1>✅ Respuestas: Decimal → Binario</h1>
+        <div style="max-width: 800px;">
+            <div class="answer-box">
+                <strong>Ejercicio (Slide 11): 55₁₀ a binario</strong>
+                <p>55÷2=27 R<strong>1</strong></p>
+                <p>27÷2=13 R<strong>1</strong></p>
+                <p>13÷2=6 R<strong>1</strong></p>
+                <p>6÷2=3 R<strong>0</strong></p>
+                <p>3÷2=1 R<strong>1</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p>Leyendo residuos de abajo hacia arriba: <strong>110111₂</strong></p>
+                <p>Verificación: 32+16+4+2+1 = 55 ✓</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Respuestas - Hexadecimal -->
+    <div class="slide answer-section">
+        <h1>✅ Respuestas: Hexadecimal</h1>
+        <div class="grid-2" style="max-width: 900px;">
+            <div class="answer-box">
+                <strong>Ejercicio 1 (Slide 19): 2E₁₆</strong>
+                <p>2 × 16 + 14 × 1 = 32 + 14 = <strong>46₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Ejercicio 2 (Slide 19): 7A₁₆</strong>
+                <p>7 × 16 + 10 × 1 = 112 + 10 = <strong>122₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Ejercicio 3 (Slide 19): 1010 1100₂</strong>
+                <p>1010 = A, 1100 = C</p>
+                <p>= <strong>AC₁₆</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Ejercicio 4 (Slide 19): FF₁₆</strong>
+                <p>Binario: 1111 1111 = <strong>11111111₂</strong></p>
+                <p>Decimal: 15×16 + 15×1 = 240 + 15 = <strong>255₁₀</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: Respuestas - Sesión de Práctica -->
+    <div class="slide answer-section">
+        <h1>✅ Respuestas: Sesión de Práctica</h1>
+        <div class="grid-2" style="max-width: 1000px;">
+            <div class="answer-box">
+                <strong>Grupo A: Decimal → Binario</strong>
+                <p>1. 23₁₀ = <strong>10111₂</strong></p>
+                <p>2. 64₁₀ = <strong>1000000₂</strong></p>
+                <p>3. 127₁₀ = <strong>1111111₂</strong></p>
+                <p>4. 200₁₀ = <strong>11001000₂</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Grupo B: Binario → Decimal</strong>
+                <p>1. 1001₂ = <strong>9₁₀</strong></p>
+                <p>2. 11100₂ = <strong>28₁₀</strong></p>
+                <p>3. 1010101₂ = <strong>85₁₀</strong></p>
+                <p>4. 11111111₂ = <strong>255₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Grupo C: Hex → Decimal</strong>
+                <p>1. 1A₁₆ = <strong>26₁₀</strong></p>
+                <p>2. 80₁₆ = <strong>128₁₀</strong></p>
+                <p>3. F0₁₆ = <strong>240₁₀</strong></p>
+                <p>4. ACE₁₆ = <strong>2,766₁₀</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Grupo D: Decimal → Hex</strong>
+                <p>1. 45₁₀ = <strong>2D₁₆</strong></p>
+                <p>2. 100₁₀ = <strong>64₁₆</strong></p>
+                <p>3. 255₁₀ = <strong>FF₁₆</strong></p>
+                <p>4. 4096₁₀ = <strong>1000₁₆</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>Grupo E: Binario ↔ Hex</strong>
+                <p>1. 1100₂ = <strong>C₁₆</strong></p>
+                <p>2. 11110000₂ = <strong>F0₁₆</strong></p>
+                <p>3. BE₁₆ = <strong>10111110₂</strong></p>
+                <p>4. 2A₁₆ = <strong>00101010₂</strong></p>
+            </div>
+            <div class="answer-box">
+                <strong>🎨 Juego de Colores (Slide 24)</strong>
+                <p>1. #FF5733 → R=<strong>255</strong> G=<strong>87</strong> B=<strong>51</strong></p>
+                <p>2. #33FF57 → R=<strong>51</strong> G=<strong>255</strong> B=<strong>87</strong></p>
+                <p>3. #3357FF → R=<strong>51</strong> G=<strong>87</strong> B=<strong>255</strong></p>
+                <p>4. #800080 → R=<strong>128</strong> G=<strong>0</strong> B=<strong>128</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Cierre -->
+    <div class="slide">
+        <h1>🎓 ¡Felicitaciones!</h1>
+        <div style="font-size: 5em; margin: 20px 0;">🎉🎊🥳</div>
+        <h2>Ahora hablas el idioma de las computadoras</h2>
+        <div style="max-width: 700px; margin: 20px 0;">
+            <p style="font-size: 1.3em;">Has aprendido a convertir entre:</p>
+            <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
+                <span style="background: rgba(0,212,255,0.2); padding: 15px 25px; border-radius: 15px; font-size: 1.2em;">🔟 Decimal</span>
+                <span style="font-size: 2em;">↔️</span>
+                <span style="background: rgba(255,107,107,0.2); padding: 15px 25px; border-radius: 15px; font-size: 1.2em;">💻 Binario</span>
+                <span style="font-size: 2em;">↔️</span>
+                <span style="background: rgba(255,217,61,0.2); padding: 15px 25px; border-radius: 15px; font-size: 1.2em;">🎨 Hexadecimal</span>
+            </div>
+        </div>
+        <div class="example-box" style="border-color: #00ff88;">
+            <h4 style="color: #00ff88;">💡 Consejo final:</h4>
+            <p>La práctica hace al maestro. Cada vez que veas un número, pregúntate:</p>
+            <p><em>"¿Cómo se vería esto en binario? ¿Y en hexadecimal?"</em></p>
+        </div>
+        <p style="margin-top: 20px; color: #888;">¿Preguntas? ¡Este es el momento! 🙋</p>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="prevSlide()">◀ Anterior</button>
+        <button class="nav-btn" onclick="nextSlide()">Siguiente ▶</button>
+    </div>
+    <div class="slide-counter" id="slideCounter">1 / 32</div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[n].classList.add('active');
+            document.getElementById('slideCounter').textContent = (n + 1) + ' / ' + totalSlides;
+            document.getElementById('progressBar').style.width = ((n + 1) / totalSlides * 100) + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
