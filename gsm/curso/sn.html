@@ -203,6 +203,81 @@
             margin: 10px;
             border: 2px solid #fff;
         }
+
+        .timer-widget {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            background: rgba(26, 26, 46, 0.92);
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #eee;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
+        }
+        .timer-widget .timer-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95em;
+        }
+        .timer-widget .timer-label {
+            color: #ffd93d;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .timer-widget time {
+            font-variant-numeric: tabular-nums;
+            font-weight: bold;
+            color: #00d4ff;
+            min-width: 70px;
+            text-align: center;
+        }
+        .timer-widget button {
+            background: #00d4ff;
+            color: #1a1a2e;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .timer-widget button:hover { background: #ffd93d; transform: scale(1.05); }
+        .timer-widget .timer-finished { color: #ff6b6b; }
+        .timer-widget .agenda-title {
+            color: #ffd93d;
+            font-weight: bold;
+            font-size: 0.72em;
+            letter-spacing: 0.8px;
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(0, 212, 255, 0.35);
+        }
+        .timer-widget .agenda-current {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #eee;
+            max-width: 320px;
+            line-height: 1.35;
+        }
+        .timer-widget .agenda-current .agenda-name { flex: 1 1 auto; }
+        .timer-widget .agenda-current .agenda-time {
+            flex: 0 0 auto;
+            font-variant-numeric: tabular-nums;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        .timer-widget .agenda-current.agenda-break { color: #ffd93d; font-style: italic; }
     </style>
 </head>
 <body>
@@ -412,6 +487,68 @@
                 <p style="text-align: center;"><strong>8 + 0 + 2 + 1 = 11₁₀</strong></p>
             </div>
         </div>
+    </div>
+
+    <!-- SLIDE 7b: Nibbles de 4 bits -->
+    <div class="slide">
+        <h1>🧩 Nibbles de 4 bits</h1>
+        <h2>Un grupo de 4 bits cubre 0 a 15 (un dígito hex)</h2>
+        <div style="max-width: 1000px;">
+            <p>Con <span class="highlight">4 bits</span> tenemos 2⁴ = <strong>16 combinaciones</strong>, justo lo que necesita un dígito hexadecimal.</p>
+            <table style="margin: 15px auto;">
+                <tr><th>Binario</th><th>Decimal</th><th>Hex</th><th>Binario</th><th>Decimal</th><th>Hex</th></tr>
+                <tr><td>0000</td><td>0</td><td>0</td><td>1000</td><td>8</td><td>8</td></tr>
+                <tr><td>0001</td><td>1</td><td>1</td><td>1001</td><td>9</td><td>9</td></tr>
+                <tr><td>0010</td><td>2</td><td>2</td><td>1010</td><td>10</td><td>A</td></tr>
+                <tr><td>0011</td><td>3</td><td>3</td><td>1011</td><td>11</td><td>B</td></tr>
+                <tr><td>0100</td><td>4</td><td>4</td><td>1100</td><td>12</td><td>C</td></tr>
+                <tr><td>0101</td><td>5</td><td>5</td><td>1101</td><td>13</td><td>D</td></tr>
+                <tr><td>0110</td><td>6</td><td>6</td><td>1110</td><td>14</td><td>E</td></tr>
+                <tr><td>0111</td><td>7</td><td>7</td><td>1111</td><td>15</td><td>F</td></tr>
+            </table>
+            <p style="color: #ffd93d; text-align: center;">💡 Memoriza esta tabla y convertir hex ↔ binario es trivial.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 7c: Nibbles - Ejemplos con división -->
+    <div class="slide">
+        <h1>✏️ Nibbles: Ejemplos por División</h1>
+        <h2>Construye cualquier nibble con ÷ 2</h2>
+        <div class="grid-2" style="max-width: 1100px;">
+            <div class="example-box">
+                <h4>Ejemplo 1: 10₁₀ a nibble</h4>
+                <p>10÷2=5 R<strong>0</strong></p>
+                <p>5÷2=2 R<strong>1</strong></p>
+                <p>2÷2=1 R<strong>0</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p>Leyendo de abajo hacia arriba: <strong>1010₂</strong></p>
+                <p style="color: #00ff88;">→ nibble = <strong>1010₂ = A₁₆</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: 13₁₀ a nibble</h4>
+                <p>13÷2=6 R<strong>1</strong></p>
+                <p>6÷2=3 R<strong>0</strong></p>
+                <p>3÷2=1 R<strong>1</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p>→ <strong>1101₂ = D₁₆</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 3: 15₁₀ a nibble</h4>
+                <p>15÷2=7 R<strong>1</strong></p>
+                <p>7÷2=3 R<strong>1</strong></p>
+                <p>3÷2=1 R<strong>1</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p>→ <strong>1111₂ = F₁₆</strong> (el nibble máximo)</p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 4: 6₁₀ a nibble</h4>
+                <p>6÷2=3 R<strong>0</strong></p>
+                <p>3÷2=1 R<strong>1</strong></p>
+                <p>1÷2=0 R<strong>1</strong></p>
+                <p>Rellenar con 0 a la izquierda: <strong>0110₂ = 6₁₆</strong></p>
+            </div>
+        </div>
+        <p style="margin-top: 15px; color: #ffd93d; text-align: center;">🔁 Cada nibble es exactamente <strong>un dígito hexadecimal</strong>.</p>
     </div>
 
     <!-- SLIDE 8: Binario a Decimal - Ejemplos -->
@@ -693,6 +830,38 @@
         </div>
     </div>
 
+    <!-- SLIDE 17b: Decimal → Hex por división -->
+    <div class="slide">
+        <h1>🔁 Decimal → Hexadecimal</h1>
+        <h2>Método: Divisiones sucesivas entre 16</h2>
+        <div style="max-width: 900px;">
+            <div class="example-box">
+                <h4>📐 Ejemplo: Convertir 46₁₀ a hex</h4>
+                <table style="margin: 15px auto;">
+                    <tr><th>División</th><th>Cociente</th><th>Residuo</th><th>Dígito hex</th></tr>
+                    <tr><td>46 ÷ 16</td><td>2</td><td><strong>14</strong></td><td><strong>E</strong></td></tr>
+                    <tr><td>2 ÷ 16</td><td>0</td><td><strong>2</strong></td><td><strong>2</strong></td></tr>
+                </table>
+                <p style="text-align: center;">Lee los residuos de <span class="highlight">abajo hacia arriba</span>:</p>
+                <p class="big-number" style="font-size: 2.5em;">46₁₀ = 2E₁₆</p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 2: 255₁₀</h4>
+                <p>255÷16=15 R<strong>15</strong> → <strong>F</strong></p>
+                <p>15÷16=0 R<strong>15</strong> → <strong>F</strong></p>
+                <p>→ <strong>FF₁₆</strong></p>
+            </div>
+            <div class="example-box">
+                <h4>Ejemplo 3: 4096₁₀</h4>
+                <p>4096÷16=256 R<strong>0</strong></p>
+                <p>256÷16=16 R<strong>0</strong></p>
+                <p>16÷16=1 R<strong>0</strong></p>
+                <p>1÷16=0 R<strong>1</strong></p>
+                <p>→ <strong>1000₁₆</strong></p>
+            </div>
+        </div>
+    </div>
+
     <!-- SLIDE 18: Binario a Hex -->
     <div class="slide">
         <h1>🔁 Binario → Hexadecimal</h1>
@@ -791,6 +960,58 @@
         </div>
     </div>
 
+    <!-- SLIDE 20b: Probador de Color Hex (dinámico) -->
+    <div class="slide">
+        <h1>🎨 Probador de Color Hex</h1>
+        <h2>Ingresa un código hex y velo en pantalla</h2>
+        <div style="max-width: 1000px; width: 100%;">
+            <div class="example-box" style="text-align: left;">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                    <label for="hexColorInput" style="font-size: 1.2em;">#</label>
+                    <input id="hexColorInput" type="text" maxlength="6" value="FF5733"
+                        aria-label="Código hexadecimal del color (6 dígitos)"
+                        style="font-family: monospace; font-size: 1.6em; padding: 8px 12px; width: 180px;
+                               text-transform: uppercase; letter-spacing: 4px; border-radius: 10px;
+                               border: 2px solid #00d4ff; background: rgba(0,0,0,0.4); color: #00d4ff;
+                               text-align: center;">
+                    <input id="hexColorPicker" type="color" value="#FF5733"
+                        aria-label="Selector visual de color"
+                        style="width: 60px; height: 50px; border: 2px solid #00d4ff; border-radius: 10px;
+                               background: transparent; cursor: pointer;">
+                    <button type="button" id="hexColorRandom" class="nav-btn" style="margin: 0;">🎲 Aleatorio</button>
+                </div>
+                <p id="hexColorError" role="alert" aria-live="polite"
+                    style="color: #ff6b6b; margin-top: 10px; min-height: 1.2em; text-align: center;"></p>
+            </div>
+
+            <div class="grid-2" style="margin-top: 20px;">
+                <div id="hexColorSwatch"
+                    aria-label="Muestra del color"
+                    style="min-height: 220px; border: 3px solid #00d4ff; border-radius: 15px;
+                           display: flex; align-items: center; justify-content: center;
+                           background: #FF5733; transition: background 0.2s;">
+                    <span id="hexColorLabel"
+                        style="font-family: monospace; font-size: 2em; font-weight: bold;
+                               color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+                               background: rgba(0,0,0,0.35); padding: 8px 18px; border-radius: 10px;">
+                        #FF5733
+                    </span>
+                </div>
+                <div class="example-box" style="text-align: left;">
+                    <h4>🧮 Descomposición RGB</h4>
+                    <p>R = <span class="highlight" data-rgb="rHex">FF</span>₁₆ =
+                        <strong data-rgb="rDec">255</strong>₁₀</p>
+                    <p>G = <span class="highlight" data-rgb="gHex">57</span>₁₆ =
+                        <strong data-rgb="gDec">87</strong>₁₀</p>
+                    <p>B = <span class="highlight" data-rgb="bHex">33</span>₁₆ =
+                        <strong data-rgb="bDec">51</strong>₁₀</p>
+                    <p style="margin-top: 10px; color: #ffd93d;">Cada par de dígitos hex = 1 byte = 0-255.</p>
+                    <p style="color: #888; font-size: 0.9em;">Ejemplo: FF₁₆ = 15×16 + 15×1 = 255₁₀</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SLIDE 21: Comparación de Sistemas -->
     <div class="slide">
         <h1>📊 Comparación de los Tres Sistemas</h1>
@@ -880,6 +1101,14 @@
                 <h4>🎮 Desafío</h4>
                 <p>Si tu edad en decimal es X, ¿cuál es en binario y en hexadecimal?</p>
                 <p style="color: #ffd93d; margin-top: 10px;">¡Comparte con un compañero!</p>
+            </div>
+            <div class="practice-box" style="border-color: #00ff88;">
+                <h4>Grupo F: Nibbles de 4 bits</h4>
+                <p>Da cada número como nibble (4 bits) y como dígito hex.</p>
+                <p>1. 5₁₀ = ?₂ (4 bits) = ?₁₆</p>
+                <p>2. 9₁₀ = ?₂ (4 bits) = ?₁₆</p>
+                <p>3. 12₁₀ = ?₂ (4 bits) = ?₁₆</p>
+                <p>4. 14₁₀ = ?₂ (4 bits) = ?₁₆</p>
             </div>
         </div>
     </div>
@@ -1090,39 +1319,46 @@
         <h1>✅ Respuestas: Sesión de Práctica</h1>
         <div class="grid-2" style="max-width: 1000px;">
             <div class="answer-box">
-                <strong>Grupo A: Decimal → Binario</strong>
-                <p>1. 23₁₀ = <strong>10111₂</strong></p>
+                <strong>Grupo A: Decimal → Binario (÷ 2)</strong>
+                <p>1. 23₁₀: 23÷2=11 R<strong>1</strong>, 11÷2=5 R<strong>1</strong>, 5÷2=2 R<strong>1</strong>, 2÷2=1 R<strong>0</strong>, 1÷2=0 R<strong>1</strong> → <strong>10111₂</strong></p>
                 <p>2. 64₁₀ = <strong>1000000₂</strong></p>
                 <p>3. 127₁₀ = <strong>1111111₂</strong></p>
                 <p>4. 200₁₀ = <strong>11001000₂</strong></p>
             </div>
             <div class="answer-box">
-                <strong>Grupo B: Binario → Decimal</strong>
-                <p>1. 1001₂ = <strong>9₁₀</strong></p>
+                <strong>Grupo B: Binario → Decimal (valor posicional)</strong>
+                <p>1. 1001₂ = 1×8 + 0×4 + 0×2 + 1×1 = <strong>9₁₀</strong></p>
                 <p>2. 11100₂ = <strong>28₁₀</strong></p>
                 <p>3. 1010101₂ = <strong>85₁₀</strong></p>
                 <p>4. 11111111₂ = <strong>255₁₀</strong></p>
             </div>
             <div class="answer-box">
                 <strong>Grupo C: Hex → Decimal</strong>
-                <p>1. 1A₁₆ = <strong>26₁₀</strong></p>
+                <p>1. 1A₁₆ = 1×16 + 10×1 = <strong>26₁₀</strong></p>
                 <p>2. 80₁₆ = <strong>128₁₀</strong></p>
                 <p>3. F0₁₆ = <strong>240₁₀</strong></p>
                 <p>4. ACE₁₆ = <strong>2,766₁₀</strong></p>
             </div>
             <div class="answer-box">
-                <strong>Grupo D: Decimal → Hex</strong>
-                <p>1. 45₁₀ = <strong>2D₁₆</strong></p>
-                <p>2. 100₁₀ = <strong>64₁₆</strong></p>
-                <p>3. 255₁₀ = <strong>FF₁₆</strong></p>
+                <strong>Grupo D: Decimal → Hex (÷ 16)</strong>
+                <p>1. 45₁₀: 45÷16=2 R<strong>13</strong>→<strong>D</strong>, 2÷16=0 R<strong>2</strong>→<strong>2</strong> → <strong>2D₁₆</strong></p>
+                <p>2. 100₁₀: 100÷16=6 R<strong>4</strong>, 6÷16=0 R<strong>6</strong> → <strong>64₁₆</strong></p>
+                <p>3. 255₁₀: 255÷16=15 R<strong>15</strong>→<strong>F</strong>, 15÷16=0 R<strong>15</strong>→<strong>F</strong> → <strong>FF₁₆</strong></p>
                 <p>4. 4096₁₀ = <strong>1000₁₆</strong></p>
             </div>
             <div class="answer-box">
-                <strong>Grupo E: Binario ↔ Hex</strong>
+                <strong>Grupo E: Binario ↔ Hex (nibbles)</strong>
                 <p>1. 1100₂ = <strong>C₁₆</strong></p>
-                <p>2. 11110000₂ = <strong>F0₁₆</strong></p>
-                <p>3. BE₁₆ = <strong>10111110₂</strong></p>
-                <p>4. 2A₁₆ = <strong>00101010₂</strong></p>
+                <p>2. 11110000₂ = 1111 0000 = <strong>F0₁₆</strong></p>
+                <p>3. BE₁₆ = 1011 1110 = <strong>10111110₂</strong></p>
+                <p>4. 2A₁₆ = 0010 1010 = <strong>00101010₂</strong></p>
+            </div>
+            <div class="answer-box" style="border-color: #00ff88;">
+                <strong>Grupo F: Nibbles (÷ 2)</strong>
+                <p>1. 5₁₀: 5÷2=2 R<strong>1</strong>, 2÷2=1 R<strong>0</strong>, 1÷2=0 R<strong>1</strong> → <strong>0101₂ = 5₁₆</strong></p>
+                <p>2. 9₁₀: 9÷2=4 R<strong>1</strong>, 4÷2=2 R<strong>0</strong>, 2÷2=1 R<strong>0</strong>, 1÷2=0 R<strong>1</strong> → <strong>1001₂ = 9₁₆</strong></p>
+                <p>3. 12₁₀: 12÷2=6 R<strong>0</strong>, 6÷2=3 R<strong>0</strong>, 3÷2=1 R<strong>1</strong>, 1÷2=0 R<strong>1</strong> → <strong>1100₂ = C₁₆</strong></p>
+                <p>4. 14₁₀: 14÷2=7 R<strong>0</strong>, 7÷2=3 R<strong>1</strong>, 3÷2=1 R<strong>1</strong>, 1÷2=0 R<strong>1</strong> → <strong>1110₂ = E₁₆</strong></p>
             </div>
             <div class="answer-box">
                 <strong>🎨 Juego de Colores (Slide 24)</strong>
@@ -1163,7 +1399,28 @@
     </div>
     <div class="slide-counter" id="slideCounter">1 / 32</div>
 
+    <div class="timer-widget" role="group" aria-label="Temporizadores del curso">
+        <div class="timer-row">
+            <span aria-hidden="true">⏱</span>
+            <span class="timer-label">CLASE</span>
+            <time data-timer="main">02:00:00</time>
+            <button type="button" data-control="main" aria-label="Iniciar">Iniciar</button>
+        </div>
+        <div class="timer-row">
+            <span aria-hidden="true">☕</span>
+            <span class="timer-label">DESCANSO</span>
+            <time data-timer="break_">20:00</time>
+            <button type="button" data-control="break_" aria-label="Iniciar descanso">Iniciar descanso</button>
+        </div>
+        <div class="agenda-title" aria-hidden="true">SECCIÓN ACTUAL</div>
+        <div class="agenda-current" aria-live="polite">
+            <span class="agenda-name" data-agenda="name">1️⃣ Bienvenida e Introducción</span>
+            <span class="agenda-time" data-agenda="time">10 min</span>
+        </div>
+    </div>
+
     <script>
+        (function () {
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const totalSlides = slides.length;
@@ -1189,12 +1446,477 @@
             }
         }
 
+        // Preserve global access for the inline onclick handlers on .nav-btn.
+        window.nextSlide = nextSlide;
+        window.prevSlide = prevSlide;
+
         document.addEventListener('keydown', (e) => {
+            if (e.target && typeof e.target.closest === 'function' && e.target.closest('.timer-widget')) return;
+            // Don't hijack keys when typing into form controls (hex input, color picker).
+            const tag = e.target && e.target.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
             if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
         showSlide(0);
+
+        // --- Hex Color Picker (slide 20b) -----------------------------------
+        // Dynamic RGB hex color demo. The user types a 6-char hex code
+        // (optional leading `#`) or picks one with the native color input;
+        // the swatch updates live and the RGB decomposition is recomputed
+        // from the three byte pairs. Invalid input surfaces a short hint
+        // without mutating the current valid color.
+        (function initHexColorPicker() {
+            const input  = document.getElementById('hexColorInput');
+            const picker = document.getElementById('hexColorPicker');
+            const swatch = document.getElementById('hexColorSwatch');
+            const label  = document.getElementById('hexColorLabel');
+            const error  = document.getElementById('hexColorError');
+            const random = document.getElementById('hexColorRandom');
+            if (!input || !picker || !swatch || !label) return;
+
+            const rHex = document.querySelector('[data-rgb="rHex"]');
+            const gHex = document.querySelector('[data-rgb="gHex"]');
+            const bHex = document.querySelector('[data-rgb="bHex"]');
+            const rDec = document.querySelector('[data-rgb="rDec"]');
+            const gDec = document.querySelector('[data-rgb="gDec"]');
+            const bDec = document.querySelector('[data-rgb="bDec"]');
+
+            const HEX6 = /^[0-9a-fA-F]{6}$/;
+
+            const normalize = (raw) => (raw || '').trim().replace(/^#/, '').toUpperCase();
+
+            // Choose black or white label based on perceived luminance so the
+            // hex text stays readable on any background.
+            const pickTextColor = (r, g, b) => {
+                const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                return lum > 0.6 ? '#1a1a2e' : '#ffffff';
+            };
+
+            const apply = (hex6) => {
+                const r = parseInt(hex6.slice(0, 2), 16);
+                const g = parseInt(hex6.slice(2, 4), 16);
+                const b = parseInt(hex6.slice(4, 6), 16);
+                swatch.style.background = '#' + hex6;
+                label.textContent = '#' + hex6;
+                label.style.color = pickTextColor(r, g, b);
+                picker.value = '#' + hex6;
+                if (rHex) rHex.textContent = hex6.slice(0, 2);
+                if (gHex) gHex.textContent = hex6.slice(2, 4);
+                if (bHex) bHex.textContent = hex6.slice(4, 6);
+                if (rDec) rDec.textContent = String(r);
+                if (gDec) gDec.textContent = String(g);
+                if (bDec) bDec.textContent = String(b);
+                if (error) error.textContent = '';
+            };
+
+            const tryApply = (raw) => {
+                const hex6 = normalize(raw);
+                if (!HEX6.test(hex6)) {
+                    if (error) error.textContent = 'Usa 6 dígitos hex (0-9, A-F). Ej: FF5733';
+                    return false;
+                }
+                apply(hex6);
+                return true;
+            };
+
+            input.addEventListener('input', () => {
+                // Silent retry on every keystroke: only highlight errors once
+                // the user has typed a full-length string.
+                const hex6 = normalize(input.value);
+                if (hex6.length === 6) tryApply(hex6);
+                else if (error) error.textContent = '';
+            });
+            input.addEventListener('change', () => tryApply(input.value));
+            input.addEventListener('blur',   () => tryApply(input.value));
+
+            picker.addEventListener('input', () => {
+                const hex6 = normalize(picker.value);
+                if (HEX6.test(hex6)) {
+                    input.value = hex6;
+                    apply(hex6);
+                }
+            });
+
+            if (random) {
+                random.addEventListener('click', () => {
+                    const hex6 = Math.floor(Math.random() * 0x1000000)
+                        .toString(16)
+                        .padStart(6, '0')
+                        .toUpperCase();
+                    input.value = hex6;
+                    apply(hex6);
+                });
+            }
+
+            // Seed initial render from the markup default.
+            tryApply(input.value);
+        })();
+
+        // --- sn-course-timer internals (placeholders, filled in by later tasks) ---
+        let formatTime;
+        let timerReducer;
+
+        // Format a non-negative integer number of seconds:
+        //   seconds < 3600  -> "MM:SS"
+        //   seconds >= 3600 -> "HH:MM:SS"
+        // Each component is zero-padded to two digits. Boundary:
+        //   3599 -> "59:59", 3600 -> "01:00:00".
+        formatTime = (seconds) => {
+            const total = Math.max(0, Math.floor(seconds));
+            const h = Math.floor(total / 3600);
+            const m = Math.floor((total % 3600) / 60);
+            const s = total % 60;
+            const pad = (n) => String(n).padStart(2, '0');
+            return h > 0
+                ? `${pad(h)}:${pad(m)}:${pad(s)}`
+                : `${pad(m)}:${pad(s)}`;
+        };
+        let nextAction;
+        let createStore;
+        let INITIAL_MAIN;
+        let INITIAL_BREAK;
+
+        // Initial states for each sub-timer. Main_Timer starts at 120 min
+        // (7,200 s), Break_Timer at 20 min (1,200 s); both begin `idle`.
+        INITIAL_MAIN  = { status: 'idle', remaining: 7200, initial: 7200 };
+        INITIAL_BREAK = { status: 'idle', remaining: 1200, initial: 1200 };
+
+        // Pure reducer for a single timer. Handles START, PAUSE, RESET, TICK
+        // per the design truth table. Invalid (status, action) pairs return
+        // the input state unchanged (Requirement 5.5). `remaining` is clamped
+        // with Math.max(0, remaining - 1); status transitions to `finished`
+        // iff the post-decrement `remaining === 0`.
+        timerReducer = (state, action) => {
+            if (!action || typeof action.type !== 'string') return state;
+            switch (action.type) {
+                case 'START':
+                    if (state.status === 'idle' || state.status === 'paused') {
+                        return { ...state, status: 'running' };
+                    }
+                    return state;
+                case 'PAUSE':
+                    if (state.status === 'running') {
+                        return { ...state, status: 'paused' };
+                    }
+                    return state;
+                case 'RESET':
+                    return { status: 'idle', remaining: state.initial, initial: state.initial };
+                case 'TICK':
+                    if (state.status === 'running') {
+                        const remaining = Math.max(0, state.remaining - 1);
+                        return {
+                            ...state,
+                            remaining,
+                            status: remaining === 0 ? 'finished' : 'running',
+                        };
+                    }
+                    return state;
+                default:
+                    return state;
+            }
+        };
+
+        // Pure mapping from timer status to the next control action label.
+        nextAction = (state) => {
+            switch (state.status) {
+                case 'idle':     return 'start';
+                case 'running':  return 'pause';
+                case 'paused':   return 'start';
+                case 'finished': return 'reset';
+                default:         return 'start';
+            }
+        };
+
+        // Tiny redux-style store holding the two independent sub-timers.
+        // - dispatch({type, which}): routes to a single sub-timer when `which`
+        //   is 'main' or 'break_'. A broadcast TICK (no `which`) applies TICK
+        //   to both sub-timers independently, each evaluated against its own
+        //   previous status so independence holds (Requirements 3.5, 3.6).
+        // - subscribe(listener): returns an unsubscribe function.
+        // - getState(): returns the current {main, break_} snapshot.
+        // Listeners are only notified when state actually changes (reference
+        // equality works because timerReducer returns the same object on
+        // no-ops).
+        createStore = (initial) => {
+            const seed = initial || { main: INITIAL_MAIN, break_: INITIAL_BREAK };
+            let state = { main: seed.main, break_: seed.break_ };
+            const listeners = new Set();
+
+            const getState = () => state;
+
+            const subscribe = (listener) => {
+                listeners.add(listener);
+                return () => { listeners.delete(listener); };
+            };
+
+            const dispatch = (action) => {
+                if (!action || typeof action.type !== 'string') return;
+                let next = state;
+                if (action.which === 'main') {
+                    const nextMain = timerReducer(state.main, action);
+                    if (nextMain !== state.main) {
+                        next = { ...state, main: nextMain };
+                    }
+                } else if (action.which === 'break_') {
+                    const nextBreak = timerReducer(state.break_, action);
+                    if (nextBreak !== state.break_) {
+                        next = { ...state, break_: nextBreak };
+                    }
+                } else if (action.type === 'TICK') {
+                    const nextMain  = timerReducer(state.main,  { type: 'TICK' });
+                    const nextBreak = timerReducer(state.break_, { type: 'TICK' });
+                    if (nextMain !== state.main || nextBreak !== state.break_) {
+                        next = { main: nextMain, break_: nextBreak };
+                    }
+                }
+                if (next !== state) {
+                    state = next;
+                    listeners.forEach((l) => l(state));
+                }
+            };
+
+            return { dispatch, subscribe, getState };
+        };
+
+        // --- Widget wiring (task 7.1) ---------------------------------------
+        //
+        // Mount the store, query the widget elements once, and render on every
+        // state change. The render is pure: given a state snapshot it writes
+        // text, toggles the `timer-finished` class, and updates button labels.
+        //
+        // Guards:
+        //   1. If the widget container is missing (e.g. the markup was
+        //      removed), log a warning and bail so the rest of the script
+        //      keeps working.
+        //   2. Skip re-mounting if the widget was already wired (either the
+        //      previous run left `window.__timerInternals.store` in place, or
+        //      the widget element carries `data-mounted`). This keeps
+        //      hot-reload / repeated evaluations safe.
+        let store;
+        let renderWidget;
+        const widgetEl = document.querySelector('.timer-widget');
+        const alreadyMounted =
+            (typeof window !== 'undefined' && window.__timerInternals && window.__timerInternals.store) ||
+            (widgetEl && widgetEl.hasAttribute('data-mounted'));
+
+        if (!widgetEl) {
+            console.warn('[sn-course-timer] .timer-widget not found; timer wiring skipped.');
+        } else if (!alreadyMounted) {
+            const timeMain  = widgetEl.querySelector('time[data-timer="main"]');
+            const timeBreak = widgetEl.querySelector('time[data-timer="break_"]');
+            const btnMain   = widgetEl.querySelector('button[data-control="main"]');
+            const btnBreak  = widgetEl.querySelector('button[data-control="break_"]');
+
+            if (!timeMain || !timeBreak || !btnMain || !btnBreak) {
+                console.warn('[sn-course-timer] widget sub-elements missing; timer wiring skipped.');
+            } else {
+                // Button label mapping for `nextAction(state)`. Main uses the
+                // base Spanish verb; Break appends " descanso".
+                const LABELS_MAIN = {
+                    start: 'Iniciar',
+                    pause: 'Pausar',
+                    reset: 'Reiniciar',
+                };
+                const LABELS_BREAK = {
+                    start: 'Iniciar descanso',
+                    pause: 'Pausar descanso',
+                    reset: 'Reiniciar descanso',
+                };
+
+                const renderOne = (timeEl, btnEl, timerState, labels) => {
+                    timeEl.textContent = formatTime(timerState.remaining);
+                    timeEl.classList.toggle('timer-finished', timerState.status === 'finished');
+                    const label = labels[nextAction(timerState)];
+                    btnEl.textContent = label;
+                    btnEl.setAttribute('aria-label', label);
+                };
+
+                // --- Agenda: shows only the current section -----------------
+                // Content sections total 100 min. The break is a separate
+                // 20-min timer that runs in parallel. Current section is
+                // derived from elapsed main-timer seconds, except while the
+                // break timer is running we surface the BREAK entry so the
+                // instructor always sees what's happening right now.
+                const AGENDA = [
+                    { name: '1️⃣ Bienvenida e Introducción',                       minutes: 10 },
+                    { name: '2️⃣ Sistema Decimal — Repaso base 10',                 minutes: 15 },
+                    { name: '3️⃣ Sistema Binario — El idioma de las computadoras',  minutes: 15 },
+                    { name: '4️⃣ Sistema Hexadecimal — El atajo de los programadores', minutes: 15 },
+                    { name: '5️⃣ Práctica y Ejercicios — Conversiones y juegos',    minutes: 30 },
+                    { name: '6️⃣ Cierre y Preguntas — Resumen y aclaraciones',      minutes: 15 },
+                ];
+                const BREAK_ENTRY = { name: '☕ BREAK', minutes: 20, isBreak: true };
+
+                const agendaNameEl  = widgetEl.querySelector('[data-agenda="name"]');
+                const agendaTimeEl  = widgetEl.querySelector('[data-agenda="time"]');
+                const agendaCurrent = widgetEl.querySelector('.agenda-current');
+
+                // Given elapsed content seconds, return the current entry
+                // plus remaining seconds within that entry.
+                const pickSection = (elapsedContentSec) => {
+                    let acc = 0;
+                    for (const s of AGENDA) {
+                        const secs = s.minutes * 60;
+                        if (elapsedContentSec < acc + secs) {
+                            return { entry: s, remainingSec: (acc + secs) - elapsedContentSec };
+                        }
+                        acc += secs;
+                    }
+                    // Past the end: show the last section with 0 remaining.
+                    const last = AGENDA[AGENDA.length - 1];
+                    return { entry: last, remainingSec: 0 };
+                };
+
+                const MAIN_INITIAL = 7200; // seconds; matches INITIAL_MAIN
+
+                const renderAgenda = (state) => {
+                    if (!agendaNameEl || !agendaTimeEl || !agendaCurrent) return;
+                    let entry;
+                    let remainingSec;
+                    if (state.break_.status === 'running') {
+                        entry = BREAK_ENTRY;
+                        remainingSec = state.break_.remaining;
+                    } else {
+                        const elapsed = Math.max(0, MAIN_INITIAL - state.main.remaining);
+                        const picked = pickSection(elapsed);
+                        entry = picked.entry;
+                        remainingSec = picked.remainingSec;
+                    }
+                    agendaNameEl.textContent = entry.name;
+                    agendaTimeEl.textContent = formatTime(remainingSec);
+                    agendaCurrent.classList.toggle('agenda-break', !!entry.isBreak);
+                };
+
+                renderWidget = (state) => {
+                    renderOne(timeMain,  btnMain,  state.main,   LABELS_MAIN);
+                    renderOne(timeBreak, btnBreak, state.break_, LABELS_BREAK);
+                    renderAgenda(state);
+                };
+
+                store = createStore();
+                store.subscribe(renderWidget);
+                renderWidget(store.getState());
+
+                // --- Task 7.3: wire button clicks to the store -------------
+                // Each button dispatches the action implied by
+                // nextAction(currentState): start -> START, pause -> PAUSE,
+                // reset -> RESET. Invalid activations (e.g. clicking main
+                // while it's already running but somehow labeled 'start')
+                // are a no-op at the reducer level (Property 6).
+                const ACTION_TYPE = { start: 'START', pause: 'PAUSE', reset: 'RESET' };
+
+                btnMain.addEventListener('click', () => {
+                    const s = store.getState().main;
+                    const a = nextAction(s);
+                    store.dispatch({ type: ACTION_TYPE[a], which: 'main' });
+                });
+                btnBreak.addEventListener('click', () => {
+                    const s = store.getState().break_;
+                    const a = nextAction(s);
+                    store.dispatch({ type: ACTION_TYPE[a], which: 'break_' });
+                });
+
+                // --- Task 8.1: drift-free clock ----------------------------
+                // A single setInterval(..., 1000) drives broadcast TICKs
+                // whenever at least one sub-timer is `running`. Elapsed whole
+                // seconds are computed from a monotonic anchor
+                // (performance.now()) rather than by subtracting one per
+                // firing, so throttled / coalesced timer callbacks catch up
+                // to the correct elapsed count instead of losing seconds
+                // (Requirements 2.4, 3.4, 3.5).
+                //
+                // Lifecycle:
+                //   - Idle: no interval, no anchor.
+                //   - On first transition to a state where any sub-timer is
+                //     `running`, startClock() seeds tickAnchor and schedules
+                //     the interval.
+                //   - On each firing, consume Math.floor(dt / 1000) whole
+                //     seconds by dispatching that many broadcast TICKs and
+                //     advancing tickAnchor by seconds*1000 (so sub-second
+                //     remainder is preserved).
+                //   - When neither sub-timer is `running` anymore,
+                //     stopClock() clears the interval; the next START
+                //     restarts it.
+                const now = () => (typeof performance !== 'undefined' && typeof performance.now === 'function')
+                    ? performance.now()
+                    : Date.now();
+
+                let intervalId = null;
+                let tickAnchor = 0;
+
+                const anyRunning = (state) =>
+                    state.main.status === 'running' || state.break_.status === 'running';
+
+                const onTick = () => {
+                    const elapsed = Math.floor((now() - tickAnchor) / 1000);
+                    if (elapsed <= 0) return;
+                    tickAnchor += elapsed * 1000;
+                    for (let i = 0; i < elapsed; i++) {
+                        store.dispatch({ type: 'TICK' });
+                        // If both sub-timers stopped running mid-batch, bail
+                        // out; the subscriber below will clear the interval.
+                        if (!anyRunning(store.getState())) break;
+                    }
+                };
+
+                const startClock = () => {
+                    if (intervalId !== null) return;
+                    tickAnchor = now();
+                    intervalId = setInterval(onTick, 1000);
+                };
+
+                const stopClock = () => {
+                    if (intervalId === null) return;
+                    clearInterval(intervalId);
+                    intervalId = null;
+                    tickAnchor = 0;
+                };
+
+                store.subscribe((state) => {
+                    if (anyRunning(state)) {
+                        startClock();
+                    } else {
+                        stopClock();
+                    }
+                });
+
+                // Expose clock controls for test harnesses.
+                if (typeof window !== 'undefined') {
+                    widgetEl.__clock = {
+                        start: startClock,
+                        stop: stopClock,
+                        isRunning: () => intervalId !== null,
+                    };
+                }
+
+                widgetEl.setAttribute('data-mounted', '');
+            }
+        }
+
+        // Test-only export hook. Activated when the page is loaded with
+        // window.__TEST__ === true (see tests/sn-course-timer/_loadPage.mjs).
+        if (typeof window !== 'undefined' && window.__TEST__ === true) {
+            window.__timerInternals = {
+                get formatTime()    { return formatTime; },
+                get timerReducer()  { return timerReducer; },
+                get nextAction()    { return nextAction; },
+                get createStore()   { return createStore; },
+                get INITIAL_MAIN()  { return INITIAL_MAIN; },
+                get INITIAL_BREAK() { return INITIAL_BREAK; },
+                get store()         { return store; },
+                get renderWidget()  { return renderWidget; },
+                // Also expose navigation helpers so later tests can drive slide
+                // navigation without a global leak.
+                nextSlide,
+                prevSlide,
+                showSlide,
+                get currentSlide() { return currentSlide; },
+                get totalSlides()  { return totalSlides; },
+            };
+        }
+        })();
     </script>
 </body>
 </html>
