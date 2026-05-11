@@ -273,6 +273,11 @@
                                 <label for="nova-api-key" class="block text-sm font-medium text-gray-300 mb-2">Amazon Nova API Key</label>
                                 <input type="password" id="nova-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your Nova API Key here..." value="">
                             </div>
+                            <!-- OpenRouter API Key -->
+                            <div>
+                                <label for="openrouter-api-key" class="block text-sm font-medium text-gray-300 mb-2">OpenRouter API Key</label>
+                                <input type="password" id="openrouter-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your OpenRouter API Key here..." value="">
+                            </div>
                         </div>
                         <div>
                             <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Default Model</label>
@@ -798,6 +803,7 @@
             const STORAGE_KEY_LMSTUDIO_ENDPOINT = 'lmstudio_endpoint';
             const STORAGE_KEY_GEMINI_KEY = 'gemini_api_key';
             const STORAGE_KEY_NOVA_KEY = 'nova_api_key'; 
+            const STORAGE_KEY_OPENROUTER_KEY = 'openrouter_api_key';
             const STORAGE_KEY_MODEL = 'ollama_model';
             const STORAGE_KEY_SYSTEM_PROMPT = 'ollama_system_prompt';
             const STORAGE_KEY_ANALYSIS_INPUT = 'ollama_analysis_input';
@@ -825,6 +831,7 @@
             const lmstudioEndpoint = document.getElementById('lmstudio-endpoint');
             const geminiApiKeyInput = document.getElementById('gemini-api-key');
             const novaApiKeyInput = document.getElementById('nova-api-key'); 
+            const openrouterApiKeyInput = document.getElementById('openrouter-api-key');
             const modelSelect = document.getElementById('model-select');
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
@@ -1217,6 +1224,13 @@
                 'gemini-2.5-flash',
                 'grok-4-fast',
             ];
+            const OPENROUTER_MODELS = [
+                'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+                'nvidia/nemotron-nano-9b-v2:free',
+                'inclusionai/ring-2.6-1t:free',
+                'google/gemma-4-26b-a4b-it:free',
+                'nvidia/nemotron-3-super-120b-a12b:free',
+            ];
 
             // --- Load Saved Values ---
             const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
@@ -1227,6 +1241,8 @@
             if (savedGeminiKey) geminiApiKeyInput.value = savedGeminiKey;
             const savedNovaKey = localStorage.getItem(STORAGE_KEY_NOVA_KEY);
             if (savedNovaKey) novaApiKeyInput.value = savedNovaKey;
+            const savedOpenRouterKey = localStorage.getItem(STORAGE_KEY_OPENROUTER_KEY);
+            if (savedOpenRouterKey) openrouterApiKeyInput.value = savedOpenRouterKey;
             const savedSystemPrompt = localStorage.getItem(STORAGE_KEY_SYSTEM_PROMPT);
             if (savedSystemPrompt) systemPrompt.value = savedSystemPrompt;
             const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
@@ -1627,12 +1643,45 @@
                 return String(result);
             }
 
+            // OpenRouter.ai caller (OpenAI-compatible chat completions with streaming)
+            async function callOpenRouter(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
+                const apiKey = openrouterApiKeyInput.value.trim();
+                if (!apiKey) { showMessage('OpenRouter API Key is missing.', 'error'); throw new Error('OpenRouter API Key missing'); }
+                const url = 'https://openrouter.ai/api/v1/chat/completions';
+                let messages = [];
+                if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+                if (typeof promptOrMessages === 'string') { messages.push({ role: 'user', content: promptOrMessages }); }
+                else if (Array.isArray(promptOrMessages)) { promptOrMessages.filter(m => m.role !== 'system').forEach(msg => { messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content }); }); }
+                const payload = { model, messages, stream };
+                if (onDebug) onDebug(payload);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                        'HTTP-Referer': window.location.origin || 'https://localhost',
+                        'X-Title': 'Universal AI Client'
+                    },
+                    body: JSON.stringify(payload),
+                    signal
+                });
+                if (!response.ok) { const errorText = await response.text(); throw new Error(`OpenRouter API Error ${response.status}: ${errorText}`); }
+                if (stream) {
+                    const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
+                    return { reader, processChunk: (chunkValue) => { buffer += decoder.decode(chunkValue, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop(); const chunks = []; for (const line of lines) { const trimmed = line.trim(); if (!trimmed || trimmed === 'data: [DONE]' || trimmed.startsWith(':')) continue; if (trimmed.startsWith('data: ')) { try { const json = JSON.parse(trimmed.substring(6)); if (json.choices && json.choices.length > 0) { const delta = json.choices[0].delta; if (delta && delta.content) chunks.push(delta.content); } } catch (e) { console.warn('OpenRouter stream parse error', e); } } } return chunks; } };
+                }
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) return data.choices[0].message.content;
+                throw new Error('Invalid OpenRouter response format');
+            }
+
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
                 const dictContext = searchDictionary(prompt); if (dictContext) prompt = dictContext + prompt;
                 const globalSP = systemPrompt.value.trim();
                 if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); const result = await callPuter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); const result = await callOpenRouter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, globalSP || null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; return await callNova(model, fullPrompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, globalSP || null, false, onDebug); }
@@ -2671,6 +2720,7 @@
                     let responseText = "";
                     if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebug); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += stripThinking(responseText); } }
                     else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
                     else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
@@ -2704,6 +2754,11 @@
                 } else if (model.startsWith('puter:')) {
                     const rawModel = model.replace('puter:', '');
                     try { const sh = await callPuter(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`Puter response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model.startsWith('openrouter:')) {
+                    const rawModel = model.replace('openrouter:', '');
+                    try { const sh = await callOpenRouter(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`OpenRouter response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model === GEMINI_MODEL_NAME) {
@@ -2813,6 +2868,8 @@
                 const geminiOpt = document.createElement('option'); geminiOpt.value = GEMINI_MODEL_NAME; geminiOpt.textContent = `✨ Google Gemini (${GEMINI_MODEL_NAME})`; geminiOpt.classList.add('bg-blue-900', 'text-white', 'font-bold'); selectElement.appendChild(geminiOpt);
                 const puterHeader = document.createElement('option'); puterHeader.disabled = true; puterHeader.textContent = '--- Puter.js Cloud Models ---'; selectElement.appendChild(puterHeader);
                 PUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `puter:${id}`; opt.textContent = `☁️ [Puter] ${id}`; selectElement.appendChild(opt); });
+                const openrouterHeader = document.createElement('option'); openrouterHeader.disabled = true; openrouterHeader.textContent = '--- OpenRouter Models ---'; selectElement.appendChild(openrouterHeader);
+                OPENROUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `openrouter:${id}`; opt.textContent = `🌐 [OpenRouter] ${id}`; selectElement.appendChild(opt); });
                 const novaHeader = document.createElement('option'); novaHeader.disabled = true; novaHeader.textContent = '--- Amazon Nova Models ---'; selectElement.appendChild(novaHeader);
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
@@ -2890,6 +2947,7 @@
             lmstudioEndpoint.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_LMSTUDIO_ENDPOINT, lmstudioEndpoint.value));
             geminiApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_GEMINI_KEY, geminiApiKeyInput.value));
             novaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NOVA_KEY, novaApiKeyInput.value));
+            openrouterApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_OPENROUTER_KEY, openrouterApiKeyInput.value));
             modelSelect.addEventListener('change', () => { savedModel = modelSelect.value; localStorage.setItem(STORAGE_KEY_MODEL, savedModel); });
             systemPrompt.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
             analysisInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
