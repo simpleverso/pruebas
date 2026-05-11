@@ -248,6 +248,7 @@
                                 <br><span class="text-yellow-300 text-xs">Endpoints: <code class="bg-yellow-800 px-1 rounded">http://localhost:11434</code> &nbsp; <code class="bg-yellow-800 px-1 rounded">http://192.168.0.20:11434</code></span>
                              </li>
                              <li><strong>LM Studio:</strong> Enable "Serve on Local Network" or ensure CORS is enabled in settings. Default is <code class="bg-yellow-800 px-1 rounded">http://localhost:1234/v1</code>.</li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">?enablePuter=true</code> <code class="bg-yellow-800 px-1 rounded">index.html?enablePuter=true</code>.</li>
                         </ul>
                     </div>
 
@@ -1231,6 +1232,12 @@
                 'google/gemma-4-26b-a4b-it:free',
                 'nvidia/nemotron-3-super-120b-a12b:free',
             ];
+
+            // Puter models are hidden by default. Enable via URL flag: ?enablePuter=true
+            const PUTER_ENABLED = (() => {
+                try { const v = new URLSearchParams(window.location.search).get('enablePuter'); return v === 'true' || v === '1'; }
+                catch(e) { return false; }
+            })();
 
             // --- Load Saved Values ---
             const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
@@ -2866,8 +2873,10 @@
             function populateModelSelect(selectElement, models) {
                 const currentValue = selectElement.value; selectElement.innerHTML = '';
                 const geminiOpt = document.createElement('option'); geminiOpt.value = GEMINI_MODEL_NAME; geminiOpt.textContent = `✨ Google Gemini (${GEMINI_MODEL_NAME})`; geminiOpt.classList.add('bg-blue-900', 'text-white', 'font-bold'); selectElement.appendChild(geminiOpt);
-                const puterHeader = document.createElement('option'); puterHeader.disabled = true; puterHeader.textContent = '--- Puter.js Cloud Models ---'; selectElement.appendChild(puterHeader);
-                PUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `puter:${id}`; opt.textContent = `☁️ [Puter] ${id}`; selectElement.appendChild(opt); });
+                if (PUTER_ENABLED) {
+                    const puterHeader = document.createElement('option'); puterHeader.disabled = true; puterHeader.textContent = '--- Puter.js Cloud Models ---'; selectElement.appendChild(puterHeader);
+                    PUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `puter:${id}`; opt.textContent = `☁️ [Puter] ${id}`; selectElement.appendChild(opt); });
+                }
                 const openrouterHeader = document.createElement('option'); openrouterHeader.disabled = true; openrouterHeader.textContent = '--- OpenRouter Models ---'; selectElement.appendChild(openrouterHeader);
                 OPENROUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `openrouter:${id}`; opt.textContent = `🌐 [OpenRouter] ${id}`; selectElement.appendChild(opt); });
                 const novaHeader = document.createElement('option'); novaHeader.disabled = true; novaHeader.textContent = '--- Amazon Nova Models ---'; selectElement.appendChild(novaHeader);
