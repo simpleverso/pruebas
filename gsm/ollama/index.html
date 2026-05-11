@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load SheetJS for Excel/CSV processing -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Load Puter.js for cloud AI models -->
+    <script src="https://js.puter.com/v2/"></script>
     <!-- Load WebLLM for in-browser inference -->
     <script type="module">
         import * as webllm from "https://esm.run/@mlc-ai/web-llm";
@@ -1206,6 +1208,15 @@
             const DEFAULT_NOVA_MODELS = [
                 { id: 'Nova Pro v3', name: 'Nova Pro v3 (DEFAULT LOCAL)' },
             ];
+            const PUTER_MODELS = [
+                'gpt-5.4-nano',
+                'o3-mini',
+                'claude-sonnet-4.5',
+                'deepseek-v3.2',
+                'deepseek-reasoner',
+                'gemini-2.5-flash',
+                'grok-4-fast',
+            ];
 
             // --- Load Saved Values ---
             const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
@@ -1562,11 +1573,66 @@
             clearBatchLogsBtn.addEventListener('click', () => { batchDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- Batch Processing Log ---</div>'; });
             downloadBatchDryRunBtn.addEventListener('click', () => { if (!batchDryRunResults || batchDryRunResults.length === 0) { return showMessage('No dry run results to download', 'error'); } const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); downloadJsonFile(batchDryRunResults, `batch_dry_run_results_${timestamp}.json`); });
 
+            // Puter.js cloud AI caller
+            // Supports both single-prompt (string) and chat messages (array) forms.
+            async function callPuter(model, promptOrMessages, systemPrompt, stream, onDebug) {
+                if (!window.puter || !window.puter.ai || typeof window.puter.ai.chat !== 'function') {
+                    throw new Error('Puter.js not loaded. Check your internet connection.');
+                }
+                let input;
+                if (Array.isArray(promptOrMessages)) {
+                    input = [];
+                    if (systemPrompt) input.push({ role: 'system', content: systemPrompt });
+                    promptOrMessages.forEach(m => {
+                        const role = m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user');
+                        input.push({ role, content: m.content });
+                    });
+                } else {
+                    if (systemPrompt) {
+                        input = [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: promptOrMessages }
+                        ];
+                    } else {
+                        input = promptOrMessages;
+                    }
+                }
+                const options = { model, stream: !!stream };
+                if (onDebug) onDebug({ provider: 'puter', input, options });
+                const result = await window.puter.ai.chat(input, options);
+                if (stream) {
+                    // Return a compatible stream handle with .reader and .processChunk
+                    const iterator = result[Symbol.asyncIterator] ? result[Symbol.asyncIterator]() : result;
+                    const reader = {
+                        async read() {
+                            const { value, done } = await iterator.next();
+                            return { value, done };
+                        }
+                    };
+                    const processChunk = (chunk) => {
+                        if (!chunk) return [];
+                        const text = chunk.text || chunk?.message?.content || (typeof chunk === 'string' ? chunk : '');
+                        return text ? [text] : [];
+                    };
+                    return { reader, processChunk };
+                }
+                // Non-stream: extract text from response
+                if (typeof result === 'string') return result;
+                if (result?.message?.content) {
+                    const c = result.message.content;
+                    if (typeof c === 'string') return c;
+                    if (Array.isArray(c)) return c.map(p => p.text || '').join('');
+                }
+                if (result?.text) return result.text;
+                return String(result);
+            }
+
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
                 const dictContext = searchDictionary(prompt); if (dictContext) prompt = dictContext + prompt;
                 const globalSP = systemPrompt.value.trim();
                 if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); const result = await callPuter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, globalSP || null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; return await callNova(model, fullPrompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, globalSP || null, false, onDebug); }
@@ -2604,6 +2670,7 @@
                 try {
                     let responseText = "";
                     if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebug); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
                     else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
                     else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
                     else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
@@ -2632,6 +2699,11 @@
                 if (model.startsWith('webllm:')) {
                     const rawModel = model.replace('webllm:', '');
                     try { const sh = await callWebLLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; let displayResponse = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; const filtered = tf.push(chunk); if (filtered) { displayResponse += filtered; typingBubble.innerHTML = mdToHtml(displayResponse); historyEl.scrollTop = historyEl.scrollHeight; } }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`WebLLM response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model.startsWith('puter:')) {
+                    const rawModel = model.replace('puter:', '');
+                    try { const sh = await callPuter(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`Puter response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model === GEMINI_MODEL_NAME) {
@@ -2739,6 +2811,8 @@
             function populateModelSelect(selectElement, models) {
                 const currentValue = selectElement.value; selectElement.innerHTML = '';
                 const geminiOpt = document.createElement('option'); geminiOpt.value = GEMINI_MODEL_NAME; geminiOpt.textContent = `✨ Google Gemini (${GEMINI_MODEL_NAME})`; geminiOpt.classList.add('bg-blue-900', 'text-white', 'font-bold'); selectElement.appendChild(geminiOpt);
+                const puterHeader = document.createElement('option'); puterHeader.disabled = true; puterHeader.textContent = '--- Puter.js Cloud Models ---'; selectElement.appendChild(puterHeader);
+                PUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `puter:${id}`; opt.textContent = `☁️ [Puter] ${id}`; selectElement.appendChild(opt); });
                 const novaHeader = document.createElement('option'); novaHeader.disabled = true; novaHeader.textContent = '--- Amazon Nova Models ---'; selectElement.appendChild(novaHeader);
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
@@ -2770,6 +2844,12 @@
                             if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
                             if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
                             if (is05B || is06B || is70B) return false;
+                            // Remove all Qwen3.5-0.8B variants
+                            if (/qwen3[\._]5/i.test(lower) && /0[\._]8b/i.test(lower)) return false;
+                            // Remove all Qwen3.5-2B variants
+                            if (/qwen3[\._]5/i.test(lower) && /[\-_]2b[\-_]/i.test(lower)) return false;
+                            // Remove all Hermes-2 and Hermes-3 variants
+                            if (/hermes[\-_]?[23]/i.test(lower)) return false;
                             return !is1B || isLlama;
                         });
                     // Append custom WebLLM models
