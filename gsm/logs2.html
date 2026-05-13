@@ -1073,6 +1073,82 @@
         // Populate as soon as the module runs (webllm.prebuiltAppConfig is available synchronously)
         try { populateModelSelect(); } catch(e) { console.warn('populateModelSelect failed', e); }
 
+        // --- Model thinking capability ---
+        // Returns one of:
+        //   'always-on'   : model always emits <think>; toggle is forced on and disabled
+        //   'always-off'  : model never reasons; toggle is forced off and disabled
+        //   'toggleable'  : hybrid model; user can toggle thinking on/off
+        //   'none'        : non-reasoning model (e.g. Llama); toggle has no effect
+        function getModelThinkingMode(modelId) {
+            if (!modelId) return 'none';
+            const id = modelId;
+            // Qwen3 2507 split: dedicated Thinking vs Instruct checkpoints
+            if (/-Thinking-2507-/i.test(id)) return 'always-on';
+            if (/-Instruct-2507-/i.test(id)) return 'always-off';
+            // DeepSeek R1 distills always chain-of-thought
+            if (/DeepSeek-R1-Distill-/i.test(id)) return 'always-on';
+            // Original Qwen3 (April 2025) hybrid models and Qwen3.5 hybrid
+            if (/^Qwen3[\.\-_]?5?-/i.test(id) && !/-Thinking-2507-/i.test(id) && !/-Instruct-2507-/i.test(id)) {
+                return 'toggleable';
+            }
+            // Llama, Gemma, Phi, etc. — no reasoning
+            return 'none';
+        }
+
+        // Whether the effective switch should send reasoning on for this turn.
+        function resolveThinkingEnabled(modelId) {
+            const mode = getModelThinkingMode(modelId);
+            if (mode === 'always-on') return true;
+            if (mode === 'always-off' || mode === 'none') return false;
+            // toggleable → respect the UI button
+            return document.getElementById('thinkToggleBtn').dataset.active === 'true';
+        }
+
+        // Sync the 🧠 button to the selected model's capability.
+        function applyThinkingUIForModel(modelId) {
+            const btn = document.getElementById('thinkToggleBtn');
+            if (!btn) return;
+            const mode = getModelThinkingMode(modelId);
+            const setVisual = (active) => {
+                btn.dataset.active = String(active);
+                btn.style.color = active ? '#58a6ff' : '#484f58';
+                btn.style.borderColor = active ? '#58a6ff' : '#30363d';
+            };
+            if (mode === 'always-on') {
+                setVisual(true);
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+                btn.title = 'Reasoning always on for this model (forced)';
+            } else if (mode === 'always-off' || mode === 'none') {
+                setVisual(false);
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+                btn.title = mode === 'always-off'
+                    ? 'Reasoning not supported by this model variant (forced off)'
+                    : 'Model has no reasoning mode';
+            } else {
+                // toggleable — restore user preference
+                const saved = localStorage.getItem('webllm_thinking_enabled');
+                const active = saved === 'true';
+                setVisual(active);
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.cursor = 'pointer';
+                btn.title = active
+                    ? 'Reasoning enabled (click to disable)'
+                    : 'Reasoning disabled (click to enable)';
+            }
+        }
+
+        // Update the UI whenever the selection changes (even before load)
+        document.getElementById('llmModelSelect').addEventListener('change', (e) => {
+            applyThinkingUIForModel(e.target.value);
+        });
+        // And apply it now for the initial selection
+        try { applyThinkingUIForModel(document.getElementById('llmModelSelect').value); } catch(e) {}
+
         let engine = null;
         let legacyEngine = null;
         let loadedModelId = null;
@@ -1267,6 +1343,7 @@
         // --- Thinking toggle ---
         window.toggleThinking = function() {
             const btn = document.getElementById('thinkToggleBtn');
+            if (btn.disabled) return; // forced state — do nothing
             const active = btn.dataset.active !== 'true';
             btn.dataset.active = String(active);
             btn.style.color = active ? '#58a6ff' : '#484f58';
@@ -1274,7 +1351,8 @@
             btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
             try { localStorage.setItem('webllm_thinking_enabled', String(active)); } catch(e) {}
         };
-        // Restore thinking toggle state (default: off)
+        // Restore thinking toggle state (default: off). The per-model UI function
+        // (applyThinkingUIForModel) overrides this when a non-toggleable model is selected.
         (function() {
             const btn = document.getElementById('thinkToggleBtn');
             const saved = localStorage.getItem('webllm_thinking_enabled');
@@ -1342,6 +1420,7 @@
                 sendBtn.disabled = false;
                 messagesEl.innerHTML = '';
                 addMessage('system', 'Model loaded. Start chatting.');
+                applyThinkingUIForModel(modelId);
                 inputEl.focus();
             } catch (err) {
                 statusEl.textContent = 'Error: ' + err.message;
@@ -1383,21 +1462,49 @@
                 const msgs = sysPrompt
                     ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
                     : chatHistory;
-                const thinkingEnabled = document.getElementById('thinkToggleBtn').dataset.active === 'true';
-                // For models that support thinking, add /no_think to suppress reasoning
+
+                // Decide the effective thinking state for this turn based on the model.
+                const activeModelId = loadedModelId || selectedModelId;
+                const thinkMode = getModelThinkingMode(activeModelId);
+                const thinkingEnabled = resolveThinkingEnabled(activeModelId);
+
+                // Build the request. For hybrid models (toggleable) pass the official
+                // chat_template_kwargs.enable_thinking switch, and also append the
+                // legacy /no_think soft switch when disabling for robustness across
+                // template versions. Forced modes (always-on/always-off) get the
+                // canonical switch too, but we never append /no_think to models that
+                // don't understand it.
                 let finalMsgs = msgs;
-                if (!thinkingEnabled && finalMsgs.length > 0) {
-                    finalMsgs = [...finalMsgs];
-                    const lastIdx = finalMsgs.length - 1;
-                    if (finalMsgs[lastIdx].role === 'user') {
-                        finalMsgs[lastIdx] = { ...finalMsgs[lastIdx], content: finalMsgs[lastIdx].content + '\n/no_think' };
-                    }
-                }
-                const reply = await activeEngine.chat.completions.create({
+                const requestBody = {
                     messages: finalMsgs,
                     stream: true,
-                    stream_options: { include_usage: true }
-                });
+                    stream_options: { include_usage: true },
+                };
+
+                if (thinkMode === 'toggleable') {
+                    requestBody.extra_body = {
+                        chat_template_kwargs: { enable_thinking: thinkingEnabled },
+                    };
+                    if (!thinkingEnabled && finalMsgs.length > 0) {
+                        finalMsgs = [...finalMsgs];
+                        for (let i = finalMsgs.length - 1; i >= 0; i--) {
+                            if (finalMsgs[i].role === 'user') {
+                                finalMsgs[i] = { ...finalMsgs[i], content: finalMsgs[i].content + '\n/no_think' };
+                                break;
+                            }
+                        }
+                        requestBody.messages = finalMsgs;
+                    }
+                } else if (thinkMode === 'always-off') {
+                    // Dedicated Instruct-2507 checkpoints — no reasoning, be explicit.
+                    requestBody.extra_body = {
+                        chat_template_kwargs: { enable_thinking: false },
+                    };
+                }
+                // 'always-on' (Thinking-2507, DeepSeek-R1-Distill) and 'none' (Llama, etc.)
+                // get the default template — no extra switches needed or honored.
+
+                const reply = await activeEngine.chat.completions.create(requestBody);
 
                 let full = '';
                 let inThink = false;
