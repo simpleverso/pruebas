@@ -1278,6 +1278,12 @@
                 catch(e) { return false; }
             })();
 
+            // WebLLM in-browser models are hidden by default. Enable via URL flag: ?enablewebllm=true
+            const WEBLLM_ENABLED = (() => {
+                try { const params = new URLSearchParams(window.location.search); const v = params.get('enablewebllm') || params.get('enableWebllm') || params.get('enableWebLLM'); return v === 'true' || v === '1'; }
+                catch(e) { return false; }
+            })();
+
             // --- Load Saved Values ---
             const savedEndpoint = localStorage.getItem(STORAGE_KEY_ENDPOINT);
             if (savedEndpoint) ollamaEndpoint.value = savedEndpoint;
@@ -3034,7 +3040,7 @@
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
                 if (lmStudioModels.length > 0) { const lmsHeader = document.createElement('option'); lmsHeader.disabled = true; lmsHeader.textContent = '--- LM Studio Models ---'; selectElement.appendChild(lmsHeader); lmStudioModels.forEach(m => { const opt = document.createElement('option'); opt.value = `lmstudio:${m.id}`; opt.textContent = `🖥️ [LM Studio] ${m.id}`; selectElement.appendChild(opt); }); }
-                if (webllmAvailableModels.length > 0) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
+                if (webllmAvailableModels.length > 0 && WEBLLM_ENABLED) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
                 else { const noOllama = document.createElement('option'); noOllama.disabled = true; noOllama.textContent = '(No Local Ollama Models Found)'; selectElement.appendChild(noOllama); }
                 if (currentValue) { const allOpts = Array.from(selectElement.options); if(allOpts.some(o => o.value === currentValue)) selectElement.value = currentValue; }
