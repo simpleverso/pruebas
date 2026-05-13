@@ -4693,19 +4693,20 @@
                         if (window.hljsPython) window.hljs.registerLanguage('python', window.hljsPython);
                     } catch(e) {}
                 }
-                // Wire notebook.js renderers (markdown via marked — loaded by the WebLLM module earlier —
-                // and code highlighting via hljs).
-                if (window.notebook) {
+                // Wire notebookjs renderers. The package exposes itself as window.nb
+                // (not window.notebook — easy to miss, cost me a debugging session).
+                const nb = window.nb || window.notebook;
+                if (nb) {
                     if (window.marked) {
                         const markedParse = (typeof window.marked.parse === 'function')
                             ? window.marked.parse
                             : (typeof window.marked === 'function' ? window.marked : null);
                         if (markedParse) {
-                            window.notebook.markdown = (src) => markedParse(src, { breaks: true, gfm: true });
+                            nb.markdown = (src) => markedParse(src, { breaks: true, gfm: true });
                         }
                     }
                     if (window.hljs) {
-                        window.notebook.highlighter = function(text, pre, code, lang) {
+                        nb.highlighter = function(text, pre, code, lang) {
                             const language = (lang && window.hljs.getLanguage(lang)) ? lang : 'python';
                             try {
                                 const result = window.hljs.highlight(text, { language, ignoreIllegals: true });
@@ -4788,8 +4789,9 @@
                 setStatus('Library load failed: ' + err.message + (usePuterChk.checked ? '' : ' — try enabling "Load libraries via Puter fetch"'), true);
                 return;
             }
-            if (!window.notebook) {
-                setStatus('notebook.js failed to load', true);
+            const nb = window.nb || window.notebook;
+            if (!nb) {
+                setStatus('notebookjs failed to load (window.nb not found)', true);
                 return;
             }
             // Minimal schema check
@@ -4799,8 +4801,8 @@
             }
             try {
                 renderEl.innerHTML = '';
-                const nb = window.notebook.parse(json);
-                const rendered = nb.render();
+                const parsed = nb.parse(json);
+                const rendered = parsed.render();
                 renderEl.appendChild(rendered);
                 const cellCount = json.cells.length;
                 const modeTag = depsMode === 'puter' ? ' [via Puter]'
