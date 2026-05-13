@@ -879,14 +879,8 @@
         <div class="chat-panel-header">
             <h2>Offline chat</h2>
             <div class="chat-model-row">
-                <select id="llmModelSelect">
-                    <option value="Llama-3.1-8B-Instruct-q4f16_1-MLC">🧠 Llama 3.1 8B</option>
-                    <option value="Llama-3-8B-Instruct-q4f16_1-MLC">🧠 Llama 3 8B</option>
-                    <option value="DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC">🧠 DeepSeek R1 Qwen 7B</option>
-                    <option value="DeepSeek-R1-Distill-Llama-8B-q4f16_1-MLC">🧠 DeepSeek R1 Llama 8B</option>
-                    <option value="Qwen3-4B-q4f16_1-MLC">🧠 Qwen3 4B</option>
-                    <option value="Qwen3-8B-q4f16_1-MLC" selected>🧠 Qwen3 8B</option>
-                    <option value="Qwen3-4B-Thinking-2507-q4f32_1-MLC">🧠 Qwen3 4B Thinking</option>
+                <select id="llmModelSelect" data-default="Qwen3-8B-q4f16_1-MLC">
+                    <option value="" disabled selected>Loading WebLLM models...</option>
                 </select>
                 <button onclick="loadLLMModel()" class="primary-button">Load</button>
                 <button onclick="clearChat()" class="secondary-button">Clear</button>
@@ -1020,6 +1014,64 @@
             }));
             return { useIndexedDBCache: true, model_list: resolved };
         }
+
+        // Populate the model dropdown from the WebLLM prebuilt list, using the same
+        // filters as ollama/index.html so both files show the same MLC model names.
+        function populateModelSelect() {
+            const selectEl = document.getElementById('llmModelSelect');
+            if (!selectEl || !webllm || !webllm.prebuiltAppConfig) return;
+            const defaultId = selectEl.dataset.default || 'Qwen3-8B-q4f16_1-MLC';
+            const prevValue = selectEl.value;
+
+            const prebuiltIds = webllm.prebuiltAppConfig.model_list
+                .map(m => m.model_id)
+                .filter(id => {
+                    const lower = id.toLowerCase();
+                    const is1B = /[\-_]1b[\-_]|[\-_]1\.[\d]b[\-_]/i.test(id);
+                    const is05B = /[\-_]0\.5b[\-_]/i.test(id);
+                    const is06B = /[\-_]0\.6b[\-_]/i.test(id);
+                    const is70B = /[\-_]70b[\-_]/i.test(id);
+                    const isLlama = lower.includes('llama');
+                    const isPhi = lower.includes('phi');
+                    const isMinistral = lower.includes('ministral');
+                    // Remove Phi, Ministral, 0.5B models, and 1B models unless Llama
+                    if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || (lower.includes('q4f32_1') && !lower.includes('qwen3'))) return false;
+                    // Remove specific models
+                    if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
+                    if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
+                    if (is05B || is06B || is70B) return false;
+                    // Remove all Qwen3.5-0.8B variants
+                    if (/qwen3[\._]5/i.test(lower) && /0[\._]8b/i.test(lower)) return false;
+                    // Remove all Qwen3.5-2B variants
+                    if (/qwen3[\._]5/i.test(lower) && /[\-_]2b[\-_]/i.test(lower)) return false;
+                    // Remove all Hermes-2 and Hermes-3 variants
+                    if (/hermes[\-_]?[23]/i.test(lower)) return false;
+                    return !is1B || isLlama;
+                });
+
+            // Append custom models (legacy + standard) so they show up in the dropdown too
+            const customIds = customModels.map(m => m.model_id);
+            const allIds = [...prebuiltIds];
+            customIds.forEach(id => { if (!allIds.includes(id)) allIds.push(id); });
+
+            selectEl.innerHTML = '';
+            allIds.forEach(id => {
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = `🧠 ${id}`;
+                selectEl.appendChild(opt);
+            });
+
+            // Restore previous selection if still present, otherwise fall back to default
+            if (prevValue && allIds.includes(prevValue)) {
+                selectEl.value = prevValue;
+            } else if (allIds.includes(defaultId)) {
+                selectEl.value = defaultId;
+            }
+        }
+
+        // Populate as soon as the module runs (webllm.prebuiltAppConfig is available synchronously)
+        try { populateModelSelect(); } catch(e) { console.warn('populateModelSelect failed', e); }
 
         let engine = null;
         let legacyEngine = null;
