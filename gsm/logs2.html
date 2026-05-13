@@ -4562,6 +4562,8 @@
         const HLJS_CSS = 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css';
         const PUTER_JS_URL = 'https://js.puter.com/v2/';
         const USE_PUTER_KEY = 'nb_use_puter_fetch';
+        const LAST_NB_KEY = 'nb_last_notebook';
+        const LAST_NB_LABEL_KEY = 'nb_last_notebook_label';
 
         // Load highlight.js dark theme stylesheet. Stylesheets aren't affected by CORS
         // in the same way as XHR fetch, so the <link> tag works even on strict origins.
@@ -4740,6 +4742,7 @@
             const saved = localStorage.getItem(USE_PUTER_KEY);
             if (saved === '1') usePuterChk.checked = true;
         } catch(e) {}
+
         usePuterChk.addEventListener('change', () => {
             try { localStorage.setItem(USE_PUTER_KEY, usePuterChk.checked ? '1' : '0'); } catch(e) {}
             // If deps are already loaded in one mode, toggling won't re-download — the
@@ -4753,6 +4756,28 @@
             if (!statusEl) return;
             statusEl.textContent = text || '';
             statusEl.style.color = isError ? '#f85149' : '#8b949e';
+        }
+
+        // Track the currently rendered notebook so "Keep last" can snapshot it later
+        // if the user toggles the checkbox on after a render.
+        let lastRenderedJson = null;
+        let lastRenderedLabel = null;
+
+        function saveLastNotebook(json, label) {
+            try {
+                const serialized = JSON.stringify(json);
+                // localStorage has a ~5 MB quota in most browsers. Anything larger would
+                // fail silently in the try/catch below — better to bail early with a hint.
+                if (serialized.length > 4.5 * 1024 * 1024) {
+                    setStatus('Notebook too large to persist (' + (serialized.length / 1024 / 1024).toFixed(1) + ' MB). Render succeeded but "Keep last" skipped this one.');
+                    return;
+                }
+                localStorage.setItem(LAST_NB_KEY, serialized);
+                if (label) localStorage.setItem(LAST_NB_LABEL_KEY, label);
+                else localStorage.removeItem(LAST_NB_LABEL_KEY);
+            } catch(e) {
+                setStatus('Persist failed (' + e.message + '). "Keep last" disabled for this notebook.');
+            }
         }
 
         function resetRender() {
@@ -4803,6 +4828,9 @@
                 const parsed = nb.parse(json);
                 const rendered = parsed.render();
                 renderEl.appendChild(rendered);
+                lastRenderedJson = json;
+                lastRenderedLabel = sourceLabel || null;
+                saveLastNotebook(json, sourceLabel);
                 const cellCount = json.cells.length;
                 const modeTag = depsMode === 'puter' ? ' [via Puter]'
                     : depsMode === 'mixed' ? ' [Puter + direct]'
@@ -4872,6 +4900,13 @@
         clearBtn.addEventListener('click', () => {
             resetRender();
             pasteArea.value = '';
+            lastRenderedJson = null;
+            lastRenderedLabel = null;
+            // Also drop any saved snapshot so a reload doesn't bring it back.
+            try {
+                localStorage.removeItem(LAST_NB_KEY);
+                localStorage.removeItem(LAST_NB_LABEL_KEY);
+            } catch(e) {}
             setStatus('');
         });
 
@@ -4904,6 +4939,27 @@
 
         // Expose a tiny programmatic API for other parts of the page, if useful.
         window.renderIpynb = handleText;
+
+        // Restore the previously rendered notebook automatically. Runs after a short
+        // delay so the panel doesn't block initial page paint (dependency download
+        // still happens lazily on first render).
+        setTimeout(() => {
+            try {
+                const raw = localStorage.getItem(LAST_NB_KEY);
+                if (!raw) return;
+                const label = localStorage.getItem(LAST_NB_LABEL_KEY) || 'saved notebook';
+                const json = JSON.parse(raw);
+                setStatus('Restoring previous notebook...');
+                renderNotebookFromJson(json, label);
+            } catch(err) {
+                // Bad snapshot — drop it so we don't loop.
+                try {
+                    localStorage.removeItem(LAST_NB_KEY);
+                    localStorage.removeItem(LAST_NB_LABEL_KEY);
+                } catch(e) {}
+                setStatus('Could not restore last notebook: ' + err.message, true);
+            }
+        }, 200);
     })();
     </script>
 
