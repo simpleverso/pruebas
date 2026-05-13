@@ -515,6 +515,19 @@
         .notebook-panel .nb-render pre code {
             background: transparent; padding: 0; border-radius: 0;
         }
+        /* Let highlight.js's github-dark theme own the styling for syntax-highlighted
+           code blocks. Without this, our panel's generic `code` rule would override
+           the theme's base background/color and highlights would look flat. */
+        .notebook-panel .nb-render code.hljs,
+        .notebook-panel .nb-render pre code.hljs {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            display: block;
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
         .notebook-panel .nb-render a { color: #58a6ff; text-decoration: none; }
         .notebook-panel .nb-render a:hover { text-decoration: underline; }
         .notebook-panel .nb-render blockquote {
@@ -4550,16 +4563,15 @@
     <script>
     (function() {
         const NB_DEPS = [
-            // notebook.js exposes window.notebook
+            // notebook.js exposes window.nb (UMD).
             'https://cdn.jsdelivr.net/npm/notebookjs@0.6.7/notebook.min.js',
-            // highlight.js core + python + optional common languages
-            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js',
-            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js',
-            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js',
-            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js',
-            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/json.min.js',
+            // highlight.js monolithic bundle — core + all common languages (python, bash,
+            // javascript, json, sql, yaml, etc.) pre-registered. Single file means we
+            // don't depend on sequential auto-registration of separate language packs,
+            // which was fragile when loaded via Puter's proxy.
+            'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js',
         ];
-        const HLJS_CSS = 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css';
+        const HLJS_CSS = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css';
         const PUTER_JS_URL = 'https://js.puter.com/v2/';
         const USE_PUTER_KEY = 'nb_use_puter_fetch';
         const LAST_NB_KEY = 'nb_last_notebook';
@@ -4689,11 +4701,7 @@
                 else if (anyPuter) depsMode = 'puter';
                 else depsMode = 'direct';
                 // Register highlight.js languages
-                if (window.hljs) {
-                    try {
-                        if (window.hljsPython) window.hljs.registerLanguage('python', window.hljsPython);
-                    } catch(e) {}
-                }
+                // (monolithic bundle pre-registers common languages; no-op here).
                 // Wire notebookjs renderers. The package exposes itself as window.nb
                 // (not window.notebook — easy to miss, cost me a debugging session).
                 const nb = window.nb || window.notebook;
@@ -4707,11 +4715,41 @@
                         }
                     }
                     if (window.hljs) {
+                        // Normalize Jupyter language identifiers. Notebooks commonly
+                        // carry 'python3' / 'ipython' / 'ipython3' — none of which hljs
+                        // knows. Map them all to 'python'. For unknown hints, fall
+                        // through to hljs.highlightAuto for a best-effort detection.
+                        const aliasMap = {
+                            python3: 'python',
+                            ipython: 'python',
+                            ipython3: 'python',
+                            py: 'python',
+                            sh: 'bash',
+                            shell: 'bash',
+                            zsh: 'bash',
+                            js: 'javascript',
+                            ts: 'typescript',
+                        };
                         nb.highlighter = function(text, pre, code, lang) {
-                            const language = (lang && window.hljs.getLanguage(lang)) ? lang : 'python';
                             try {
-                                const result = window.hljs.highlight(text, { language, ignoreIllegals: true });
+                                const hint = (lang || '').toLowerCase();
+                                const resolved = aliasMap[hint] || hint;
+                                let result;
+                                if (resolved && window.hljs.getLanguage(resolved)) {
+                                    result = window.hljs.highlight(text, { language: resolved, ignoreIllegals: true });
+                                } else {
+                                    // No explicit language or unknown hint — let hljs guess.
+                                    result = window.hljs.highlightAuto(text);
+                                }
                                 code.innerHTML = result.value;
+                                // Apply the `hljs` class so the github-dark stylesheet's
+                                // base colors (background, default text) take effect.
+                                code.classList.add('hljs');
+                                if (result.language) {
+                                    code.classList.add('language-' + result.language);
+                                }
+                                // Also mark the wrapping <pre> so custom CSS can target it.
+                                if (pre) pre.classList.add('hljs-pre');
                             } catch(e) {
                                 code.textContent = text;
                             }
