@@ -252,6 +252,7 @@
                              <li><strong> <code class="bg-yellow-800 px-1 rounded">?enablewebllm=true</code> <code class="bg-yellow-800 px-1 rounded">index.html?enablewebllm=true</code>.</li>
                              <li><strong> <code class="bg-yellow-800 px-1 rounded">https://openrouter.ai/workspaces/default/keys</code> </li>
                              <li><strong> <code class="bg-yellow-800 px-1 rounded">https://nova.amazon.com/dev/api</code></li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">https://build.nvidia.com/settings/api-keys</code></li>   
 
                         </ul>
                     </div>
@@ -282,6 +283,11 @@
                             <div>
                                 <label for="openrouter-api-key" class="block text-sm font-medium text-gray-300 mb-2">OpenRouter API Key</label>
                                 <input type="password" id="openrouter-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your OpenRouter API Key here..." value="">
+                            </div>
+                            <!-- NVIDIA API Key -->
+                            <div>
+                                <label for="nvidia-api-key" class="block text-sm font-medium text-gray-300 mb-2">NVIDIA API Key</label>
+                                <input type="password" id="nvidia-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="nvapi-..." value="">
                             </div>
                         </div>
                         <div>
@@ -844,6 +850,7 @@
             const STORAGE_KEY_GEMINI_KEY = 'gemini_api_key';
             const STORAGE_KEY_NOVA_KEY = 'nova_api_key'; 
             const STORAGE_KEY_OPENROUTER_KEY = 'openrouter_api_key';
+            const STORAGE_KEY_NVIDIA_KEY = 'nvidia_api_key';
             const STORAGE_KEY_MODEL = 'ollama_model';
             const STORAGE_KEY_SYSTEM_PROMPT = 'ollama_system_prompt';
             const STORAGE_KEY_ANALYSIS_INPUT = 'ollama_analysis_input';
@@ -872,6 +879,7 @@
             const geminiApiKeyInput = document.getElementById('gemini-api-key');
             const novaApiKeyInput = document.getElementById('nova-api-key'); 
             const openrouterApiKeyInput = document.getElementById('openrouter-api-key');
+            const nvidiaApiKeyInput = document.getElementById('nvidia-api-key');
             const modelSelect = document.getElementById('model-select');
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
@@ -1271,6 +1279,9 @@
                 'google/gemma-4-26b-a4b-it:free',
                 'nvidia/nemotron-3-super-120b-a12b:free',
             ];
+            const NVIDIA_MODELS = [
+                'nvidia/nemotron-mini-4b-instruct',
+            ];
 
             // Puter models are hidden by default. Enable via URL flag: ?enablePuter=true
             const PUTER_ENABLED = (() => {
@@ -1295,6 +1306,8 @@
             if (savedNovaKey) novaApiKeyInput.value = savedNovaKey;
             const savedOpenRouterKey = localStorage.getItem(STORAGE_KEY_OPENROUTER_KEY);
             if (savedOpenRouterKey) openrouterApiKeyInput.value = savedOpenRouterKey;
+            const savedNvidiaKey = localStorage.getItem(STORAGE_KEY_NVIDIA_KEY);
+            if (savedNvidiaKey) nvidiaApiKeyInput.value = savedNvidiaKey;
             const savedSystemPrompt = localStorage.getItem(STORAGE_KEY_SYSTEM_PROMPT);
             if (savedSystemPrompt) systemPrompt.value = savedSystemPrompt;
             const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
@@ -1775,6 +1788,33 @@
                 throw new Error('Invalid OpenRouter response format');
             }
 
+            // NVIDIA integrate.api.nvidia.com caller (OpenAI-compatible)
+            async function callNvidia(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
+                const apiKey = nvidiaApiKeyInput.value.trim();
+                if (!apiKey) { showMessage('NVIDIA API Key is missing.', 'error'); throw new Error('NVIDIA API Key missing'); }
+                const url = 'https://integrate.api.nvidia.com/v1/chat/completions';
+                let messages = [];
+                if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+                if (typeof promptOrMessages === 'string') { messages.push({ role: 'user', content: promptOrMessages }); }
+                else if (Array.isArray(promptOrMessages)) { promptOrMessages.filter(m => m.role !== 'system').forEach(msg => { messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content }); }); }
+                const payload = { model, messages, temperature: 0.2, top_p: 0.7, max_tokens: 1024, stream };
+                if (onDebug) onDebug(payload);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'Accept': stream ? 'text/event-stream' : 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal
+                });
+                if (!response.ok) { const errorText = await response.text(); throw new Error(`NVIDIA API Error ${response.status}: ${errorText}`); }
+                if (stream) {
+                    const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
+                    return { reader, processChunk: (chunkValue) => { buffer += decoder.decode(chunkValue, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop(); const chunks = []; for (const line of lines) { const trimmed = line.trim(); if (!trimmed || trimmed === 'data: [DONE]' || trimmed.startsWith(':')) continue; if (trimmed.startsWith('data: ')) { try { const json = JSON.parse(trimmed.substring(6)); if (json.choices && json.choices.length > 0) { const delta = json.choices[0].delta; if (delta && delta.content) chunks.push(delta.content); } } catch (e) { console.warn('NVIDIA stream parse error', e); } } } return chunks; } };
+                }
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) return data.choices[0].message.content;
+                throw new Error('Invalid NVIDIA response format');
+            }
+
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
                 const dictContext = searchDictionary(prompt); if (dictContext) prompt = dictContext + prompt;
@@ -1782,6 +1822,7 @@
                 if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); const result = await callPuter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); const result = await callOpenRouter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); const result = await callNvidia(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, globalSP || null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; return await callNova(model, fullPrompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, globalSP || null, false, onDebug); }
@@ -2879,6 +2920,7 @@
                     if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebugWrapped); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); if (shouldStream) { const sh = await callNvidia(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNvidia(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
                     else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebugWrapped, signal); analysisOutput.value += responseText; }
                     else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += responseText; } }
                     else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += responseText; } }
@@ -2923,6 +2965,11 @@
                 } else if (model.startsWith('openrouter:')) {
                     const rawModel = model.replace('openrouter:', '');
                     try { const sh = await callOpenRouter(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`OpenRouter response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model.startsWith('nvidia:')) {
+                    const rawModel = model.replace('nvidia:', '');
+                    try { const sh = await callNvidia(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`NVIDIA response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model === GEMINI_MODEL_NAME) {
@@ -3036,6 +3083,8 @@
                 }
                 const openrouterHeader = document.createElement('option'); openrouterHeader.disabled = true; openrouterHeader.textContent = '--- OpenRouter Models ---'; selectElement.appendChild(openrouterHeader);
                 OPENROUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `openrouter:${id}`; opt.textContent = `🌐 [OpenRouter] ${id}`; selectElement.appendChild(opt); });
+                const nvidiaHeader = document.createElement('option'); nvidiaHeader.disabled = true; nvidiaHeader.textContent = '--- NVIDIA Models ---'; selectElement.appendChild(nvidiaHeader);
+                NVIDIA_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `nvidia:${id}`; opt.textContent = `🟢 [NVIDIA] ${id}`; selectElement.appendChild(opt); });
                 const novaHeader = document.createElement('option'); novaHeader.disabled = true; novaHeader.textContent = '--- Amazon Nova Models ---'; selectElement.appendChild(novaHeader);
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
@@ -3114,6 +3163,7 @@
             geminiApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_GEMINI_KEY, geminiApiKeyInput.value));
             novaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NOVA_KEY, novaApiKeyInput.value));
             openrouterApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_OPENROUTER_KEY, openrouterApiKeyInput.value));
+            nvidiaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NVIDIA_KEY, nvidiaApiKeyInput.value));
             modelSelect.addEventListener('change', () => { savedModel = modelSelect.value; localStorage.setItem(STORAGE_KEY_MODEL, savedModel); });
             systemPrompt.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
             analysisInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
