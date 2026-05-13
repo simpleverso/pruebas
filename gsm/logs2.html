@@ -384,6 +384,145 @@
             outline: none;
         }
 
+        /* --- Notebook Panel (Fourth Column) --- */
+        .notebook-panel {
+            background-color: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #30363d;
+            flex: 1 1 0;
+            min-width: 320px;
+            max-width: 560px;
+            height: calc(100vh - 3rem);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 1.5rem;
+            overflow: hidden;
+        }
+        .notebook-panel .nb-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #30363d;
+            flex-shrink: 0;
+        }
+        .notebook-panel .nb-header h2 { margin: 0 0 0.75rem 0; font-size: 1.15rem; color: #e6edf3; }
+        .notebook-panel .nb-btn-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .notebook-panel .nb-btn {
+            padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer;
+            border: none; color: #fff; font-weight: 600; white-space: nowrap;
+        }
+        .notebook-panel .nb-btn.blue { background: #1f6feb; }
+        .notebook-panel .nb-btn.gray { background: #484f58; }
+        .notebook-panel .nb-btn.red { background: #b91c1c; }
+        .notebook-panel .nb-btn:hover { opacity: 0.85; }
+        .notebook-panel .nb-dropzone {
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .notebook-panel .nb-dropzone.dragover {
+            border-color: #58a6ff;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+        .notebook-panel .nb-status {
+            font-size: 0.75rem;
+            color: #8b949e;
+            margin-top: 0.4rem;
+            min-height: 1em;
+        }
+        .notebook-panel .nb-paste {
+            width: 100%; padding: 8px 10px; font-size: 0.8rem; margin-top: 0.5rem;
+            background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;
+            box-sizing: border-box; resize: vertical; min-height: 2.4em; font-family: monospace;
+        }
+        .notebook-panel .nb-render {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+            background: #0d1117;
+            color: #c9d1d9;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .notebook-panel .nb-render::-webkit-scrollbar { width: 8px; }
+        .notebook-panel .nb-render::-webkit-scrollbar-track { background: transparent; }
+        .notebook-panel .nb-render::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        .notebook-panel .nb-render .empty {
+            color: #484f58; text-align: center; font-style: italic; padding: 2rem 0;
+        }
+        /* notebook.js structural classes */
+        .notebook-panel .nb-render .cell {
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            background: #161b22;
+        }
+        .notebook-panel .nb-render .input {
+            background: #0d1117;
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #21262d;
+            font-family: monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+        }
+        .notebook-panel .nb-render .input pre { margin: 0; background: transparent; padding: 0; }
+        .notebook-panel .nb-render .input_prompt,
+        .notebook-panel .nb-render .output_prompt {
+            color: #6e7681; font-size: 0.7rem; font-family: monospace;
+            display: block; margin-bottom: 0.25rem;
+        }
+        .notebook-panel .nb-render .output {
+            padding: 0.5rem 0.75rem; background: #161b22;
+            font-size: 0.8rem; overflow-x: auto;
+        }
+        .notebook-panel .nb-render .output pre {
+            margin: 0; background: transparent; padding: 0;
+            font-family: monospace; white-space: pre-wrap; color: #c9d1d9;
+        }
+        .notebook-panel .nb-render .output img {
+            max-width: 100%; height: auto; border-radius: 4px; background: #fff;
+        }
+        .notebook-panel .nb-render .output .stderr { color: #f85149; }
+        .notebook-panel .nb-render .output_html table {
+            border-collapse: collapse; margin: 0.5rem 0; font-size: 0.75rem;
+        }
+        .notebook-panel .nb-render .output_html th,
+        .notebook-panel .nb-render .output_html td {
+            border: 1px solid #30363d; padding: 4px 8px;
+        }
+        .notebook-panel .nb-render .output_html th { background: #21262d; }
+        .notebook-panel .nb-render h1,
+        .notebook-panel .nb-render h2,
+        .notebook-panel .nb-render h3,
+        .notebook-panel .nb-render h4 {
+            color: #e6edf3; margin: 0.75rem 0 0.4rem; padding: 0; border: none; text-align: left;
+        }
+        .notebook-panel .nb-render h1 { font-size: 1.3rem; }
+        .notebook-panel .nb-render h2 { font-size: 1.15rem; }
+        .notebook-panel .nb-render h3 { font-size: 1.0rem; }
+        .notebook-panel .nb-render code {
+            background: #21262d; color: #e6edf3;
+            padding: 1px 4px; border-radius: 3px;
+            font-size: 0.78rem;
+        }
+        .notebook-panel .nb-render pre code {
+            background: transparent; padding: 0; border-radius: 0;
+        }
+        .notebook-panel .nb-render a { color: #58a6ff; text-decoration: none; }
+        .notebook-panel .nb-render a:hover { text-decoration: underline; }
+        .notebook-panel .nb-render blockquote {
+            border-left: 3px solid #30363d; margin: 0.5rem 0; padding: 0 0.75rem; color: #8b949e;
+        }
+        .notebook-panel .nb-render ul, .notebook-panel .nb-render ol { padding-left: 1.5rem; }
+
         @media (max-width: 1350px) {
             .page-layout {
                 flex-wrap: wrap;
@@ -410,6 +549,14 @@
                 min-width: 280px;
                 order: 3;
             }
+            .notebook-panel {
+                position: static;
+                height: 600px;
+                flex: 1 1 45%;
+                min-width: 280px;
+                max-width: none;
+                order: 4;
+            }
         }
         @media (max-width: 768px) {
             body { padding: 0.75rem; }
@@ -430,6 +577,13 @@
                 height: 500px;
                 flex: none;
                 width: 100%;
+            }
+            .notebook-panel {
+                position: static;
+                height: 500px;
+                flex: none;
+                width: 100%;
+                max-width: none;
             }
             .button-group {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -742,6 +896,7 @@
         <button id="toggleTools" onclick="toggleSection('container','toggleTools')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">🛠 Tools</button>
         <button id="toggleChat" onclick="toggleSection('chat-panel','toggleChat')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">💬 Chat</button>
         <button id="toggleSnippets" onclick="toggleSection('snippets-panel','toggleSnippets')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📋 Snippets</button>
+        <button id="toggleNotebook" onclick="toggleSection('notebook-panel','toggleNotebook')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📓 Notebook</button>
     </div>
 
     <script>
@@ -761,7 +916,8 @@
         const sections = [
             { cls: 'container', btn: 'toggleTools', defaultHidden: true },
             { cls: 'chat-panel', btn: 'toggleChat', defaultHidden: false },
-            { cls: 'snippets-panel', btn: 'toggleSnippets', defaultHidden: true }
+            { cls: 'snippets-panel', btn: 'toggleSnippets', defaultHidden: true },
+            { cls: 'notebook-panel', btn: 'toggleNotebook', defaultHidden: true }
         ];
         sections.forEach(s => {
             const saved = localStorage.getItem('section_vis_' + s.cls);
@@ -983,6 +1139,32 @@
                 <button id="spDeleteBtn" style="color:#f85149;">Del</button>
             </div>
             <textarea id="spContent" placeholder="Snippet content..."></textarea>
+        </div>
+    </div>
+
+    <!-- Notebook Panel (Fourth Column) -->
+    <div class="notebook-panel" id="notebookPanel">
+        <div class="nb-header">
+            <h2>Notebook viewer</h2>
+            <div class="nb-btn-row">
+                <button class="nb-btn blue" id="nbPickBtn">Choose file</button>
+                <button class="nb-btn gray" id="nbPasteBtn" title="Toggle paste area">Paste JSON</button>
+                <button class="nb-btn red" id="nbClearBtn">Clear</button>
+                <input type="file" id="nbFileInput" accept=".ipynb,.txt,.json,application/json,application/x-ipynb+json" style="display:none">
+            </div>
+            <div class="nb-dropzone" id="nbDropzone">
+                Drop <code>.ipynb</code> or <code>.ipynb.txt</code> here,
+                or click <em>Choose file</em>.
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;margin-top:0.5rem;font-size:0.75rem;color:#8b949e;cursor:pointer;">
+                <input type="checkbox" id="nbUsePuterFetch" style="width:13px;height:13px;accent-color:#58a6ff;">
+                Load libraries via Puter fetch (CORS-free)
+            </label>
+            <textarea class="nb-paste" id="nbPasteArea" placeholder="Or paste notebook JSON here and press Enter..." style="display:none;"></textarea>
+            <div class="nb-status" id="nbStatus"></div>
+        </div>
+        <div class="nb-render" id="nbRender">
+            <div class="empty">No notebook loaded yet.</div>
         </div>
     </div>
 
@@ -4363,6 +4545,324 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(a.href);
         }
+    </script>
+
+    <!-- Notebook Viewer Panel (notebook.js + marked + highlight.js) -->
+    <script>
+    (function() {
+        const NB_DEPS = [
+            // notebook.js exposes window.notebook
+            'https://cdn.jsdelivr.net/npm/notebookjs@0.6.7/notebook.min.js',
+            // highlight.js core + python + optional common languages
+            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js',
+            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js',
+            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js',
+            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js',
+            'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/json.min.js',
+        ];
+        const HLJS_CSS = 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css';
+        const PUTER_JS_URL = 'https://js.puter.com/v2/';
+        const USE_PUTER_KEY = 'nb_use_puter_fetch';
+
+        // Load highlight.js dark theme stylesheet. Stylesheets aren't affected by CORS
+        // in the same way as XHR fetch, so the <link> tag works even on strict origins.
+        (function() {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = HLJS_CSS;
+            document.head.appendChild(link);
+        })();
+
+        // Standard load: <script src="..."> — fast, but subject to the origin's script-src CSP.
+        function loadScriptTag(src) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.async = false; // preserve order
+                s.onload = () => resolve();
+                s.onerror = () => reject(new Error('Failed to load ' + src));
+                document.head.appendChild(s);
+            });
+        }
+
+        // Puter fetch + inline <script>: the library source is fetched via puter.net.fetch
+        // (routed through Puter's WISP proxy — CORS-free, see https://developer.puter.com/tutorials/cors-free-fetch-api/ ),
+        // then injected as an inline script so the browser executes it in this page's context.
+        async function loadScriptViaPuter(src) {
+            if (!window.puter || !window.puter.net || typeof window.puter.net.fetch !== 'function') {
+                throw new Error('puter.net.fetch not available');
+            }
+            const res = await window.puter.net.fetch(src);
+            if (!res || !res.ok) {
+                throw new Error(`Puter fetch ${res ? res.status : 'failed'} for ${src}`);
+            }
+            const text = await res.text();
+            return new Promise((resolve, reject) => {
+                try {
+                    const s = document.createElement('script');
+                    // Use textContent so the browser runs it synchronously when appended.
+                    s.textContent = text;
+                    s.dataset.puterFetched = src;
+                    document.head.appendChild(s);
+                    resolve();
+                } catch(err) {
+                    reject(err);
+                }
+            });
+        }
+
+        // Ensure Puter.js itself is loaded. The existing ?enablePuter=true flag loads it
+        // at page start; if the user opted out of that but toggled CORS-free fetch here,
+        // we pull it on demand from js.puter.com directly (that URL does allow a plain script tag).
+        async function ensurePuterJs() {
+            if (window.puter && window.puter.net && typeof window.puter.net.fetch === 'function') return;
+            await loadScriptTag(PUTER_JS_URL);
+            // Poll briefly for window.puter.net.fetch to become available — some builds
+            // finish setup asynchronously after the script tag resolves.
+            const start = Date.now();
+            while (!(window.puter && window.puter.net && typeof window.puter.net.fetch === 'function')) {
+                if (Date.now() - start > 5000) {
+                    throw new Error('Puter.js loaded but puter.net.fetch not exposed');
+                }
+                await new Promise(r => setTimeout(r, 100));
+            }
+        }
+
+        let depsReady = null;
+        let depsMode = null; // 'direct' | 'puter'
+        function ensureDeps(usePuter) {
+            const wanted = usePuter ? 'puter' : 'direct';
+            // If already loaded in a different mode, reuse — libraries are the same either way.
+            if (depsReady && depsMode) return depsReady;
+            depsMode = wanted;
+            depsReady = (async () => {
+                if (wanted === 'puter') {
+                    setStatus('Loading libraries via Puter (CORS-free)...');
+                    await ensurePuterJs();
+                    for (const url of NB_DEPS) {
+                        await loadScriptViaPuter(url);
+                    }
+                } else {
+                    setStatus('Loading libraries...');
+                    for (const url of NB_DEPS) {
+                        await loadScriptTag(url);
+                    }
+                }
+                // Register highlight.js languages
+                if (window.hljs) {
+                    try {
+                        if (window.hljsPython) window.hljs.registerLanguage('python', window.hljsPython);
+                    } catch(e) {}
+                }
+                // Wire notebook.js renderers (markdown via marked — loaded by the WebLLM module earlier —
+                // and code highlighting via hljs).
+                if (window.notebook) {
+                    if (window.marked) {
+                        const markedParse = (typeof window.marked.parse === 'function')
+                            ? window.marked.parse
+                            : (typeof window.marked === 'function' ? window.marked : null);
+                        if (markedParse) {
+                            window.notebook.markdown = (src) => markedParse(src, { breaks: true, gfm: true });
+                        }
+                    }
+                    if (window.hljs) {
+                        window.notebook.highlighter = function(text, pre, code, lang) {
+                            const language = (lang && window.hljs.getLanguage(lang)) ? lang : 'python';
+                            try {
+                                const result = window.hljs.highlight(text, { language, ignoreIllegals: true });
+                                code.innerHTML = result.value;
+                            } catch(e) {
+                                code.textContent = text;
+                            }
+                        };
+                    }
+                }
+            })().catch(err => {
+                // Reset on failure so the user can retry (possibly with the other mode).
+                depsReady = null;
+                depsMode = null;
+                throw err;
+            });
+            return depsReady;
+        }
+
+        const statusEl = document.getElementById('nbStatus');
+        const renderEl = document.getElementById('nbRender');
+        const dropzoneEl = document.getElementById('nbDropzone');
+        const fileInputEl = document.getElementById('nbFileInput');
+        const pickBtn = document.getElementById('nbPickBtn');
+        const pasteBtn = document.getElementById('nbPasteBtn');
+        const clearBtn = document.getElementById('nbClearBtn');
+        const pasteArea = document.getElementById('nbPasteArea');
+        const usePuterChk = document.getElementById('nbUsePuterFetch');
+
+        // Restore checkbox state
+        try {
+            const saved = localStorage.getItem(USE_PUTER_KEY);
+            if (saved === '1') usePuterChk.checked = true;
+        } catch(e) {}
+        usePuterChk.addEventListener('change', () => {
+            try { localStorage.setItem(USE_PUTER_KEY, usePuterChk.checked ? '1' : '0'); } catch(e) {}
+            // If deps are already loaded in one mode, toggling won't re-download — the
+            // libraries are identical. Advise the user if they want a clean retry.
+            if (depsReady) {
+                setStatus('Libraries already loaded (' + depsMode + '). Reload the page to switch modes.');
+            }
+        });
+
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            statusEl.textContent = text || '';
+            statusEl.style.color = isError ? '#f85149' : '#8b949e';
+        }
+
+        function resetRender() {
+            renderEl.innerHTML = '<div class="empty">No notebook loaded yet.</div>';
+        }
+
+        // Some .ipynb.txt files are wrapped (e.g. quoted-printable email encoding) or have
+        // BOM / leading garbage. Be forgiving: strip BOM, find the first { and last }, then parse.
+        function parseNotebookJson(raw) {
+            if (typeof raw !== 'string') throw new Error('Invalid file content');
+            let text = raw.replace(/^\uFEFF/, ''); // strip BOM
+            // If the file looks like quoted-printable, do a light unescape for = at line ends.
+            if (/=\r?\n/.test(text) && /=[0-9A-F]{2}/i.test(text)) {
+                text = text
+                    .replace(/=\r?\n/g, '')
+                    .replace(/=([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+            }
+            // Try direct parse first
+            try { return JSON.parse(text); } catch(e) {}
+            // Fallback: carve out the outermost { ... }
+            const first = text.indexOf('{');
+            const last = text.lastIndexOf('}');
+            if (first === -1 || last === -1 || last <= first) {
+                throw new Error('Could not find JSON object in file');
+            }
+            return JSON.parse(text.slice(first, last + 1));
+        }
+
+        async function renderNotebookFromJson(json, sourceLabel) {
+            try {
+                await ensureDeps(usePuterChk.checked);
+            } catch(err) {
+                setStatus('Library load failed: ' + err.message + (usePuterChk.checked ? '' : ' — try enabling "Load libraries via Puter fetch"'), true);
+                return;
+            }
+            if (!window.notebook) {
+                setStatus('notebook.js failed to load', true);
+                return;
+            }
+            // Minimal schema check
+            if (!json || !Array.isArray(json.cells)) {
+                setStatus('Not a valid .ipynb (missing "cells")', true);
+                return;
+            }
+            try {
+                renderEl.innerHTML = '';
+                const nb = window.notebook.parse(json);
+                const rendered = nb.render();
+                renderEl.appendChild(rendered);
+                const cellCount = json.cells.length;
+                const modeTag = depsMode === 'puter' ? ' [via Puter]' : '';
+                setStatus(`Rendered ${cellCount} cell${cellCount === 1 ? '' : 's'}${sourceLabel ? ' from ' + sourceLabel : ''}${modeTag}.`);
+            } catch(err) {
+                console.error(err);
+                setStatus('Render error: ' + err.message, true);
+            }
+        }
+
+        async function handleText(text, sourceLabel) {
+            try {
+                setStatus('Parsing ' + (sourceLabel || 'input') + '...');
+                const json = parseNotebookJson(text);
+                await renderNotebookFromJson(json, sourceLabel);
+            } catch(err) {
+                setStatus('Parse error: ' + err.message, true);
+            }
+        }
+
+        async function handleFile(file) {
+            if (!file) return;
+            const name = file.name || 'file';
+            // Accept any extension ending in .ipynb, .ipynb.txt, .txt, or .json.
+            // We don't hard-block on extension — we try parsing and let the error surface.
+            setStatus(`Reading ${name} (${(file.size / 1024).toFixed(1)} KB)...`);
+            try {
+                const text = await file.text();
+                await handleText(text, name);
+            } catch(err) {
+                setStatus('Read error: ' + err.message, true);
+            }
+        }
+
+        // --- Event wiring ---
+        pickBtn.addEventListener('click', () => fileInputEl.click());
+        fileInputEl.addEventListener('change', (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (f) handleFile(f);
+            fileInputEl.value = ''; // allow re-selecting same file
+        });
+
+        pasteBtn.addEventListener('click', () => {
+            const visible = pasteArea.style.display !== 'none';
+            pasteArea.style.display = visible ? 'none' : '';
+            if (!visible) {
+                pasteArea.focus();
+            }
+        });
+        pasteArea.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd+Enter to render
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                const text = pasteArea.value.trim();
+                if (text) handleText(text, 'pasted JSON');
+            }
+        });
+        pasteArea.addEventListener('paste', (e) => {
+            // Slight delay so the pasted text is in the textarea
+            setTimeout(() => {
+                const text = pasteArea.value.trim();
+                if (text && text.length > 20) handleText(text, 'pasted JSON');
+            }, 30);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            resetRender();
+            pasteArea.value = '';
+            setStatus('');
+        });
+
+        // Drag & drop on the dedicated dropzone
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropzoneEl.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzoneEl.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropzoneEl.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzoneEl.classList.remove('dragover');
+            });
+        });
+        dropzoneEl.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (!dt) return;
+            if (dt.files && dt.files.length > 0) {
+                handleFile(dt.files[0]);
+            } else {
+                const text = dt.getData('text');
+                if (text) handleText(text, 'dropped text');
+            }
+        });
+        dropzoneEl.addEventListener('click', () => fileInputEl.click());
+
+        // Expose a tiny programmatic API for other parts of the page, if useful.
+        window.renderIpynb = handleText;
+    })();
     </script>
 
     <!-- Snippets Panel Logic (AES-GCM Encrypted Storage) -->
