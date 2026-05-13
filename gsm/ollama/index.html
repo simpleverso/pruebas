@@ -249,6 +249,10 @@
                              </li>
                              <li><strong>LM Studio:</strong> Enable "Serve on Local Network" or ensure CORS is enabled in settings. Default is <code class="bg-yellow-800 px-1 rounded">http://localhost:1234/v1</code>.</li>
                              <li><strong> <code class="bg-yellow-800 px-1 rounded">?enablePuter=true</code> <code class="bg-yellow-800 px-1 rounded">index.html?enablePuter=true</code>.</li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">?enablewebllm=true</code> <code class="bg-yellow-800 px-1 rounded">index.html?enablewebllm=true</code>.</li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">https://openrouter.ai/workspaces/default/keys</code> </li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">https://nova.amazon.com/dev/api</code></li>
+
                         </ul>
                     </div>
 
@@ -1356,11 +1360,11 @@
                 }).finally(() => clearTimeout(timeoutId));
             }
 
-            function addMessageToChatUI(historyElement, role, content, dataUrl = null) {
+            function addMessageToChatUI(historyElement, role, content, dataUrl = null, deleteInfo = null) {
                 const messageWrapper = document.createElement('div');
                 const messageBubble = document.createElement('div');
                 const messageContent = document.createElement('p');
-                messageWrapper.classList.add('flex', 'items-start', 'gap-2');
+                messageWrapper.classList.add('flex', 'items-start', 'gap-2', 'group');
                 
                 if (role === 'debug') {
                     messageWrapper.classList.add('justify-center', 'w-full', 'my-2');
@@ -1409,9 +1413,13 @@
 
                 messageWrapper.appendChild(messageBubble);
 
+                // Trailing action buttons (copy for model, delete for any user/model message)
+                const actionCol = document.createElement('div');
+                actionCol.classList.add('flex', 'flex-col', 'gap-1', 'mt-1');
+
                 if (role === 'model') {
                     const copyBtn = document.createElement('button');
-                    copyBtn.classList.add('flex-shrink-0', 'p-1.5', 'mt-1', 'bg-gray-600', 'text-gray-300', 'rounded-full', 'hover:bg-gray-500', 'transition', 'focus:outline-none', 'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800');
+                    copyBtn.classList.add('flex-shrink-0', 'p-1.5', 'bg-gray-600', 'text-gray-300', 'rounded-full', 'hover:bg-gray-500', 'transition', 'focus:outline-none', 'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800');
                     const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`;
                     const checkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
                     copyBtn.innerHTML = copyIconSVG;
@@ -1426,11 +1434,55 @@
                         try { document.execCommand('copy'); copyBtn.innerHTML = checkIconSVG; setTimeout(() => { copyBtn.innerHTML = copyIconSVG; }, 2000); } catch (err) { console.error('Copy failed', err); }
                         document.body.removeChild(ta);
                     });
-                    messageWrapper.appendChild(copyBtn);
+                    actionCol.appendChild(copyBtn);
                 }
+
+                if (deleteInfo && typeof deleteInfo.index === 'number') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('flex-shrink-0', 'p-1.5', 'bg-gray-700', 'text-gray-400', 'rounded-full', 'hover:bg-red-600', 'hover:text-white', 'transition', 'focus:outline-none', 'opacity-0', 'group-hover:opacity-100');
+                    deleteBtn.title = 'Delete message';
+                    deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>`;
+                    deleteBtn.addEventListener('click', () => deleteChatMessage(deleteInfo.panelSuffix, deleteInfo.index));
+                    actionCol.appendChild(deleteBtn);
+                }
+
+                if (actionCol.children.length > 0) {
+                    // For user messages (right-aligned), put actions on the left of the bubble
+                    if (role === 'user') messageWrapper.insertBefore(actionCol, messageBubble);
+                    else messageWrapper.appendChild(actionCol);
+                }
+
                 historyElement.appendChild(messageWrapper);
                 historyElement.scrollTop = historyElement.scrollHeight;
                 return messageContent;
+            }
+
+            // Delete a message from the active chat and re-render the panel
+            function deleteChatMessage(panelSuffix, index) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                const chat = allChats[activeChatId];
+                if (!chat || !chat.messages || index < 0 || index >= chat.messages.length) return;
+                chat.messages.splice(index, 1);
+                saveChats();
+                rerenderChatPanel(panelSuffix);
+            }
+
+            // Re-render a chat panel from its stored messages array
+            function rerenderChatPanel(panelSuffix) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                const chat = allChats[activeChatId];
+                const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
+                historyEl.innerHTML = '';
+                if (!chat) return;
+                if (chat.messages.length > 0) {
+                    chat.messages.forEach((msg, i) => {
+                        let dataUrl = null;
+                        if (msg.role === 'user' && msg.images && msg.images[0]) dataUrl = `data:image/jpeg;base64,${msg.images[0]}`;
+                        addMessageToChatUI(historyEl, msg.role === 'assistant' ? 'model' : msg.role, msg.content, dataUrl, { panelSuffix, index: i });
+                    });
+                } else {
+                    addMessageToChatUI(historyEl, 'model', 'New chat. Say hello!', null);
+                }
             }
 
             function mdToHtml(text) {
@@ -2455,7 +2507,7 @@
                 systemPromptEl.value = chat.systemPrompt || '';
                 if (chat.model) modelSelectEl.value = chat.model;
                 else { modelSelectEl.value = modelSelect.value; chat.model = modelSelectEl.value; }
-                if (chat.messages.length > 0) { chat.messages.forEach(msg => { let dataUrl = null; if (msg.role === 'user' && msg.images && msg.images[0]) dataUrl = `data:image/jpeg;base64,${msg.images[0]}`; addMessageToChatUI(historyEl, msg.role, msg.content, dataUrl); }); }
+                if (chat.messages.length > 0) { chat.messages.forEach((msg, i) => { let dataUrl = null; if (msg.role === 'user' && msg.images && msg.images[0]) dataUrl = `data:image/jpeg;base64,${msg.images[0]}`; addMessageToChatUI(historyEl, msg.role === 'assistant' ? 'model' : msg.role, msg.content, dataUrl, { panelSuffix, index: i }); }); }
                 else { addMessageToChatUI(historyEl, 'model', 'New chat. Say hello!', null); }
                 historyEl.scrollTop = historyEl.scrollHeight;
             }
@@ -2850,7 +2902,7 @@
                 inputEl.value = ''; clearStagedImage(panelSuffix);
                 const typingBubble = addMessageToChatUI(historyEl, 'model', '...'); sendBtnEl.disabled = true;
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) addMessageToChatUI(historyEl, 'debug', JSON.stringify(payload, null, 2)); };
-                function saveAndRenameChat() { const userMessages = chat.messages.filter(m => m.role === 'user'); if (userMessages.length === 1) { chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`; renderChatListDropdowns(); } saveChats(); }
+                function saveAndRenameChat() { const userMessages = chat.messages.filter(m => m.role === 'user'); if (userMessages.length === 1) { chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`; renderChatListDropdowns(); } saveChats(); rerenderChatPanel(panelSuffix); }
 
                 if (model.startsWith('webllm:')) {
                     const rawModel = model.replace('webllm:', '');
