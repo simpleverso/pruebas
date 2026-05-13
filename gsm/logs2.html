@@ -4588,27 +4588,58 @@
         // Puter fetch + inline <script>: the library source is fetched via puter.net.fetch
         // (routed through Puter's WISP proxy — CORS-free, see https://developer.puter.com/tutorials/cors-free-fetch-api/ ),
         // then injected as an inline script so the browser executes it in this page's context.
+        //
+        // Note: Puter's Response object doesn't always expose .ok / .status the way native
+        // fetch does, so we don't gate on those. Instead we read the body and validate the
+        // content itself (non-empty, looks like JS). If anything fails at any step, the
+        // caller falls back to a plain <script src="..."> tag for that URL.
         async function loadScriptViaPuter(src) {
             if (!window.puter || !window.puter.net || typeof window.puter.net.fetch !== 'function') {
                 throw new Error('puter.net.fetch not available');
             }
             const res = await window.puter.net.fetch(src);
-            if (!res || !res.ok) {
-                throw new Error(`Puter fetch ${res ? res.status : 'failed'} for ${src}`);
+            if (!res) throw new Error('Puter fetch returned no response for ' + src);
+            // Some Puter builds expose .text(), others expose .body as a string.
+            let text = '';
+            if (typeof res.text === 'function') {
+                text = await res.text();
+            } else if (typeof res.body === 'string') {
+                text = res.body;
+            } else if (res.body && typeof res.body.text === 'function') {
+                text = await res.body.text();
+            } else {
+                // Last-resort: try standard Response destructuring
+                try { text = await (new Response(res.body)).text(); } catch(e) { /* ignore */ }
             }
-            const text = await res.text();
-            return new Promise((resolve, reject) => {
+            if (typeof text !== 'string' || text.length < 50) {
+                // Treat as a failed fetch so the caller can fall back.
+                const status = (res.status !== undefined) ? res.status : 'no-status';
+                throw new Error(`Puter fetch empty body (status=${status}, ${text ? text.length + ' chars' : 'no text'}) for ${src}`);
+            }
+            // Sanity-check: the response should look like JS, not an HTML error page.
+            const firstChars = text.trimStart().slice(0, 200).toLowerCase();
+            if (firstChars.startsWith('<!doctype') || firstChars.startsWith('<html')) {
+                throw new Error('Puter fetch returned HTML (likely an error page) for ' + src);
+            }
+            const s = document.createElement('script');
+            s.textContent = text;
+            s.dataset.puterFetched = src;
+            document.head.appendChild(s);
+        }
+
+        // Load with Puter first; if that specific URL fails, fall back to a direct <script src>.
+        async function loadScriptWithFallback(src, preferPuter) {
+            if (preferPuter) {
                 try {
-                    const s = document.createElement('script');
-                    // Use textContent so the browser runs it synchronously when appended.
-                    s.textContent = text;
-                    s.dataset.puterFetched = src;
-                    document.head.appendChild(s);
-                    resolve();
+                    await loadScriptViaPuter(src);
+                    return 'puter';
                 } catch(err) {
-                    reject(err);
+                    console.warn('[notebook] Puter fetch failed for', src, '—', err.message, 'falling back to direct');
+                    setStatus('Puter fetch failed for ' + src.split('/').pop() + ', falling back to direct...');
                 }
-            });
+            }
+            await loadScriptTag(src);
+            return 'direct';
         }
 
         // Ensure Puter.js itself is loaded. The existing ?enablePuter=true flag loads it
@@ -4636,18 +4667,26 @@
             if (depsReady && depsMode) return depsReady;
             depsMode = wanted;
             depsReady = (async () => {
+                let anyPuter = false;
+                let anyDirect = false;
                 if (wanted === 'puter') {
                     setStatus('Loading libraries via Puter (CORS-free)...');
                     await ensurePuterJs();
                     for (const url of NB_DEPS) {
-                        await loadScriptViaPuter(url);
+                        const mode = await loadScriptWithFallback(url, true);
+                        if (mode === 'puter') anyPuter = true; else anyDirect = true;
                     }
                 } else {
                     setStatus('Loading libraries...');
                     for (const url of NB_DEPS) {
                         await loadScriptTag(url);
+                        anyDirect = true;
                     }
                 }
+                // Reflect what actually happened.
+                if (anyPuter && anyDirect) depsMode = 'mixed';
+                else if (anyPuter) depsMode = 'puter';
+                else depsMode = 'direct';
                 // Register highlight.js languages
                 if (window.hljs) {
                     try {
@@ -4764,7 +4803,9 @@
                 const rendered = nb.render();
                 renderEl.appendChild(rendered);
                 const cellCount = json.cells.length;
-                const modeTag = depsMode === 'puter' ? ' [via Puter]' : '';
+                const modeTag = depsMode === 'puter' ? ' [via Puter]'
+                    : depsMode === 'mixed' ? ' [Puter + direct]'
+                    : '';
                 setStatus(`Rendered ${cellCount} cell${cellCount === 1 ? '' : 's'}${sourceLabel ? ' from ' + sourceLabel : ''}${modeTag}.`);
             } catch(err) {
                 console.error(err);
