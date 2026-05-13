@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Title -->
     <title>Text, JSON & Base64 Tools</title>
+    <!-- Puter.js (cloud AI). Loaded only when ?enablePuter=true. -->
+    <script>
+        (function() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const v = params.get('enablePuter');
+                window.__PUTER_ENABLED__ = (v === 'true' || v === '1');
+                if (window.__PUTER_ENABLED__) {
+                    const s = document.createElement('script');
+                    s.src = 'https://js.puter.com/v2/';
+                    s.async = true;
+                    document.head.appendChild(s);
+                }
+            } catch(e) { window.__PUTER_ENABLED__ = false; }
+        })();
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -878,6 +894,11 @@
     <div class="chat-panel">
         <div class="chat-panel-header">
             <h2>Offline chat</h2>
+            <div class="chat-model-row" style="flex-wrap:wrap;gap:6px;">
+                <input id="lmstudioEndpoint" type="text" placeholder="LM Studio endpoint (e.g. http://localhost:1234/v1)"
+                    style="flex:1 1 100%;min-width:180px;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;" />
+                <button onclick="refreshLMStudioModels()" class="tertiary-button" title="Reload model list from LM Studio" style="width:auto;padding:6px 10px;font-size:0.8rem;">🔄 LM Studio</button>
+            </div>
             <div class="chat-model-row">
                 <select id="llmModelSelect" data-default="Qwen3-8B-q4f16_1-MLC">
                     <option value="" disabled selected>Loading WebLLM models...</option>
@@ -1017,58 +1038,148 @@
 
         // Populate the model dropdown from the WebLLM prebuilt list, using the same
         // filters as ollama/index.html so both files show the same MLC model names.
+        // Also appends LM Studio models (discovered at runtime) and Puter cloud models
+        // (hidden unless ?enablePuter=true), using prefixes so we can route calls.
+        const LMSTUDIO_ENDPOINT_KEY = 'logs2_lmstudio_endpoint';
+        const LMSTUDIO_DEFAULT_ENDPOINT = 'http://localhost:1234/v1';
+        const PUTER_MODELS = [
+            'gpt-5.4-nano',
+            'o3-mini',
+            'claude-sonnet-4.5',
+            'deepseek-v3.2',
+            'deepseek-reasoner',
+            'gemini-2.5-flash',
+            'grok-4-fast',
+        ];
+        const PUTER_ENABLED = !!window.__PUTER_ENABLED__;
+        let lmStudioAvailableModels = [];
+
         function populateModelSelect() {
             const selectEl = document.getElementById('llmModelSelect');
-            if (!selectEl || !webllm || !webllm.prebuiltAppConfig) return;
+            if (!selectEl) return;
             const defaultId = selectEl.dataset.default || 'Qwen3-8B-q4f16_1-MLC';
             const prevValue = selectEl.value;
 
-            const prebuiltIds = webllm.prebuiltAppConfig.model_list
-                .map(m => m.model_id)
-                .filter(id => {
-                    const lower = id.toLowerCase();
-                    const is1B = /[\-_]1b[\-_]|[\-_]1\.[\d]b[\-_]/i.test(id);
-                    const is05B = /[\-_]0\.5b[\-_]/i.test(id);
-                    const is06B = /[\-_]0\.6b[\-_]/i.test(id);
-                    const is70B = /[\-_]70b[\-_]/i.test(id);
-                    const isLlama = lower.includes('llama');
-                    const isPhi = lower.includes('phi');
-                    const isMinistral = lower.includes('ministral');
-                    // Remove Phi, Ministral, 0.5B models, and 1B models unless Llama
-                    if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || (lower.includes('q4f32_1') && !lower.includes('qwen3'))) return false;
-                    // Remove specific models
-                    if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
-                    if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
-                    if (is05B || is06B || is70B) return false;
-                    // Remove all Qwen3.5-0.8B variants
-                    if (/qwen3[\._]5/i.test(lower) && /0[\._]8b/i.test(lower)) return false;
-                    // Remove all Qwen3.5-2B variants
-                    if (/qwen3[\._]5/i.test(lower) && /[\-_]2b[\-_]/i.test(lower)) return false;
-                    // Remove all Hermes-2 and Hermes-3 variants
-                    if (/hermes[\-_]?[23]/i.test(lower)) return false;
-                    return !is1B || isLlama;
-                });
-
-            // Append custom models (legacy + standard) so they show up in the dropdown too
+            // --- WebLLM prebuilt (with same filters as ollama/index.html) ---
+            let prebuiltIds = [];
+            if (webllm && webllm.prebuiltAppConfig) {
+                prebuiltIds = webllm.prebuiltAppConfig.model_list
+                    .map(m => m.model_id)
+                    .filter(id => {
+                        const lower = id.toLowerCase();
+                        const is1B = /[\-_]1b[\-_]|[\-_]1\.[\d]b[\-_]/i.test(id);
+                        const is05B = /[\-_]0\.5b[\-_]/i.test(id);
+                        const is06B = /[\-_]0\.6b[\-_]/i.test(id);
+                        const is70B = /[\-_]70b[\-_]/i.test(id);
+                        const isLlama = lower.includes('llama');
+                        const isPhi = lower.includes('phi');
+                        const isMinistral = lower.includes('ministral');
+                        if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || (lower.includes('q4f32_1') && !lower.includes('qwen3'))) return false;
+                        if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
+                        if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
+                        if (is05B || is06B || is70B) return false;
+                        if (/qwen3[\._]5/i.test(lower) && /0[\._]8b/i.test(lower)) return false;
+                        if (/qwen3[\._]5/i.test(lower) && /[\-_]2b[\-_]/i.test(lower)) return false;
+                        if (/hermes[\-_]?[23]/i.test(lower)) return false;
+                        return !is1B || isLlama;
+                    });
+            }
             const customIds = customModels.map(m => m.model_id);
-            const allIds = [...prebuiltIds];
-            customIds.forEach(id => { if (!allIds.includes(id)) allIds.push(id); });
+            const webllmIds = [...prebuiltIds];
+            customIds.forEach(id => { if (!webllmIds.includes(id)) webllmIds.push(id); });
 
+            // --- Build the <select> with optgroups per provider ---
             selectEl.innerHTML = '';
-            allIds.forEach(id => {
-                const opt = document.createElement('option');
-                opt.value = id;
-                opt.textContent = `🧠 ${id}`;
-                selectEl.appendChild(opt);
-            });
+
+            if (webllmIds.length > 0) {
+                const og = document.createElement('optgroup');
+                og.label = 'WebLLM (in-browser)';
+                webllmIds.forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = id; // webllm entries have no prefix (back-compat)
+                    opt.textContent = `🧠 ${id}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
+            if (lmStudioAvailableModels.length > 0) {
+                const og = document.createElement('optgroup');
+                og.label = 'LM Studio (local)';
+                lmStudioAvailableModels.forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = `lmstudio:${id}`;
+                    opt.textContent = `🖥️ ${id}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
+            if (PUTER_ENABLED) {
+                const og = document.createElement('optgroup');
+                og.label = 'Puter (cloud)';
+                PUTER_MODELS.forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = `puter:${id}`;
+                    opt.textContent = `☁️ ${id}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
 
             // Restore previous selection if still present, otherwise fall back to default
-            if (prevValue && allIds.includes(prevValue)) {
+            const exists = (val) => Array.from(selectEl.options).some(o => o.value === val);
+            if (prevValue && exists(prevValue)) {
                 selectEl.value = prevValue;
-            } else if (allIds.includes(defaultId)) {
+            } else if (exists(defaultId)) {
                 selectEl.value = defaultId;
             }
         }
+
+        // Probe LM Studio /models and refresh the dropdown.
+        async function refreshLMStudioModels(showErrors = false) {
+            const input = document.getElementById('lmstudioEndpoint');
+            if (!input) return;
+            const endpoint = (input.value || '').trim().replace(/\/+$/, '');
+            if (!endpoint) { lmStudioAvailableModels = []; populateModelSelect(); return; }
+            try {
+                const ctrl = new AbortController();
+                const to = setTimeout(() => ctrl.abort(), 4000);
+                const res = await fetch(`${endpoint}/models`, { signal: ctrl.signal });
+                clearTimeout(to);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const models = (data.data || []).map(m => m.id).filter(Boolean);
+                lmStudioAvailableModels = models;
+                try { localStorage.setItem(LMSTUDIO_ENDPOINT_KEY, endpoint); } catch(e) {}
+                populateModelSelect();
+                if (showErrors) {
+                    const el = document.getElementById('llmStatus');
+                    if (el) el.textContent = `LM Studio: ${models.length} model(s) found.`;
+                }
+            } catch (err) {
+                lmStudioAvailableModels = [];
+                populateModelSelect();
+                if (showErrors) {
+                    const el = document.getElementById('llmStatus');
+                    if (el) el.textContent = 'LM Studio: connection failed — ' + err.message;
+                }
+            }
+        }
+        window.refreshLMStudioModels = () => refreshLMStudioModels(true);
+
+        // Restore LM Studio endpoint and probe silently on page load
+        (function() {
+            const input = document.getElementById('lmstudioEndpoint');
+            if (!input) return;
+            try {
+                const saved = localStorage.getItem(LMSTUDIO_ENDPOINT_KEY);
+                input.value = saved || LMSTUDIO_DEFAULT_ENDPOINT;
+            } catch(e) { input.value = LMSTUDIO_DEFAULT_ENDPOINT; }
+            input.addEventListener('change', () => refreshLMStudioModels(true));
+            // Silent probe at startup; failures are expected when LM Studio isn't running
+            setTimeout(() => refreshLMStudioModels(false), 300);
+        })();
 
         // Populate as soon as the module runs (webllm.prebuiltAppConfig is available synchronously)
         try { populateModelSelect(); } catch(e) { console.warn('populateModelSelect failed', e); }
@@ -1081,7 +1192,11 @@
         //   'none'        : non-reasoning model (e.g. Llama); toggle has no effect
         function getModelThinkingMode(modelId) {
             if (!modelId) return 'none';
-            const id = modelId;
+            // Strip provider prefixes. Puter cloud models handle reasoning server-side —
+            // we don't send chat_template_kwargs to them. LM Studio runs any GGUF with
+            // its own chat template, so we use the model name heuristics after stripping.
+            if (modelId.startsWith('puter:')) return 'none';
+            const id = modelId.startsWith('lmstudio:') ? modelId.slice('lmstudio:'.length) : modelId;
             // Qwen3 2507 split: dedicated Thinking vs Instruct checkpoints
             if (/-Thinking-2507-/i.test(id)) return 'always-on';
             if (/-Instruct-2507-/i.test(id)) return 'always-off';
@@ -1148,6 +1263,94 @@
         });
         // And apply it now for the initial selection
         try { applyThinkingUIForModel(document.getElementById('llmModelSelect').value); } catch(e) {}
+
+        // --- Provider routing ---
+        function getProvider(modelId) {
+            if (!modelId) return 'webllm';
+            if (modelId.startsWith('lmstudio:')) return 'lmstudio';
+            if (modelId.startsWith('puter:')) return 'puter';
+            return 'webllm';
+        }
+        function stripProvider(modelId) {
+            if (!modelId) return '';
+            if (modelId.startsWith('lmstudio:')) return modelId.slice('lmstudio:'.length);
+            if (modelId.startsWith('puter:')) return modelId.slice('puter:'.length);
+            return modelId;
+        }
+
+        // LM Studio streaming caller (OpenAI-compatible /v1/chat/completions)
+        async function callLMStudio(rawModel, messages, { signal } = {}) {
+            const endpointInput = document.getElementById('lmstudioEndpoint');
+            const endpoint = (endpointInput?.value || LMSTUDIO_DEFAULT_ENDPOINT).trim().replace(/\/+$/, '');
+            const url = `${endpoint}/chat/completions`;
+            const payload = { model: rawModel, messages, stream: true };
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal,
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`LM Studio API ${res.status}: ${errText}`);
+            }
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            return {
+                async *[Symbol.asyncIterator]() {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+                        for (const line of lines) {
+                            const t = line.trim();
+                            if (!t || t === 'data: [DONE]' || t.startsWith(':')) continue;
+                            if (!t.startsWith('data: ')) continue;
+                            try {
+                                const json = JSON.parse(t.slice(6));
+                                const delta = json.choices?.[0]?.delta?.content || '';
+                                if (delta) yield delta;
+                            } catch(e) { /* ignore parse errors */ }
+                        }
+                    }
+                },
+                cancel() { try { reader.cancel(); } catch(e) {} }
+            };
+        }
+
+        // Puter.js streaming caller (cloud AI). Requires ?enablePuter=true to have loaded js.puter.com.
+        async function callPuter(rawModel, messages) {
+            if (!window.puter || !window.puter.ai || typeof window.puter.ai.chat !== 'function') {
+                throw new Error('Puter.js not loaded. Reload page with ?enablePuter=true.');
+            }
+            const input = messages.map(m => ({
+                role: m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user'),
+                content: m.content,
+            }));
+            const options = { model: rawModel, stream: true };
+            const result = await window.puter.ai.chat(input, options);
+            const iterator = result[Symbol.asyncIterator] ? result[Symbol.asyncIterator]() : result;
+            let cancelled = false;
+            return {
+                async *[Symbol.asyncIterator]() {
+                    while (true) {
+                        if (cancelled) break;
+                        const { value, done } = await iterator.next();
+                        if (done) break;
+                        const text = value?.text || value?.message?.content || (typeof value === 'string' ? value : '');
+                        if (text) yield text;
+                    }
+                },
+                cancel() { cancelled = true; }
+            };
+        }
+
+        // Holder for the current remote stream (LM Studio / Puter) so stopGeneration can cancel it.
+        let currentRemoteStream = null;
+        let currentAbortController = null;
 
         let engine = null;
         let legacyEngine = null;
@@ -1302,8 +1505,11 @@
         }
 
         async function resendMessage(text) {
-            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            if (!activeEngine) {
+            const provider = getProvider(loadedModelId);
+            const hasModel = provider === 'webllm'
+                ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
+                : !!loadedModelId;
+            if (!hasModel) {
                 addMessage('system', 'No model loaded. Loading default model...');
                 await window.loadLLMModel();
             }
@@ -1366,6 +1572,29 @@
         window.loadLLMModel = async function() {
             const modelId = document.getElementById('llmModelSelect').value;
             if (isLoading) return;
+            const provider = getProvider(modelId);
+
+            // Remote providers (LM Studio, Puter) don't need a local engine load.
+            if (provider === 'lmstudio' || provider === 'puter') {
+                // Clean up any previously loaded local engine to free VRAM
+                if (engine && typeof engine.unload === 'function') { try { await engine.unload(); } catch(e) {} }
+                if (legacyEngine && typeof legacyEngine.unload === 'function') { try { await legacyEngine.unload(); } catch(e) {} }
+                engine = null;
+                legacyEngine = null;
+                loadedModelId = modelId;
+                const label = provider === 'lmstudio' ? 'LM Studio' : 'Puter';
+                statusEl.textContent = `Ready — ${label}: ${stripProvider(modelId)}`;
+                progressEl.style.display = 'none';
+                inputEl.disabled = false;
+                sendBtn.disabled = false;
+                messagesEl.innerHTML = '';
+                addMessage('system', `${label} model selected. Start chatting.`);
+                applyThinkingUIForModel(modelId);
+                inputEl.focus();
+                return;
+            }
+
+            // WebLLM local engine path
             isLoading = true;
             const isLegacy = legacyModelIds.has(modelId);
 
@@ -1435,19 +1664,31 @@
             const text = inputEl.value.trim();
             if (!text) return;
             const selectedModelId = document.getElementById('llmModelSelect').value;
-            let activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            // Auto-load if no engine or if user switched to a different model
-            if (!activeEngine || selectedModelId !== loadedModelId) {
-                addMessage('system', activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...');
-                await window.loadLLMModel();
+            const provider = getProvider(selectedModelId);
+            const rawModel = stripProvider(selectedModelId);
+
+            // For webllm: need an engine that matches the selected model.
+            // For lmstudio/puter: just ensure loadedModelId matches (no engine needed).
+            let activeEngine = null;
+            if (provider === 'webllm') {
                 activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-                if (!activeEngine) return; // load failed
+                if (!activeEngine || selectedModelId !== loadedModelId) {
+                    addMessage('system', activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...');
+                    await window.loadLLMModel();
+                    activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+                    if (!activeEngine) return; // load failed
+                }
+            } else {
+                if (selectedModelId !== loadedModelId) {
+                    await window.loadLLMModel();
+                }
             }
+
             inputEl.value = '';
             inputEl.disabled = true;
             sendBtn.disabled = true;
             stopRequested = false;
-            currentActiveEngine = activeEngine;
+            currentActiveEngine = activeEngine; // null for remote providers
             document.getElementById('chatStopBtn').style.display = '';
 
             addMessage('user', text);
@@ -1461,50 +1702,58 @@
                 const sysPrompt = useSystemPrompt ? document.getElementById('llmSystemPrompt' + activeSlot).value.trim() : '';
                 const msgs = sysPrompt
                     ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
-                    : chatHistory;
+                    : [...chatHistory];
 
                 // Decide the effective thinking state for this turn based on the model.
                 const activeModelId = loadedModelId || selectedModelId;
                 const thinkMode = getModelThinkingMode(activeModelId);
                 const thinkingEnabled = resolveThinkingEnabled(activeModelId);
 
-                // Build the request. For hybrid models (toggleable) pass the official
-                // chat_template_kwargs.enable_thinking switch, and also append the
-                // legacy /no_think soft switch when disabling for robustness across
-                // template versions. Forced modes (always-on/always-off) get the
-                // canonical switch too, but we never append /no_think to models that
-                // don't understand it.
+                // Possibly append /no_think for hybrid models when disabling reasoning.
                 let finalMsgs = msgs;
-                const requestBody = {
-                    messages: finalMsgs,
-                    stream: true,
-                    stream_options: { include_usage: true },
-                };
-
-                if (thinkMode === 'toggleable') {
-                    requestBody.extra_body = {
-                        chat_template_kwargs: { enable_thinking: thinkingEnabled },
-                    };
-                    if (!thinkingEnabled && finalMsgs.length > 0) {
-                        finalMsgs = [...finalMsgs];
-                        for (let i = finalMsgs.length - 1; i >= 0; i--) {
-                            if (finalMsgs[i].role === 'user') {
-                                finalMsgs[i] = { ...finalMsgs[i], content: finalMsgs[i].content + '\n/no_think' };
-                                break;
-                            }
+                if (thinkMode === 'toggleable' && !thinkingEnabled && finalMsgs.length > 0) {
+                    finalMsgs = [...finalMsgs];
+                    for (let i = finalMsgs.length - 1; i >= 0; i--) {
+                        if (finalMsgs[i].role === 'user') {
+                            finalMsgs[i] = { ...finalMsgs[i], content: finalMsgs[i].content + '\n/no_think' };
+                            break;
                         }
-                        requestBody.messages = finalMsgs;
                     }
-                } else if (thinkMode === 'always-off') {
-                    // Dedicated Instruct-2507 checkpoints — no reasoning, be explicit.
-                    requestBody.extra_body = {
-                        chat_template_kwargs: { enable_thinking: false },
-                    };
                 }
-                // 'always-on' (Thinking-2507, DeepSeek-R1-Distill) and 'none' (Llama, etc.)
-                // get the default template — no extra switches needed or honored.
 
-                const reply = await activeEngine.chat.completions.create(requestBody);
+                // Build the provider-specific stream iterator.
+                let streamIter; // something with [Symbol.asyncIterator]() yielding text deltas
+                let getChunkDelta = (chunk) => chunk; // default: string chunks
+                let cancelStream = () => {};
+
+                if (provider === 'webllm') {
+                    const requestBody = {
+                        messages: finalMsgs,
+                        stream: true,
+                        stream_options: { include_usage: true },
+                    };
+                    if (thinkMode === 'toggleable') {
+                        requestBody.extra_body = { chat_template_kwargs: { enable_thinking: thinkingEnabled } };
+                    } else if (thinkMode === 'always-off') {
+                        requestBody.extra_body = { chat_template_kwargs: { enable_thinking: false } };
+                    }
+                    const reply = await activeEngine.chat.completions.create(requestBody);
+                    streamIter = reply;
+                    getChunkDelta = (chunk) => chunk.choices?.[0]?.delta?.content || '';
+                } else if (provider === 'lmstudio') {
+                    currentAbortController = new AbortController();
+                    const iter = await callLMStudio(rawModel, finalMsgs, { signal: currentAbortController.signal });
+                    currentRemoteStream = iter;
+                    streamIter = iter;
+                    getChunkDelta = (s) => s || '';
+                    cancelStream = () => { try { currentAbortController.abort(); } catch(e) {} try { iter.cancel && iter.cancel(); } catch(e) {} };
+                } else if (provider === 'puter') {
+                    const iter = await callPuter(rawModel, finalMsgs);
+                    currentRemoteStream = iter;
+                    streamIter = iter;
+                    getChunkDelta = (s) => s || '';
+                    cancelStream = () => { try { iter.cancel && iter.cancel(); } catch(e) {} };
+                }
 
                 let full = '';
                 let inThink = false;
@@ -1512,21 +1761,20 @@
                 const genStart = performance.now();
                 let tokenCount = 0;
                 let firstTokenTime = null;
-                for await (const chunk of reply) {
-                    if (stopRequested) break;
-                    const delta = chunk.choices[0]?.delta?.content || '';
+
+                for await (const chunk of streamIter) {
+                    if (stopRequested) { cancelStream(); break; }
+                    const delta = getChunkDelta(chunk);
                     if (delta) {
                         tokenCount++;
                         if (!firstTokenTime) firstTokenTime = performance.now();
                         full += delta;
-                        // Live stats
                         const elapsed = (performance.now() - firstTokenTime) / 1000;
                         const tps = elapsed > 0 ? (tokenCount / elapsed).toFixed(1) : '—';
                         const ttft = firstTokenTime ? ((firstTokenTime - genStart) / 1000).toFixed(2) : '—';
                         statsEl.textContent = `⚡ ${tps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${elapsed.toFixed(1)}s`;
                         statsEl.style.color = '#58a6ff';
                     }
-                    // Read checkbox live on every chunk
                     const liveShowThinking = document.getElementById('llmShowThinking').checked;
                     if (liveShowThinking) {
                         inThink = full.includes('<think>') && !full.includes('</think>');
@@ -1541,8 +1789,6 @@
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }
 
-                // Engine already interrupted by stopGeneration button if needed
-
                 // Final stats
                 const stopped = stopRequested;
                 const totalTime = ((performance.now() - genStart) / 1000).toFixed(2);
@@ -1551,7 +1797,6 @@
                 statsEl.textContent = `${stopped ? '⏹️' : '✅'} ${finalTps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${totalTime}s total${stopped ? ' (stopped)' : ''}`;
                 statsEl.style.color = stopped ? '#d29922' : '#3fb950';
 
-                // Render final markdown with thinking support
                 assistantDiv.style.color = '';
                 assistantDiv.style.fontStyle = '';
                 if (full) {
@@ -1564,6 +1809,9 @@
                 }
             } catch (err) {
                 assistantDiv.textContent = 'Error: ' + err.message;
+            } finally {
+                currentRemoteStream = null;
+                currentAbortController = null;
             }
 
             document.getElementById('chatStopBtn').style.display = 'none';
@@ -1575,23 +1823,32 @@
 
         window.stopGeneration = function() {
             stopRequested = true;
-            // Immediately interrupt the engine so the stream loop unblocks
+            // WebLLM engine interrupt
             if (currentActiveEngine) {
                 if (typeof currentActiveEngine.interruptGenerate === 'function') {
                     try { currentActiveEngine.interruptGenerate(); } catch(e) {}
                 }
-                // Also try abort() for newer WebLLM versions
                 if (typeof currentActiveEngine.abort === 'function') {
                     try { currentActiveEngine.abort(); } catch(e) {}
                 }
+            }
+            // Remote stream abort (LM Studio / Puter)
+            if (currentAbortController) {
+                try { currentAbortController.abort(); } catch(e) {}
+            }
+            if (currentRemoteStream && typeof currentRemoteStream.cancel === 'function') {
+                try { currentRemoteStream.cancel(); } catch(e) {}
             }
         };
 
         window.clearChat = function() {
             chatHistory = [];
             messagesEl.innerHTML = '';
-            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            addMessage('system', activeEngine ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
+            const provider = getProvider(loadedModelId);
+            const hasModel = provider === 'webllm'
+                ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
+                : !!loadedModelId;
+            addMessage('system', hasModel ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
         };
 
         window.resendLast = async function() {
