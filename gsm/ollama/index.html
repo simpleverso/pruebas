@@ -374,6 +374,11 @@
                                 </div>
                             </div>
                             <textarea id="analysis-input" rows="8" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your text here..."></textarea>
+                            <div id="analysis-input-stats" class="mt-1 text-xs text-gray-400 font-mono flex gap-4">
+                                <span><span class="text-gray-500">Characters:</span> <span id="stat-chars" class="text-cyan-300">0</span></span>
+                                <span><span class="text-gray-500">Tokens (est.):</span> <span id="stat-tokens" class="text-cyan-300">0</span></span>
+                                <span><span class="text-gray-500">Words:</span> <span id="stat-words" class="text-cyan-300">0</span></span>
+                            </div>
                         </div>
                         
                         <!-- Actions & Options -->
@@ -2862,9 +2867,24 @@
             const TEST_PROMPT = `This is Krangath: In the dark, vampires and liches grow strong. Tunnel worms gnaw incessantly, boring winding tunnels throughout Gehenna's frozen granite. Trolls huddle in caves while barghests and daemons vie for supremacy. Such is the desolation. No light touches this place. There are no sources of heat. None willingly reside here, except the undead, who thrive on its negative energies. No sun shines on this cursed land. No wind disturbs its crevices. No plants, vegetation, trees, bushes, shrubs, or thorns can grow on the surface, though some fungus and lichens grow in its caves. There is no day in Krangath, only eternal night. There is no tectonic or volcanic activity in Krangath.\nThe Blackthorn Mountains of Krangath are dark and craggy, jagged like the teeth of a terrible beast. The Bloodfen Steppes of Krangath are an acidic, frozen mud plain, reeking of sulfur and old decay. Horrible carnivorous insects hide in the Bloodfen's warrens, quick to bite a passing ankle. Between the Blackthorn Mountains and the Bloodfen Steppes are the Arzoth Hills. Please describe the Arzoth Hills.`;
             document.getElementById('test-prompt-btn').addEventListener('click', () => {
                 analysisInput.value = TEST_PROMPT;
+                analysisInput.dispatchEvent(new Event('input'));
                 analysisInput.dispatchEvent(new Event('change'));
                 analysisInput.focus();
             });
+
+            // Live stats for Text to Analyze (chars, tokens, words)
+            const statChars = document.getElementById('stat-chars');
+            const statTokens = document.getElementById('stat-tokens');
+            const statWords = document.getElementById('stat-words');
+            function updateAnalysisStats() {
+                const text = analysisInput.value || '';
+                statChars.textContent = text.length.toLocaleString();
+                statTokens.textContent = estimateTokens(text).toLocaleString();
+                const words = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+                statWords.textContent = words.toLocaleString();
+            }
+            analysisInput.addEventListener('input', updateAnalysisStats);
+            updateAnalysisStats();
 
             // Analyze Button
 
