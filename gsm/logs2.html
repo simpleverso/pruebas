@@ -4731,6 +4731,10 @@
                             ts: 'typescript',
                         };
                         nb.highlighter = function(text, pre, code, lang) {
+                            // notebook.js assigns the *returned* string to code.innerHTML
+                            // itself. Don't set code.innerHTML here — that would be
+                            // overwritten by `undefined` when this function returns.
+                            // Classes are OK to mutate as a side effect.
                             try {
                                 const hint = (lang || '').toLowerCase();
                                 const resolved = aliasMap[hint] || hint;
@@ -4738,20 +4742,22 @@
                                 if (resolved && window.hljs.getLanguage(resolved)) {
                                     result = window.hljs.highlight(text, { language: resolved, ignoreIllegals: true });
                                 } else {
-                                    // No explicit language or unknown hint — let hljs guess.
                                     result = window.hljs.highlightAuto(text);
                                 }
-                                code.innerHTML = result.value;
                                 // Apply the `hljs` class so the github-dark stylesheet's
                                 // base colors (background, default text) take effect.
-                                code.classList.add('hljs');
-                                if (result.language) {
-                                    code.classList.add('language-' + result.language);
+                                if (code) {
+                                    code.classList.add('hljs');
+                                    if (result.language) {
+                                        code.classList.add('language-' + result.language);
+                                    }
                                 }
-                                // Also mark the wrapping <pre> so custom CSS can target it.
                                 if (pre) pre.classList.add('hljs-pre');
+                                return result.value;
                             } catch(e) {
-                                code.textContent = text;
+                                // Fall back to the escaped plain text that notebook.js
+                                // passed in — returning it keeps the cell readable.
+                                return text;
                             }
                         };
                     }
