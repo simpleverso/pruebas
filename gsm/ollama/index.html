@@ -1789,6 +1789,7 @@
             }
 
             // NVIDIA integrate.api.nvidia.com caller (OpenAI-compatible)
+            // Uses puter.net.fetch (CORS-free) when Puter.js is available, otherwise native fetch.
             async function callNvidia(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
                 const apiKey = nvidiaApiKeyInput.value.trim();
                 if (!apiKey) { showMessage('NVIDIA API Key is missing.', 'error'); throw new Error('NVIDIA API Key missing'); }
@@ -1799,12 +1800,17 @@
                 else if (Array.isArray(promptOrMessages)) { promptOrMessages.filter(m => m.role !== 'system').forEach(msg => { messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content }); }); }
                 const payload = { model, messages, temperature: 0.2, top_p: 0.7, max_tokens: 1024, stream };
                 if (onDebug) onDebug(payload);
-                const response = await fetch(url, {
+                // Prefer Puter.js's CORS-free fetch; NVIDIA's API doesn't send CORS headers for browser origins
+                const fetchFn = (window.puter && window.puter.net && typeof window.puter.net.fetch === 'function')
+                    ? window.puter.net.fetch.bind(window.puter.net)
+                    : fetch;
+                const fetchOpts = {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'Accept': stream ? 'text/event-stream' : 'application/json' },
-                    body: JSON.stringify(payload),
-                    signal
-                });
+                    body: JSON.stringify(payload)
+                };
+                if (signal) fetchOpts.signal = signal;
+                const response = await fetchFn(url, fetchOpts);
                 if (!response.ok) { const errorText = await response.text(); throw new Error(`NVIDIA API Error ${response.status}: ${errorText}`); }
                 if (stream) {
                     const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
