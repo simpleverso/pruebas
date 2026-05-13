@@ -391,6 +391,41 @@
                             </div>
                             <textarea id="analysis-output" rows="8" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Analysis will appear here..." readonly></textarea>
                         </div>
+
+                        <!-- Analysis Metrics -->
+                        <div id="analysis-metrics" class="hidden bg-gray-900 border border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-cyan-400 uppercase tracking-wide">Generation Metrics</h3>
+                                <span id="metrics-model-label" class="text-xs text-gray-500 font-mono"></span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Time to First Token</div>
+                                    <div id="metric-ttft" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Total Time</div>
+                                    <div id="metric-total-time" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Generation Time</div>
+                                    <div id="metric-gen-time" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Tokens Generated</div>
+                                    <div id="metric-tokens" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Tokens / Second</div>
+                                    <div id="metric-tps" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Characters</div>
+                                    <div id="metric-chars" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-2">Token counts are approximate (word-based + overhead). For exact counts, see the raw provider response when Debug Mode is on.</p>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -2715,26 +2750,90 @@
             copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
 
             // Analyze Button
+
+            // --- Analysis Metrics helpers ---
+            const metricsPanel = document.getElementById('analysis-metrics');
+            const metricsModelLabel = document.getElementById('metrics-model-label');
+            const metricTtft = document.getElementById('metric-ttft');
+            const metricTotalTime = document.getElementById('metric-total-time');
+            const metricGenTime = document.getElementById('metric-gen-time');
+            const metricTokens = document.getElementById('metric-tokens');
+            const metricTps = document.getElementById('metric-tps');
+            const metricChars = document.getElementById('metric-chars');
+            function formatMs(ms) {
+                if (ms == null || !isFinite(ms)) return '—';
+                if (ms < 1000) return `${Math.round(ms)} ms`;
+                return `${(ms / 1000).toFixed(2)} s`;
+            }
+            // Rough token estimation: ~4 chars per token or 0.75 words per token, whichever is larger.
+            function estimateTokens(text) {
+                if (!text) return 0;
+                const byChars = Math.ceil(text.length / 4);
+                const byWords = Math.ceil((text.trim().split(/\s+/).filter(Boolean).length) / 0.75);
+                return Math.max(byChars, byWords);
+            }
+            function resetMetrics() {
+                metricsPanel.classList.add('hidden');
+                [metricTtft, metricTotalTime, metricGenTime, metricTokens, metricTps, metricChars].forEach(el => el.textContent = '—');
+                metricsModelLabel.textContent = '';
+            }
+            function renderMetrics({ model, startMs, firstTokenMs, endMs, text }) {
+                const ttft = (firstTokenMs != null) ? (firstTokenMs - startMs) : null;
+                const total = endMs - startMs;
+                const gen = (firstTokenMs != null) ? (endMs - firstTokenMs) : total;
+                const tokens = estimateTokens(text);
+                const tps = (gen > 0 && tokens > 0) ? (tokens / (gen / 1000)) : null;
+                metricsModelLabel.textContent = model || '';
+                metricTtft.textContent = formatMs(ttft);
+                metricTotalTime.textContent = formatMs(total);
+                metricGenTime.textContent = formatMs(gen);
+                metricTokens.textContent = String(tokens);
+                metricTps.textContent = tps != null ? `${tps.toFixed(1)} tok/s` : '—';
+                metricChars.textContent = String((text || '').length);
+                metricsPanel.classList.remove('hidden');
+            }
+
             analyzeBtn.addEventListener('click', async () => {
                 const prompt = analysisInput.value; if (!prompt) return;
                 const model = modelSelect.value; const userSystemPrompt = systemPrompt.value.trim(); const shouldStream = analysisStreamCheckbox.checked;
                 analysisOutput.value = ''; analysisOutput.classList.add('animate-pulse'); analyzeBtn.classList.add('hidden'); stopAnalysisBtn.classList.remove('hidden');
+                resetMetrics();
                 if (analysisAbortController) analysisAbortController.abort(); analysisAbortController = new AbortController(); const signal = analysisAbortController.signal;
                 let finalPrompt = `Text:\n"""\n${prompt}\n"""\n\n`; if(userSystemPrompt) finalPrompt = `System Instruction: ${userSystemPrompt}\n\n` + finalPrompt;
                 const dictContext = searchDictionary(prompt); if (dictContext) finalPrompt = dictContext + finalPrompt;
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) { analysisOutput.value = `--- DEBUG REQUEST (${model}) ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\nAnalyzing...\n\n`; } };
+                // Timing setup — capture first-token timestamp by watching analysisOutput.value
+                const startMs = performance.now();
+                let firstTokenMs = null;
+                // Snapshot debug prefix length (if any) so we don't count debug text as first token
+                let baselineLength = analysisOutput.value.length;
+                const ttftWatcher = setInterval(() => {
+                    if (firstTokenMs == null && analysisOutput.value.length > baselineLength) {
+                        firstTokenMs = performance.now();
+                        clearInterval(ttftWatcher);
+                    }
+                }, 15);
+                // Re-sync baseline after onDebug writes (it may replace the value)
+                const origOnDebug = onDebug;
+                const onDebugWrapped = (payload) => { origOnDebug(payload); baselineLength = analysisOutput.value.length; };
                 try {
                     let responseText = "";
-                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
-                    else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebug); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
-                    else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += stripThinking(responseText); } }
-                    else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
-                    else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
-                    else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
-                    else { const payload = { model: model, prompt: finalPrompt, stream: shouldStream }; onDebug(payload); if (shouldStream) { analysisOutput.value = ''; await callOllama('/api/generate', payload, (chunk) => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }, null, signal); } else { const data = await callOllama('/api/generate', payload, null, null, signal); if (data && data.response) analysisOutput.value += data.response.trim(); else throw new Error("No response from Ollama"); } }
+                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebugWrapped); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebugWrapped, signal); analysisOutput.value += responseText; }
+                    else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += responseText; } }
+                    else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += responseText; } }
+                    else { const payload = { model: model, prompt: finalPrompt, stream: shouldStream }; onDebugWrapped(payload); if (shouldStream) { analysisOutput.value = ''; baselineLength = 0; await callOllama('/api/generate', payload, (chunk) => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }, null, signal); } else { const data = await callOllama('/api/generate', payload, null, null, signal); if (data && data.response) analysisOutput.value += data.response.trim(); else throw new Error("No response from Ollama"); } }
                     showMessage(`Analysis complete with ${model}.`, 'success');
                 } catch (err) { if (err.name === 'AbortError') { analysisOutput.value += '\n\n[Analysis Stopped by User]'; showMessage('Analysis stopped.', 'error'); } else { analysisOutput.value += '\nError: ' + err.message; showMessage('Analysis failed.', 'error'); } }
-                finally { analysisOutput.classList.remove('animate-pulse'); analyzeBtn.classList.remove('hidden'); stopAnalysisBtn.classList.add('hidden'); analysisAbortController = null; }
+                finally {
+                    clearInterval(ttftWatcher);
+                    const endMs = performance.now();
+                    const generatedText = analysisOutput.value.substring(baselineLength);
+                    renderMetrics({ model, startMs, firstTokenMs, endMs, text: generatedText });
+                    analysisOutput.classList.remove('animate-pulse'); analyzeBtn.classList.remove('hidden'); stopAnalysisBtn.classList.add('hidden'); analysisAbortController = null;
+                }
             });
             stopAnalysisBtn.addEventListener('click', () => { if (analysisAbortController) { analysisAbortController.abort(); analysisAbortController = null; } });
 
