@@ -1244,16 +1244,13 @@
                     ? 'Reasoning not supported by this model variant (forced off)'
                     : 'Model has no reasoning mode';
             } else {
-                // toggleable — restore user preference
-                const saved = localStorage.getItem('webllm_thinking_enabled');
-                const active = saved === 'true';
-                setVisual(active);
+                // toggleable — default to OFF whenever the selected model changes.
+                // Users can still opt in per session via the 🧠 button.
+                setVisual(false);
                 btn.disabled = false;
                 btn.style.opacity = '';
                 btn.style.cursor = 'pointer';
-                btn.title = active
-                    ? 'Reasoning enabled (click to disable)'
-                    : 'Reasoning disabled (click to enable)';
+                btn.title = 'Reasoning disabled (click to enable)';
             }
         }
 
@@ -1557,16 +1554,17 @@
             btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
             try { localStorage.setItem('webllm_thinking_enabled', String(active)); } catch(e) {}
         };
-        // Restore thinking toggle state (default: off). The per-model UI function
-        // (applyThinkingUIForModel) overrides this when a non-toggleable model is selected.
+        // Restore thinking toggle state. Default is OFF for every model; users may
+        // still opt in via the 🧠 button on toggleable models. We intentionally do
+        // NOT read the previous session's preference here — "off by default" wins.
+        // The applyThinkingUIForModel helper overrides this when a non-toggleable
+        // model is selected.
         (function() {
             const btn = document.getElementById('thinkToggleBtn');
-            const saved = localStorage.getItem('webllm_thinking_enabled');
-            const active = saved === 'true';
-            btn.dataset.active = String(active);
-            btn.style.color = active ? '#58a6ff' : '#484f58';
-            btn.style.borderColor = active ? '#58a6ff' : '#30363d';
-            btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
+            btn.dataset.active = 'false';
+            btn.style.color = '#484f58';
+            btn.style.borderColor = '#30363d';
+            btn.title = 'Reasoning disabled (click to enable)';
         })();
 
         window.loadLLMModel = async function() {
