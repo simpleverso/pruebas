@@ -348,8 +348,10 @@
                            { cors: false, encoding: 'windows-1252' }),
                 runService(FEATURES.aulexCajono, urls.aulex, parseAulex, $resAulx,
                            'No se pudo obtener información de aulex.org', { cors: false }),
-                runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
-                           'No se pudo obtener información de Google Translate'),
+                // Pequeño retraso antes de consultar Google para evitar rate-limiting.
+                new Promise(res => setTimeout(res, 1500)).then(() =>
+                    runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
+                               'No se pudo obtener información de Google Translate')),
             ]);
 
             setBtn('Traducir');
