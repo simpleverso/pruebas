@@ -1,144 +1,477 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>FAQ - Brand</title>
-    <meta name="description" content="Traductor Web Español - Zapoteco">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <title>FAQ · Didxazapp</title>
+    <meta name="description" content="Preguntas frecuentes sobre Didxazapp: traductor experimental español ↔ zapoteco del istmo.">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
+    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
-    <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
-    <link rel="stylesheet" href="assets/css/ebs-contact-form-1.css">
-    <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
-    <link rel="stylesheet" href="assets/css/Footer-Basic.css">
-    <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image-1.css">
-    <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image.css">
-    <link rel="stylesheet" href="assets/css/Highlight-Blue.css">
-    <link rel="stylesheet" href="assets/css/Highlight-Phone.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
-    <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
-    <link rel="stylesheet" href="assets/css/ml-video-1.css">
-    <link rel="stylesheet" href="assets/css/ml-video.css">
-    <link rel="stylesheet" href="assets/css/smoothproducts.css">
+    <style>
+        /* ===== FAQ – tema oscuro gris/azul (alineado con translator.html y animales.html) ===== */
+        :root {
+            --tx-bg-1:        #0b1322;
+            --tx-bg-2:        #111c2f;
+            --tx-surface:     #1a2436;
+            --tx-surface-2:   #131c2c;
+            --tx-surface-3:   #243047;
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+            --tx-text:        #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+            --tx-primary:     #4f8fcf;
+            --tx-primary-2:   #6ba6e0;
+            --tx-accent:      #3b82f6;
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler { border-color: var(--tx-border) !important; }
+        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+
+        /* Layout */
+        .faq-shell {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 110px 22px 60px;
+        }
+
+        .faq-heading { text-align: center; margin-bottom: 28px; }
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.12);
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            padding: 5px 14px;
+            border-radius: 999px;
+            margin-bottom: 16px;
+        }
+        .faq-heading h1 {
+            color: var(--tx-text-strong);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 2.1rem;
+            margin: 0 0 10px;
+        }
+        .faq-heading p {
+            color: var(--tx-muted);
+            font-size: 0.95rem;
+            margin: 0 auto;
+            max-width: 640px;
+            line-height: 1.55;
+        }
+
+        /* Search bar */
+        .faq-search {
+            position: relative;
+            max-width: 520px;
+            margin: 22px auto 0;
+        }
+        .faq-search input {
+            width: 100%;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            color: var(--tx-text);
+            border-radius: 999px;
+            padding: 11px 16px 11px 42px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: var(--tx-shadow);
+        }
+        .faq-search input:focus {
+            outline: none;
+            border-color: var(--tx-primary);
+            box-shadow: 0 0 0 3px rgba(79, 143, 207, 0.18);
+        }
+        .faq-search .fa-search {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--tx-muted);
+            font-size: 0.92rem;
+        }
+
+        /* List */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .faq-item {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            box-shadow: var(--tx-shadow);
+            overflow: hidden;
+            transition: border-color 0.18s ease;
+        }
+        .faq-item:hover { border-color: var(--tx-border-2); }
+        .faq-item.is-open { border-color: var(--tx-primary); }
+
+        .faq-item summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--tx-text-strong);
+            font-size: 0.98rem;
+            font-weight: 600;
+            letter-spacing: 0.005em;
+            outline: none;
+        }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary:focus-visible {
+            box-shadow: inset 0 0 0 2px rgba(79, 143, 207, 0.45);
+            border-radius: 10px;
+        }
+        .faq-item .q-icon {
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(79, 143, 207, 0.14);
+            color: var(--tx-primary-2);
+            font-size: 0.78rem;
+        }
+        .faq-item .q-text { flex: 1; }
+        .faq-item .chevron {
+            flex-shrink: 0;
+            color: var(--tx-muted);
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .faq-item.is-open .chevron {
+            transform: rotate(180deg);
+            color: var(--tx-primary-2);
+        }
+
+        .faq-item .answer {
+            padding: 0 18px 18px 58px;
+            color: var(--tx-text);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        .faq-item .answer p { margin: 0; }
+        .faq-item .answer a {
+            color: var(--tx-primary-2);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(107, 166, 224, 0.4);
+        }
+        .faq-item .answer a:hover { color: var(--tx-text-strong); border-bottom-color: var(--tx-primary-2); }
+
+        /* Empty state */
+        .faq-empty {
+            text-align: center;
+            padding: 28px 18px;
+            color: var(--tx-muted);
+            font-size: 0.92rem;
+            background: var(--tx-surface);
+            border: 1px dashed var(--tx-border-2);
+            border-radius: 12px;
+            display: none;
+        }
+        .faq-empty.is-visible { display: block; }
+
+        /* Contact note */
+        .contact-note {
+            margin-top: 36px;
+            padding: 18px 22px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-primary-2);
+            border-radius: 10px;
+            color: var(--tx-text);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+        .contact-note strong { color: var(--tx-text-strong); }
+        .contact-note a {
+            color: var(--tx-primary-2);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-note a:hover { color: var(--tx-text-strong); }
+
+        /* Footer */
+        .footer-basic {
+            background: transparent;
+            border-top: 1px solid var(--tx-border);
+            margin-top: 40px;
+            padding: 18px 0;
+        }
+        .footer-basic .copyright {
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        ::selection {
+            background: rgba(59, 130, 246, 0.45);
+            color: var(--tx-text-strong);
+        }
+
+        @media (max-width: 575.98px) {
+            .faq-shell { padding: 100px 14px 40px; }
+            .faq-heading h1 { font-size: 1.55rem; }
+            .faq-item summary { font-size: 0.92rem; padding: 14px 14px; }
+            .faq-item .answer { padding: 0 14px 16px 14px; }
+        }
+    </style>
 </head>
 
 <body>
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
-        <div class="container"><a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a><button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div
-                class="collapse navbar-collapse" id="navcol-1">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="index.html">INICIO</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="pricing.html">Precio</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="faq.html">FAQ</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="donate.html">Donar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html">Imagen</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numeros.html">Numeros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html">Animales</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html">Memorama</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="faq.html">FAQ</a></li>
                 </ul>
-        </div>
+            </div>
         </div>
     </nav>
-    <main class="page faq-page">
-        <section class="clean-block clean-faq dark">
-            <div class="container">
-                <div class="block-heading">
-                    <h2 class="text-info">Preguntas Frecuentes</h2>
-                    <p>Aquí encontrarás las respuestas a las preguntas más comunes sobre Didxazapp.</p>
-                </div>
-                <div class="block-content">
-                    <div class="faq-item">
-                        <h4 class="question">¿Las traducciones son fiables?.</h4>
-                        <div class="answer">
-                            <p>Tenemos buenos resultados pero ésta es una aplicacion experimental y no es recomendable su uso para traducción de documentos oficiales, información médica, canciones, libros, etc., para ello recomendamos servicios de traducción
-                                humana.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿Recibes apoyo de instituciones publicas?</h4>
-                        <div class="answer">
-                            <p>No, Este proyecto no recibe apoyo de ninguna institución publica, institución gubernamental, Institución Educativa, o Institución relacionada al cuidado de las lenguas indígenas en México.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿La app requiere internet?</h4>
-                        <div class="answer">
-                            <p>Si, las traducciones desde la app gratuita se consiguen por medio de un servicio en linea y requieren de internet para enviar y recibir la información; La traducción por mensajes de texto (SMS) no requiere internet, pero se
-                                debe contar con saldo o plan de mensajes de texto(sms) para su uso.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿Cómo funciona Didxazapp?.</h4>
-                        <div class="answer">
-                            <p>Didxazapp genera números a partir de una frase en español, los cuales son procesados, analizados y traducidos por medio de reglas matemáticas en un servicio en linea, que convierte esos resultados en texto comprensible tal
-                                como lo hacen otros traductores como Google Translator o Bing Translator.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿Se guardan mis datos personales al usar la APP, el sitio de internet, o la API?</h4>
-                        <div class="answer">
-                            <p>No, ni la aplicación, ni el sitio en internet, ni la API, recolectan información sobre datos personales.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿La aplicacion está respaldada por alguna autoridad de lenguas indígenas en México?</h4>
-                        <div class="answer">
-                            <p>No, éste es un proyecto es totalmente independiente. No está involucrado ni recibe recursos, información o ayuda de ninguna dependencia.&nbsp;</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿De donde vienen los datos que sirven como traducción?</h4>
-                        <div class="answer">
-                            <p>Los datos son obtenidos de las distintas fuentes de información disponibles en internet, libros, revistas y otras publicaciones, las cuales se analizan y se ubican los datos que pueden ser agregados para mejorar el sistema
-                                traductor.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿Porque hay un límite de 25 letras al traducir en la app?</h4>
-                        <div class="answer">
-                            <p>El límite es un método para mejorar el rendimiento del servicio en internet, de tal forma que los dispositivos con menos capacidades puedan aprovechar de la misma forma las características de traducción al igual que los equipos
-                                de nueva generación.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿Puedo agregar el servicio de traducción Didxazapp a mi aplicación?</h4>
-                        <div class="answer">
-                            <p>Si, para ello es necesario que cumplas con unas caracteristicas, una vez validada la información, se te proporcionarán las credenciales para hacer uso del sistema de traducción directamente desde tu aplicación o desarrollo.
-                                Para más información: myred.zapoteca@gmail.com</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4 class="question">¿Cuentas con API de desarrollo?</h4>
-                        <div class="answer">
-                            <p>Si, contamos con algo muy sencillo pero que funciona en Android, IOS, Windows Phone, Windows Desktop, Http, etc.&nbsp;Para más información: myred.zapoteca@gmail.com</p>
-                        </div>
-                    </div>
-                </div>
+
+    <main class="faq-shell">
+        <header class="faq-heading">
+            <span class="eyebrow">Ayuda</span>
+            <h1>Preguntas frecuentes</h1>
+            <p>Aquí encontrarás las respuestas a las preguntas más comunes sobre Didxazapp, su traductor experimental y la API.</p>
+
+            <div class="faq-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input type="search" id="faq-search-input" placeholder="Buscar entre las preguntas…" aria-label="Buscar preguntas frecuentes">
             </div>
-        </section>
+        </header>
+
+        <div class="faq-list" id="faq-list">
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Las traducciones son fiables?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>Tenemos buenos resultados, pero ésta es una aplicación experimental y no es recomendable su uso para traducción de documentos oficiales, información médica, canciones, libros, etc. Para esos casos recomendamos servicios de traducción humana.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Reciben apoyo de instituciones públicas?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>No. Este proyecto no recibe apoyo de ninguna institución pública, gubernamental, educativa, ni de ninguna entidad relacionada con el cuidado de las lenguas indígenas en México.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿La app requiere internet?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>Sí. Las traducciones desde la app gratuita se obtienen de un servicio en línea y requieren internet para enviar y recibir información. La traducción por mensajes de texto (SMS) no requiere internet, pero sí saldo o un plan de SMS para su uso.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Cómo funciona Didxazapp?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>Didxazapp genera números a partir de una frase en español, los cuales son procesados, analizados y traducidos mediante reglas matemáticas en un servicio en línea, que convierte esos resultados en texto comprensible, tal como lo hacen otros traductores como Google Translator o Bing Translator.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Se guardan mis datos personales al usar la app, el sitio o la API?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>No. Ni la aplicación, ni el sitio en internet, ni la API recolectan información sobre datos personales.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿La aplicación está respaldada por alguna autoridad de lenguas indígenas en México?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>No. Éste es un proyecto totalmente independiente. No está involucrado ni recibe recursos, información o ayuda de ninguna dependencia.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿De dónde vienen los datos que sirven como traducción?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>Los datos se obtienen de las distintas fuentes disponibles en internet, libros, revistas y otras publicaciones, las cuales se analizan para identificar la información que puede ser agregada al sistema traductor.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Por qué hay un límite de 25 letras al traducir en la app?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>El límite es un método para mejorar el rendimiento del servicio, de modo que los dispositivos con menos capacidades puedan aprovechar las funciones de traducción de la misma forma que los equipos de nueva generación.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Puedo agregar el servicio de traducción Didxazapp a mi aplicación?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>Sí. Es necesario cumplir con algunos requisitos; una vez validada la información, te proporcionaremos las credenciales para usar el sistema de traducción directamente desde tu aplicación o desarrollo. Para más información: <a href="mailto:myred.zapoteca@gmail.com">myred.zapoteca@gmail.com</a>.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary>
+                    <span class="q-icon" aria-hidden="true"><i class="fa fa-question"></i></span>
+                    <span class="q-text">¿Cuentan con API de desarrollo?</span>
+                    <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="answer">
+                    <p>Sí. Contamos con una API sencilla y funcional para Android, iOS, Windows Phone, Windows Desktop, HTTP, etc. Para más información: <a href="mailto:myred.zapoteca@gmail.com">myred.zapoteca@gmail.com</a>.</p>
+                </div>
+            </details>
+
+        </div>
+
+        <div class="faq-empty" id="faq-empty">
+            No se encontraron preguntas que coincidan con tu búsqueda.
+        </div>
+
+        <aside class="contact-note">
+            <strong>¿No encuentras lo que buscas?</strong>
+            Escríbenos a <a href="mailto:myred.zapoteca@gmail.com">myred.zapoteca@gmail.com</a> y te respondemos en cuanto podamos.
+        </aside>
     </main>
+
     <div class="footer-basic">
         <footer>
-            <ul class="list-inline"></ul>
-            <p class="copyright">Nacubi research- 2019</p>
+            <p class="copyright">Nacubi research · <span id="anio"></span></p>
         </footer>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
-    <script src="assets/js/smoothproducts.min.js"></script>
-    <script src="assets/js/theme.js"></script>
-    <script src="assets/js/bs-animation.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
-    <script src="assets/js/ml-video.js"></script>
-    <script src="assets/js/traductor.js"></script>
+
+    <script>
+        // Marca visualmente los items abiertos para animar el chevron y el borde.
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('toggle', () => {
+                item.classList.toggle('is-open', item.open);
+            });
+        });
+
+        // Búsqueda simple por texto sobre la pregunta y la respuesta.
+        const searchInput = document.getElementById('faq-search-input');
+        const items = Array.from(document.querySelectorAll('#faq-list .faq-item'));
+        const emptyState = document.getElementById('faq-empty');
+
+        const norm = s => (s || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+
+        searchInput.addEventListener('input', () => {
+            const q = norm(searchInput.value.trim());
+            let visible = 0;
+            items.forEach(it => {
+                const text = norm(it.textContent);
+                const match = !q || text.includes(q);
+                it.style.display = match ? '' : 'none';
+                if (match) visible++;
+                if (q && match) {
+                    it.open = true;
+                    it.classList.add('is-open');
+                }
+            });
+            emptyState.classList.toggle('is-visible', visible === 0);
+        });
+
+        // Año automático
+        document.getElementById('anio').textContent = new Date().getFullYear();
+    </script>
     <script src="assets/js/page-config.js" data-page="faq"></script>
-    <script src="assets/js/footer-year.js"></script>
 </body>
 
 </html>
