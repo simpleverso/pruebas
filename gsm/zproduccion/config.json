@@ -12,5 +12,6 @@
   "translator_enableDidxazapp": true,
   "translator_enableToledo": true,
   "translator_enableAulexCajono": true,
-  "translator_enableGoogle": true
+  "translator_enableGoogle": true,
+  "translator_img_enablePage": true
 }

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Traductor de imágenes · Didxazapp</title>
+    <meta name="description" content="Detecta objetos en una imagen y traduce su nombre al Zapoteco del Istmo.">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
+    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        :root {
+            --tx-bg-1:        #0b1322;
+            --tx-bg-2:        #111c2f;
+            --tx-surface:     #1a2436;
+            --tx-surface-2:   #131c2c;
+            --tx-surface-3:   #243047;
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+            --tx-text:        #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+            --tx-primary:     #4f8fcf;
+            --tx-primary-2:   #6ba6e0;
+            --tx-primary-deep:#22456b;
+            --tx-accent:      #3b82f6;
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        }
+
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+        }
+        .clean-navbar .nav-link { color: var(--tx-label) !important; font-weight: 500; letter-spacing: 0.02em; }
+        .clean-navbar .nav-link.active, .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler { border-color: var(--tx-border) !important; }
+        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+
+        .img-shell { max-width: 980px; margin: 0 auto; padding: 130px 24px 60px; }
+        h1.page-title {
+            color: var(--tx-text-strong);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 1.9rem;
+            margin: 0 0 8px;
+            text-align: center;
+        }
+        .page-subtitle {
+            color: var(--tx-muted);
+            font-size: 0.95rem;
+            margin: 0 auto 28px;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        .img-card {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 14px;
+            box-shadow: var(--tx-shadow);
+            padding: 24px 22px;
+        }
+
+        /* Tabs de modo: Subir / Cámara */
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .mode-tab {
+            padding: 9px 18px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--tx-label);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .mode-tab:hover { color: var(--tx-text-strong); }
+        .mode-tab.is-active {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+        }
+
+        .mode-panel { display: none; }
+        .mode-panel.is-active { display: block; }
+
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed var(--tx-border-2);
+            border-radius: 12px;
+            padding: 36px 20px;
+            text-align: center;
+            color: var(--tx-muted);
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+        .drop-zone:hover, .drop-zone.is-drag {
+            border-color: var(--tx-primary);
+            background: rgba(79, 143, 207, 0.06);
+            color: var(--tx-text);
+        }
+        .drop-zone .fa { font-size: 32px; margin-bottom: 10px; color: var(--tx-primary-2); }
+        .drop-zone p { margin: 0; font-size: 0.92rem; }
+        .drop-zone .small { font-size: 0.78rem; color: var(--tx-muted); margin-top: 6px; }
+
+        /* Galería de ejemplos */
+        .samples-block {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--tx-border);
+        }
+        .samples-label {
+            margin: 0 0 10px;
+            font-size: 0.82rem;
+            color: var(--tx-muted);
+            text-align: center;
+        }
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+        }
+        .sample-thumb {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            padding: 0;
+            transition: border-color 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+        }
+        .sample-thumb:hover {
+            border-color: var(--tx-primary);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+        }
+        .sample-thumb:active { transform: scale(0.97); }
+        .sample-thumb:focus { outline: 2px solid var(--tx-accent); outline-offset: 2px; }
+        .sample-thumb img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.4s ease;
+        }
+        .sample-thumb:hover img { transform: scale(1.06); }
+        .sample-thumb .sample-tag {
+            position: absolute;
+            left: 6px; bottom: 6px; right: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: #ffffff;
+            background: rgba(11, 19, 34, 0.78);
+            padding: 3px 8px;
+            border-radius: 999px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Preview */
+        .preview-wrap {
+            position: relative;
+            margin-top: 18px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            display: none;
+        }
+        .preview-wrap.is-shown { display: block; }
+        .preview-wrap img, .preview-wrap canvas, .preview-wrap video {
+            display: block;
+            width: 100%;
+            max-height: 480px;
+            object-fit: contain;
+            background: #0b1322;
+        }
+        .preview-actions {
+            position: absolute;
+            top: 10px; right: 10px;
+            display: flex;
+            gap: 6px;
+        }
+        .preview-actions button {
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            color: #ffffff;
+            background: rgba(11, 19, 34, 0.85);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+        }
+        .preview-actions button:hover { background: var(--tx-primary); border-color: var(--tx-primary); }
+
+        /* Botón principal */
+        .btn-primary-tx {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 18px;
+            padding: 12px 22px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #ffffff;
+            background: linear-gradient(180deg, var(--tx-primary) 0%, var(--tx-primary-deep) 100%);
+            border: 1px solid var(--tx-primary);
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+        }
+        .btn-primary-tx:hover { filter: brightness(1.10); }
+        .btn-primary-tx:active { transform: translateY(1px); }
+        .btn-primary-tx:focus { outline: 3px solid rgba(59, 130, 246, 0.4); outline-offset: 2px; }
+        .btn-primary-tx[disabled] { opacity: 0.55; cursor: not-allowed; filter: grayscale(0.4); }
+
+        /* Estado del modelo */
+        .status-line {
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: var(--tx-muted);
+            text-align: center;
+            min-height: 22px;
+        }
+        .status-line.is-info { color: var(--tx-primary-2); }
+        .status-line.is-warn { color: #fcd34d; }
+        .status-line.is-error { color: #fca5a5; }
+
+        /* Resultados */
+        .results-section {
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid var(--tx-border);
+        }
+        .results-section h2 {
+            color: var(--tx-text-strong);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 14px;
+        }
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .pred-card {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 14px;
+            align-items: center;
+            padding: 12px 14px;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            border-radius: 10px;
+        }
+        .pred-confidence {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(var(--tx-primary) calc(var(--p) * 1%), var(--tx-surface-3) 0);
+            position: relative;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--tx-text-strong);
+        }
+        .pred-confidence::before {
+            content: "";
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: var(--tx-surface-2);
+        }
+        .pred-confidence span { position: relative; z-index: 1; }
+        .pred-langs { display: grid; grid-template-columns: 1fr; gap: 4px; min-width: 0; }
+        .pred-lang-row {
+            display: grid;
+            grid-template-columns: 56px 1fr;
+            gap: 10px;
+            align-items: baseline;
+        }
+        .pred-lang-tag {
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.14);
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            padding: 1px 6px;
+            border-radius: 999px;
+            text-align: center;
+        }
+        .pred-lang-text {
+            color: var(--tx-text-strong);
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .pred-lang-text.is-loading { color: var(--tx-muted); font-style: italic; font-size: 0.85rem; }
+        .pred-lang-text.is-empty { color: var(--tx-muted); opacity: 0.6; font-style: italic; font-size: 0.85rem; }
+
+        .alert-box {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+        .alert-warn { color: #fcd34d; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.32); border-left: 3px solid #f59e0b; }
+        .alert-error { color: #fca5a5; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.32); border-left: 3px solid #ef4444; }
+        .alert-box strong { color: var(--tx-text-strong); }
+
+        .footer-basic { background: transparent; border-top: 1px solid var(--tx-border); margin-top: 40px; padding: 18px 0; }
+        .footer-basic .copyright { color: var(--tx-muted); font-size: 0.82rem; margin: 0; text-align: center; }
+
+        ::selection { background: rgba(59, 130, 246, 0.45); color: var(--tx-text-strong); }
+
+        @media (max-width: 575.98px) {
+            .img-shell { padding: 110px 16px 40px; }
+            h1.page-title { font-size: 1.5rem; }
+            .img-card { padding: 18px 14px; }
+            .pred-card { grid-template-columns: 56px 1fr; }
+            .pred-confidence { width: 50px; height: 50px; font-size: 0.72rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="translator_img.html">Imagen</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numeros.html">Numeros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html">Animales</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="img-shell">
+        <h1 class="page-title">Traductor de imágenes</h1>
+        <p class="page-subtitle">Sube una foto o usa la cámara. El modelo identificará lo que aparece y mostrará su nombre en inglés, español y Zapoteco del Istmo.</p>
+
+        <section class="img-card">
+            <div class="mode-tabs" role="tablist">
+                <button class="mode-tab is-active" data-mode="upload" type="button">
+                    <i class="fa fa-cloud-upload" aria-hidden="true"></i> Subir imagen
+                </button>
+                <button class="mode-tab" data-mode="camera" type="button">
+                    <i class="fa fa-camera" aria-hidden="true"></i> Usar cámara
+                </button>
+            </div>
+
+            <div class="mode-panel is-active" id="panel-upload">
+                <label class="drop-zone" id="drop-zone" for="file-input">
+                    <i class="fa fa-image" aria-hidden="true"></i>
+                    <p>Arrastra una imagen aquí o haz clic para elegir un archivo</p>
+                    <p class="small">JPG, PNG, GIF · máximo 10 MB</p>
+                </label>
+                <input type="file" id="file-input" accept="image/*" hidden>
+
+                <div class="samples-block">
+                    <p class="samples-label">¿No tienes una imagen a la mano? Prueba con un ejemplo:</p>
+                    <div class="samples-grid" id="samples-grid"></div>
+                </div>
+            </div>
+
+            <div class="mode-panel" id="panel-camera">
+                <div class="preview-wrap is-shown" id="camera-wrap">
+                    <video id="camera-video" autoplay playsinline muted></video>
+                    <div class="preview-actions">
+                        <button type="button" id="cam-stop"><i class="fa fa-times"></i> Cerrar</button>
+                    </div>
+                </div>
+                <button class="btn-primary-tx" id="cam-capture" type="button" disabled>
+                    <i class="fa fa-camera" aria-hidden="true"></i> Capturar foto
+                </button>
+            </div>
+
+            <div class="preview-wrap" id="preview-wrap">
+                <img id="preview-img" alt="Imagen seleccionada">
+                <div class="preview-actions">
+                    <button type="button" id="preview-clear"><i class="fa fa-times"></i> Quitar</button>
+                </div>
+            </div>
+
+            <button class="btn-primary-tx" id="btn-classify" type="button" disabled>
+                <i class="fa fa-search" aria-hidden="true"></i> Iniciar detección
+            </button>
+
+            <div class="status-line" id="status-line">Presiona <strong>Iniciar detección</strong> para cargar el modelo y analizar la imagen.</div>
+            <div id="alert-slot"></div>
+
+            <section class="results-section" id="results-section" hidden>
+                <h2>Objetos detectados</h2>
+                <div class="prediction-grid" id="prediction-grid"></div>
+            </section>
+        </section>
+    </main>
+
+    <div class="footer-basic">
+        <footer>
+            <p class="copyright">Nacubi research · <span id="anio"></span></p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+
+    <script>
+        // ============================================================================
+        //  Etiquetas ImageNet personalizadas (1000 clases).
+        //  Las entradas con formato "Español - Zapoteco - English" tienen ya las tres
+        //  traducciones; el resto se traducen on-demand vía Google Translate.
+        // ============================================================================
+        // (LABELS se inyectará en el siguiente bloque <script>)
+    </script>
+    <script>
+        const LABELS = ["tench","goldfish","great white shark","tiger shark","hammerhead shark","electric ray","stingray","cock","Gallina - Bere - hen","ostrich","brambling","goldfinch","house finch","junco","indigo bunting","American robin","bulbul","jay","magpie","chickadee","American dipper","kite","bald eagle","vulture","great grey owl","fire salamander","smooth newt","newt","spotted salamander","axolotl","American bullfrog","tree frog","tailed frog","loggerhead sea turtle","leatherback sea turtle","mud turtle","terrapin","box turtle","banded gecko","Iguana verde - Gucha'chí\u00ad - green iguana","Carolina anole","desert grassland whiptail lizard","agama","frilled-necked lizard","alligator lizard","Gila monster","European green lizard","chameleon","Komodo dragon","Nile crocodile","American alligator","triceratops","worm snake","ring-necked snake","eastern hog-nosed snake","smooth green snake","kingsnake","garter snake","water snake","vine snake","night snake","boa constrictor","African rock python","Indian cobra","green mamba","sea snake","Saharan horned viper","eastern diamondback rattlesnake","sidewinder","trilobite","harvestman","scorpion","yellow garden spider","barn spider","European garden spider","southern black widow","tarantula","wolf spider","tick","centipede","black grouse","ptarmigan","ruffed grouse","prairie grouse","peacock","quail","partridge","grey parrot","macaw","sulphur-crested cockatoo","lorikeet","coucal","bee eater","hornbill","hummingbird","jacamar","toucan","duck","red-breasted merganser","goose","black swan","tusker","echidna","platypus","wallaby","koala","wombat","jellyfish","sea anemone","brain coral","flatworm","nematode","conch","snail","slug","sea slug","chiton","chambered nautilus","Dungeness crab","rock crab","fiddler crab","red king crab","American lobster","spiny lobster","crayfish","hermit crab","isopod","white stork","black stork","spoonbill","flamingo","little blue heron","great egret","bittern","crane (bird)","limpkin","common gallinule","American coot","bustard","ruddy turnstone","dunlin","common redshank","dowitcher","oystercatcher","pelican","king penguin","albatross","grey whale","killer whale","dugong","sea lion","Chihuahua","Japanese Chin","Maltese","Pekingese","Shih Tzu","King Charles Spaniel","Papillon","toy terrier","Rhodesian Ridgeback","Afghan Hound","Basset Hound","Beagle","Bloodhound","Bluetick Coonhound","Black and Tan Coonhound","Treeing Walker Coonhound","English foxhound","Redbone Coonhound","borzoi","Irish Wolfhound","Italian Greyhound","Whippet","Ibizan Hound","Norwegian Elkhound","Otterhound","Saluki","Scottish Deerhound","Weimaraner","Staffordshire Bull Terrier","American Staffordshire Terrier","Bedlington Terrier","Border Terrier","Kerry Blue Terrier","Irish Terrier","Norfolk Terrier","Norwich Terrier","Yorkshire Terrier","Wire Fox Terrier","Lakeland Terrier","Sealyham Terrier","Airedale Terrier","Cairn Terrier","Australian Terrier","Dandie Dinmont Terrier","Boston Terrier","Miniature Schnauzer","Giant Schnauzer","Standard Schnauzer","Scottish Terrier","Tibetan Terrier","Australian Silky Terrier","Soft-coated Wheaten Terrier","West Highland White Terrier","Lhasa Apso","Flat-Coated Retriever","Curly-coated Retriever","Perro  - Bi'cu' - Dog ","Labrador Retriever","Chesapeake Bay Retriever","German Shorthaired Pointer","Vizsla","English Setter","Irish Setter","Gordon Setter","Brittany Spaniel","Clumber Spaniel","English Springer Spaniel","Welsh Springer Spaniel","Cocker Spaniels","Sussex Spaniel","Irish Water Spaniel","Kuvasz","Schipperke","Groenendael","Malinois","Briard","Australian Kelpie","Komondor","Old English Sheepdog","Shetland Sheepdog","collie","Perro - Bi'Cu' - Dog","Bouvier des Flandres","Rottweiler","German Shepherd Dog","Dobermann","Miniature Pinscher","Greater Swiss Mountain Dog","Bernese Mountain Dog","Appenzeller Sennenhund","Entlebucher Sennenhund","Boxer","Bullmastiff","Tibetan Mastiff","French Bulldog","Great Dane","St. Bernard","husky","Alaskan Malamute","Siberian Husky","Dalmatian","Affenpinscher","Basenji","pug","Leonberger","Newfoundland","Pyrenean Mountain Dog","Samoyed","Pomeranian","Chow Chow","Keeshond","Griffon Bruxellois","Pembroke Welsh Corgi","Cardigan Welsh Corgi","Toy Poodle","Miniature Poodle","Standard Poodle","Mexican hairless dog","grey wolf","Alaskan tundra wolf","red wolf","coyote","dingo","dhole","African wild dog","hyena","red fox","kit fox","Arctic fox","grey fox","Gato - mistú' - Cat","Gato - mistú' - Cat","Gato - mistú' - Cat","Gato - mistú' - Cat","Gato - mistú' - Cat","cougar","Gato - mistú' - Cat","leopard","snow leopard","jaguar","lion","Tigre - Beedxe - tiger ","cheetah","brown bear","American black bear","polar bear","sloth bear","mongoose","meerkat","tiger beetle","ladybug","ground beetle","longhorn beetle","leaf beetle","dung beetle","rhinoceros beetle","weevil","fly","bee","ant","grasshopper","cricket","stick insect","cockroach","mantis","cicada","leafhopper","lacewing","dragonfly","damselfly","red admiral","ringlet","monarch butterfly","small white","sulphur butterfly","gossamer-winged butterfly","starfish","sea urchin","sea cucumber","cottontail rabbit","hare - Ledxu - Liebre","Angora rabbit","hamster","porcupine","fox squirrel","marmot","beaver","guinea pig","common sorrel","zebra","pig","wild boar","warthog","hippopotamus","ox","water buffalo","bison","ram","bighorn sheep","Alpine ibex","hartebeest","impala","gazelle","dromedary","llama","weasel","mink","European polecat","black-footed ferret","otter","skunk","badger","armadillo - Ngupi - Armadillo","three-toed sloth","orangutan","gorilla","chimpanzee","gibbon","siamang","guenon","patas monkey","baboon","macaque","langur","black-and-white colobus","proboscis monkey","marmoset","white-headed capuchin","howler monkey","titi","Geoffroy's spider monkey","common squirrel monkey","ring-tailed lemur","indri","Asian elephant","African bush elephant","red panda","giant panda","snoek","eel","coho salmon","rock beauty","clownfish","sturgeon","garfish","lionfish","pufferfish","abacus","abaya","academic gown","accordion","acoustic guitar","aircraft carrier","airliner","airship","altar","ambulance","amphibious vehicle","analog clock","apiary","apron","waste container","assault rifle","backpack","bakery","balance beam","balloon","ballpoint pen","Band-Aid","banjo","baluster","barbell","barber chair","barbershop","barn","barometer","barrel","wheelbarrow","baseball","basketball","bassinet","bassoon","swimming cap","bath towel","bathtub","station wagon","lighthouse","beaker","military cap","beer bottle","beer glass","bell-cot","bib","tandem bicycle","bikini","ring binder","binoculars","birdhouse","boathouse","bobsleigh","bolo tie","poke bonnet","bookcase","bookstore","bottle cap","bow","bow tie","brass","bra","breakwater","breastplate","broom","bucket","buckle","bulletproof vest","high-speed train","butcher shop","taxicab","cauldron","candle","cannon","canoe","can opener","cardigan","car mirror","carousel","tool kit","carton","car wheel","automated teller machine","cassette","cassette player","castle","catamaran","CD player","cello","mobile phone","chain","chain-link fence","chain mail","chainsaw","chest","chiffonier","chime","china cabinet","Christmas stocking","church","movie theater","cleaver","cliff dwelling","cloak","clogs","cocktail shaker","coffee mug","coffeemaker","coil","combination lock","computer keyboard","confectionery store","container ship","convertible","corkscrew","cornet","cowboy boot","cowboy hat","cradle","crane (machine)","crash helmet","crate","infant bed","Crock Pot","croquet ball","crutch","cuirass","dam","desk","desktop computer","rotary dial telephone","diaper","digital clock","digital watch","dining table","dishcloth","dishwasher","disc brake","dock","dog sled","dome","doormat","drilling rig","drum","drumstick","dumbbell","Dutch oven","electric fan","electric guitar","electric locomotive","entertainment center","envelope","espresso machine","face powder","feather boa","filing cabinet","fireboat","fire engine","fire screen sheet","flagpole","flute","folding chair","football helmet","forklift","fountain","fountain pen","four-poster bed","freight car","French horn","frying pan","fur coat","garbage truck","gas mask","gas pump","goblet","go-kart","golf ball","golf cart","gondola","gong","gown","grand piano","greenhouse","grille","grocery store","guillotine","barrette","hair spray","half-track","hammer","hamper","hair dryer","hand-held computer","handkerchief","hard disk drive","harmonica","harp","harvester","hatchet","holster","home theater","honeycomb","hook","hoop skirt","horizontal bar","horse-drawn vehicle","hourglass","iPod","clothes iron","jack-o'-lantern","jeans","jeep","T-shirt","jigsaw puzzle","pulled rickshaw","joystick","kimono","knee pad","knot","lab coat","ladle","lampshade","laptop computer","lawn mower","lens cap","paper knife","library","lifeboat","lighter","limousine","ocean liner","lipstick","slip-on shoe","lotion","speaker","loupe","sawmill","magnetic compass","mail bag","mailbox","tights","tank suit","manhole cover","maraca","marimba","mask","match","maypole","maze","measuring cup","medicine chest","megalith","microphone","microwave oven","military uniform","milk can","minibus","miniskirt","minivan","missile","mitten","mixing bowl","mobile home","Model T","modem","monastery","monitor","moped","mortar","square academic cap","mosque","mosquito net","scooter","mountain bike","tent","computer mouse","mousetrap","moving van","muzzle","nail","neck brace","necklace","nipple","notebook computer","obelisk","oboe","ocarina","odometer","oil filter","organ","oscilloscope","overskirt","bullock cart","oxygen mask","packet","paddle","paddle wheel","padlock","paintbrush","pajamas","palace","pan flute","paper towel","parachute","parallel bars","park bench","parking meter","passenger car","patio","payphone","pedestal","pencil case","pencil sharpener","perfume","Petri dish","photocopier","plectrum","Pickelhaube","picket fence","pickup truck","pier","piggy bank","pill bottle","pillow","ping-pong ball","pinwheel","pirate ship","pitcher","hand plane","planetarium","plastic bag","plate rack","plow","plunger","Polaroid camera","pole","police van","poncho","billiard table","soda bottle","pot","potter's wheel","power drill","prayer rug","printer","prison","projectile","projector","hockey puck","punching bag","purse","quill","quilt","race car","racket","radiator","radio","radio telescope","rain barrel","recreational vehicle","reel","reflex camera","refrigerator","remote control","restaurant","revolver","rifle","rocking chair","rotisserie","eraser","rugby ball","ruler","running shoe","safe","safety pin","salt shaker","sandal","sarong","saxophone","scabbard","weighing scale","school bus","schooner","scoreboard","CRT screen","screw","screwdriver","seat belt","sewing machine","shield","shoe store","shoji","shopping basket","shopping cart","shovel","shower cap","shower curtain","ski","ski mask","sleeping bag","slide rule","sliding door","slot machine","snorkel","snowmobile","snowplow","soap dispenser","soccer ball","sock","solar thermal collector","sombrero","soup bowl","space bar","space heater","space shuttle","spatula","motorboat","spider web","spindle","sports car","spotlight","stage","steam locomotive","through arch bridge","steel drum","stethoscope","scarf","stone wall","stopwatch","stove","strainer","tram","stretcher","couch","stupa","submarine","suit","sundial","sunglass","sunglasses","sunscreen","suspension bridge","mop","sweatshirt","swimsuit","swing","switch","syringe","table lamp","tank","tape player","teapot","teddy bear","television","tennis ball","thatched roof","front curtain","thimble","threshing machine","throne","tile roof","toaster","tobacco shop","toilet seat","torch","totem pole","tow truck","toy store","tractor","semi-trailer truck","tray","trench coat","tricycle","trimaran","tripod","triumphal arch","trolleybus","trombone","tub","turnstile","typewriter keyboard","umbrella","unicycle","upright piano","vacuum cleaner","vase","vault","velvet","vending machine","vestment","viaduct","violin","volleyball","waffle iron","wall clock","wallet","wardrobe","military aircraft","sink","washing machine","water bottle","water jug","water tower","whiskey jug","whistle","wig","window screen","window shade","Windsor tie","wine bottle","wing","wok","wooden spoon","wool","split-rail fence","shipwreck","yawl","yurt","website","comic book","crossword","traffic sign","traffic light","dust jacket","menu","plate","guacamole","consomme","hot pot","trifle","ice cream","ice pop","baguette","bagel","pretzel","cheeseburger","hot dog","mashed potato","cabbage","broccoli","cauliflower","zucchini","spaghetti squash","acorn squash","butternut squash","cucumber","artichoke","bell pepper","cardoon","mushroom","Granny Smith","strawberry","orange","lemon","fig","pineapple","banana","jackfruit","custard apple","pomegranate","hay","carbonara","chocolate syrup","dough","meatloaf","pizza","pot pie","burrito","red wine","espresso","cup","eggnog","alp","bubble","cliff","coral reef","geyser","lakeshore","promontory","shoal","seashore","valley","volcano","baseball player","bridegroom","scuba diver","rapeseed","daisy","yellow lady's slipper","corn","acorn","rose hip","horse chestnut seed","coral fungus","agaric","gyromitra","stinkhorn mushroom","earth star","hen-of-the-woods","bolete","ear of corn","toilet paper"];
+    </script>
+
+    <script>
+    // ============================================================================
+    //  Lógica del traductor de imágenes
+    //  Flujo: cargar MobileNet → clasificar imagen → top-5 etiquetas
+    //  Para cada etiqueta:
+    //   - Si tiene formato "es - zap - en", se usa tal cual (sin red)
+    //   - Si no, se usa la etiqueta original como inglés y se traduce vía Google:
+    //       en → es, en → zap (o es → zap si zap directo falla)
+    //   - Las traducciones se cachean en memoria para no repetir llamadas
+    // ============================================================================
+    (function () {
+        const GOOGLE_API = 'https://translate.googleapis.com/translate_a/single';
+        const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+        // ---- DOM ----
+        const $tabs        = document.querySelectorAll('.mode-tab');
+        const $panelUpload = document.getElementById('panel-upload');
+        const $panelCamera = document.getElementById('panel-camera');
+        const $dropZone    = document.getElementById('drop-zone');
+        const $fileInput   = document.getElementById('file-input');
+        const $previewWrap = document.getElementById('preview-wrap');
+        const $previewImg  = document.getElementById('preview-img');
+        const $previewClear= document.getElementById('preview-clear');
+        const $camWrap     = document.getElementById('camera-wrap');
+        const $camVideo    = document.getElementById('camera-video');
+        const $camCapture  = document.getElementById('cam-capture');
+        const $camStop     = document.getElementById('cam-stop');
+        const $btnClassify = document.getElementById('btn-classify');
+        const $status      = document.getElementById('status-line');
+        const $alertSlot   = document.getElementById('alert-slot');
+        const $resultsSec  = document.getElementById('results-section');
+        const $predGrid    = document.getElementById('prediction-grid');
+
+        // ---- Estado ----
+        let model = null;
+        let modelLoading = false;
+        let cameraStream = null;
+        let currentImageEl = null; // <img> o <canvas> con la imagen actual
+
+        // Caché de traducciones por término en inglés.
+        // shape: { [enLower]: { es, zap } }
+        const translationCache = new Map();
+
+        // ---- Helpers ----
+        const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+        function setStatus(text, kind) {
+            $status.className = 'status-line' + (kind ? ' is-' + kind : '');
+            $status.innerHTML = text;
+        }
+        function showAlert(kind, html) { $alertSlot.innerHTML = `<div class="alert-box alert-${kind}">${html}</div>`; }
+        function clearAlert() { $alertSlot.innerHTML = ''; }
+
+        // ---- Tabs ----
+        $tabs.forEach(tab => tab.addEventListener('click', () => {
+            $tabs.forEach(t => t.classList.toggle('is-active', t === tab));
+            const mode = tab.dataset.mode;
+            $panelUpload.classList.toggle('is-active', mode === 'upload');
+            $panelCamera.classList.toggle('is-active', mode === 'camera');
+            if (mode === 'camera') startCamera();
+            else stopCamera();
+        }));
+
+        // ---- Carga de archivo ----
+        $dropZone.addEventListener('dragover', (ev) => { ev.preventDefault(); $dropZone.classList.add('is-drag'); });
+        $dropZone.addEventListener('dragleave', () => $dropZone.classList.remove('is-drag'));
+        $dropZone.addEventListener('drop', (ev) => {
+            ev.preventDefault();
+            $dropZone.classList.remove('is-drag');
+            const f = ev.dataTransfer.files && ev.dataTransfer.files[0];
+            if (f) handleFile(f);
+        });
+        $fileInput.addEventListener('change', () => {
+            const f = $fileInput.files && $fileInput.files[0];
+            if (f) handleFile(f);
+        });
+
+        // ---- Galería de ejemplos ----
+        // Cada entrada apunta a una imagen ya alojada en el banco gráfico del proyecto
+        // y a una clase que MobileNet reconoce con buena confianza. La etiqueta visible
+        // es el zapoteco para reforzar el propósito de la página.
+        const SAMPLE_IMAGES = [
+            { tag: "Bi'cu' (perro)",   slug: "perro.jpg" },
+            { tag: "Mistu\u2019 (gato)",   slug: "gato.jpg" },
+            { tag: "Guchachi\u2019 (iguana)", slug: "iguana.jpg" },
+            { tag: "Beedxe\u2019 (león)", slug: "leon.png" },
+            { tag: "Lexu (conejo)",    slug: "conejo.jpg" },
+            { tag: "Ngupi (armadillo)", slug: "armadillo.jpg" },
+        ];
+        const SAMPLE_BASE = "https://simpleverso.github.io/DidxazappWEB/assets/img/animales/";
+
+        function renderSamples() {
+            const $samples = document.getElementById('samples-grid');
+            $samples.innerHTML = SAMPLE_IMAGES.map(s => `
+                <button type="button" class="sample-thumb" data-src="${SAMPLE_BASE}${s.slug}" title="Probar con: ${escapeHtml(s.tag)}">
+                    <img src="${SAMPLE_BASE}${s.slug}" alt="${escapeHtml(s.tag)}" loading="lazy">
+                    <span class="sample-tag">${escapeHtml(s.tag)}</span>
+                </button>
+            `).join('');
+            $samples.addEventListener('click', (ev) => {
+                const btn = ev.target.closest('.sample-thumb');
+                if (!btn) return;
+                useSampleImage(btn.dataset.src);
+            });
+        }
+
+        // Carga la imagen como `<img crossorigin>` para que TF.js pueda leer sus pixeles.
+        // GitHub Pages devuelve `Access-Control-Allow-Origin: *`, así que esto funciona.
+        function useSampleImage(url) {
+            clearAlert();
+            setStatus('Cargando ejemplo…', 'info');
+            const probe = new Image();
+            probe.crossOrigin = 'anonymous';
+            probe.referrerPolicy = 'no-referrer';
+            probe.onload = () => {
+                // Reasignamos la imagen al preview con el atributo crossorigin correcto
+                // para que el canvas no quede "tainted" al inferir.
+                $previewImg.crossOrigin = 'anonymous';
+                $previewImg.referrerPolicy = 'no-referrer';
+                setPreviewImage(url);
+            };
+            probe.onerror = () => {
+                showAlert('warn', '<strong>No se pudo cargar la imagen de ejemplo.</strong> Verifica tu conexión.');
+                setStatus('Sube una imagen o usa la cámara para empezar.');
+            };
+            probe.src = url;
+        }
+
+        renderSamples();
+
+        function handleFile(file) {
+            clearAlert();
+            if (!file.type.startsWith('image/')) {
+                showAlert('warn', '<strong>El archivo no es una imagen.</strong>');
+                return;
+            }
+            if (file.size > MAX_FILE_BYTES) {
+                showAlert('warn', '<strong>La imagen es muy grande.</strong> Máximo 10 MB.');
+                return;
+            }
+            // Para uploads y capturas de cámara la imagen es local (data URL) y no
+            // necesita CORS. Quitamos el atributo si lo dejó alguna muestra previa.
+            $previewImg.removeAttribute('crossorigin');
+            $previewImg.removeAttribute('referrerpolicy');
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewImage(e.target.result);
+            reader.readAsDataURL(file);
+        }
+
+        function setPreviewImage(src) {
+            $previewImg.onload = () => {
+                currentImageEl = $previewImg;
+                $btnClassify.disabled = false;
+                $resultsSec.hidden = true;
+                $predGrid.innerHTML = '';
+                setStatus('Imagen lista. Pulsa <strong>Iniciar detección</strong> para analizarla.', 'info');
+            };
+            $previewImg.src = src;
+            $previewWrap.classList.add('is-shown');
+        }
+        $previewClear.addEventListener('click', () => {
+            $previewWrap.classList.remove('is-shown');
+            $previewImg.removeAttribute('src');
+            currentImageEl = null;
+            $btnClassify.disabled = true;
+            $resultsSec.hidden = true;
+            $predGrid.innerHTML = '';
+            $fileInput.value = '';
+            setStatus('Sube una imagen o usa la cámara para empezar.');
+        });
+
+        // ---- Cámara ----
+        async function startCamera() {
+            if (cameraStream) return;
+            clearAlert();
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }, audio: false,
+                });
+                $camVideo.srcObject = cameraStream;
+                await $camVideo.play().catch(() => {});
+                $camCapture.disabled = false;
+                setStatus('Cámara activa. Encuadra el objeto y pulsa <strong>Capturar foto</strong>.', 'info');
+            } catch (e) {
+                console.warn('camera error:', e);
+                $camCapture.disabled = true;
+                showAlert('warn', '<strong>No se pudo acceder a la cámara.</strong> Acepta el permiso o conecta una cámara.');
+            }
+        }
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+                cameraStream = null;
+            }
+            $camVideo.srcObject = null;
+            $camCapture.disabled = true;
+        }
+        $camStop.addEventListener('click', () => {
+            stopCamera();
+            // Cambia de tab a Subir.
+            $tabs.forEach(t => t.classList.toggle('is-active', t.dataset.mode === 'upload'));
+            $panelUpload.classList.add('is-active');
+            $panelCamera.classList.remove('is-active');
+        });
+        $camCapture.addEventListener('click', () => {
+            if (!cameraStream) return;
+            const canvas = document.createElement('canvas');
+            canvas.width  = $camVideo.videoWidth || 640;
+            canvas.height = $camVideo.videoHeight || 480;
+            canvas.getContext('2d').drawImage($camVideo, 0, 0, canvas.width, canvas.height);
+            setPreviewImage(canvas.toDataURL('image/jpeg', 0.92));
+        });
+
+        // ---- Modelo MobileNet ----
+        async function ensureModel() {
+            if (model) return model;
+            if (modelLoading) return null;
+            modelLoading = true;
+            setStatus('Cargando modelo (≈14 MB). La primera vez puede tardar unos segundos…', 'info');
+            try {
+                model = await mobilenet.load({ version: 2, alpha: 1.0 });
+                setStatus('Modelo cargado. Analizando imagen…', 'info');
+                return model;
+            } catch (e) {
+                console.warn('model load failed:', e);
+                setStatus('No se pudo cargar el modelo. Verifica tu conexión.', 'error');
+                modelLoading = false;
+                throw e;
+            }
+        }
+
+        // ---- Clasificación ----
+        // El modelo de @tensorflow-models/mobilenet usa su propia lista de etiquetas
+        // ImageNet, pero también devuelve un índice numérico mediante `infer().topk`.
+        // Aquí usamos `infer()` para obtener logits y aplicar nuestras etiquetas
+        // personalizadas (que respetan los marcadores trilingües).
+        async function classifyWithCustomLabels(el, topK = 5) {
+            const m = await ensureModel();
+            // `infer(img, embedding=false)` devuelve logits (1×1000 o 1×1001).
+            const logits = m.infer(el, false);
+            const data = await logits.data();
+            logits.dispose();
+
+            // Algunos modelos devuelven 1001 (background + 1000); descartamos el primer
+            // valor en ese caso para alinearlo con las 1000 etiquetas estándar.
+            const offset = data.length === 1001 ? 1 : 0;
+
+            // Softmax aproximado para mostrar confianza relativa.
+            const slice = Array.from(data).slice(offset);
+            const maxLogit = Math.max(...slice);
+            const exps = slice.map(v => Math.exp(v - maxLogit));
+            const sum = exps.reduce((a, b) => a + b, 0);
+            const probs = exps.map(e => e / sum);
+
+            // Top-K
+            const indexed = probs.map((p, i) => ({ idx: i, prob: p }));
+            indexed.sort((a, b) => b.prob - a.prob);
+            return indexed.slice(0, topK).map(x => ({
+                idx: x.idx,
+                label: LABELS[x.idx] || `class_${x.idx}`,
+                probability: x.prob,
+            }));
+        }
+
+        // ---- Traducción de etiquetas ----
+        function parseGoogle(json) {
+            try {
+                const data = JSON.parse(json);
+                const segs = (data && data[0]) || [];
+                return segs.map(s => (s && s[0]) || '').join('').trim();
+            } catch (e) { return ''; }
+        }
+        async function gtrans(text, sl, tl) {
+            const url = `${GOOGLE_API}?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`;
+            const r = await fetch(url);
+            if (!r.ok) throw new Error('http-' + r.status);
+            return parseGoogle(await r.text());
+        }
+
+        // Devuelve { es, zap, en } para una etiqueta dada.
+        // Si la etiqueta ya tiene el formato "es - zap - en" no se llama a la red.
+        async function resolveLabel(label) {
+            // Detecta el patrón trilingüe del documento original (separador " - ").
+            // Algunas entradas tienen espacios extra; los normalizamos.
+            const parts = label.split(/\s*-\s*/).map(s => s.trim()).filter(Boolean);
+            if (parts.length === 3) {
+                return { es: parts[0], zap: parts[1], en: parts[2] };
+            }
+
+            const en = label.trim();
+            const key = en.toLowerCase();
+            if (translationCache.has(key)) {
+                return Object.assign({ en }, translationCache.get(key));
+            }
+
+            let es = '', zap = '';
+            try {
+                // en → es
+                es = await gtrans(en, 'en', 'es');
+            } catch (e) { console.warn('en→es failed:', en, e); }
+
+            try {
+                // Probamos en → zap directo (Google soporta zap como destino).
+                zap = await gtrans(en, 'en', 'zap');
+            } catch (e) { console.warn('en→zap failed:', en, e); }
+
+            // Si en→zap no devolvió nada y tenemos español, intentamos es→zap.
+            if (!zap && es) {
+                try { zap = await gtrans(es, 'es', 'zap'); } catch (e) { /* ignore */ }
+            }
+
+            const out = { es, zap };
+            translationCache.set(key, out);
+            return Object.assign({ en }, out);
+        }
+
+        // ---- Render de resultados ----
+        function renderPredictionSkeleton(preds) {
+            $predGrid.innerHTML = preds.map((p, i) => `
+                <div class="pred-card" data-i="${i}">
+                    <div class="pred-confidence" style="--p:${(p.probability * 100).toFixed(1)}">
+                        <span>${(p.probability * 100).toFixed(0)}%</span>
+                    </div>
+                    <div class="pred-langs">
+                        <div class="pred-lang-row">
+                            <span class="pred-lang-tag">EN</span>
+                            <span class="pred-lang-text" data-lang="en">${escapeHtml(p.label)}</span>
+                        </div>
+                        <div class="pred-lang-row">
+                            <span class="pred-lang-tag">ES</span>
+                            <span class="pred-lang-text is-loading" data-lang="es">Traduciendo…</span>
+                        </div>
+                        <div class="pred-lang-row">
+                            <span class="pred-lang-tag">ZAP</span>
+                            <span class="pred-lang-text is-loading" data-lang="zap">Traduciendo…</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            $resultsSec.hidden = false;
+        }
+
+        function fillPrediction(i, resolved) {
+            const card = $predGrid.querySelector(`.pred-card[data-i="${i}"]`);
+            if (!card) return;
+            const enEl  = card.querySelector('[data-lang="en"]');
+            const esEl  = card.querySelector('[data-lang="es"]');
+            const zapEl = card.querySelector('[data-lang="zap"]');
+            if (resolved.en)  enEl.textContent = resolved.en;
+            esEl.classList.remove('is-loading');
+            zapEl.classList.remove('is-loading');
+            if (resolved.es) { esEl.textContent = resolved.es; }
+            else { esEl.classList.add('is-empty'); esEl.textContent = 'No disponible'; }
+            if (resolved.zap) { zapEl.textContent = resolved.zap; }
+            else { zapEl.classList.add('is-empty'); zapEl.textContent = 'No disponible'; }
+        }
+
+        // ---- Acción principal ----
+        $btnClassify.addEventListener('click', async () => {
+            if (!currentImageEl) return;
+            clearAlert();
+            $btnClassify.disabled = true;
+            try {
+                const preds = await classifyWithCustomLabels(currentImageEl, 5);
+                setStatus('Listo. ' + preds.length + ' coincidencias detectadas. Traduciendo…', 'info');
+                renderPredictionSkeleton(preds);
+                // Resolvemos en paralelo, pero limitamos para no saturar el endpoint público.
+                await Promise.all(preds.map((p, i) =>
+                    resolveLabel(p.label).then(r => fillPrediction(i, r))
+                ));
+                setStatus('Detección y traducción completadas.', 'info');
+            } catch (e) {
+                console.warn('classify error:', e);
+                setStatus('Ocurrió un error al analizar la imagen.', 'error');
+            } finally {
+                $btnClassify.disabled = false;
+            }
+        });
+
+        // Año automático
+        document.getElementById('anio').textContent = new Date().getFullYear();
+    })();
+    </script>
+    <script src="assets/js/page-config.js" data-page="translator_img"></script>
+</body>
+
+</html>
