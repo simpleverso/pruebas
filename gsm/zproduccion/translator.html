@@ -25,17 +25,205 @@
     <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/css/Login-Form-Dark.css">
     <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/css/ml-video.css">
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
+    <style>
+        /* ===== Translator – paleta gris / azul ===== */
+        :root {
+            --tx-bg:        #eef2f7;
+            --tx-surface:   #ffffff;
+            --tx-border:    #d6dde6;
+            --tx-text:      #1f2a37;
+            --tx-muted:     #6b7280;
+            --tx-label:     #475569;
+            --tx-primary:   #1f4e7a;
+            --tx-primary-2: #2c6ca8;
+            --tx-accent:    #3b82f6;
+            --tx-shadow:    0 6px 20px rgba(15, 30, 60, 0.08);
+        }
+
+        body {
+            background: linear-gradient(180deg, #f6f8fb 0%, #e7eef6 100%);
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Navbar más sobrio, en línea con la paleta */
+        .clean-navbar.bg-white {
+            background: #ffffff !important;
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 3px rgba(15, 30, 60, 0.04);
+        }
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover { color: var(--tx-primary) !important; }
+        .navbar-brand.logo { color: var(--tx-primary); font-weight: 600; }
+
+        /* Layout principal */
+        #info-container { padding-top: 90px; padding-bottom: 40px; max-width: 1180px; }
+        #info-container .row { height: auto !important; margin: 0 !important; }
+
+        h1.pulse.animated {
+            color: var(--tx-primary) !important;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 12px 0 28px;
+            font-size: 1.9rem;
+        }
+
+        /* Columna de información */
+        #contact-box {
+            padding: 8px 24px 8px 0;
+        }
+        #contact-text {
+            width: 100% !important;
+            color: var(--tx-text);
+            line-height: 1.65;
+            font-size: 0.96rem;
+        }
+        #contact-text strong { color: var(--tx-primary); }
+        .info-box {
+            display: flex; align-items: center; gap: 10px;
+            margin: 10px 0;
+            color: var(--tx-label);
+            font-size: 0.92rem;
+        }
+        .info-box .my-info-icons {
+            color: var(--tx-primary-2);
+            background: #e6eef8;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+        .info-box .text-info { color: var(--tx-primary) !important; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; }
+        #contact-box > span.text-justify {
+            display: block;
+            margin-top: 16px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            color: var(--tx-muted);
+            background: #f3f6fa;
+            border-left: 3px solid var(--tx-border);
+            border-radius: 4px;
+            line-height: 1.55;
+        }
+
+        /* Tarjeta del formulario */
+        .site-form {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            padding: 28px 26px;
+            box-shadow: var(--tx-shadow);
+        }
+        .site-form .form-group { margin-bottom: 6px; }
+
+        .site-form form { text-align: left !important; }
+        .field-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            margin: 18px 0 6px;
+        }
+        .field-label .src-tag {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 1px 8px;
+            border-radius: 999px;
+            background: #e6eef8;
+            color: var(--tx-primary-2);
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+        }
+
+        /* Inputs y textareas */
+        .site-form .form-control {
+            font-size: 0.95rem;
+            color: var(--tx-text);
+            background: #fafbfd;
+            border: 1px solid var(--tx-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            box-shadow: none;
+        }
+        .site-form .form-control::placeholder { color: #9aa4b2; }
+        .site-form .form-control:focus {
+            background: #ffffff;
+            border-color: var(--tx-accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            outline: none;
+        }
+        .site-form textarea.form-control {
+            background: #f8fafc;
+            resize: vertical;
+            min-height: 72px;
+            font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+        .site-form textarea.form-control[readonly] {
+            color: var(--tx-text);
+            cursor: text;
+        }
+
+        /* Botón principal */
+        #btn_traduc {
+            width: 100%;
+            margin-top: 20px;
+            padding: 11px 20px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #ffffff;
+            background: linear-gradient(180deg, var(--tx-primary-2) 0%, var(--tx-primary) 100%);
+            border: 1px solid var(--tx-primary);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(31, 78, 122, 0.18);
+            transition: transform 0.05s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+        #btn_traduc:hover { filter: brightness(1.05); box-shadow: 0 6px 16px rgba(31, 78, 122, 0.25); }
+        #btn_traduc:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(31, 78, 122, 0.2); }
+
+        /* Footer */
+        .footer-basic {
+            background: transparent;
+            border-top: 1px solid var(--tx-border);
+            margin-top: 40px;
+            padding: 18px 0;
+        }
+        .footer-basic .copyright {
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Responsive: en móvil la columna de info va arriba con menos padding */
+        @media (max-width: 767.98px) {
+            #info-container { padding-top: 80px; }
+            #contact-box { padding: 0 0 12px; }
+            .site-form { padding: 22px 18px; }
+            h1.pulse.animated { font-size: 1.5rem; }
+        }
+    </style>
 </head>
 
 <body>
     <div class="container" id="info-container">
-        <div class="row" style="margin: 30px;height: 20px;"></div>
-        <div class="row" style="height: 571px;">
-            <div class="col-md-12" style="margin: 5px;">
+        <div class="row">
+            <div class="col-md-12">
                 <h1 class="text-center text-info pulse animated">Traductor Español - Zapoteco del Istmo en linea</h1>
             </div>
             <div class="col-12 col-sm-6 col-md-6" id="contact-box">
-                <p class="text-justify" id="contact-text" style="width: 493px;">El traductor de español a zapoteco del
+                <p class="text-justify" id="contact-text">El traductor de español a zapoteco del
                     istmo es un proyecto experimental con la finalidad de generar herramientas capaces de realizar
                     traducciones al idioma Zapoteco desde el español. <strong>Sin embargo estas traducciones no siempre son exactas</strong>,
                     por lo que se debe evitar su uso en documentación oficial, información médica, información técnica, tareas, libros, ensayos, tatuajes, etc.
@@ -48,21 +236,21 @@
             </div>
             <div class="col-12 col-sm-6 col-md-6 site-form">
                 <form class="text-center" id="my-form" onsubmit="return false;" action="">
-                    <div class="form-group">
-                        Palabra o frase en español
-                        <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto en español" minlength="2" maxlength="31" autofocus spellcheck="true">
-                    </div>
-                    Zapoteco del Istmo - Didxazapp
+                    <label class="field-label" for="txt_texto_espanish">Palabra o frase en español</label>
+                    <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto en español" minlength="2" maxlength="31" autofocus spellcheck="true">
+
+                    <label class="field-label" for="txt_res_didxazapp">Zapoteco del Istmo <span class="src-tag">Didxazapp</span></label>
                     <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" rows="3"></textarea>
-                    <div class="form-group"></div>
-                    Zapoteco del Istmo - Fam Toledo
+
+                    <label class="field-label" for="txt_familia_toleto">Zapoteco del Istmo <span class="src-tag">Fam Toledo</span></label>
                     <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" rows="3"></textarea>
-                    <div class="form-group"></div>
-                    Zapoteco Cajono - Aulex (zap-es)
+
+                    <label class="field-label" for="txt_res_aulex_cajono">Zapoteco Cajono <span class="src-tag">Aulex (zap-es)</span></label>
                     <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" rows="3"></textarea>
-                    <div class="form-group"></div>
-                    Zapoteco - Google Translate (es → zap)
+
+                    <label class="field-label" for="txt_res_google">Zapoteco <span class="src-tag">Google Translate (es → zap)</span></label>
                     <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" rows="3"></textarea>
+
                     <button id="btn_traduc" class="btn btn-primary" type="button">Traducir</button>
                 </form>
             </div>
