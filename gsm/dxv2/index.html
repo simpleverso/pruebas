@@ -30,8 +30,11 @@
         <div class="space-y-4">
             <!-- Spanish Input -->
             <div>
-                <label for="spanish-input" class="block text-sm font-medium text-gray-300 mb-2">Spanish</label>
-                <textarea id="spanish-input" rows="5" class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" placeholder="Enter Spanish text to translate..."></textarea>
+                <div class="flex items-baseline justify-between mb-2">
+                    <label for="spanish-input" class="block text-sm font-medium text-gray-300">Spanish</label>
+                    <span id="char-counter" class="text-xs text-gray-500">0 / 26</span>
+                </div>
+                <textarea id="spanish-input" rows="5" maxlength="26" class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" placeholder="Up to 26 characters..."></textarea>
             </div>
 
             <!-- Translate Button -->
@@ -53,18 +56,64 @@
 
         <!-- Footer -->
         <div class="text-center text-xs text-gray-500 pt-4">
-            <p>Powered by client-side JavaScript. No server required.</p>
+            <p>Powered by client-side WebAssembly. No server required.</p>
         </div>
     </div>
 
-    <!-- 
-      IMPORTANT: The order of these scripts is crucial for the app to work.
-      1. database.js: Contains the translation dictionary.
-      2. rules.js: Contains the grammatical rules.
-      3. translator.js: Contains the logic that uses the dictionary and rules.
+    <!--
+      Translation logic is compiled to translator.wasm. The dictionary and
+      grammatical rules are embedded inside the wasm module as an encrypted
+      blob; the editable sources live in scripts/database.js and
+      scripts/rules.js but those files are no longer loaded by the page.
+      Run `npm run build` (or ./scripts/build.sh / scripts\build.bat) after editing them
+      to regenerate translator.wasm.
     -->
-    <script src="database.js"></script>
-    <script src="rules.js"></script>
-    <script src="translator.js"></script>
+    <script src="loader.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const translateBtn = document.getElementById('translate-btn');
+            const spanishInput = document.getElementById('spanish-input');
+            const zapotecOutput = document.getElementById('zapotec-output');
+            const charCounter = document.getElementById('char-counter');
+
+            const PLACEHOLDER = '<span class="text-gray-500">Translation will appear here...</span>';
+            const MAX_LEN = 26;
+
+            function updateCounter() {
+                const n = spanishInput.value.length;
+                charCounter.textContent = n + ' / ' + MAX_LEN;
+                charCounter.className = (n >= MAX_LEN)
+                    ? 'text-xs text-amber-400'
+                    : 'text-xs text-gray-500';
+            }
+            spanishInput.addEventListener('input', updateCounter);
+            updateCounter();
+
+            // Warm up the wasm in the background so the first click is snappy.
+            TRANSLATOR.init().catch(err => {
+                console.error('translator init failed', err);
+                zapotecOutput.innerHTML = '<span class="text-red-400">Failed to load translator.</span>';
+            });
+
+            translateBtn.addEventListener('click', async () => {
+                const text = spanishInput.value;
+                if (!text.trim()) {
+                    zapotecOutput.innerHTML = PLACEHOLDER;
+                    return;
+                }
+                if (text.length > MAX_LEN) {
+                    zapotecOutput.innerHTML = '<span class="text-amber-400">Limit: ' + MAX_LEN + ' characters (got ' + text.length + ').</span>';
+                    return;
+                }
+                try {
+                    const out = await TRANSLATOR.translate(text);
+                    zapotecOutput.innerHTML = out || PLACEHOLDER;
+                } catch (err) {
+                    console.error(err);
+                    zapotecOutput.innerHTML = '<span class="text-red-400">Translation error.</span>';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

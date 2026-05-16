@@ -1,0 +1,16 @@
+{
+  "targets": {
+    "release": {
+      "outFile": "build/translator.wasm",
+      "textFile": "build/translator.wat",
+      "optimizeLevel": 3,
+      "shrinkLevel": 2,
+      "converge": false,
+      "noAssert": true,
+      "runtime": "stub"
+    }
+  },
+  "options": {
+    "bindings": "raw"
+  }
+}

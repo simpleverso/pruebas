@@ -1,0 +1,17 @@
+{
+  "name": "dxv2-translator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spanish to Zapotec translator with WASM-protected dictionary and rules",
+  "scripts": {
+    "build": "node scripts/compile_build.js",
+    "test": "node scripts/compile_test.js",
+    "build:asc": "asc assembly/index.ts --target release --outFile build/translator.wasm --textFile build/translator.wat --runtime stub --optimize --noAssert"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.27.31"
+  },
+  "dependencies": {
+    "@assemblyscript/loader": "^0.27.31"
+  }
+}

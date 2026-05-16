@@ -289,8 +289,8 @@
     <div id="toast" class="toast"></div>
 
     <!-- These files are for initial data load, but can be empty or missing. -->
-    <script src="database.js"></script>
-    <script src="rules.js"></script>
+    <script src="scripts/database.js"></script>
+    <script src="scripts/rules.js"></script>
     
     <!-- Main Admin Panel Logic -->
 <script>
@@ -347,7 +347,7 @@ const ruleFieldTemplates = {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if the external files loaded correctly
     if (typeof dictionary === 'undefined' || typeof translationRules === 'undefined') {
-        showToast('Error: database.js or rules.js not found. Load them using the panels below.', 'error');
+        showToast('Error: scripts/database.js or scripts/rules.js not found. Load them using the panels below.', 'error');
         window.dictionary = {};
         window.translationRules = [];
     }
