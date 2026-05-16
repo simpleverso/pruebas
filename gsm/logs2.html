@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Title -->
     <title>Text, JSON & Base64 Tools</title>
+    <!-- Puter.js (cloud AI). Loaded only when ?enablePuter=true. -->
+    <script>
+        (function() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const v = params.get('enablePuter');
+                window.__PUTER_ENABLED__ = (v === 'true' || v === '1');
+                if (window.__PUTER_ENABLED__) {
+                    const s = document.createElement('script');
+                    s.src = 'https://js.puter.com/v2/';
+                    s.async = true;
+                    document.head.appendChild(s);
+                }
+            } catch(e) { window.__PUTER_ENABLED__ = false; }
+        })();
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -368,6 +384,183 @@
             outline: none;
         }
 
+        /* --- Notebook Panel (Fourth Column) --- */
+        .notebook-panel {
+            background-color: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #30363d;
+            flex: 1 1 0;
+            min-width: 320px;
+            height: calc(100vh - 3rem);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 1.5rem;
+            overflow: hidden;
+        }
+        .notebook-panel .nb-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #30363d;
+            flex-shrink: 0;
+        }
+        .notebook-panel .nb-header h2 { margin: 0 0 0.75rem 0; font-size: 1.15rem; color: #e6edf3; }
+        .notebook-panel .nb-btn-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .notebook-panel .nb-btn {
+            padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer;
+            border: none; color: #fff; font-weight: 600; white-space: nowrap;
+        }
+        .notebook-panel .nb-btn.blue { background: #1f6feb; }
+        .notebook-panel .nb-btn.gray { background: #484f58; }
+        .notebook-panel .nb-btn.red { background: #b91c1c; }
+        .notebook-panel .nb-btn:hover { opacity: 0.85; }
+        .notebook-panel .nb-dropzone {
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .notebook-panel .nb-dropzone.dragover {
+            border-color: #58a6ff;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+        .notebook-panel .nb-status {
+            font-size: 0.75rem;
+            color: #8b949e;
+            margin-top: 0.4rem;
+            min-height: 1em;
+        }
+        .notebook-panel .nb-paste {
+            width: 100%; padding: 8px 10px; font-size: 0.8rem; margin-top: 0.5rem;
+            background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;
+            box-sizing: border-box; resize: vertical; min-height: 2.4em; font-family: monospace;
+        }
+        .notebook-panel .nb-render {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+            background: #0d1117;
+            color: #c9d1d9;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .notebook-panel .nb-render::-webkit-scrollbar { width: 8px; }
+        .notebook-panel .nb-render::-webkit-scrollbar-track { background: transparent; }
+        .notebook-panel .nb-render::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        .notebook-panel .nb-render .empty {
+            color: #484f58; text-align: center; font-style: italic; padding: 2rem 0;
+        }
+        /* notebook.js structural classes */
+        .notebook-panel .nb-render .cell {
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            background: #161b22;
+            position: relative;
+        }
+        .notebook-panel .nb-copy-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, background 0.15s, color 0.15s;
+            z-index: 2;
+            font-family: inherit;
+        }
+        .notebook-panel .nb-render .cell:hover .nb-copy-btn { opacity: 1; }
+        .notebook-panel .nb-copy-btn:hover { background: #30363d; color: #e6edf3; }
+        .notebook-panel .nb-copy-btn.copied {
+            opacity: 1;
+            background: #1f6feb;
+            color: #fff;
+            border-color: #1f6feb;
+        }
+        .notebook-panel .nb-render .input {
+            background: #0d1117;
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #21262d;
+            font-family: monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+        }
+        .notebook-panel .nb-render .input pre { margin: 0; background: transparent; padding: 0; }
+        .notebook-panel .nb-render .input_prompt,
+        .notebook-panel .nb-render .output_prompt {
+            color: #6e7681; font-size: 0.7rem; font-family: monospace;
+            display: block; margin-bottom: 0.25rem;
+        }
+        .notebook-panel .nb-render .output {
+            padding: 0.5rem 0.75rem; background: #161b22;
+            font-size: 0.8rem; overflow-x: auto;
+        }
+        .notebook-panel .nb-render .output pre {
+            margin: 0; background: transparent; padding: 0;
+            font-family: monospace; white-space: pre-wrap; color: #c9d1d9;
+        }
+        .notebook-panel .nb-render .output img {
+            max-width: 100%; height: auto; border-radius: 4px; background: #fff;
+        }
+        .notebook-panel .nb-render .output .stderr { color: #f85149; }
+        .notebook-panel .nb-render .output_html table {
+            border-collapse: collapse; margin: 0.5rem 0; font-size: 0.75rem;
+        }
+        .notebook-panel .nb-render .output_html th,
+        .notebook-panel .nb-render .output_html td {
+            border: 1px solid #30363d; padding: 4px 8px;
+        }
+        .notebook-panel .nb-render .output_html th { background: #21262d; }
+        .notebook-panel .nb-render h1,
+        .notebook-panel .nb-render h2,
+        .notebook-panel .nb-render h3,
+        .notebook-panel .nb-render h4 {
+            color: #e6edf3; margin: 0.75rem 0 0.4rem; padding: 0; border: none; text-align: left;
+        }
+        .notebook-panel .nb-render h1 { font-size: 1.3rem; }
+        .notebook-panel .nb-render h2 { font-size: 1.15rem; }
+        .notebook-panel .nb-render h3 { font-size: 1.0rem; }
+        .notebook-panel .nb-render code {
+            background: #21262d; color: #e6edf3;
+            padding: 1px 4px; border-radius: 3px;
+            font-size: 0.78rem;
+        }
+        .notebook-panel .nb-render pre code {
+            background: transparent; padding: 0; border-radius: 0;
+        }
+        /* Let highlight.js's github-dark theme own the styling for syntax-highlighted
+           code blocks. Without this, our panel's generic `code` rule would override
+           the theme's base background/color and highlights would look flat. */
+        .notebook-panel .nb-render code.hljs,
+        .notebook-panel .nb-render pre code.hljs {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            display: block;
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+        .notebook-panel .nb-render a { color: #58a6ff; text-decoration: none; }
+        .notebook-panel .nb-render a:hover { text-decoration: underline; }
+        .notebook-panel .nb-render blockquote {
+            border-left: 3px solid #30363d; margin: 0.5rem 0; padding: 0 0.75rem; color: #8b949e;
+        }
+        .notebook-panel .nb-render ul, .notebook-panel .nb-render ol { padding-left: 1.5rem; }
+
         @media (max-width: 1350px) {
             .page-layout {
                 flex-wrap: wrap;
@@ -394,6 +587,14 @@
                 min-width: 280px;
                 order: 3;
             }
+            .notebook-panel {
+                position: static;
+                height: 600px;
+                flex: 1 1 45%;
+                min-width: 280px;
+                max-width: none;
+                order: 4;
+            }
         }
         @media (max-width: 768px) {
             body { padding: 0.75rem; }
@@ -414,6 +615,13 @@
                 height: 500px;
                 flex: none;
                 width: 100%;
+            }
+            .notebook-panel {
+                position: static;
+                height: 500px;
+                flex: none;
+                width: 100%;
+                max-width: none;
             }
             .button-group {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -726,6 +934,7 @@
         <button id="toggleTools" onclick="toggleSection('container','toggleTools')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">🛠 Tools</button>
         <button id="toggleChat" onclick="toggleSection('chat-panel','toggleChat')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">💬 Chat</button>
         <button id="toggleSnippets" onclick="toggleSection('snippets-panel','toggleSnippets')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📋 Snippets</button>
+        <button id="toggleNotebook" onclick="toggleSection('notebook-panel','toggleNotebook')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📓 Notebook</button>
     </div>
 
     <script>
@@ -745,7 +954,8 @@
         const sections = [
             { cls: 'container', btn: 'toggleTools', defaultHidden: true },
             { cls: 'chat-panel', btn: 'toggleChat', defaultHidden: false },
-            { cls: 'snippets-panel', btn: 'toggleSnippets', defaultHidden: true }
+            { cls: 'snippets-panel', btn: 'toggleSnippets', defaultHidden: true },
+            { cls: 'notebook-panel', btn: 'toggleNotebook', defaultHidden: true }
         ];
         sections.forEach(s => {
             const saved = localStorage.getItem('section_vis_' + s.cls);
@@ -878,15 +1088,14 @@
     <div class="chat-panel">
         <div class="chat-panel-header">
             <h2>Offline chat</h2>
+            <div class="chat-model-row" style="flex-wrap:wrap;gap:6px;">
+                <input id="lmstudioEndpoint" type="text" placeholder="LM Studio endpoint (e.g. http://localhost:1234/v1)"
+                    style="flex:1 1 100%;min-width:180px;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;" />
+                <button onclick="refreshLMStudioModels()" class="tertiary-button" title="Reload model list from LM Studio" style="width:auto;padding:6px 10px;font-size:0.8rem;">🔄 LM Studio</button>
+            </div>
             <div class="chat-model-row">
-                <select id="llmModelSelect">
-                    <option value="Llama-3.1-8B-Instruct-q4f16_1-MLC">🧠 Llama 3.1 8B</option>
-                    <option value="Llama-3-8B-Instruct-q4f16_1-MLC">🧠 Llama 3 8B</option>
-                    <option value="DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC">🧠 DeepSeek R1 Qwen 7B</option>
-                    <option value="DeepSeek-R1-Distill-Llama-8B-q4f16_1-MLC">🧠 DeepSeek R1 Llama 8B</option>
-                    <option value="Qwen3-4B-q4f16_1-MLC">🧠 Qwen3 4B</option>
-                    <option value="Qwen3-8B-q4f16_1-MLC" selected>🧠 Qwen3 8B</option>
-                    <option value="Qwen3-4B-Thinking-2507-q4f32_1-MLC">🧠 Qwen3 4B Thinking</option>
+                <select id="llmModelSelect" data-default="Qwen3-8B-q4f16_1-MLC">
+                    <option value="" disabled selected>Loading WebLLM models...</option>
                 </select>
                 <button onclick="loadLLMModel()" class="primary-button">Load</button>
                 <button onclick="clearChat()" class="secondary-button">Clear</button>
@@ -971,6 +1180,32 @@
         </div>
     </div>
 
+    <!-- Notebook Panel (Fourth Column) -->
+    <div class="notebook-panel" id="notebookPanel">
+        <div class="nb-header">
+            <h2>Notebook viewer</h2>
+            <div class="nb-btn-row">
+                <button class="nb-btn blue" id="nbPickBtn">Choose file</button>
+                <button class="nb-btn gray" id="nbPasteBtn" title="Toggle paste area">Paste JSON</button>
+                <button class="nb-btn red" id="nbClearBtn">Clear</button>
+                <input type="file" id="nbFileInput" accept=".ipynb,.txt,.json,application/json,application/x-ipynb+json" style="display:none">
+            </div>
+            <div class="nb-dropzone" id="nbDropzone">
+                Drop <code>.ipynb</code> or <code>.ipynb.txt</code> here,
+                or click <em>Choose file</em>.
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;margin-top:0.5rem;font-size:0.75rem;color:#8b949e;cursor:pointer;">
+                <input type="checkbox" id="nbUsePuterFetch" style="width:13px;height:13px;accent-color:#58a6ff;">
+                Load libraries via Puter fetch (CORS-free)
+            </label>
+            <textarea class="nb-paste" id="nbPasteArea" placeholder="Or paste notebook JSON here and press Enter..." style="display:none;"></textarea>
+            <div class="nb-status" id="nbStatus"></div>
+        </div>
+        <div class="nb-render" id="nbRender">
+            <div class="empty">No notebook loaded yet.</div>
+        </div>
+    </div>
+
     </div><!-- end page-layout -->
 
     <!-- WebLLM Module -->
@@ -1020,6 +1255,326 @@
             }));
             return { useIndexedDBCache: true, model_list: resolved };
         }
+
+        // Populate the model dropdown from the WebLLM prebuilt list, using the same
+        // filters as ollama/index.html so both files show the same MLC model names.
+        // Also appends LM Studio models (discovered at runtime) and Puter cloud models
+        // (hidden unless ?enablePuter=true), using prefixes so we can route calls.
+        const LMSTUDIO_ENDPOINT_KEY = 'logs2_lmstudio_endpoint';
+        const LMSTUDIO_DEFAULT_ENDPOINT = 'http://localhost:1234/v1';
+        const PUTER_MODELS = [
+            'gpt-5.4-nano',
+            'o3-mini',
+            'claude-sonnet-4.5',
+            'deepseek-v3.2',
+            'deepseek-reasoner',
+            'gemini-2.5-flash',
+            'grok-4-fast',
+        ];
+        const PUTER_ENABLED = !!window.__PUTER_ENABLED__;
+        let lmStudioAvailableModels = [];
+
+        function populateModelSelect() {
+            const selectEl = document.getElementById('llmModelSelect');
+            if (!selectEl) return;
+            const defaultId = selectEl.dataset.default || 'Qwen3-8B-q4f16_1-MLC';
+            const prevValue = selectEl.value;
+
+            // --- WebLLM prebuilt (with same filters as ollama/index.html) ---
+            let prebuiltIds = [];
+            if (webllm && webllm.prebuiltAppConfig) {
+                prebuiltIds = webllm.prebuiltAppConfig.model_list
+                    .map(m => m.model_id)
+                    .filter(id => {
+                        const lower = id.toLowerCase();
+                        const is1B = /[\-_]1b[\-_]|[\-_]1\.[\d]b[\-_]/i.test(id);
+                        const is05B = /[\-_]0\.5b[\-_]/i.test(id);
+                        const is06B = /[\-_]0\.6b[\-_]/i.test(id);
+                        const is70B = /[\-_]70b[\-_]/i.test(id);
+                        const isLlama = lower.includes('llama');
+                        const isPhi = lower.includes('phi');
+                        const isMinistral = lower.includes('ministral');
+                        if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || (lower.includes('q4f32_1') && !lower.includes('qwen3'))) return false;
+                        // Drop every Llama-3.2-1B quantization (q4f16_1, q0f32, ...).
+                        if (/llama-3\.2/i.test(lower) && /1b/i.test(lower)) return false;
+                        if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
+                        if (is05B || is06B || is70B) return false;
+                        if (/qwen3[\._]5/i.test(lower) && /0[\._]8b/i.test(lower)) return false;
+                        if (/qwen3[\._]5/i.test(lower) && /[\-_]2b[\-_]/i.test(lower)) return false;
+                        if (/hermes[\-_]?[23]/i.test(lower)) return false;
+                        // Explicit exclusions
+                        if (id === 'OLMo-2-1124-7B-Instruct-q4f16_1-MLC') return false;
+                        // Drop all Qwen3 / Qwen3.5 q4f32_1 variants (q4f16_1 equivalents are preferred).
+                        // Keeps the custom Qwen3-4B-Thinking-2507-q4f32_1-MLC because that's the
+                        // only public quantization for the dedicated Thinking checkpoint.
+                        if (/^Qwen3[\._]?5?-/i.test(id) && /-q4f32_1-MLC$/i.test(id) && !/-Thinking-2507-/i.test(id)) return false;
+                        return !is1B || isLlama;
+                    });
+            }
+            const customIds = customModels.map(m => m.model_id);
+            const webllmIds = [...prebuiltIds];
+            customIds.forEach(id => { if (!webllmIds.includes(id)) webllmIds.push(id); });
+
+            // --- Build the <select> with optgroups per provider ---
+            selectEl.innerHTML = '';
+
+            if (webllmIds.length > 0) {
+                const og = document.createElement('optgroup');
+                og.label = 'WebLLM (in-browser)';
+                webllmIds.forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = id; // webllm entries have no prefix (back-compat)
+                    opt.textContent = `🧠 ${id}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
+            if (lmStudioAvailableModels.length > 0) {
+                const og = document.createElement('optgroup');
+                og.label = 'LM Studio (local)';
+                lmStudioAvailableModels.forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = `lmstudio:${id}`;
+                    opt.textContent = `🖥️ ${id}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
+            if (PUTER_ENABLED) {
+                const og = document.createElement('optgroup');
+                og.label = 'Puter (cloud)';
+                PUTER_MODELS.forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = `puter:${id}`;
+                    opt.textContent = `☁️ ${id}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
+            // Restore previous selection if still present, otherwise fall back to default
+            const exists = (val) => Array.from(selectEl.options).some(o => o.value === val);
+            if (prevValue && exists(prevValue)) {
+                selectEl.value = prevValue;
+            } else if (exists(defaultId)) {
+                selectEl.value = defaultId;
+            }
+        }
+
+        // Probe LM Studio /models and refresh the dropdown.
+        async function refreshLMStudioModels(showErrors = false) {
+            const input = document.getElementById('lmstudioEndpoint');
+            if (!input) return;
+            const endpoint = (input.value || '').trim().replace(/\/+$/, '');
+            if (!endpoint) { lmStudioAvailableModels = []; populateModelSelect(); return; }
+            try {
+                const ctrl = new AbortController();
+                const to = setTimeout(() => ctrl.abort(), 4000);
+                const res = await fetch(`${endpoint}/models`, { signal: ctrl.signal });
+                clearTimeout(to);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const models = (data.data || []).map(m => m.id).filter(Boolean);
+                lmStudioAvailableModels = models;
+                try { localStorage.setItem(LMSTUDIO_ENDPOINT_KEY, endpoint); } catch(e) {}
+                populateModelSelect();
+                if (showErrors) {
+                    const el = document.getElementById('llmStatus');
+                    if (el) el.textContent = `LM Studio: ${models.length} model(s) found.`;
+                }
+            } catch (err) {
+                lmStudioAvailableModels = [];
+                populateModelSelect();
+                if (showErrors) {
+                    const el = document.getElementById('llmStatus');
+                    if (el) el.textContent = 'LM Studio: connection failed — ' + err.message;
+                }
+            }
+        }
+        window.refreshLMStudioModels = () => refreshLMStudioModels(true);
+
+        // Restore LM Studio endpoint and probe silently on page load
+        (function() {
+            const input = document.getElementById('lmstudioEndpoint');
+            if (!input) return;
+            try {
+                const saved = localStorage.getItem(LMSTUDIO_ENDPOINT_KEY);
+                input.value = saved || LMSTUDIO_DEFAULT_ENDPOINT;
+            } catch(e) { input.value = LMSTUDIO_DEFAULT_ENDPOINT; }
+            input.addEventListener('change', () => refreshLMStudioModels(true));
+            // Silent probe at startup; failures are expected when LM Studio isn't running
+            setTimeout(() => refreshLMStudioModels(false), 300);
+        })();
+
+        // Populate as soon as the module runs (webllm.prebuiltAppConfig is available synchronously)
+        try { populateModelSelect(); } catch(e) { console.warn('populateModelSelect failed', e); }
+
+        // --- Model thinking capability ---
+        // Returns one of:
+        //   'always-on'   : model always emits <think>; toggle is forced on and disabled
+        //   'always-off'  : model never reasons; toggle is forced off and disabled
+        //   'toggleable'  : hybrid model; user can toggle thinking on/off
+        //   'none'        : non-reasoning model (e.g. Llama); toggle has no effect
+        function getModelThinkingMode(modelId) {
+            if (!modelId) return 'none';
+            // Strip provider prefixes. Puter cloud models handle reasoning server-side —
+            // we don't send chat_template_kwargs to them. LM Studio runs any GGUF with
+            // its own chat template, so we use the model name heuristics after stripping.
+            if (modelId.startsWith('puter:')) return 'none';
+            const id = modelId.startsWith('lmstudio:') ? modelId.slice('lmstudio:'.length) : modelId;
+            // Qwen3 2507 split: dedicated Thinking vs Instruct checkpoints
+            if (/-Thinking-2507-/i.test(id)) return 'always-on';
+            if (/-Instruct-2507-/i.test(id)) return 'always-off';
+            // DeepSeek R1 distills always chain-of-thought
+            if (/DeepSeek-R1-Distill-/i.test(id)) return 'always-on';
+            // Original Qwen3 (April 2025) hybrid models and Qwen3.5 hybrid
+            if (/^Qwen3[\.\-_]?5?-/i.test(id) && !/-Thinking-2507-/i.test(id) && !/-Instruct-2507-/i.test(id)) {
+                return 'toggleable';
+            }
+            // Llama, Gemma, Phi, etc. — no reasoning
+            return 'none';
+        }
+
+        // Whether the effective switch should send reasoning on for this turn.
+        function resolveThinkingEnabled(modelId) {
+            const mode = getModelThinkingMode(modelId);
+            if (mode === 'always-on') return true;
+            if (mode === 'always-off' || mode === 'none') return false;
+            // toggleable → respect the UI button
+            return document.getElementById('thinkToggleBtn').dataset.active === 'true';
+        }
+
+        // Sync the 🧠 button to the selected model's capability.
+        function applyThinkingUIForModel(modelId) {
+            const btn = document.getElementById('thinkToggleBtn');
+            if (!btn) return;
+            const mode = getModelThinkingMode(modelId);
+            const setVisual = (active) => {
+                btn.dataset.active = String(active);
+                btn.style.color = active ? '#58a6ff' : '#484f58';
+                btn.style.borderColor = active ? '#58a6ff' : '#30363d';
+            };
+            if (mode === 'always-on') {
+                setVisual(true);
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+                btn.title = 'Reasoning always on for this model (forced)';
+            } else if (mode === 'always-off' || mode === 'none') {
+                setVisual(false);
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+                btn.title = mode === 'always-off'
+                    ? 'Reasoning not supported by this model variant (forced off)'
+                    : 'Model has no reasoning mode';
+            } else {
+                // toggleable — default to OFF whenever the selected model changes.
+                // Users can still opt in per session via the 🧠 button.
+                setVisual(false);
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.cursor = 'pointer';
+                btn.title = 'Reasoning disabled (click to enable)';
+            }
+        }
+
+        // Update the UI whenever the selection changes (even before load)
+        document.getElementById('llmModelSelect').addEventListener('change', (e) => {
+            applyThinkingUIForModel(e.target.value);
+        });
+        // And apply it now for the initial selection
+        try { applyThinkingUIForModel(document.getElementById('llmModelSelect').value); } catch(e) {}
+
+        // --- Provider routing ---
+        function getProvider(modelId) {
+            if (!modelId) return 'webllm';
+            if (modelId.startsWith('lmstudio:')) return 'lmstudio';
+            if (modelId.startsWith('puter:')) return 'puter';
+            return 'webllm';
+        }
+        function stripProvider(modelId) {
+            if (!modelId) return '';
+            if (modelId.startsWith('lmstudio:')) return modelId.slice('lmstudio:'.length);
+            if (modelId.startsWith('puter:')) return modelId.slice('puter:'.length);
+            return modelId;
+        }
+
+        // LM Studio streaming caller (OpenAI-compatible /v1/chat/completions)
+        async function callLMStudio(rawModel, messages, { signal } = {}) {
+            const endpointInput = document.getElementById('lmstudioEndpoint');
+            const endpoint = (endpointInput?.value || LMSTUDIO_DEFAULT_ENDPOINT).trim().replace(/\/+$/, '');
+            const url = `${endpoint}/chat/completions`;
+            const payload = { model: rawModel, messages, stream: true };
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal,
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`LM Studio API ${res.status}: ${errText}`);
+            }
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            return {
+                async *[Symbol.asyncIterator]() {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+                        for (const line of lines) {
+                            const t = line.trim();
+                            if (!t || t === 'data: [DONE]' || t.startsWith(':')) continue;
+                            if (!t.startsWith('data: ')) continue;
+                            try {
+                                const json = JSON.parse(t.slice(6));
+                                const delta = json.choices?.[0]?.delta?.content || '';
+                                if (delta) yield delta;
+                            } catch(e) { /* ignore parse errors */ }
+                        }
+                    }
+                },
+                cancel() { try { reader.cancel(); } catch(e) {} }
+            };
+        }
+
+        // Puter.js streaming caller (cloud AI). Requires ?enablePuter=true to have loaded js.puter.com.
+        async function callPuter(rawModel, messages) {
+            if (!window.puter || !window.puter.ai || typeof window.puter.ai.chat !== 'function') {
+                throw new Error('Puter.js not loaded. Reload page with ?enablePuter=true.');
+            }
+            const input = messages.map(m => ({
+                role: m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user'),
+                content: m.content,
+            }));
+            const options = { model: rawModel, stream: true };
+            const result = await window.puter.ai.chat(input, options);
+            const iterator = result[Symbol.asyncIterator] ? result[Symbol.asyncIterator]() : result;
+            let cancelled = false;
+            return {
+                async *[Symbol.asyncIterator]() {
+                    while (true) {
+                        if (cancelled) break;
+                        const { value, done } = await iterator.next();
+                        if (done) break;
+                        const text = value?.text || value?.message?.content || (typeof value === 'string' ? value : '');
+                        if (text) yield text;
+                    }
+                },
+                cancel() { cancelled = true; }
+            };
+        }
+
+        // Holder for the current remote stream (LM Studio / Puter) so stopGeneration can cancel it.
+        let currentRemoteStream = null;
+        let currentAbortController = null;
 
         let engine = null;
         let legacyEngine = null;
@@ -1174,8 +1729,11 @@
         }
 
         async function resendMessage(text) {
-            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            if (!activeEngine) {
+            const provider = getProvider(loadedModelId);
+            const hasModel = provider === 'webllm'
+                ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
+                : !!loadedModelId;
+            if (!hasModel) {
                 addMessage('system', 'No model loaded. Loading default model...');
                 await window.loadLLMModel();
             }
@@ -1215,6 +1773,7 @@
         // --- Thinking toggle ---
         window.toggleThinking = function() {
             const btn = document.getElementById('thinkToggleBtn');
+            if (btn.disabled) return; // forced state — do nothing
             const active = btn.dataset.active !== 'true';
             btn.dataset.active = String(active);
             btn.style.color = active ? '#58a6ff' : '#484f58';
@@ -1222,20 +1781,45 @@
             btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
             try { localStorage.setItem('webllm_thinking_enabled', String(active)); } catch(e) {}
         };
-        // Restore thinking toggle state (default: off)
+        // Restore thinking toggle state. Default is OFF for every model; users may
+        // still opt in via the 🧠 button on toggleable models. We intentionally do
+        // NOT read the previous session's preference here — "off by default" wins.
+        // The applyThinkingUIForModel helper overrides this when a non-toggleable
+        // model is selected.
         (function() {
             const btn = document.getElementById('thinkToggleBtn');
-            const saved = localStorage.getItem('webllm_thinking_enabled');
-            const active = saved === 'true';
-            btn.dataset.active = String(active);
-            btn.style.color = active ? '#58a6ff' : '#484f58';
-            btn.style.borderColor = active ? '#58a6ff' : '#30363d';
-            btn.title = active ? 'Reasoning enabled (click to disable)' : 'Reasoning disabled (click to enable)';
+            btn.dataset.active = 'false';
+            btn.style.color = '#484f58';
+            btn.style.borderColor = '#30363d';
+            btn.title = 'Reasoning disabled (click to enable)';
         })();
 
         window.loadLLMModel = async function() {
             const modelId = document.getElementById('llmModelSelect').value;
             if (isLoading) return;
+            const provider = getProvider(modelId);
+
+            // Remote providers (LM Studio, Puter) don't need a local engine load.
+            if (provider === 'lmstudio' || provider === 'puter') {
+                // Clean up any previously loaded local engine to free VRAM
+                if (engine && typeof engine.unload === 'function') { try { await engine.unload(); } catch(e) {} }
+                if (legacyEngine && typeof legacyEngine.unload === 'function') { try { await legacyEngine.unload(); } catch(e) {} }
+                engine = null;
+                legacyEngine = null;
+                loadedModelId = modelId;
+                const label = provider === 'lmstudio' ? 'LM Studio' : 'Puter';
+                statusEl.textContent = `Ready — ${label}: ${stripProvider(modelId)}`;
+                progressEl.style.display = 'none';
+                inputEl.disabled = false;
+                sendBtn.disabled = false;
+                messagesEl.innerHTML = '';
+                addMessage('system', `${label} model selected. Start chatting.`);
+                applyThinkingUIForModel(modelId);
+                inputEl.focus();
+                return;
+            }
+
+            // WebLLM local engine path
             isLoading = true;
             const isLegacy = legacyModelIds.has(modelId);
 
@@ -1290,6 +1874,7 @@
                 sendBtn.disabled = false;
                 messagesEl.innerHTML = '';
                 addMessage('system', 'Model loaded. Start chatting.');
+                applyThinkingUIForModel(modelId);
                 inputEl.focus();
             } catch (err) {
                 statusEl.textContent = 'Error: ' + err.message;
@@ -1304,19 +1889,31 @@
             const text = inputEl.value.trim();
             if (!text) return;
             const selectedModelId = document.getElementById('llmModelSelect').value;
-            let activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            // Auto-load if no engine or if user switched to a different model
-            if (!activeEngine || selectedModelId !== loadedModelId) {
-                addMessage('system', activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...');
-                await window.loadLLMModel();
+            const provider = getProvider(selectedModelId);
+            const rawModel = stripProvider(selectedModelId);
+
+            // For webllm: need an engine that matches the selected model.
+            // For lmstudio/puter: just ensure loadedModelId matches (no engine needed).
+            let activeEngine = null;
+            if (provider === 'webllm') {
                 activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-                if (!activeEngine) return; // load failed
+                if (!activeEngine || selectedModelId !== loadedModelId) {
+                    addMessage('system', activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...');
+                    await window.loadLLMModel();
+                    activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
+                    if (!activeEngine) return; // load failed
+                }
+            } else {
+                if (selectedModelId !== loadedModelId) {
+                    await window.loadLLMModel();
+                }
             }
+
             inputEl.value = '';
             inputEl.disabled = true;
             sendBtn.disabled = true;
             stopRequested = false;
-            currentActiveEngine = activeEngine;
+            currentActiveEngine = activeEngine; // null for remote providers
             document.getElementById('chatStopBtn').style.display = '';
 
             addMessage('user', text);
@@ -1330,22 +1927,58 @@
                 const sysPrompt = useSystemPrompt ? document.getElementById('llmSystemPrompt' + activeSlot).value.trim() : '';
                 const msgs = sysPrompt
                     ? [{ role: 'system', content: sysPrompt }, ...chatHistory]
-                    : chatHistory;
-                const thinkingEnabled = document.getElementById('thinkToggleBtn').dataset.active === 'true';
-                // For models that support thinking, add /no_think to suppress reasoning
+                    : [...chatHistory];
+
+                // Decide the effective thinking state for this turn based on the model.
+                const activeModelId = loadedModelId || selectedModelId;
+                const thinkMode = getModelThinkingMode(activeModelId);
+                const thinkingEnabled = resolveThinkingEnabled(activeModelId);
+
+                // Possibly append /no_think for hybrid models when disabling reasoning.
                 let finalMsgs = msgs;
-                if (!thinkingEnabled && finalMsgs.length > 0) {
+                if (thinkMode === 'toggleable' && !thinkingEnabled && finalMsgs.length > 0) {
                     finalMsgs = [...finalMsgs];
-                    const lastIdx = finalMsgs.length - 1;
-                    if (finalMsgs[lastIdx].role === 'user') {
-                        finalMsgs[lastIdx] = { ...finalMsgs[lastIdx], content: finalMsgs[lastIdx].content + '\n/no_think' };
+                    for (let i = finalMsgs.length - 1; i >= 0; i--) {
+                        if (finalMsgs[i].role === 'user') {
+                            finalMsgs[i] = { ...finalMsgs[i], content: finalMsgs[i].content + '\n/no_think' };
+                            break;
+                        }
                     }
                 }
-                const reply = await activeEngine.chat.completions.create({
-                    messages: finalMsgs,
-                    stream: true,
-                    stream_options: { include_usage: true }
-                });
+
+                // Build the provider-specific stream iterator.
+                let streamIter; // something with [Symbol.asyncIterator]() yielding text deltas
+                let getChunkDelta = (chunk) => chunk; // default: string chunks
+                let cancelStream = () => {};
+
+                if (provider === 'webllm') {
+                    const requestBody = {
+                        messages: finalMsgs,
+                        stream: true,
+                        stream_options: { include_usage: true },
+                    };
+                    if (thinkMode === 'toggleable') {
+                        requestBody.extra_body = { chat_template_kwargs: { enable_thinking: thinkingEnabled } };
+                    } else if (thinkMode === 'always-off') {
+                        requestBody.extra_body = { chat_template_kwargs: { enable_thinking: false } };
+                    }
+                    const reply = await activeEngine.chat.completions.create(requestBody);
+                    streamIter = reply;
+                    getChunkDelta = (chunk) => chunk.choices?.[0]?.delta?.content || '';
+                } else if (provider === 'lmstudio') {
+                    currentAbortController = new AbortController();
+                    const iter = await callLMStudio(rawModel, finalMsgs, { signal: currentAbortController.signal });
+                    currentRemoteStream = iter;
+                    streamIter = iter;
+                    getChunkDelta = (s) => s || '';
+                    cancelStream = () => { try { currentAbortController.abort(); } catch(e) {} try { iter.cancel && iter.cancel(); } catch(e) {} };
+                } else if (provider === 'puter') {
+                    const iter = await callPuter(rawModel, finalMsgs);
+                    currentRemoteStream = iter;
+                    streamIter = iter;
+                    getChunkDelta = (s) => s || '';
+                    cancelStream = () => { try { iter.cancel && iter.cancel(); } catch(e) {} };
+                }
 
                 let full = '';
                 let inThink = false;
@@ -1353,21 +1986,20 @@
                 const genStart = performance.now();
                 let tokenCount = 0;
                 let firstTokenTime = null;
-                for await (const chunk of reply) {
-                    if (stopRequested) break;
-                    const delta = chunk.choices[0]?.delta?.content || '';
+
+                for await (const chunk of streamIter) {
+                    if (stopRequested) { cancelStream(); break; }
+                    const delta = getChunkDelta(chunk);
                     if (delta) {
                         tokenCount++;
                         if (!firstTokenTime) firstTokenTime = performance.now();
                         full += delta;
-                        // Live stats
                         const elapsed = (performance.now() - firstTokenTime) / 1000;
                         const tps = elapsed > 0 ? (tokenCount / elapsed).toFixed(1) : '—';
                         const ttft = firstTokenTime ? ((firstTokenTime - genStart) / 1000).toFixed(2) : '—';
                         statsEl.textContent = `⚡ ${tps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${elapsed.toFixed(1)}s`;
                         statsEl.style.color = '#58a6ff';
                     }
-                    // Read checkbox live on every chunk
                     const liveShowThinking = document.getElementById('llmShowThinking').checked;
                     if (liveShowThinking) {
                         inThink = full.includes('<think>') && !full.includes('</think>');
@@ -1382,8 +2014,6 @@
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 }
 
-                // Engine already interrupted by stopGeneration button if needed
-
                 // Final stats
                 const stopped = stopRequested;
                 const totalTime = ((performance.now() - genStart) / 1000).toFixed(2);
@@ -1392,7 +2022,6 @@
                 statsEl.textContent = `${stopped ? '⏹️' : '✅'} ${finalTps} tok/s · ${tokenCount} tokens · TTFT ${ttft}s · ${totalTime}s total${stopped ? ' (stopped)' : ''}`;
                 statsEl.style.color = stopped ? '#d29922' : '#3fb950';
 
-                // Render final markdown with thinking support
                 assistantDiv.style.color = '';
                 assistantDiv.style.fontStyle = '';
                 if (full) {
@@ -1405,6 +2034,9 @@
                 }
             } catch (err) {
                 assistantDiv.textContent = 'Error: ' + err.message;
+            } finally {
+                currentRemoteStream = null;
+                currentAbortController = null;
             }
 
             document.getElementById('chatStopBtn').style.display = 'none';
@@ -1416,23 +2048,32 @@
 
         window.stopGeneration = function() {
             stopRequested = true;
-            // Immediately interrupt the engine so the stream loop unblocks
+            // WebLLM engine interrupt
             if (currentActiveEngine) {
                 if (typeof currentActiveEngine.interruptGenerate === 'function') {
                     try { currentActiveEngine.interruptGenerate(); } catch(e) {}
                 }
-                // Also try abort() for newer WebLLM versions
                 if (typeof currentActiveEngine.abort === 'function') {
                     try { currentActiveEngine.abort(); } catch(e) {}
                 }
+            }
+            // Remote stream abort (LM Studio / Puter)
+            if (currentAbortController) {
+                try { currentAbortController.abort(); } catch(e) {}
+            }
+            if (currentRemoteStream && typeof currentRemoteStream.cancel === 'function') {
+                try { currentRemoteStream.cancel(); } catch(e) {}
             }
         };
 
         window.clearChat = function() {
             chatHistory = [];
             messagesEl.innerHTML = '';
-            const activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-            addMessage('system', activeEngine ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
+            const provider = getProvider(loadedModelId);
+            const hasModel = provider === 'webllm'
+                ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
+                : !!loadedModelId;
+            addMessage('system', hasModel ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
         };
 
         window.resendLast = async function() {
@@ -3942,6 +4583,519 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(a.href);
         }
+    </script>
+
+    <!-- Notebook Viewer Panel (notebook.js + marked + highlight.js) -->
+    <script>
+    (function() {
+        const NB_DEPS = [
+            // notebook.js exposes window.nb (UMD).
+            'https://cdn.jsdelivr.net/npm/notebookjs@0.6.7/notebook.min.js',
+            // highlight.js monolithic bundle — core + all common languages (python, bash,
+            // javascript, json, sql, yaml, etc.) pre-registered. Single file means we
+            // don't depend on sequential auto-registration of separate language packs,
+            // which was fragile when loaded via Puter's proxy.
+            'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js',
+        ];
+        const HLJS_CSS = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css';
+        const PUTER_JS_URL = 'https://js.puter.com/v2/';
+        const USE_PUTER_KEY = 'nb_use_puter_fetch';
+        const LAST_NB_KEY = 'nb_last_notebook';
+        const LAST_NB_LABEL_KEY = 'nb_last_notebook_label';
+
+        // Load highlight.js dark theme stylesheet. Stylesheets aren't affected by CORS
+        // in the same way as XHR fetch, so the <link> tag works even on strict origins.
+        (function() {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = HLJS_CSS;
+            document.head.appendChild(link);
+        })();
+
+        // Standard load: <script src="..."> — fast, but subject to the origin's script-src CSP.
+        function loadScriptTag(src) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.async = false; // preserve order
+                s.onload = () => resolve();
+                s.onerror = () => reject(new Error('Failed to load ' + src));
+                document.head.appendChild(s);
+            });
+        }
+
+        // Puter fetch + inline <script>: the library source is fetched via puter.net.fetch
+        // (routed through Puter's WISP proxy — CORS-free, see https://developer.puter.com/tutorials/cors-free-fetch-api/ ),
+        // then injected as an inline script so the browser executes it in this page's context.
+        //
+        // Note: Puter's Response object doesn't always expose .ok / .status the way native
+        // fetch does, so we don't gate on those. Instead we read the body and validate the
+        // content itself (non-empty, looks like JS). If anything fails at any step, the
+        // caller falls back to a plain <script src="..."> tag for that URL.
+        async function loadScriptViaPuter(src) {
+            if (!window.puter || !window.puter.net || typeof window.puter.net.fetch !== 'function') {
+                throw new Error('puter.net.fetch not available');
+            }
+            const res = await window.puter.net.fetch(src);
+            if (!res) throw new Error('Puter fetch returned no response for ' + src);
+            // Some Puter builds expose .text(), others expose .body as a string.
+            let text = '';
+            if (typeof res.text === 'function') {
+                text = await res.text();
+            } else if (typeof res.body === 'string') {
+                text = res.body;
+            } else if (res.body && typeof res.body.text === 'function') {
+                text = await res.body.text();
+            } else {
+                // Last-resort: try standard Response destructuring
+                try { text = await (new Response(res.body)).text(); } catch(e) { /* ignore */ }
+            }
+            if (typeof text !== 'string' || text.length < 50) {
+                // Treat as a failed fetch so the caller can fall back.
+                const status = (res.status !== undefined) ? res.status : 'no-status';
+                throw new Error(`Puter fetch empty body (status=${status}, ${text ? text.length + ' chars' : 'no text'}) for ${src}`);
+            }
+            // Sanity-check: the response should look like JS, not an HTML error page.
+            const firstChars = text.trimStart().slice(0, 200).toLowerCase();
+            if (firstChars.startsWith('<!doctype') || firstChars.startsWith('<html')) {
+                throw new Error('Puter fetch returned HTML (likely an error page) for ' + src);
+            }
+            const s = document.createElement('script');
+            s.textContent = text;
+            s.dataset.puterFetched = src;
+            document.head.appendChild(s);
+        }
+
+        // Load with Puter first; if that specific URL fails, fall back to a direct <script src>.
+        async function loadScriptWithFallback(src, preferPuter) {
+            if (preferPuter) {
+                try {
+                    await loadScriptViaPuter(src);
+                    return 'puter';
+                } catch(err) {
+                    console.warn('[notebook] Puter fetch failed for', src, '—', err.message, 'falling back to direct');
+                    setStatus('Puter fetch failed for ' + src.split('/').pop() + ', falling back to direct...');
+                }
+            }
+            await loadScriptTag(src);
+            return 'direct';
+        }
+
+        // Ensure Puter.js itself is loaded. The existing ?enablePuter=true flag loads it
+        // at page start; if the user opted out of that but toggled CORS-free fetch here,
+        // we pull it on demand from js.puter.com directly (that URL does allow a plain script tag).
+        async function ensurePuterJs() {
+            if (window.puter && window.puter.net && typeof window.puter.net.fetch === 'function') return;
+            await loadScriptTag(PUTER_JS_URL);
+            // Poll briefly for window.puter.net.fetch to become available — some builds
+            // finish setup asynchronously after the script tag resolves.
+            const start = Date.now();
+            while (!(window.puter && window.puter.net && typeof window.puter.net.fetch === 'function')) {
+                if (Date.now() - start > 5000) {
+                    throw new Error('Puter.js loaded but puter.net.fetch not exposed');
+                }
+                await new Promise(r => setTimeout(r, 100));
+            }
+        }
+
+        let depsReady = null;
+        let depsMode = null; // 'direct' | 'puter'
+        function ensureDeps(usePuter) {
+            const wanted = usePuter ? 'puter' : 'direct';
+            // If already loaded in a different mode, reuse — libraries are the same either way.
+            if (depsReady && depsMode) return depsReady;
+            depsMode = wanted;
+            depsReady = (async () => {
+                let anyPuter = false;
+                let anyDirect = false;
+                if (wanted === 'puter') {
+                    setStatus('Loading libraries via Puter (CORS-free)...');
+                    await ensurePuterJs();
+                    for (const url of NB_DEPS) {
+                        const mode = await loadScriptWithFallback(url, true);
+                        if (mode === 'puter') anyPuter = true; else anyDirect = true;
+                    }
+                } else {
+                    setStatus('Loading libraries...');
+                    for (const url of NB_DEPS) {
+                        await loadScriptTag(url);
+                        anyDirect = true;
+                    }
+                }
+                // Reflect what actually happened.
+                if (anyPuter && anyDirect) depsMode = 'mixed';
+                else if (anyPuter) depsMode = 'puter';
+                else depsMode = 'direct';
+                // Register highlight.js languages
+                // (monolithic bundle pre-registers common languages; no-op here).
+                // Wire notebookjs renderers. The package exposes itself as window.nb
+                // (not window.notebook — easy to miss, cost me a debugging session).
+                const nb = window.nb || window.notebook;
+                if (nb) {
+                    if (window.marked) {
+                        const markedParse = (typeof window.marked.parse === 'function')
+                            ? window.marked.parse
+                            : (typeof window.marked === 'function' ? window.marked : null);
+                        if (markedParse) {
+                            nb.markdown = (src) => markedParse(src, { breaks: true, gfm: true });
+                        }
+                    }
+                    if (window.hljs) {
+                        // Normalize Jupyter language identifiers. Notebooks commonly
+                        // carry 'python3' / 'ipython' / 'ipython3' — none of which hljs
+                        // knows. Map them all to 'python'. For unknown hints, fall
+                        // through to hljs.highlightAuto for a best-effort detection.
+                        const aliasMap = {
+                            python3: 'python',
+                            ipython: 'python',
+                            ipython3: 'python',
+                            py: 'python',
+                            sh: 'bash',
+                            shell: 'bash',
+                            zsh: 'bash',
+                            js: 'javascript',
+                            ts: 'typescript',
+                        };
+                        nb.highlighter = function(text, pre, code, lang) {
+                            // notebook.js assigns the *returned* string to code.innerHTML
+                            // itself. Don't set code.innerHTML here — that would be
+                            // overwritten by `undefined` when this function returns.
+                            // Classes are OK to mutate as a side effect.
+                            try {
+                                const hint = (lang || '').toLowerCase();
+                                const resolved = aliasMap[hint] || hint;
+                                let result;
+                                if (resolved && window.hljs.getLanguage(resolved)) {
+                                    result = window.hljs.highlight(text, { language: resolved, ignoreIllegals: true });
+                                } else {
+                                    result = window.hljs.highlightAuto(text);
+                                }
+                                // Apply the `hljs` class so the github-dark stylesheet's
+                                // base colors (background, default text) take effect.
+                                if (code) {
+                                    code.classList.add('hljs');
+                                    if (result.language) {
+                                        code.classList.add('language-' + result.language);
+                                    }
+                                }
+                                if (pre) pre.classList.add('hljs-pre');
+                                return result.value;
+                            } catch(e) {
+                                // Fall back to the escaped plain text that notebook.js
+                                // passed in — returning it keeps the cell readable.
+                                return text;
+                            }
+                        };
+                    }
+                }
+            })().catch(err => {
+                // Reset on failure so the user can retry (possibly with the other mode).
+                depsReady = null;
+                depsMode = null;
+                throw err;
+            });
+            return depsReady;
+        }
+
+        const statusEl = document.getElementById('nbStatus');
+        const renderEl = document.getElementById('nbRender');
+        const dropzoneEl = document.getElementById('nbDropzone');
+        const fileInputEl = document.getElementById('nbFileInput');
+        const pickBtn = document.getElementById('nbPickBtn');
+        const pasteBtn = document.getElementById('nbPasteBtn');
+        const clearBtn = document.getElementById('nbClearBtn');
+        const pasteArea = document.getElementById('nbPasteArea');
+        const usePuterChk = document.getElementById('nbUsePuterFetch');
+
+        // Restore checkbox state
+        try {
+            const saved = localStorage.getItem(USE_PUTER_KEY);
+            if (saved === '1') usePuterChk.checked = true;
+        } catch(e) {}
+
+        usePuterChk.addEventListener('change', () => {
+            try { localStorage.setItem(USE_PUTER_KEY, usePuterChk.checked ? '1' : '0'); } catch(e) {}
+            // If deps are already loaded in one mode, toggling won't re-download — the
+            // libraries are identical. Advise the user if they want a clean retry.
+            if (depsReady) {
+                setStatus('Libraries already loaded (' + depsMode + '). Reload the page to switch modes.');
+            }
+        });
+
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            statusEl.textContent = text || '';
+            statusEl.style.color = isError ? '#f85149' : '#8b949e';
+        }
+
+        // Track the currently rendered notebook so "Keep last" can snapshot it later
+        // if the user toggles the checkbox on after a render.
+        let lastRenderedJson = null;
+        let lastRenderedLabel = null;
+
+        function saveLastNotebook(json, label) {
+            try {
+                const serialized = JSON.stringify(json);
+                // localStorage has a ~5 MB quota in most browsers. Anything larger would
+                // fail silently in the try/catch below — better to bail early with a hint.
+                if (serialized.length > 4.5 * 1024 * 1024) {
+                    setStatus('Notebook too large to persist (' + (serialized.length / 1024 / 1024).toFixed(1) + ' MB). Render succeeded but "Keep last" skipped this one.');
+                    return;
+                }
+                localStorage.setItem(LAST_NB_KEY, serialized);
+                if (label) localStorage.setItem(LAST_NB_LABEL_KEY, label);
+                else localStorage.removeItem(LAST_NB_LABEL_KEY);
+            } catch(e) {
+                setStatus('Persist failed (' + e.message + '). "Keep last" disabled for this notebook.');
+            }
+        }
+
+        function resetRender() {
+            renderEl.innerHTML = '<div class="empty">No notebook loaded yet.</div>';
+        }
+
+        // Read the original source of a notebook cell. Jupyter stores it as either
+        // a string or an array of strings (newline-joined when an array).
+        function getCellSource(cell) {
+            if (!cell) return '';
+            const src = cell.source;
+            if (Array.isArray(src)) return src.join('');
+            if (typeof src === 'string') return src;
+            return '';
+        }
+
+        // Robust copy: prefer the async Clipboard API, fall back to the deprecated
+        // execCommand path for non-secure contexts (file://, http://localhost on Safari, etc.).
+        async function copyToClipboard(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch(e) { /* fall through */ }
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                ta.style.pointerEvents = 'none';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        // Decorate every rendered cell with a copy button. Walks the rendered DOM
+        // and the source JSON in parallel — notebook.js emits cells in the same
+        // order as json.cells, so index alignment is reliable.
+        function attachCopyButtons(rootEl, json) {
+            const cellEls = rootEl.querySelectorAll('.cell');
+            const cells = (json && Array.isArray(json.cells)) ? json.cells : [];
+            cellEls.forEach((cellEl, i) => {
+                const cell = cells[i];
+                const source = getCellSource(cell);
+                if (!source) return; // skip empty cells (no copy button needed)
+                const btn = document.createElement('button');
+                btn.className = 'nb-copy-btn';
+                btn.type = 'button';
+                btn.textContent = 'Copy';
+                btn.title = (cell.cell_type === 'markdown' ? 'Copy markdown source' : 'Copy code') + ' — cell ' + (i + 1);
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const ok = await copyToClipboard(source);
+                    btn.textContent = ok ? '✓ Copied' : '✗ Failed';
+                    btn.classList.toggle('copied', ok);
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 1500);
+                });
+                cellEl.appendChild(btn);
+            });
+        }
+
+        // Some .ipynb.txt files are wrapped (e.g. quoted-printable email encoding) or have
+        // BOM / leading garbage. Be forgiving: strip BOM, find the first { and last }, then parse.
+        function parseNotebookJson(raw) {
+            if (typeof raw !== 'string') throw new Error('Invalid file content');
+            let text = raw.replace(/^\uFEFF/, ''); // strip BOM
+            // If the file looks like quoted-printable, do a light unescape for = at line ends.
+            if (/=\r?\n/.test(text) && /=[0-9A-F]{2}/i.test(text)) {
+                text = text
+                    .replace(/=\r?\n/g, '')
+                    .replace(/=([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+            }
+            // Try direct parse first
+            try { return JSON.parse(text); } catch(e) {}
+            // Fallback: carve out the outermost { ... }
+            const first = text.indexOf('{');
+            const last = text.lastIndexOf('}');
+            if (first === -1 || last === -1 || last <= first) {
+                throw new Error('Could not find JSON object in file');
+            }
+            return JSON.parse(text.slice(first, last + 1));
+        }
+
+        async function renderNotebookFromJson(json, sourceLabel) {
+            try {
+                await ensureDeps(usePuterChk.checked);
+            } catch(err) {
+                setStatus('Library load failed: ' + err.message + (usePuterChk.checked ? '' : ' — try enabling "Load libraries via Puter fetch"'), true);
+                return;
+            }
+            const nb = window.nb || window.notebook;
+            if (!nb) {
+                setStatus('notebookjs failed to load (window.nb not found)', true);
+                return;
+            }
+            // Minimal schema check
+            if (!json || !Array.isArray(json.cells)) {
+                setStatus('Not a valid .ipynb (missing "cells")', true);
+                return;
+            }
+            try {
+                renderEl.innerHTML = '';
+                const parsed = nb.parse(json);
+                const rendered = parsed.render();
+                renderEl.appendChild(rendered);
+                attachCopyButtons(rendered, json);
+                lastRenderedJson = json;
+                lastRenderedLabel = sourceLabel || null;
+                saveLastNotebook(json, sourceLabel);
+                const cellCount = json.cells.length;
+                const modeTag = depsMode === 'puter' ? ' [via Puter]'
+                    : depsMode === 'mixed' ? ' [Puter + direct]'
+                    : '';
+                setStatus(`Rendered ${cellCount} cell${cellCount === 1 ? '' : 's'}${sourceLabel ? ' from ' + sourceLabel : ''}${modeTag}.`);
+            } catch(err) {
+                console.error(err);
+                setStatus('Render error: ' + err.message, true);
+            }
+        }
+
+        async function handleText(text, sourceLabel) {
+            try {
+                setStatus('Parsing ' + (sourceLabel || 'input') + '...');
+                const json = parseNotebookJson(text);
+                await renderNotebookFromJson(json, sourceLabel);
+            } catch(err) {
+                setStatus('Parse error: ' + err.message, true);
+            }
+        }
+
+        async function handleFile(file) {
+            if (!file) return;
+            const name = file.name || 'file';
+            // Accept any extension ending in .ipynb, .ipynb.txt, .txt, or .json.
+            // We don't hard-block on extension — we try parsing and let the error surface.
+            setStatus(`Reading ${name} (${(file.size / 1024).toFixed(1)} KB)...`);
+            try {
+                const text = await file.text();
+                await handleText(text, name);
+            } catch(err) {
+                setStatus('Read error: ' + err.message, true);
+            }
+        }
+
+        // --- Event wiring ---
+        pickBtn.addEventListener('click', () => fileInputEl.click());
+        fileInputEl.addEventListener('change', (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (f) handleFile(f);
+            fileInputEl.value = ''; // allow re-selecting same file
+        });
+
+        pasteBtn.addEventListener('click', () => {
+            const visible = pasteArea.style.display !== 'none';
+            pasteArea.style.display = visible ? 'none' : '';
+            if (!visible) {
+                pasteArea.focus();
+            }
+        });
+        pasteArea.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd+Enter to render
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                const text = pasteArea.value.trim();
+                if (text) handleText(text, 'pasted JSON');
+            }
+        });
+        pasteArea.addEventListener('paste', (e) => {
+            // Slight delay so the pasted text is in the textarea
+            setTimeout(() => {
+                const text = pasteArea.value.trim();
+                if (text && text.length > 20) handleText(text, 'pasted JSON');
+            }, 30);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            resetRender();
+            pasteArea.value = '';
+            lastRenderedJson = null;
+            lastRenderedLabel = null;
+            // Also drop any saved snapshot so a reload doesn't bring it back.
+            try {
+                localStorage.removeItem(LAST_NB_KEY);
+                localStorage.removeItem(LAST_NB_LABEL_KEY);
+            } catch(e) {}
+            setStatus('');
+        });
+
+        // Drag & drop on the dedicated dropzone
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropzoneEl.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzoneEl.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropzoneEl.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzoneEl.classList.remove('dragover');
+            });
+        });
+        dropzoneEl.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (!dt) return;
+            if (dt.files && dt.files.length > 0) {
+                handleFile(dt.files[0]);
+            } else {
+                const text = dt.getData('text');
+                if (text) handleText(text, 'dropped text');
+            }
+        });
+        dropzoneEl.addEventListener('click', () => fileInputEl.click());
+
+        // Expose a tiny programmatic API for other parts of the page, if useful.
+        window.renderIpynb = handleText;
+
+        // Restore the previously rendered notebook automatically. Runs after a short
+        // delay so the panel doesn't block initial page paint (dependency download
+        // still happens lazily on first render).
+        setTimeout(() => {
+            try {
+                const raw = localStorage.getItem(LAST_NB_KEY);
+                if (!raw) return;
+                const label = localStorage.getItem(LAST_NB_LABEL_KEY) || 'saved notebook';
+                const json = JSON.parse(raw);
+                setStatus('Restoring previous notebook...');
+                renderNotebookFromJson(json, label);
+            } catch(err) {
+                // Bad snapshot — drop it so we don't loop.
+                try {
+                    localStorage.removeItem(LAST_NB_KEY);
+                    localStorage.removeItem(LAST_NB_LABEL_KEY);
+                } catch(e) {}
+                setStatus('Could not restore last notebook: ' + err.message, true);
+            }
+        }, 200);
+    })();
     </script>
 
     <!-- Snippets Panel Logic (AES-GCM Encrypted Storage) -->

@@ -249,6 +249,11 @@
                              </li>
                              <li><strong>LM Studio:</strong> Enable "Serve on Local Network" or ensure CORS is enabled in settings. Default is <code class="bg-yellow-800 px-1 rounded">http://localhost:1234/v1</code>.</li>
                              <li><strong> <code class="bg-yellow-800 px-1 rounded">?enablePuter=true</code> <code class="bg-yellow-800 px-1 rounded">index.html?enablePuter=true</code>.</li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">?enablewebllm=true</code> <code class="bg-yellow-800 px-1 rounded">index.html?enablewebllm=true</code>.</li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">https://openrouter.ai/workspaces/default/keys</code> </li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">https://nova.amazon.com/dev/api</code></li>
+                             <li><strong> <code class="bg-yellow-800 px-1 rounded">https://build.nvidia.com/settings/api-keys</code></li>   
+
                         </ul>
                     </div>
 
@@ -278,6 +283,11 @@
                             <div>
                                 <label for="openrouter-api-key" class="block text-sm font-medium text-gray-300 mb-2">OpenRouter API Key</label>
                                 <input type="password" id="openrouter-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your OpenRouter API Key here..." value="">
+                            </div>
+                            <!-- NVIDIA API Key -->
+                            <div>
+                                <label for="nvidia-api-key" class="block text-sm font-medium text-gray-300 mb-2">NVIDIA API Key</label>
+                                <input type="password" id="nvidia-api-key" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="nvapi-..." value="">
                             </div>
                         </div>
                         <div>
@@ -358,9 +368,17 @@
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <label for="analysis-input" class="block text-sm font-medium text-gray-300">Text to Analyze</label>
-                                <button id="copy-input-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
+                                <div class="flex gap-2">
+                                    <button id="test-prompt-btn" class="text-xs bg-purple-700 text-white px-3 py-1 rounded-md font-semibold hover:bg-purple-600 transition" title="Insert a sample test prompt">Test Prompt</button>
+                                    <button id="copy-input-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
+                                </div>
                             </div>
                             <textarea id="analysis-input" rows="8" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Paste your text here..."></textarea>
+                            <div id="analysis-input-stats" class="mt-1 text-xs text-gray-400 font-mono flex gap-4">
+                                <span><span class="text-gray-500">Characters:</span> <span id="stat-chars" class="text-cyan-300">0</span></span>
+                                <span><span class="text-gray-500">Tokens (est.):</span> <span id="stat-tokens" class="text-cyan-300">0</span></span>
+                                <span><span class="text-gray-500">Words:</span> <span id="stat-words" class="text-cyan-300">0</span></span>
+                            </div>
                         </div>
                         
                         <!-- Actions & Options -->
@@ -390,6 +408,41 @@
                                 <button id="copy-output-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
                             </div>
                             <textarea id="analysis-output" rows="8" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition" placeholder="Analysis will appear here..." readonly></textarea>
+                        </div>
+
+                        <!-- Analysis Metrics -->
+                        <div id="analysis-metrics" class="hidden bg-gray-900 border border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-cyan-400 uppercase tracking-wide">Generation Metrics</h3>
+                                <span id="metrics-model-label" class="text-xs text-gray-500 font-mono"></span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Time to First Token</div>
+                                    <div id="metric-ttft" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Total Time</div>
+                                    <div id="metric-total-time" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Generation Time</div>
+                                    <div id="metric-gen-time" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Tokens Generated</div>
+                                    <div id="metric-tokens" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Tokens / Second</div>
+                                    <div id="metric-tps" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                                <div class="bg-gray-800 rounded p-2">
+                                    <div class="text-xs text-gray-400">Characters</div>
+                                    <div id="metric-chars" class="text-cyan-300 font-mono text-lg">—</div>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-2">Token counts are approximate (word-based + overhead). For exact counts, see the raw provider response when Debug Mode is on.</p>
                         </div>
                     </div>
                 </section>
@@ -805,6 +858,7 @@
             const STORAGE_KEY_GEMINI_KEY = 'gemini_api_key';
             const STORAGE_KEY_NOVA_KEY = 'nova_api_key'; 
             const STORAGE_KEY_OPENROUTER_KEY = 'openrouter_api_key';
+            const STORAGE_KEY_NVIDIA_KEY = 'nvidia_api_key';
             const STORAGE_KEY_MODEL = 'ollama_model';
             const STORAGE_KEY_SYSTEM_PROMPT = 'ollama_system_prompt';
             const STORAGE_KEY_ANALYSIS_INPUT = 'ollama_analysis_input';
@@ -833,6 +887,7 @@
             const geminiApiKeyInput = document.getElementById('gemini-api-key');
             const novaApiKeyInput = document.getElementById('nova-api-key'); 
             const openrouterApiKeyInput = document.getElementById('openrouter-api-key');
+            const nvidiaApiKeyInput = document.getElementById('nvidia-api-key');
             const modelSelect = document.getElementById('model-select');
             const connectionStatus = document.getElementById('connection-status');
             const systemPrompt = document.getElementById('system-prompt');
@@ -1232,10 +1287,20 @@
                 'google/gemma-4-26b-a4b-it:free',
                 'nvidia/nemotron-3-super-120b-a12b:free',
             ];
+            const NVIDIA_MODELS = [
+                'nvidia/nemotron-mini-4b-instruct',
+                'qwen/qwen3-coder-480b-a35b-instruct',
+            ];
 
             // Puter models are hidden by default. Enable via URL flag: ?enablePuter=true
             const PUTER_ENABLED = (() => {
                 try { const v = new URLSearchParams(window.location.search).get('enablePuter'); return v === 'true' || v === '1'; }
+                catch(e) { return false; }
+            })();
+
+            // WebLLM in-browser models are hidden by default. Enable via URL flag: ?enablewebllm=true
+            const WEBLLM_ENABLED = (() => {
+                try { const params = new URLSearchParams(window.location.search); const v = params.get('enablewebllm') || params.get('enableWebllm') || params.get('enableWebLLM'); return v === 'true' || v === '1'; }
                 catch(e) { return false; }
             })();
 
@@ -1250,6 +1315,8 @@
             if (savedNovaKey) novaApiKeyInput.value = savedNovaKey;
             const savedOpenRouterKey = localStorage.getItem(STORAGE_KEY_OPENROUTER_KEY);
             if (savedOpenRouterKey) openrouterApiKeyInput.value = savedOpenRouterKey;
+            const savedNvidiaKey = localStorage.getItem(STORAGE_KEY_NVIDIA_KEY);
+            if (savedNvidiaKey) nvidiaApiKeyInput.value = savedNvidiaKey;
             const savedSystemPrompt = localStorage.getItem(STORAGE_KEY_SYSTEM_PROMPT);
             if (savedSystemPrompt) systemPrompt.value = savedSystemPrompt;
             const savedAnalysisInput = localStorage.getItem(STORAGE_KEY_ANALYSIS_INPUT);
@@ -1321,11 +1388,11 @@
                 }).finally(() => clearTimeout(timeoutId));
             }
 
-            function addMessageToChatUI(historyElement, role, content, dataUrl = null) {
+            function addMessageToChatUI(historyElement, role, content, dataUrl = null, deleteInfo = null) {
                 const messageWrapper = document.createElement('div');
                 const messageBubble = document.createElement('div');
                 const messageContent = document.createElement('p');
-                messageWrapper.classList.add('flex', 'items-start', 'gap-2');
+                messageWrapper.classList.add('flex', 'items-start', 'gap-2', 'group');
                 
                 if (role === 'debug') {
                     messageWrapper.classList.add('justify-center', 'w-full', 'my-2');
@@ -1374,9 +1441,13 @@
 
                 messageWrapper.appendChild(messageBubble);
 
+                // Trailing action buttons (copy for model, delete for any user/model message)
+                const actionCol = document.createElement('div');
+                actionCol.classList.add('flex', 'flex-col', 'gap-1', 'mt-1');
+
                 if (role === 'model') {
                     const copyBtn = document.createElement('button');
-                    copyBtn.classList.add('flex-shrink-0', 'p-1.5', 'mt-1', 'bg-gray-600', 'text-gray-300', 'rounded-full', 'hover:bg-gray-500', 'transition', 'focus:outline-none', 'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800');
+                    copyBtn.classList.add('flex-shrink-0', 'p-1.5', 'bg-gray-600', 'text-gray-300', 'rounded-full', 'hover:bg-gray-500', 'transition', 'focus:outline-none', 'focus:ring-2', 'focus:ring-gray-400', 'focus:ring-offset-2', 'focus:ring-offset-gray-800');
                     const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`;
                     const checkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
                     copyBtn.innerHTML = copyIconSVG;
@@ -1391,11 +1462,55 @@
                         try { document.execCommand('copy'); copyBtn.innerHTML = checkIconSVG; setTimeout(() => { copyBtn.innerHTML = copyIconSVG; }, 2000); } catch (err) { console.error('Copy failed', err); }
                         document.body.removeChild(ta);
                     });
-                    messageWrapper.appendChild(copyBtn);
+                    actionCol.appendChild(copyBtn);
                 }
+
+                if (deleteInfo && typeof deleteInfo.index === 'number') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('flex-shrink-0', 'p-1.5', 'bg-gray-700', 'text-gray-400', 'rounded-full', 'hover:bg-red-600', 'hover:text-white', 'transition', 'focus:outline-none', 'opacity-0', 'group-hover:opacity-100');
+                    deleteBtn.title = 'Delete message';
+                    deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>`;
+                    deleteBtn.addEventListener('click', () => deleteChatMessage(deleteInfo.panelSuffix, deleteInfo.index));
+                    actionCol.appendChild(deleteBtn);
+                }
+
+                if (actionCol.children.length > 0) {
+                    // For user messages (right-aligned), put actions on the left of the bubble
+                    if (role === 'user') messageWrapper.insertBefore(actionCol, messageBubble);
+                    else messageWrapper.appendChild(actionCol);
+                }
+
                 historyElement.appendChild(messageWrapper);
                 historyElement.scrollTop = historyElement.scrollHeight;
                 return messageContent;
+            }
+
+            // Delete a message from the active chat and re-render the panel
+            function deleteChatMessage(panelSuffix, index) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                const chat = allChats[activeChatId];
+                if (!chat || !chat.messages || index < 0 || index >= chat.messages.length) return;
+                chat.messages.splice(index, 1);
+                saveChats();
+                rerenderChatPanel(panelSuffix);
+            }
+
+            // Re-render a chat panel from its stored messages array
+            function rerenderChatPanel(panelSuffix) {
+                const activeChatId = (panelSuffix === 'a') ? activeChatIdA : activeChatIdB;
+                const chat = allChats[activeChatId];
+                const historyEl = (panelSuffix === 'a') ? chatHistoryA : chatHistoryB;
+                historyEl.innerHTML = '';
+                if (!chat) return;
+                if (chat.messages.length > 0) {
+                    chat.messages.forEach((msg, i) => {
+                        let dataUrl = null;
+                        if (msg.role === 'user' && msg.images && msg.images[0]) dataUrl = `data:image/jpeg;base64,${msg.images[0]}`;
+                        addMessageToChatUI(historyEl, msg.role === 'assistant' ? 'model' : msg.role, msg.content, dataUrl, { panelSuffix, index: i });
+                    });
+                } else {
+                    addMessageToChatUI(historyEl, 'model', 'New chat. Say hello!', null);
+                }
             }
 
             function mdToHtml(text) {
@@ -1682,6 +1797,39 @@
                 throw new Error('Invalid OpenRouter response format');
             }
 
+            // NVIDIA integrate.api.nvidia.com caller (OpenAI-compatible)
+            // Uses puter.net.fetch (CORS-free) when Puter.js is available, otherwise native fetch.
+            async function callNvidia(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
+                const apiKey = nvidiaApiKeyInput.value.trim();
+                if (!apiKey) { showMessage('NVIDIA API Key is missing.', 'error'); throw new Error('NVIDIA API Key missing'); }
+                const url = 'https://integrate.api.nvidia.com/v1/chat/completions';
+                let messages = [];
+                if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+                if (typeof promptOrMessages === 'string') { messages.push({ role: 'user', content: promptOrMessages }); }
+                else if (Array.isArray(promptOrMessages)) { promptOrMessages.filter(m => m.role !== 'system').forEach(msg => { messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content }); }); }
+                const payload = { model, messages, temperature: 0.2, top_p: 0.7, max_tokens: 1024, stream };
+                if (onDebug) onDebug(payload);
+                // Prefer Puter.js's CORS-free fetch; NVIDIA's API doesn't send CORS headers for browser origins
+                const fetchFn = (window.puter && window.puter.net && typeof window.puter.net.fetch === 'function')
+                    ? window.puter.net.fetch.bind(window.puter.net)
+                    : fetch;
+                const fetchOpts = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'Accept': stream ? 'text/event-stream' : 'application/json' },
+                    body: JSON.stringify(payload)
+                };
+                if (signal) fetchOpts.signal = signal;
+                const response = await fetchFn(url, fetchOpts);
+                if (!response.ok) { const errorText = await response.text(); throw new Error(`NVIDIA API Error ${response.status}: ${errorText}`); }
+                if (stream) {
+                    const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
+                    return { reader, processChunk: (chunkValue) => { buffer += decoder.decode(chunkValue, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop(); const chunks = []; for (const line of lines) { const trimmed = line.trim(); if (!trimmed || trimmed === 'data: [DONE]' || trimmed.startsWith(':')) continue; if (trimmed.startsWith('data: ')) { try { const json = JSON.parse(trimmed.substring(6)); if (json.choices && json.choices.length > 0) { const delta = json.choices[0].delta; if (delta && delta.content) chunks.push(delta.content); } } catch (e) { console.warn('NVIDIA stream parse error', e); } } } return chunks; } };
+                }
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) return data.choices[0].message.content;
+                throw new Error('Invalid NVIDIA response format');
+            }
+
             // Shared AI execution helper
             async function executeAIModel(model, prompt, onDebug) {
                 const dictContext = searchDictionary(prompt); if (dictContext) prompt = dictContext + prompt;
@@ -1689,6 +1837,7 @@
                 if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); const result = await callPuter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); const result = await callOpenRouter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); const result = await callNvidia(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model === GEMINI_MODEL_NAME) { return await callGemini(model, prompt, globalSP || null, onDebug); }
                 else if (model.toLowerCase().includes('nova')) { const fullPrompt = globalSP ? `System: ${globalSP}\n\n${prompt}` : prompt; return await callNova(model, fullPrompt, null, false, onDebug); }
                 else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); return await callLMStudio(rawModel, prompt, globalSP || null, false, onDebug); }
@@ -2420,7 +2569,7 @@
                 systemPromptEl.value = chat.systemPrompt || '';
                 if (chat.model) modelSelectEl.value = chat.model;
                 else { modelSelectEl.value = modelSelect.value; chat.model = modelSelectEl.value; }
-                if (chat.messages.length > 0) { chat.messages.forEach(msg => { let dataUrl = null; if (msg.role === 'user' && msg.images && msg.images[0]) dataUrl = `data:image/jpeg;base64,${msg.images[0]}`; addMessageToChatUI(historyEl, msg.role, msg.content, dataUrl); }); }
+                if (chat.messages.length > 0) { chat.messages.forEach((msg, i) => { let dataUrl = null; if (msg.role === 'user' && msg.images && msg.images[0]) dataUrl = `data:image/jpeg;base64,${msg.images[0]}`; addMessageToChatUI(historyEl, msg.role === 'assistant' ? 'model' : msg.role, msg.content, dataUrl, { panelSuffix, index: i }); }); }
                 else { addMessageToChatUI(historyEl, 'model', 'New chat. Say hello!', null); }
                 historyEl.scrollTop = historyEl.scrollHeight;
             }
@@ -2714,27 +2863,115 @@
             copyInputBtn.addEventListener('click', () => copyToClipboard(analysisInput.value, copyInputBtn));
             copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
 
+            // Test Prompt button
+            const TEST_PROMPT = `This is Krangath: In the dark, vampires and liches grow strong. Tunnel worms gnaw incessantly, boring winding tunnels throughout Gehenna's frozen granite. Trolls huddle in caves while barghests and daemons vie for supremacy. Such is the desolation. No light touches this place. There are no sources of heat. None willingly reside here, except the undead, who thrive on its negative energies. No sun shines on this cursed land. No wind disturbs its crevices. No plants, vegetation, trees, bushes, shrubs, or thorns can grow on the surface, though some fungus and lichens grow in its caves. There is no day in Krangath, only eternal night. There is no tectonic or volcanic activity in Krangath.\nThe Blackthorn Mountains of Krangath are dark and craggy, jagged like the teeth of a terrible beast. The Bloodfen Steppes of Krangath are an acidic, frozen mud plain, reeking of sulfur and old decay. Horrible carnivorous insects hide in the Bloodfen's warrens, quick to bite a passing ankle. Between the Blackthorn Mountains and the Bloodfen Steppes are the Arzoth Hills. Please describe the Arzoth Hills.`;
+            document.getElementById('test-prompt-btn').addEventListener('click', () => {
+                analysisInput.value = TEST_PROMPT;
+                analysisInput.dispatchEvent(new Event('input'));
+                analysisInput.dispatchEvent(new Event('change'));
+                analysisInput.focus();
+            });
+
+            // Live stats for Text to Analyze (chars, tokens, words)
+            const statChars = document.getElementById('stat-chars');
+            const statTokens = document.getElementById('stat-tokens');
+            const statWords = document.getElementById('stat-words');
+            function updateAnalysisStats() {
+                const text = analysisInput.value || '';
+                statChars.textContent = text.length.toLocaleString();
+                statTokens.textContent = estimateTokens(text).toLocaleString();
+                const words = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+                statWords.textContent = words.toLocaleString();
+            }
+            analysisInput.addEventListener('input', updateAnalysisStats);
+            updateAnalysisStats();
+
             // Analyze Button
+
+            // --- Analysis Metrics helpers ---
+            const metricsPanel = document.getElementById('analysis-metrics');
+            const metricsModelLabel = document.getElementById('metrics-model-label');
+            const metricTtft = document.getElementById('metric-ttft');
+            const metricTotalTime = document.getElementById('metric-total-time');
+            const metricGenTime = document.getElementById('metric-gen-time');
+            const metricTokens = document.getElementById('metric-tokens');
+            const metricTps = document.getElementById('metric-tps');
+            const metricChars = document.getElementById('metric-chars');
+            function formatMs(ms) {
+                if (ms == null || !isFinite(ms)) return '—';
+                if (ms < 1000) return `${Math.round(ms)} ms`;
+                return `${(ms / 1000).toFixed(2)} s`;
+            }
+            // Rough token estimation: ~4 chars per token or 0.75 words per token, whichever is larger.
+            function estimateTokens(text) {
+                if (!text) return 0;
+                const byChars = Math.ceil(text.length / 4);
+                const byWords = Math.ceil((text.trim().split(/\s+/).filter(Boolean).length) / 0.75);
+                return Math.max(byChars, byWords);
+            }
+            function resetMetrics() {
+                metricsPanel.classList.add('hidden');
+                [metricTtft, metricTotalTime, metricGenTime, metricTokens, metricTps, metricChars].forEach(el => el.textContent = '—');
+                metricsModelLabel.textContent = '';
+            }
+            function renderMetrics({ model, startMs, firstTokenMs, endMs, text }) {
+                const ttft = (firstTokenMs != null) ? (firstTokenMs - startMs) : null;
+                const total = endMs - startMs;
+                const gen = (firstTokenMs != null) ? (endMs - firstTokenMs) : total;
+                const tokens = estimateTokens(text);
+                const tps = (gen > 0 && tokens > 0) ? (tokens / (gen / 1000)) : null;
+                metricsModelLabel.textContent = model || '';
+                metricTtft.textContent = formatMs(ttft);
+                metricTotalTime.textContent = formatMs(total);
+                metricGenTime.textContent = formatMs(gen);
+                metricTokens.textContent = String(tokens);
+                metricTps.textContent = tps != null ? `${tps.toFixed(1)} tok/s` : '—';
+                metricChars.textContent = String((text || '').length);
+                metricsPanel.classList.remove('hidden');
+            }
+
             analyzeBtn.addEventListener('click', async () => {
                 const prompt = analysisInput.value; if (!prompt) return;
                 const model = modelSelect.value; const userSystemPrompt = systemPrompt.value.trim(); const shouldStream = analysisStreamCheckbox.checked;
                 analysisOutput.value = ''; analysisOutput.classList.add('animate-pulse'); analyzeBtn.classList.add('hidden'); stopAnalysisBtn.classList.remove('hidden');
+                resetMetrics();
                 if (analysisAbortController) analysisAbortController.abort(); analysisAbortController = new AbortController(); const signal = analysisAbortController.signal;
                 let finalPrompt = `Text:\n"""\n${prompt}\n"""\n\n`; if(userSystemPrompt) finalPrompt = `System Instruction: ${userSystemPrompt}\n\n` + finalPrompt;
                 const dictContext = searchDictionary(prompt); if (dictContext) finalPrompt = dictContext + finalPrompt;
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) { analysisOutput.value = `--- DEBUG REQUEST (${model}) ---\n${JSON.stringify(payload, null, 2)}\n---------------------\n\nAnalyzing...\n\n`; } };
+                // Timing setup — capture first-token timestamp by watching analysisOutput.value
+                const startMs = performance.now();
+                let firstTokenMs = null;
+                // Snapshot debug prefix length (if any) so we don't count debug text as first token
+                let baselineLength = analysisOutput.value.length;
+                const ttftWatcher = setInterval(() => {
+                    if (firstTokenMs == null && analysisOutput.value.length > baselineLength) {
+                        firstTokenMs = performance.now();
+                        clearInterval(ttftWatcher);
+                    }
+                }, 15);
+                // Re-sync baseline after onDebug writes (it may replace the value)
+                const origOnDebug = onDebug;
+                const onDebugWrapped = (payload) => { origOnDebug(payload); baselineLength = analysisOutput.value.length; };
                 try {
                     let responseText = "";
-                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebug); analysisOutput.value = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
-                    else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebug); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebug); analysisOutput.value += stripThinking(responseText); } }
-                    else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += stripThinking(responseText); } }
-                    else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebug, signal); analysisOutput.value += responseText; }
-                    else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
-                    else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebug, signal); const reader = sh.reader; analysisOutput.value = ''; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebug, signal); analysisOutput.value += responseText; } }
-                    else { const payload = { model: model, prompt: finalPrompt, stream: shouldStream }; onDebug(payload); if (shouldStream) { analysisOutput.value = ''; await callOllama('/api/generate', payload, (chunk) => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }, null, signal); } else { const data = await callOllama('/api/generate', payload, null, null, signal); if (data && data.response) analysisOutput.value += data.response.trim(); else throw new Error("No response from Ollama"); } }
+                    if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebugWrapped); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); if (shouldStream) { const sh = await callNvidia(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNvidia(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model === GEMINI_MODEL_NAME) { if (shouldStream) showMessage('Note: Streaming not supported for Gemini. Falling back to standard request.', 'success'); responseText = await callGemini(model, finalPrompt, null, onDebugWrapped, signal); analysisOutput.value += responseText; }
+                    else if (model.toLowerCase().includes('nova')) { if (shouldStream) { const sh = await callNova(model, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNova(model, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += responseText; } }
+                    else if (model.startsWith('lmstudio:')) { const rawModel = model.replace('lmstudio:', ''); if (shouldStream) { const sh = await callLMStudio(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callLMStudio(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += responseText; } }
+                    else { const payload = { model: model, prompt: finalPrompt, stream: shouldStream }; onDebugWrapped(payload); if (shouldStream) { analysisOutput.value = ''; baselineLength = 0; await callOllama('/api/generate', payload, (chunk) => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }, null, signal); } else { const data = await callOllama('/api/generate', payload, null, null, signal); if (data && data.response) analysisOutput.value += data.response.trim(); else throw new Error("No response from Ollama"); } }
                     showMessage(`Analysis complete with ${model}.`, 'success');
                 } catch (err) { if (err.name === 'AbortError') { analysisOutput.value += '\n\n[Analysis Stopped by User]'; showMessage('Analysis stopped.', 'error'); } else { analysisOutput.value += '\nError: ' + err.message; showMessage('Analysis failed.', 'error'); } }
-                finally { analysisOutput.classList.remove('animate-pulse'); analyzeBtn.classList.remove('hidden'); stopAnalysisBtn.classList.add('hidden'); analysisAbortController = null; }
+                finally {
+                    clearInterval(ttftWatcher);
+                    const endMs = performance.now();
+                    const generatedText = analysisOutput.value.substring(baselineLength);
+                    renderMetrics({ model, startMs, firstTokenMs, endMs, text: generatedText });
+                    analysisOutput.classList.remove('animate-pulse'); analyzeBtn.classList.remove('hidden'); stopAnalysisBtn.classList.add('hidden'); analysisAbortController = null;
+                }
             });
             stopAnalysisBtn.addEventListener('click', () => { if (analysisAbortController) { analysisAbortController.abort(); analysisAbortController = null; } });
 
@@ -2751,7 +2988,7 @@
                 inputEl.value = ''; clearStagedImage(panelSuffix);
                 const typingBubble = addMessageToChatUI(historyEl, 'model', '...'); sendBtnEl.disabled = true;
                 const onDebug = (payload) => { if (debugModeCheckbox.checked) addMessageToChatUI(historyEl, 'debug', JSON.stringify(payload, null, 2)); };
-                function saveAndRenameChat() { const userMessages = chat.messages.filter(m => m.role === 'user'); if (userMessages.length === 1) { chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`; renderChatListDropdowns(); } saveChats(); }
+                function saveAndRenameChat() { const userMessages = chat.messages.filter(m => m.role === 'user'); if (userMessages.length === 1) { chat.name = `Chat: ${userMessages[0].content.substring(0, 30)}...`; renderChatListDropdowns(); } saveChats(); rerenderChatPanel(panelSuffix); }
 
                 if (model.startsWith('webllm:')) {
                     const rawModel = model.replace('webllm:', '');
@@ -2766,6 +3003,11 @@
                 } else if (model.startsWith('openrouter:')) {
                     const rawModel = model.replace('openrouter:', '');
                     try { const sh = await callOpenRouter(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`OpenRouter response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model.startsWith('nvidia:')) {
+                    const rawModel = model.replace('nvidia:', '');
+                    try { const sh = await callNvidia(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; const reader = sh.reader; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; typingBubble.innerHTML = mdToHtml(fullResponse); historyEl.scrollTop = historyEl.scrollHeight; }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`NVIDIA response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model === GEMINI_MODEL_NAME) {
@@ -2879,11 +3121,13 @@
                 }
                 const openrouterHeader = document.createElement('option'); openrouterHeader.disabled = true; openrouterHeader.textContent = '--- OpenRouter Models ---'; selectElement.appendChild(openrouterHeader);
                 OPENROUTER_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `openrouter:${id}`; opt.textContent = `🌐 [OpenRouter] ${id}`; selectElement.appendChild(opt); });
+                const nvidiaHeader = document.createElement('option'); nvidiaHeader.disabled = true; nvidiaHeader.textContent = '--- NVIDIA Models ---'; selectElement.appendChild(nvidiaHeader);
+                NVIDIA_MODELS.forEach(id => { const opt = document.createElement('option'); opt.value = `nvidia:${id}`; opt.textContent = `🟢 [NVIDIA] ${id}`; selectElement.appendChild(opt); });
                 const novaHeader = document.createElement('option'); novaHeader.disabled = true; novaHeader.textContent = '--- Amazon Nova Models ---'; selectElement.appendChild(novaHeader);
                 const modelsToShow = novaModels.length > 0 ? novaModels : DEFAULT_NOVA_MODELS;
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
                 if (lmStudioModels.length > 0) { const lmsHeader = document.createElement('option'); lmsHeader.disabled = true; lmsHeader.textContent = '--- LM Studio Models ---'; selectElement.appendChild(lmsHeader); lmStudioModels.forEach(m => { const opt = document.createElement('option'); opt.value = `lmstudio:${m.id}`; opt.textContent = `🖥️ [LM Studio] ${m.id}`; selectElement.appendChild(opt); }); }
-                if (webllmAvailableModels.length > 0) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
+                if (webllmAvailableModels.length > 0 && WEBLLM_ENABLED) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
                 else { const noOllama = document.createElement('option'); noOllama.disabled = true; noOllama.textContent = '(No Local Ollama Models Found)'; selectElement.appendChild(noOllama); }
                 if (currentValue) { const allOpts = Array.from(selectElement.options); if(allOpts.some(o => o.value === currentValue)) selectElement.value = currentValue; }
@@ -2907,7 +3151,7 @@
                             // Remove Phi, Ministral, 0.5B models, and 1B models unless Llama
                             if (isPhi || isMinistral || lower.includes('tinyllama') || lower.includes('redpajama') || lower.includes('mistral') || lower.includes('gemma-2') || lower.includes('embedding') || lower.includes('snowflake') || lower.includes('llama-2') || lower.includes('llama2') || lower.includes('qwen2') || lower.includes('smollm') || lower.includes('wizardmath') || lower.includes('stablelm') || (lower.includes('q4f32_1') && !lower.includes('qwen3'))) return false;
                             // Remove specific models
-                            if (lower.includes('llama-3.2') && lower.includes('1b') && lower.includes('q4f16_1')) return false;
+                            if (/llama-3\.2/i.test(lower) && /1b/i.test(lower)) return false;
                             if (lower.endsWith('-1k') || lower.endsWith('_1k')) return false;
                             if (is05B || is06B || is70B) return false;
                             // Remove all Qwen3.5-0.8B variants
@@ -2916,6 +3160,12 @@
                             if (/qwen3[\._]5/i.test(lower) && /[\-_]2b[\-_]/i.test(lower)) return false;
                             // Remove all Hermes-2 and Hermes-3 variants
                             if (/hermes[\-_]?[23]/i.test(lower)) return false;
+                            // Explicit exclusions
+                            if (id === 'OLMo-2-1124-7B-Instruct-q4f16_1-MLC') return false;
+                            // Drop all Qwen3 / Qwen3.5 q4f32_1 variants (q4f16_1 equivalents are preferred).
+                            // Keeps the custom Qwen3-4B-Thinking-2507-q4f32_1-MLC because that's the
+                            // only public quantization for the dedicated Thinking checkpoint.
+                            if (/^Qwen3[\._]?5?-/i.test(id) && /-q4f32_1-MLC$/i.test(id) && !/-Thinking-2507-/i.test(id)) return false;
                             return !is1B || isLlama;
                         });
                     // Append custom WebLLM models
@@ -2957,6 +3207,7 @@
             geminiApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_GEMINI_KEY, geminiApiKeyInput.value));
             novaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NOVA_KEY, novaApiKeyInput.value));
             openrouterApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_OPENROUTER_KEY, openrouterApiKeyInput.value));
+            nvidiaApiKeyInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_NVIDIA_KEY, nvidiaApiKeyInput.value));
             modelSelect.addEventListener('change', () => { savedModel = modelSelect.value; localStorage.setItem(STORAGE_KEY_MODEL, savedModel); });
             systemPrompt.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_SYSTEM_PROMPT, systemPrompt.value));
             analysisInput.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_ANALYSIS_INPUT, analysisInput.value));
