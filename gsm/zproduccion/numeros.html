@@ -1,461 +1,345 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Numeros</title>
-    <meta name="description" content="Traductor Web Español - Zapoteco">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ABeeZee">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abel">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abhaya+Libre">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Adamina">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Advent+Pro">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aguafina+Script">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Akronim">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aladin">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alfa+Slab+One">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amarante">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amethysta">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amiko">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amiri">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amita">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anaheim">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Andika">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Antic">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Antic+Didone">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Archivo">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Archivo+Black">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/fonts/font-awesome.min.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/fonts/simple-line-icons.min.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/best-carousel-slide.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/dh-card-image-left-dark.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/ebs-contact-form.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/Footer-Basic.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/Full-Screen-Hero-Image.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/Highlight-Blue.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/Highlight-Phone.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.2.0/aos.css">-->
+    <title>Números · Didxazapp</title>
+    <meta name="description" content="Galería de números con su nombre en Zapoteco del Istmo y español, con audio de pronunciación.">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
+    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/Login-Form-Dark.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/ml-video.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/s-product-catalog.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/appHtml/assets/css/smoothproducts.css">
-	<style>
-body {
-  text-align: right;
-}
-</style>
+    <style>
+        /* ===== Números – tema oscuro gris/azul (alineado con translator.html y animales.html) ===== */
+        :root {
+            --tx-bg-1:        #0b1322;
+            --tx-bg-2:        #111c2f;
+            --tx-surface:     #1a2436;
+            --tx-surface-2:   #131c2c;
+            --tx-surface-3:   #243047;
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+            --tx-text:        #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+            --tx-primary:     #4f8fcf;
+            --tx-primary-2:   #6ba6e0;
+            --tx-accent:      #3b82f6;
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Navbar */
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler { border-color: var(--tx-border) !important; }
+        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+
+        /* Encabezado */
+        .gallery-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 110px 24px 60px;
+        }
+        .gallery-heading {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .gallery-heading h1 {
+            color: var(--tx-text-strong);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 2rem;
+            margin: 0 0 8px;
+        }
+        .gallery-heading p {
+            color: var(--tx-muted);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Grid responsivo de tarjetas */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 22px;
+        }
+
+        .number-card {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--tx-shadow);
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .number-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--tx-border-2);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+        }
+
+        .number-photo {
+            display: block;
+            position: relative;
+            aspect-ratio: 4 / 3;
+            background: var(--tx-surface-2);
+            overflow: hidden;
+        }
+        .number-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 12px;
+            transition: transform 0.4s ease;
+            display: block;
+        }
+        .number-card:hover .number-photo img { transform: scale(1.05); }
+
+        .number-body {
+            padding: 14px 16px 16px;
+            border-top: 1px solid var(--tx-border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .number-text { flex: 1; min-width: 0; }
+        .number-name-zap {
+            color: var(--tx-text-strong);
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0 0 2px;
+            letter-spacing: 0.005em;
+            word-break: break-word;
+        }
+        .number-name-es {
+            color: var(--tx-muted);
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .number-name-es::before {
+            content: "";
+            display: inline-block;
+            width: 18px;
+            height: 1px;
+            background: var(--tx-border-2);
+        }
+
+        /* Botón de audio */
+        .audio-btn {
+            flex-shrink: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--tx-border-2);
+            background: var(--tx-surface-2);
+            color: var(--tx-primary-2);
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.05s ease;
+        }
+        .audio-btn:hover {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+        }
+        .audio-btn:active { transform: scale(0.94); }
+        .audio-btn:focus { outline: 2px solid var(--tx-accent); outline-offset: 2px; }
+        .audio-btn.is-playing {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+            animation: tx-pulse 1s ease-in-out infinite;
+        }
+        @keyframes tx-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(79, 143, 207, 0.5); }
+            50%      { box-shadow: 0 0 0 6px rgba(79, 143, 207, 0); }
+        }
+
+        /* Footer */
+        .footer-basic {
+            background: transparent;
+            border-top: 1px solid var(--tx-border);
+            margin-top: 40px;
+            padding: 18px 0;
+        }
+        .footer-basic .copyright {
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Selección y scroll */
+        ::selection {
+            background: rgba(59, 130, 246, 0.45);
+            color: var(--tx-text-strong);
+        }
+
+        @media (max-width: 575.98px) {
+            .gallery-shell { padding: 100px 16px 40px; }
+            .gallery-heading h1 { font-size: 1.55rem; }
+            .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+            .number-body { padding: 12px 14px; }
+        }
+    </style>
 </head>
 
 <body>
-<nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
-        <div class="container"><a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a><button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div
-                class="collapse navbar-collapse" id="navcol-1">
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html">INICIO</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="numeros.html">Numeros</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="animales.html">Animales</a></li>
-                    <!--<li class="nav-item" role="presentation"><a class="nav-link" href="donate.html">Donar</a></li>-->
+                    <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="numeros.html">Numeros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html">Animales</a></li>
                 </ul>
-        </div>
+            </div>
         </div>
     </nav>
-    <div class="container" style="padding: 100px;">
-        <div class="row">
-            <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/cero.png"></a>
-      <!--<a href=""><img src="/cero.png"></a>-->
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Gasti'</a>
-      <a class="loop-add-to-cart">Cero</a>
-      <!--<a href="" onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cero.mp3')" class="loop-add-to-cart">Audio</a>-->
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Gasti'</h3>
-      <div class="price">Cero</div>
-      <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cero.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-            <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/uno.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Tobi</a>
-      <a class="loop-add-to-cart">Uno</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Tobi</h3>
-      <div class="price">Uno</div>
-      <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/uno.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-            <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/dos.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chupa</a>
-      <a class="loop-add-to-cart">Dos</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chupa</h3>
-      <div class="price">Dos</div>
-      <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/dos.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/tres.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chonna</a>
-      <a class="loop-add-to-cart">Tres</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chonna</h3>
-      <div class="price">Tres</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/tres.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-            <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/cuatro.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Tapa</a>
-      <a class="loop-add-to-cart">Cuatro</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Tapa</h3>
-      <div class="price">Cuatro</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cuatro.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-            <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/cinco.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Ga'yu'</a>
-      <a class="loop-add-to-cart">Cinco</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Ga'yu'</h3>
-      <div class="price">Cinco</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cinco.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/seis.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Xho'pa'</a>
-      <a class="loop-add-to-cart">Seis</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Xho'pa'</h3>
-      <div class="price">Seis</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/seis.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/siete.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Gaadxe</a>
-      <a class="loop-add-to-cart">Siete</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Gaadxe</h3>
-      <div class="price">Siete</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/siete.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/ocho.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Xhoono</a>
-      <a class="loop-add-to-cart">Ocho</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Xhoono</h3>
-      <div class="price">Ocho</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/ocho.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/nueve.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Ga'</a>
-      <a class="loop-add-to-cart">Nueve</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Ga'</h3>
-      <div class="price">Nueve</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/nueve.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/diez.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chii</a>
-      <a class="loop-add-to-cart">Diez</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chii</h3>
-      <div class="price">Diez</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/diez.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/veinte.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Gande</a>
-      <a class="loop-add-to-cart">Veinte</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Gande</h3>
-      <div class="price">Veinte</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/veinte.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/treinta.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Gande Chii</a>
-      <a class="loop-add-to-cart">Treinta</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Gande Chii</h3>
-      <div class="price">Treinta</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/treinta.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-				 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/cuarenta.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chupa late gande</a>
-      <a class="loop-add-to-cart">Cuarenta</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chupa late gande</h3>
-      <div class="price">Cuarenta</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cuarenta.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-				 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/cincuenta.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chupa late gande chii</a>
-      <a class="loop-add-to-cart">Cincuenta</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chupa late gande chii</h3>
-      <div class="price">Cincuenta</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cincuenta.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-				 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/sesenta.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chonna late gande</a>
-      <a class="loop-add-to-cart">Sesenta</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chonna late gande</h3>
-      <div class="price">Sesenta</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/sesenta.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		
-						 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/setenta.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Chonna late gande chii</a>
-      <a class="loop-add-to-cart">Setenta</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Chonna late gande chii</h3>
-      <div class="price">Setenta</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/setenta.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		
-						 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/ochenta.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Tapa late gande</a>
-      <a class="loop-add-to-cart">Ochenta</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Tapa late gande</h3>
-      <div class="price">Ochenta</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/ochenta.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		
-						 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/noventa.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Tapa late gande chii</a>
-      <a class="loop-add-to-cart">Noventa</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Tapa late gande chii</h3>
-      <div class="price">Noventa</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/noventa.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		
-						 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/cien.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Ti gayuaa</a>
-      <a class="loop-add-to-cart">Cien</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Ti gayuaa</h3>
-      <div class="price">Cien</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/cien.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		
-						 <div class="col-md-4"><div class="border">
-  <div class="wrap">
-    <div class="product-wrap">
-      <a href=""><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/mil.png"></a>
-    </div>
-    <div class="loop-action">
-      <a class="loop-add-to-cart">Ti mil</a>
-      <a class="loop-add-to-cart">Mil</a>
-    </div>
-  </div>
-    <div class="product-info">
-      <h3 class="product-title">Ti mil</h3>
-      <div class="price">Mil</div>
-	    <button onclick="playAudio('https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/mil.mp3')" type="button">Audio 🔊</button>
-   </div>
-</div> </div>
-		
-		
-        </div>
-    </div>
+
+    <main class="gallery-shell">
+        <header class="gallery-heading">
+            <h1>Números en Zapoteco</h1>
+            <p>Galería de números con su nombre en Zapoteco del Istmo, español y audio de pronunciación.</p>
+        </header>
+
+        <section class="gallery-grid" id="number-gallery">
+            <!-- Las tarjetas se generan dinámicamente desde el array `NUMEROS`. -->
+        </section>
+    </main>
+
     <div class="footer-basic">
         <footer>
-            <ul class="list-inline"></ul>
-            <p class="copyright"><strong>©</strong>Nacubi research - 2021</p>
+            <p class="copyright">Nacubi research · <span id="anio"></span></p>
         </footer>
     </div>
-	<script>
-		function playAudio(cancion) { 
-		  var audio = new Audio(cancion);
-		  audio.play();
-		} 
-	</script>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.2.0/aos.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
-    <script src="assets/js/smoothproducts.min.js"></script>
-    <script src="assets/js/theme.js"></script>
-    <script src="assets/js/ml-video.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Lista de números (zapoteco + español + slug compartido para imagen y audio).
+        const NUMEROS = [
+            { zap: "Gasti'",                  es: "Cero",      slug: "cero" },
+            { zap: "Tobi",                    es: "Uno",       slug: "uno" },
+            { zap: "Chupa",                   es: "Dos",       slug: "dos" },
+            { zap: "Chonna",                  es: "Tres",      slug: "tres" },
+            { zap: "Tapa",                    es: "Cuatro",    slug: "cuatro" },
+            { zap: "Ga'yu'",                  es: "Cinco",     slug: "cinco" },
+            { zap: "Xho'pa'",                 es: "Seis",      slug: "seis" },
+            { zap: "Gaadxe",                  es: "Siete",     slug: "siete" },
+            { zap: "Xhoono",                  es: "Ocho",      slug: "ocho" },
+            { zap: "Ga'",                     es: "Nueve",     slug: "nueve" },
+            { zap: "Chii",                    es: "Diez",      slug: "diez" },
+            { zap: "Gande",                   es: "Veinte",    slug: "veinte" },
+            { zap: "Gande Chii",              es: "Treinta",   slug: "treinta" },
+            { zap: "Chupa late gande",        es: "Cuarenta",  slug: "cuarenta" },
+            { zap: "Chupa late gande chii",   es: "Cincuenta", slug: "cincuenta" },
+            { zap: "Chonna late gande",       es: "Sesenta",   slug: "sesenta" },
+            { zap: "Chonna late gande chii",  es: "Setenta",   slug: "setenta" },
+            { zap: "Tapa late gande",         es: "Ochenta",   slug: "ochenta" },
+            { zap: "Tapa late gande chii",    es: "Noventa",   slug: "noventa" },
+            { zap: "Ti gayuaa",               es: "Cien",      slug: "cien" },
+            { zap: "Ti mil",                  es: "Mil",       slug: "mil" },
+        ];
+        const IMG_BASE   = "https://simpleverso.github.io/DidxazappWEB/assets/img/numeros/";
+        const AUDIO_BASE = "https://simpleverso.github.io/DidxazappWEB/assets/audios/numeros/";
+
+        // Render
+        const $gallery = document.getElementById('number-gallery');
+        const escapeHtml = s => s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+        $gallery.innerHTML = NUMEROS.map(n => `
+            <article class="number-card">
+                <div class="number-photo">
+                    <img src="${IMG_BASE}${n.slug}.png" alt="${escapeHtml(n.es)} (${escapeHtml(n.zap)} en zapoteco)" loading="lazy">
+                </div>
+                <div class="number-body">
+                    <div class="number-text">
+                        <h3 class="number-name-zap">${escapeHtml(n.zap)}</h3>
+                        <p class="number-name-es">${escapeHtml(n.es)}</p>
+                    </div>
+                    <button type="button" class="audio-btn" data-audio="${AUDIO_BASE}${n.slug}.mp3"
+                            aria-label="Reproducir pronunciación de ${escapeHtml(n.zap)}" title="Escuchar">
+                        <i class="fa fa-volume-up" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </article>
+        `).join('');
+
+        // Audio: una sola instancia, se detiene la anterior al pulsar otro botón.
+        let currentAudio = null;
+        let currentBtn = null;
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            if (currentBtn) currentBtn.classList.remove('is-playing');
+            currentAudio = null;
+            currentBtn = null;
+        }
+        $gallery.addEventListener('click', (ev) => {
+            const btn = ev.target.closest('.audio-btn');
+            if (!btn) return;
+            const url = btn.dataset.audio;
+            // Si volvemos a pulsar el botón ya activo, paramos.
+            if (currentBtn === btn) { stopAudio(); return; }
+            stopAudio();
+            const audio = new Audio(url);
+            currentAudio = audio;
+            currentBtn = btn;
+            btn.classList.add('is-playing');
+            audio.addEventListener('ended', stopAudio, { once: true });
+            audio.addEventListener('error', stopAudio, { once: true });
+            audio.play().catch(() => stopAudio());
+        });
+
+        // Año automático en el footer
+        document.getElementById('anio').textContent = new Date().getFullYear();
+    </script>
     <script src="assets/js/page-config.js" data-page="numeros"></script>
 </body>
 
