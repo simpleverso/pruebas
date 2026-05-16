@@ -58,11 +58,11 @@
                     Zapoteco del Istmo - Fam Toledo
                     <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" rows="3"></textarea>
                     <div class="form-group"></div>
-                    Zapoteco de la sierra sur - Aulex
-                    <textarea class="form-control" data-aos="fade" id="txt_res_fundacionjuchitan" readonly placeholder="Resultado Aulex - Zapoteco de la sierra" rows="3"></textarea>
-                    <div class="form-group"></div>
                     Zapoteco Cajono - Aulex (zap-es)
                     <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" rows="3"></textarea>
+                    <div class="form-group"></div>
+                    Zapoteco - Google Translate (es → zap)
+                    <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" rows="3"></textarea>
                     <button id="btn_traduc" class="btn btn-primary" type="button">Traducir</button>
                 </form>
             </div>
@@ -104,34 +104,67 @@
     <script src="assets/js/ml-video.js"></script>
 
     <script>
-        // ---- Config ----
+        // ---- Config (cargado desde config.json) ----
         const MAX_CHARS = 36;
         const SERVERS = ['didxazapp1', 'didxazapp2', 'didxazapp4', 'didxazapp5'];
-        const SIERRA_API = 'https://funciondx1ncore.azurewebsites.net/api/zapotecoSierraNorte';
         const AULEX_API  = 'https://aulex.org/zap-es/';
+        const BIYUBI_API = 'http://www.biyubi.com/did_consulta.php';
+        const GOOGLE_API = 'https://translate.googleapis.com/translate_a/single';
 
+        // Defaults: si config.json no carga, todo queda habilitado.
         const FEATURES = {
-            todoActivo: true,
-            didxazapp: true,
-            toledo: true,
-            sierraSur: true,
-            aulexCajono: true,
+            enablePage:        true,
+            didxazapp:         true,
+            toledo:            true,
+            aulexCajono:       true,
+            google:            true,
         };
+
+        // Mapeo: clave en config.json -> propiedad en FEATURES
+        const CONFIG_MAP = {
+            translator_enablePage:       'enablePage',
+            translator_enableDidxazapp:  'didxazapp',
+            translator_enableToledo:     'toledo',
+            translator_enableAulexCajono:'aulexCajono',
+            translator_enableGoogle:     'google',
+        };
+
+        async function loadConfig() {
+            try {
+                const r = await fetch('config.json', { cache: 'no-cache' });
+                if (!r.ok) return;
+                const cfg = await r.json();
+                for (const [key, prop] of Object.entries(CONFIG_MAP)) {
+                    if (key in cfg) FEATURES[prop] = !!cfg[key];
+                }
+            } catch (e) {
+                // Si no se puede leer (ej. file://), quedan los defaults.
+                console.warn('No se pudo cargar config.json, usando valores por defecto.', e);
+            }
+        }
 
         // ---- DOM refs ----
         const $input   = document.getElementById('txt_texto_espanish');
         const $btn     = document.getElementById('btn_traduc');
         const $resDx   = document.getElementById('txt_res_didxazapp');
         const $resFam  = document.getElementById('txt_familia_toleto');
-        const $resJch  = document.getElementById('txt_res_fundacionjuchitan');
         const $resAulx = document.getElementById('txt_res_aulex_cajono');
+        const $resGoog = document.getElementById('txt_res_google');
 
         // Año automático en el footer
         document.getElementById('anio').innerHTML += new Date().getFullYear();
 
-        if (!FEATURES.todoActivo) {
-            document.body.innerHTML = '<h4 class="text-center" data-bs-hover-animate="pulse">Página en mantenimiento</h4>';
-        }
+        // Inicialización: carga config.json y, si la página está deshabilitada,
+        // muestra mensaje de mantenimiento; en caso contrario, conecta los eventos.
+        (async function init() {
+            await loadConfig();
+            if (!FEATURES.enablePage) {
+                document.body.innerHTML = '<h4 class="text-center" data-bs-hover-animate="pulse">Página en mantenimiento</h4>';
+                return;
+            }
+            $btn.addEventListener('click', traductorjs);
+            $input.addEventListener('keyup', (e) => { if (e.key === 'Enter') traductorjs(); });
+        })();
 
         // ---- Helpers ----
         // Repara caracteres mal codificados (mojibake) que devuelven los servicios.
@@ -196,10 +229,10 @@
             const host = pickServer();
             const word = encodeURIComponent(palabra.trim());
             return {
-                toledo:    `https://${host}.azurewebsites.net/service/didxaza.asmx/TraductorTOLEDO?palabra=${word}&clave=p`,
                 didxazapp: `https://${host}.azurewebsites.net/service/didxaza.asmx/quierofraseenzapotecoclave?damelafraseenespaniol=${word}&clave=p`,
-                sierra:    `${SIERRA_API}?palabra=${word}`,
                 aulex:     `${AULEX_API}?busca=${word}`,
+                biyubi:    `${BIYUBI_API}?p=${word}`,
+                google:    `${GOOGLE_API}?client=gtx&sl=es&tl=zap&dt=t&q=${word}`,
             };
         };
 
@@ -209,38 +242,28 @@
             return fixMojibake(raw);
         }
 
-        function parseSierra(html) {
-            const cleaned = html
-                .replace('p>', '')
-                .replace('dict', '')
-                .replace('class', '')
-                .replace('span', '')
-                .replace('<', '')
-                .replace('>', '')
-                .replace('=', '');
-            return cleaned.includes('Error Grave.') ? 'No se pudo obtener información.' : cleaned;
-        }
+        // Biyubi (sitio de Familia Toledo) devuelve una tabla con pares
+        // <td>...<font color=#800000>zapoteco</font>...<td>...<font color=#006000>castellano</font>
+        // Cuando no hay coincidencias, la tabla con <caption>Traducción de '...'</caption>
+        // simplemente no aparece.
+        function parseBiyubi(html) {
+            if (!/<caption>\s*Traducci[óo]n de/i.test(html)) return 'Sin resultados';
 
-        function parseToledo(xml) {
-            // El servicio devuelve un XML de SOAP; las definiciones empiezan tras los primeros ~213 chars.
-            const body = xml.substring(213);
-            const parts = body.split('<string>');
-            if (parts.length < 2) return 'Sin resultados';
+            const stripTags = (s) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+            const decode = (s) => s
+                .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
-            const cleanPart = (p) => fixMojibake(
-                p.replace('</string>', '').replace('</ArrayOfString>', '')
-            );
-
-            const def = cleanPart(parts[1] || '')
-                .split('|').join('-->')
-                .replace('Definiciones:', 'Definiciones: \n')
-                .split('~').join('\n')
-                .replace('Definiciones: ', '')
-                .trim();
-
-            // Quita el "-->" residual al final.
-            const trimmed = def.endsWith('-->') ? def.slice(0, -3).trim() : def;
-            return trimmed || 'Sin resultados';
+            const re = /<font[^>]*color=#?800000[^>]*>([\s\S]*?)<\/font>[\s\S]*?<font[^>]*color=#?006000[^>]*>([\s\S]*?)<\/font>/gi;
+            const lines = [];
+            let m;
+            while ((m = re.exec(html)) !== null) {
+                const zap = decode(stripTags(m[1]));
+                const cas = decode(stripTags(m[2]));
+                if (zap) lines.push(`${zap}: ${cas}`);
+            }
+            return lines.length ? lines.join('\n') : 'Sin resultados';
         }
 
         // Aulex devuelve HTML con varios <p>, cada uno con la forma:
@@ -267,14 +290,30 @@
             return lines.length ? fixMojibake(lines.join('\n')) : 'Sin resultados';
         }
 
+        // Google Translate (endpoint público usado por el widget). La respuesta es:
+        //   [[["traducción","original",null,null,10], ...], null, "es", ...]
+        // Si la frase es larga, viene fragmentada en varios elementos del primer array.
+        function parseGoogle(json) {
+            let data;
+            try { data = JSON.parse(json); } catch (e) { return 'Sin resultados'; }
+            const segments = (data && data[0]) || [];
+            const out = segments.map(s => (s && s[0]) || '').join('').trim();
+            return out || 'Sin resultados';
+        }
+
         // ---- Fetch wrapper ----
-        // Para servicios bloqueados por CORS usamos puter.net.fetch (drop-in replacement)
-        // que se carga con <script src="https://js.puter.com/v2/">.
-        async function fetchText(url, { cors = true } = {}) {
+        // Para servicios bloqueados por CORS (o sólo en HTTP) usamos puter.net.fetch
+        // (drop-in replacement), cargado con <script src="https://js.puter.com/v2/">.
+        // `encoding` permite decodificar respuestas Latin-1 / windows-1252 correctamente.
+        async function fetchText(url, { cors = true, encoding = 'utf-8' } = {}) {
             const fn = (!cors && window.puter && puter.net && puter.net.fetch)
                 ? puter.net.fetch
                 : fetch;
             const r = await fn(url);
+            if (encoding && encoding.toLowerCase() !== 'utf-8') {
+                const buf = await r.arrayBuffer();
+                return new TextDecoder(encoding).decode(buf);
+            }
             return r.text();
         }
 
@@ -297,27 +336,24 @@
             }
 
             setBtn('Traduciendo...');
-            $resDx.value = $resFam.value = $resJch.value = $resAulx.value = 'Buscando...';
+            $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = 'Buscando...';
 
             const urls = buildUrls(text);
 
             await Promise.all([
                 runService(FEATURES.didxazapp, urls.didxazapp, parseDidxazapp, $resDx,
                            'No disponible por mantenimiento, intente más tarde'),
-                runService(FEATURES.sierraSur, urls.sierra, parseSierra, $resJch,
-                           'No se pudo obtener información.'),
-                runService(FEATURES.toledo, urls.toledo, parseToledo, $resFam,
-                           'No se pudo obtener información de: http://www.biyubi.com'),
+                runService(FEATURES.toledo, urls.biyubi, parseBiyubi, $resFam,
+                           'No se pudo obtener información de: http://www.biyubi.com',
+                           { cors: false, encoding: 'windows-1252' }),
                 runService(FEATURES.aulexCajono, urls.aulex, parseAulex, $resAulx,
                            'No se pudo obtener información de aulex.org', { cors: false }),
+                runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
+                           'No se pudo obtener información de Google Translate'),
             ]);
 
             setBtn('Traducir');
         }
-
-        // ---- Eventos ----
-        $btn.addEventListener('click', traductorjs);
-        $input.addEventListener('keyup', (e) => { if (e.key === 'Enter') traductorjs(); });
     </script>
 </body>
 </html>

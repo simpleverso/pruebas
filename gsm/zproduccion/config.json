@@ -1,13 +1,13 @@
 {
-  "enable_didxazapp": true,
-  "enable_toledo": true,
-  "enable_sierra": true,
-  "enable_otomi": false,
-  "enable_nahuatl": false,
-  "enable_todo": true,
-  "enable_dx1": true,
-  "enable_dx2": true,
-  "enable_dx3": true,
-  "enable_dx4": true,
-  "enable_dx5": true
+  "index_enablePage": true,
+  "gallery_enablePage": true,
+  "faq_enablePage": true,
+  "animales_enablePage": true,
+  "numeros_enablePage": true,
+
+  "translator_enablePage": true,
+  "translator_enableDidxazapp": true,
+  "translator_enableToledo": true,
+  "translator_enableAulexCajono": true,
+  "translator_enableGoogle": true
 }
