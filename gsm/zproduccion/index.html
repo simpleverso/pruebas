@@ -1,170 +1,718 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Didxazapp - Nacubi research</title>
-    <meta name="description" content="Traductor Experimental Español - Zapoteco">
+    <title>Didxazapp · Nacubi research</title>
+    <meta name="description" content="Didxazapp: traductor experimental español ↔ zapoteco del istmo, con voz, imagen y galerías culturales.">
     <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
     <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
-    <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
-    <link rel="stylesheet" href="assets/css/ebs-contact-form-1.css">
-    <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
-    <link rel="stylesheet" href="assets/css/Footer-Basic.css">
-    <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image-1.css">
-    <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image.css">
-    <link rel="stylesheet" href="assets/css/Highlight-Blue.css">
-    <link rel="stylesheet" href="assets/css/Highlight-Phone.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
-    <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
-    <link rel="stylesheet" href="assets/css/ml-video-1.css">
-    <link rel="stylesheet" href="assets/css/ml-video.css">
-    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/css/smoothproducts.css">
+    <style>
+        /* ===== Index – tema oscuro gris/azul (alineado con el resto del sitio) ===== */
+        :root {
+            --tx-bg-1:        #0b1322;
+            --tx-bg-2:        #111c2f;
+            --tx-surface:     #1a2436;
+            --tx-surface-2:   #131c2c;
+            --tx-surface-3:   #243047;
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+            --tx-text:        #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+            --tx-primary:     #4f8fcf;
+            --tx-primary-2:   #6ba6e0;
+            --tx-primary-deep:#22456b;
+            --tx-accent:      #3b82f6;
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler { border-color: var(--tx-border) !important; }
+        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+
+        /* ----- Hero ----- */
+        .hero {
+            position: relative;
+            padding: 150px 24px 80px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 30%; left: 50%;
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(79, 143, 207, 0.12), transparent 60%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: tx-pulse-bg 8s ease-in-out infinite;
+        }
+        @keyframes tx-pulse-bg {
+            0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+            50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.12);
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            padding: 5px 14px;
+            border-radius: 999px;
+            margin-bottom: 22px;
+            animation: tx-fade-up 0.6s ease both;
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--tx-text-strong);
+            margin: 0 0 18px;
+            line-height: 1.1;
+            animation: tx-fade-up 0.7s ease 0.1s both;
+        }
+        .hero-title .accent {
+            background: linear-gradient(120deg, var(--tx-primary-2), var(--tx-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            max-width: 640px;
+            margin: 0 auto 38px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--tx-muted);
+            animation: tx-fade-up 0.7s ease 0.2s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            animation: tx-fade-up 0.7s ease 0.3s both;
+        }
+        .btn-cta, .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 26px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: filter 0.15s ease, transform 0.05s ease, box-shadow 0.2s ease,
+                        border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+        .btn-cta {
+            color: #ffffff;
+            background: linear-gradient(180deg, var(--tx-primary) 0%, var(--tx-primary-deep) 100%);
+            border: 1px solid var(--tx-primary);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+        .btn-cta:hover {
+            color: #ffffff;
+            text-decoration: none;
+            filter: brightness(1.10);
+            box-shadow: 0 10px 26px rgba(59, 130, 246, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+        }
+        .btn-ghost {
+            color: var(--tx-label);
+            background: transparent;
+            border: 1px solid var(--tx-border-2);
+        }
+        .btn-ghost:hover {
+            color: var(--tx-text-strong);
+            border-color: var(--tx-primary);
+            background: rgba(79, 143, 207, 0.08);
+            text-decoration: none;
+        }
+
+        /* ----- Sección de features ----- */
+        .features-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 20px 24px 80px;
+        }
+        .section-eyebrow {
+            display: block;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            margin-bottom: 8px;
+        }
+        .section-title {
+            text-align: center;
+            color: var(--tx-text-strong);
+            font-size: clamp(1.4rem, 3vw, 1.9rem);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 0 0 12px;
+        }
+        .section-lead {
+            text-align: center;
+            max-width: 680px;
+            margin: 0 auto 36px;
+            color: var(--tx-muted);
+            font-size: 0.96rem;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .feature-card {
+            display: flex;
+            flex-direction: column;
+            padding: 24px 22px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 14px;
+            box-shadow: var(--tx-shadow);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .feature-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            background: linear-gradient(135deg, rgba(79, 143, 207, 0.18), transparent 50%) border-box;
+            -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .feature-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--tx-border-2);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+            text-decoration: none;
+            color: inherit;
+        }
+        .feature-card:hover::after { opacity: 1; }
+
+        .feature-icon {
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            background: rgba(107, 166, 224, 0.14);
+            color: var(--tx-primary-2);
+            font-size: 20px;
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+        .feature-card:hover .feature-icon {
+            background: var(--tx-primary);
+            color: #ffffff;
+            transform: rotate(-4deg) scale(1.05);
+        }
+
+        .feature-title {
+            color: var(--tx-text-strong);
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0 0 6px;
+            letter-spacing: 0.005em;
+        }
+        .feature-desc {
+            color: var(--tx-muted);
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin: 0 0 16px;
+            flex: 1;
+        }
+        .feature-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--tx-primary-2);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transition: gap 0.18s ease, color 0.15s ease;
+        }
+        .feature-card:hover .feature-cta {
+            gap: 10px;
+            color: var(--tx-text-strong);
+        }
+
+        /* ----- Stats ----- */
+        .stats-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            padding: 28px 26px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 14px;
+            box-shadow: var(--tx-shadow);
+        }
+        .stat-cell { text-align: center; padding: 6px 8px; }
+        .stat-number {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--tx-text-strong);
+            letter-spacing: -0.01em;
+            line-height: 1;
+            background: linear-gradient(120deg, var(--tx-primary-2), var(--tx-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .stat-label {
+            font-size: 0.74rem;
+            color: var(--tx-muted);
+            margin-top: 6px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* ----- Footer ----- */
+        .footer-basic {
+            background: transparent;
+            border-top: 1px solid var(--tx-border);
+            margin-top: 0;
+            padding: 22px 0;
+        }
+        .footer-basic .copyright {
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        ::selection {
+            background: rgba(59, 130, 246, 0.45);
+            color: var(--tx-text-strong);
+        }
+
+        /* Animaciones */
+        @keyframes tx-fade-up {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+            .hero::before, .reveal, .eyebrow, .hero-title, .hero-subtitle, .hero-actions {
+                animation: none !important;
+                transition: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .hero { padding: 130px 18px 56px; }
+            .features-shell, .stats-shell { padding-left: 18px; padding-right: 18px; }
+            .stats-row { padding: 22px 14px; }
+            .stat-number { font-size: 1.5rem; }
+        }
+
+        /* ----- Sección destacada (XHUNI) ----- */
+        .spotlight-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 10px 24px 60px;
+        }
+        .spotlight {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+            padding: 36px 30px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 16px;
+            box-shadow: var(--tx-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .spotlight::before {
+            content: "";
+            position: absolute;
+            top: -120px; right: -120px;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(79, 143, 207, 0.18), transparent 60%);
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .spotlight { grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; padding: 44px 40px; }
+        }
+
+        .spotlight-eyebrow {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            margin-bottom: 10px;
+        }
+        .spotlight h2 {
+            color: var(--tx-text-strong);
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 0 0 14px;
+        }
+        .spotlight p {
+            color: var(--tx-text);
+            font-size: 0.96rem;
+            line-height: 1.65;
+            margin: 0 0 12px;
+        }
+        .spotlight p.spotlight-meta {
+            font-size: 0.85rem;
+            color: var(--tx-muted);
+            margin-top: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .spotlight p.spotlight-meta i { color: var(--tx-primary-2); margin-top: 2px; }
+        .spotlight-visual {
+            position: relative;
+            height: 220px;
+            border-radius: 12px;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(107, 166, 224, 0.18), transparent 55%),
+                radial-gradient(circle at 75% 70%, rgba(59, 130, 246, 0.15), transparent 55%),
+                var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tx-primary-2);
+        }
+        .spotlight-visual .big-icon {
+            font-size: 88px;
+            opacity: 0.85;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+        }
+
+        /* Chip de estado (próximamente / no disponible) */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid;
+            margin-top: 10px;
+        }
+        .status-chip.is-soon {
+            color: #fcd34d;
+            background: rgba(245, 158, 11, 0.10);
+            border-color: rgba(245, 158, 11, 0.30);
+        }
+        .status-chip.is-disabled {
+            color: var(--tx-muted);
+            background: rgba(148, 163, 184, 0.08);
+            border-color: var(--tx-border-2);
+        }
+
+        /* Tarjetas en estado "próximamente" / no disponible */
+        .feature-card.is-disabled,
+        .feature-card.is-soon {
+            cursor: default;
+        }
+        .feature-card.is-disabled .feature-icon { background: rgba(148, 163, 184, 0.10); color: var(--tx-muted); border-color: var(--tx-border-2); }
+        .feature-card.is-soon .feature-icon     { background: rgba(245, 158, 11, 0.12);  color: #fcd34d;        border-color: rgba(245, 158, 11, 0.30); }
+        .feature-card.is-disabled:hover,
+        .feature-card.is-soon:hover {
+            transform: none;
+            border-color: var(--tx-border);
+            box-shadow: var(--tx-shadow);
+        }
+        .feature-card.is-disabled:hover .feature-icon,
+        .feature-card.is-soon:hover .feature-icon { transform: none; background: inherit; color: inherit; }
+    </style>
 </head>
 
 <body>
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
-        <div class="container"><a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a><button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div
-                class="collapse navbar-collapse" id="navcol-1">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html">INICIO</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="translator_img.html">Imagen</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="numeros.html">Numeros</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="animales.html">Animales</a></li>
-                    <!--<li class="nav-item" role="presentation"><a class="nav-link" href="donate.html">Donar</a></li>-->
+                    <li class="nav-item"><a class="nav-link active" href="index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html">Imagen</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numeros.html">Numeros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html">Animales</a></li>
                 </ul>
-        </div>
+            </div>
         </div>
     </nav>
-   <!-- <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
-        <div class="container"><a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a><button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div
-                class="collapse navbar-collapse" id="navcol-1">
-                <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html">INICIO</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="https://simpleverso.github.io/DidxazappWEB/numeros.html">Numeros</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="https://simpleverso.github.io/DidxazappWEB/animales.html">Animales</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="donate.html">Donar</a></li>
-                </ul>
+
+    <!-- Hero -->
+    <header class="hero">
+        <span class="eyebrow">Proyecto experimental · Nacubi research</span>
+        <h1 class="hero-title">Didxazapp<br><span class="accent">Español ↔ Zapoteco</span></h1>
+        <p class="hero-subtitle">
+            Traductor en línea para el Zapoteco del Istmo. Escribe, dicta por voz o sube una foto:
+            el sistema combina diccionarios humanos y modelos de IA para acercarte al idioma.
+        </p>
+        <div class="hero-actions">
+            <a class="btn-cta" href="translator.html">
+                <i class="fa fa-language" aria-hidden="true"></i> Empezar a traducir
+            </a>
+            <a class="btn-ghost" href="translator_img.html">
+                <i class="fa fa-image" aria-hidden="true"></i> Probar con imagen
+            </a>
         </div>
-        </div>
-    </nav> -->
-    <main data-aos="fade" data-aos-duration="950" class="page landing-page">
-        <section class="clean-block clean-hero" style="color:rgba(10,93,119,0.31);background-image:url(&quot;https://simpleverso.github.io/DidxazappWEB/assets/img/fondo.png&quot;);background-color:rgba(0,179,255,0.42);">
-            <div class="text" style="color:#f2f2f2;">
-                <h1 class="pulse animated"><br>La muñeca que habla Zapoteco</h1><iframe allowfullscreen="" frameborder="0" src="https://www.youtube-nocookie.com/embed/1hryUofrkhQ?autoplay=1?controls=0&amp;rel=0" width="640" height="390"></iframe>
-                <p class="text-justify">XHUNI - es una muñeca que puede decir hasta 1,000 frases en español y Zapoteco, este es un desarrollo más basado en la integración de cultura y tecnologías con la que se pretende preservar la lengua zapoteca en los niños.<br><br><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="text-decoration: underline;">Pronto habrá más información</span></strong></p>
+    </header>
+
+    <!-- Destacado: XHUNI -->
+    <section class="spotlight-shell">
+        <article class="spotlight reveal">
+            <div>
+                <span class="spotlight-eyebrow">Proyecto cultural · En desarrollo</span>
+                <h2>XHUNI: la muñeca que habla zapoteco</h2>
+                <p>
+                    XHUNI es una muñeca capaz de pronunciar más de mil frases en español y zapoteco
+                    del istmo. Combina tecnología y cultura para acercar la lengua zapoteca a las
+                    nuevas generaciones, especialmente a niñas y niños.
+                </p>
+                <p class="spotlight-meta">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                    <span>Próximamente disponible para conocerla en la <strong>Casa de Cultura de Juchitán</strong>.</span>
+                </p>
+                <span class="status-chip is-soon">
+                    <i class="fa fa-clock-o" aria-hidden="true"></i> Disponible próximamente
+                </span>
             </div>
-        </section>
-        <section class="clean-block clean-info dark">
-            <div class="container">
-                <div class="block-heading">
-                    <h1 class="text-info" data-bs-hover-animate="pulse">Traductor Español - Zapoteco del Istmo</h1>
-                    <p class="text-center" style="height:94px;width:420px;color:#000000;">Este traductor experimental está basado en reglas que determinan la forma correcta de traducir las palabras respetanto incluso el contexto de escritura.</p>
-                </div>
-                <div class="row align-items-center" style="height:227px;">
-                    <div class="col-md-6" style="height:305px;width:480px;padding:1px;"><img class="img-thumbnail" style="width:358px;padding:6px;" src="https://simpleverso.github.io/DidxazappWEB/assets/img/proceso%20traductor.gif"></div>
-                    <div class="col-md-6">
-                        <h3 data-bs-hover-animate="pulse">Traducción basada en reglas</h3>
-                        <div class="getting-started-info">
-                            <p class="text-justify" style="padding:2px;height:142px;width:460px;">Las traducciones que se realizan con Didxazapp están basadas en reglas matemáticas, que convierten las palabras a traducir en sentencias numéricas equivalentes en el idioma Zapoteco y que son traducibles con ayuda de otros
-                                cálculos matemáticos.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="spotlight-visual" aria-hidden="true">
+                <i class="fa fa-female big-icon"></i>
             </div>
-        </section>
-        <section class="clean-block features" style="height: 686px;">
-            <div class="container">
-                <div class="block-heading">
-                    <h1 class="text-info" data-bs-hover-animate="pulse">Características</h1>
-                    <p class="text-center" style="color:rgb(0,0,0);">Didxazapp cuenta con las caracteristicas de traducción más completas que existen para el Zapoteco del istmo, y que incluyen una gran cantidad de posibilidades.</p>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-md-5 feature-box"><i class="icon-screen-smartphone icon"></i>
-                        <h4 class="text-left" data-bs-hover-animate="pulse">App de traducción en android</h4>
-                        <p class="text-justify">Somos los unicos que ofrecen una app que permite la traducción directamente desde el teléfono móvil.</p>
-                    </div>
-                    <div class="col-md-5 feature-box"><i class="icon-graduation icon"></i>
-                        <h4 class="text-left" data-bs-hover-animate="pulse">Aprendizaje de Textos</h4>
-                        <p class="text-justify">Didxazapp aprende de los textos que traduce, y permite analizar los textos faltantes para ofrecer mejores traducciones en sus siguientes actualizaciones.</p>
-                    </div>
-                    <div class="col-md-5 feature-box"><i class="icon-magic-wand icon"></i>
-                        <h4 class="text-left" data-bs-hover-animate="pulse">Traducción desde inglés y otras fuentes de traducción</h4>
-                        <p class="text-justify">La aplicación Didxazapp es la única que permite la traducción directa desde el idioma inglés al zapoteco y&nbsp;concentra varios traductores web de zapoteco en un solo lugar.</p>
-                    </div>
-                    <div class="col-md-5 feature-box"><i class="icon-refresh icon"></i>
-                        <h4 class="text-left" data-bs-hover-animate="pulse">Traducción SMS gratuita</h4>
-                        <p class="text-justify">Didxazapp es el único traductor que tiene servicio de traducción GRATUITO vía SMS enviando la palabra "Zapoteco + una frase corta en español" al numero 5571381948. -<strong>NO DISPONIBLE POR EL MOMENTO-</strong></p>
-                    </div>
-                </div>
+        </article>
+    </section>
+
+    <!-- Features -->
+    <section class="features-shell">
+        <span class="section-eyebrow">Herramientas</span>
+        <h2 class="section-title">Cuatro maneras de explorar la lengua</h2>
+        <p class="section-lead">
+            Cada herramienta está pensada para un uso distinto: traducción rápida de texto,
+            entrada por voz, identificación de objetos en una imagen y galerías culturales.
+        </p>
+
+        <div class="feature-grid">
+            <a href="translator.html" class="feature-card reveal">
+                <span class="feature-icon"><i class="fa fa-language" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Traductor de texto</h3>
+                <p class="feature-desc">
+                    Escribe en español (u otro idioma) y obtén traducciones desde cuatro fuentes:
+                    Didxazapp, Familia Toledo, Aulex y Google. Con corrección ortográfica integrada.
+                </p>
+                <span class="feature-cta">Abrir traductor <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+
+            <a href="translator.html" class="feature-card reveal">
+                <span class="feature-icon"><i class="fa fa-microphone" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Entrada por voz</h3>
+                <p class="feature-desc">
+                    Pulsa el micrófono dentro del traductor, habla con claridad y la traducción
+                    se ejecuta automáticamente. Soporta varios idiomas de origen.
+                </p>
+                <span class="feature-cta">Hablar y traducir <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+
+            <a href="translator_img.html" class="feature-card reveal">
+                <span class="feature-icon"><i class="fa fa-camera-retro" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Traductor de imágenes</h3>
+                <p class="feature-desc">
+                    Sube una foto o usa la cámara: un modelo identifica el objeto y muestra su
+                    nombre en inglés, español y zapoteco al instante.
+                </p>
+                <span class="feature-cta">Analizar foto <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+
+            <a href="animales.html" class="feature-card reveal">
+                <span class="feature-icon"><i class="fa fa-paw" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Animales</h3>
+                <p class="feature-desc">
+                    Catálogo organizado por categorías: aves, reptiles, mamíferos, insectos y más,
+                    con sus nombres en zapoteco e ilustraciones cuando están disponibles.
+                </p>
+                <span class="feature-cta">Ver galería <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+
+            <a href="numeros.html" class="feature-card reveal">
+                <span class="feature-icon"><i class="fa fa-hashtag" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Números</h3>
+                <p class="feature-desc">
+                    Aprende a contar del cero al mil con tarjetas visuales y audio de pronunciación
+                    en zapoteco del istmo.
+                </p>
+                <span class="feature-cta">Practicar números <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+
+            <div class="feature-card is-soon reveal">
+                <span class="feature-icon"><i class="fa fa-paper-plane" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Bot de Telegram con IA</h3>
+                <p class="feature-desc">
+                    Estamos desarrollando un bot conversacional en Telegram que traducirá y responderá
+                    preguntas sobre el zapoteco usando modelos de lenguaje. Disponible muy pronto.
+                </p>
+                <span class="status-chip is-soon">
+                    <i class="fa fa-cog fa-spin" aria-hidden="true"></i> En desarrollo
+                </span>
             </div>
-            <h2 class="text-center">&nbsp; continuamos mejorando y desarrollando más funciones</h2>
-        </section>
-        <section class="clean-block about-us">
-            <div class="container">
-                <div class="block-heading">
-                    <h1 class="text-info">Acerca de nosotros</h1>
-                    <p class="text-center" style="color:rgb(0,0,0);">Estas son las personas que con su trabajo hacen posible que Didxazapp llegue a ti de forma gratuita.</p>
-                </div>
-                <div class="row justify-content-center"><div class="col-sm-6 col-lg-4 col-xl-4 offset-xl-0">
-    <div class="card clean-card text-center"><a href="https://web.facebook.com/simpleverso?_rdc=1&_rdr"><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/20993913_10203608324883972_744476329956496412_n.jpg" class="card-img-top w-100 d-block" /></a>
-        <div class="card-body info" style="background-size: cover;background-repeat: round;filter: contrast(83%);">
-            <h4 class="card-title">Gonzalo Santiago Martínez.</h4>
-            <p class="card-text">Ingeniero en Software, H. Cd. De Juchitán de Zaragoza, Oaxaca.</p>
-            <div class="icons"><a href="#"></a><a href="#"></a><a href="#"></a></div>
-        </div>
-    </div>
-    <div class="card clean-card text-center"></div>
-</div><div class="col-sm-6 col-lg-4">
-    <div class="card clean-card text-center"><a href="https://web.facebook.com/profile.php?id=100009998263861"><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/1484737_239097359766871_4601203402402548145_n.jpg" class="card-img-top w-100 d-block" /></a>
-        <div class="card-body info" style="background-size:cover;background-repeat:round;">
-            <h4 class="card-title">Julio César Argüelles V.</h4>
-            <p class="card-text">Poeta y traductor de Zapoteco, Unión Hidalgo, Oaxaca.</p>
-            <div class="icons"><a href="#"></a><a href="#"></a><a href="#"></a></div>
-        </div>
-    </div>
-    <div class="card clean-card text-center"></div>
-</div><div class="col-sm-6 col-lg-4">
-    <div class="card clean-card text-center"></div>
-    <div class="card clean-card text-center"></div>
-    <div class="card clean-card text-center"><a href="https://web.facebook.com/nelson.guerra.18"><img src="https://simpleverso.github.io/DidxazappWEB/assets/img/14067652_10205296393169028_87404893789576148_n.jpg" class="card-img-top w-100 d-block" /></a>
-        <div class="card-body info">
-            <h4 class="card-title">Nelson Guerra L.</h4>
-            <p class="card-text">Poeta y escritor Zapoteco, H. Cd. De Juchitán de Zaragoza, Oaxaca.</p>
-            <div class="icons"><a href="#"></a><a href="#"></a><a href="#"></a></div>
-        </div>
-    </div>
-</div></div>
+
+            <div class="feature-card is-disabled reveal">
+                <span class="feature-icon"><i class="fa fa-commenting-o" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Traducción por SMS</h3>
+                <p class="feature-desc">
+                    Servicio gratuito de traducción enviando <strong>"Zapoteco + frase corta en español"</strong>
+                    al número <strong>5571381948</strong>. No requiere internet, solo saldo o plan de mensajes.
+                </p>
+                <span class="status-chip is-disabled">
+                    <i class="fa fa-pause-circle-o" aria-hidden="true"></i> No disponible por el momento
+                </span>
             </div>
-        </section>
-    </main>
+
+            <div class="feature-card reveal" style="cursor: default;">
+                <span class="feature-icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+                <h3 class="feature-title">Privacidad ante todo</h3>
+                <p class="feature-desc">
+                    No recolectamos información personal. Las traducciones viajan directamente desde
+                    tu navegador a las fuentes públicas; no hay cuentas ni seguimiento.
+                </p>
+                <span class="feature-cta" style="opacity: 0.6;">Sin cuentas requeridas</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-shell">
+        <div class="stats-row reveal">
+            <div class="stat-cell">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Fuentes de traducción</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-number">168+</div>
+                <div class="stat-label">Animales catalogados</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-number">22</div>
+                <div class="stat-label">Números con audio</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-number">15</div>
+                <div class="stat-label">Idiomas de origen</div>
+            </div>
+        </div>
+    </section>
+
     <div class="footer-basic">
         <footer>
-            <ul class="list-inline"></ul>
-            <p class="copyright">Nacubi research - 2021</p>
+            <p class="copyright">Nacubi research · <span id="anio"></span></p>
         </footer>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
-    <script src="https://simpleverso.github.io/DidxazappWEB/assets/js/smoothproducts.min.js"></script>
-    <script src="assets/js/theme.js"></script>
-    <script src="assets/js/bs-animation.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
-    <script src="assets/js/ml-video.js"></script>
-    <script src="assets/js/traductor.js"></script>
+
+    <script>
+        // Año automático en el footer
+        document.getElementById('anio').textContent = new Date().getFullYear();
+
+        // Reveal-on-scroll para las tarjetas y la fila de stats. IntersectionObserver
+        // mantiene la animación ligera y no se ejecuta si el usuario prefiere reducir motion.
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion) {
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
+        } else {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+            document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+        }
+    </script>
     <script src="assets/js/page-config.js" data-page="index"></script>
-    <script src="assets/js/footer-year.js"></script>
 </body>
 
 </html>
