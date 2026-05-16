@@ -270,6 +270,73 @@
         .spell-msg { margin: 0; }
         .spell-msg.spell-ok { color: #4ade80; }
 
+        /* Fila con input + selector de idioma */
+        .source-row {
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 14px;
+            align-items: start;
+        }
+        .source-input { min-width: 0; } /* evita que el input desborde el grid */
+        @media (max-width: 575.98px) {
+            .source-row { grid-template-columns: 1fr; }
+        }
+
+        /* Select estilizado igual que los inputs */
+        .site-form select.form-control {
+            font-size: 0.95rem;
+            color: var(--tx-text);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            border-radius: 8px;
+            padding: 10px 36px 10px 12px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, var(--tx-primary-2) 50%),
+                linear-gradient(135deg, var(--tx-primary-2) 50%, transparent 50%);
+            background-position:
+                calc(100% - 18px) 50%,
+                calc(100% - 12px) 50%;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+        .site-form select.form-control:focus {
+            background-color: #182236;
+            border-color: var(--tx-accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            outline: none;
+            color: var(--tx-text-strong);
+        }
+        .site-form select.form-control option { background: var(--tx-surface); color: var(--tx-text); }
+
+        /* Aviso del puente: "traducido al español por Google" */
+        .bridge-panel {
+            margin: 8px 0 0;
+            padding: 8px 12px;
+            background: rgba(79, 143, 207, 0.08);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-primary-2);
+            border-radius: 6px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: var(--tx-label);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .bridge-panel .bridge-from { color: var(--tx-muted); }
+        .bridge-panel .bridge-arrow { color: var(--tx-muted); }
+        .bridge-panel .bridge-text {
+            color: var(--tx-text-strong);
+            font-weight: 600;
+            font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
+        }
+        .bridge-panel.is-loading { opacity: 0.7; }
+
         .site-form textarea.form-control {
             background: var(--tx-surface-2);
             resize: vertical;
@@ -491,9 +558,35 @@
             </div>
             <div class="col-12 col-md-11 col-lg-10 col-xl-9 site-form">
                 <form id="my-form" onsubmit="return false;" action="">
-                    <label class="field-label" for="txt_texto_espanish">Palabra o frase en español</label>
-                    <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto en español" autofocus spellcheck="true">
+                    <div class="source-row">
+                        <div class="source-input">
+                            <label class="field-label" for="txt_texto_espanish">Palabra o frase</label>
+                            <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" autofocus spellcheck="true">
+                        </div>
+                        <div class="source-lang">
+                            <label class="field-label" for="src_lang">Idioma de origen</label>
+                            <select class="form-control" id="src_lang">
+                                <option value="es" selected>Español</option>
+                                <option value="auto">Detectar automáticamente</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                                <option value="pt">Português</option>
+                                <option value="it">Italiano</option>
+                                <option value="de">Deutsch</option>
+                                <option value="ja">日本語 (Japonés)</option>
+                                <option value="ko">한국어 (Coreano)</option>
+                                <option value="zh-CN">中文 (Chino)</option>
+                                <option value="ru">Русский</option>
+                                <option value="ar">العربية</option>
+                                <option value="hi">हिन्दी</option>
+                                <option value="nah">Náhuatl</option>
+                                <option value="qu">Quechua</option>
+                                <option value="yua">Maya yucateco</option>
+                            </select>
+                        </div>
+                    </div>
                     <div id="input_warning" class="input-warning" role="alert" aria-live="polite" hidden></div>
+                    <div id="bridge_panel" class="bridge-panel" aria-live="polite" hidden></div>
                     <div id="spell_panel" class="spell-panel" aria-live="polite" hidden></div>
 
                     <div class="results-grid">
@@ -523,7 +616,7 @@
     </div>
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
         <div class="container">
-            <a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;SimplesoftMX&nbsp;</a>
+            <a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a>
             <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="navbar-toggler-icon"></span>
@@ -541,7 +634,7 @@
     <div class="footer-basic">
         <footer>
             <ul class="list-inline"></ul>
-            <p class="copyright" id="anio">SimplesoftMX &amp; Didxaza Traducciones México - </p>
+            <p class="copyright" id="anio">Nacubi research &amp; Didxaza Traducciones México - </p>
         </footer>
     </div>
 
@@ -608,6 +701,8 @@
         const $resGoog  = document.getElementById('txt_res_google');
         const $warning  = document.getElementById('input_warning');
         const $spell    = document.getElementById('spell_panel');
+        const $srcLang  = document.getElementById('src_lang');
+        const $bridge   = document.getElementById('bridge_panel');
 
         // Año automático en el footer
         document.getElementById('anio').innerHTML += new Date().getFullYear();
@@ -662,9 +757,15 @@
             // la comprobación ortográfica con un pequeño retraso (debounce).
             $input.addEventListener('input', () => {
                 clearInputWarning();
+                clearBridge();
                 scheduleSpellCheck();
             });
             $spell.addEventListener('click', onSpellPanelClick);
+            // Cambiar idioma reinicia la corrección y limpia el panel del puente.
+            $srcLang.addEventListener('change', () => {
+                clearBridge();
+                scheduleSpellCheck();
+            });
 
             // Pre-calienta puter.net.fetch (su primer uso suele ser lento por inicialización
             // del worker/TLS). Si falla, no pasa nada: solo afectaría a la primera traducción.
@@ -818,6 +919,28 @@
             return out || 'Sin resultados';
         }
 
+        // Detección de idioma: data[2] devuelve el código BCP-47 (ej. "en", "fr", "ja").
+        function parseGoogleDetected(json) {
+            try {
+                const data = JSON.parse(json);
+                return (data && data[2]) || '';
+            } catch (e) { return ''; }
+        }
+
+        // Llama a Google Translate para convertir texto desde `sl` (source lang) a `tl`
+        // (target lang). Devuelve `{ text, detected }`. Lanza si la API falla.
+        async function googleTranslate(text, sl, tl) {
+            const word = encodeURIComponent(text);
+            const url = `${GOOGLE_API}?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${word}`;
+            const r = await fetch(url);
+            if (!r.ok) throw new Error('Google Translate ' + r.status);
+            const json = await r.text();
+            return {
+                text: parseGoogle(json),
+                detected: parseGoogleDetected(json),
+            };
+        }
+
         // ---- Fetch wrapper ----
         // Para servicios bloqueados por CORS (o sólo en HTTP) usamos puter.net.fetch
         // (drop-in replacement), cargado con <script src="https://js.puter.com/v2/">.
@@ -943,7 +1066,12 @@
             $spell.innerHTML = '<p class="spell-msg">Comprobando ortografía…</p>';
             $spell.hidden = false;
             try {
-                const body = new URLSearchParams({ language: 'es', text });
+                // Mapeamos los códigos del selector a los que entiende LanguageTool.
+                // Si el idioma no es soportado, dejamos que LT lo autodetecte.
+                const map = { es:'es', en:'en-US', fr:'fr', pt:'pt', it:'it', de:'de-DE', ru:'ru-RU', ja:'ja-JP' };
+                const sel = $srcLang ? $srcLang.value : 'es';
+                const ltLang = map[sel] || 'auto';
+                const body = new URLSearchParams({ language: ltLang, text });
                 const r = await fetch(LT_API, { method: 'POST', body, signal: spellAbort.signal });
                 if (!r.ok) throw new Error('LT ' + r.status);
                 const data = await r.json();
@@ -977,22 +1105,78 @@
         }
 
         // ---- Acción principal ----
+        // Etiqueta amigable del idioma seleccionado (para los avisos).
+        function langLabel(code) {
+            const opt = $srcLang.querySelector(`option[value="${code}"]`);
+            return opt ? opt.textContent.trim() : code;
+        }
+
+        function showBridge(html, loading = false) {
+            $bridge.innerHTML = html;
+            $bridge.hidden = false;
+            $bridge.classList.toggle('is-loading', loading);
+        }
+        function clearBridge() {
+            $bridge.hidden = true;
+            $bridge.innerHTML = '';
+            $bridge.classList.remove('is-loading');
+        }
+
         async function traductorjs() {
-            const text = $input.value.trim();
-            if (text.length === 0) {
-                showInputWarning('Escribe una palabra o frase en español antes de traducir.');
+            const raw = $input.value.trim();
+            if (raw.length === 0) {
+                showInputWarning('Escribe una palabra o frase antes de traducir.');
                 return;
             }
-            if (text.length > MAX_CHARS) {
-                showInputWarning(`El texto es demasiado largo. Máximo ${MAX_CHARS} caracteres (actualmente ${text.length}).`);
+            if (raw.length > MAX_CHARS) {
+                showInputWarning(`El texto es demasiado largo. Máximo ${MAX_CHARS} caracteres (actualmente ${raw.length}).`);
                 return;
             }
             clearInputWarning();
 
+            const srcLang = $srcLang.value || 'es';
+            // El flujo de los tres diccionarios y de Google → zap requiere texto en español.
+            // Si el usuario eligió otro idioma, lo pasamos primero por Google (xx → es)
+            // y usamos el resultado como entrada al pipeline existente.
+            let textForES = raw;
+            if (srcLang !== 'es') {
+                setBtn('Traduciendo...');
+                showBridge(`<span class="bridge-from">Traduciendo desde <strong>${escapeHtml(langLabel(srcLang))}</strong>…</span>`, true);
+                try {
+                    const bridge = await googleTranslate(raw, srcLang, 'es');
+                    if (!bridge.text || bridge.text === 'Sin resultados') {
+                        clearBridge();
+                        showInputWarning('No se pudo traducir el texto al español. Intenta otro idioma o revisa el texto.');
+                        setBtn('Traducir');
+                        return;
+                    }
+                    textForES = bridge.text;
+                    const detectedNote = (srcLang === 'auto' && bridge.detected)
+                        ? ` <span class="bridge-from">(detectado: <strong>${escapeHtml(langLabel(bridge.detected) || bridge.detected)}</strong>)</span>`
+                        : '';
+                    showBridge(
+                        `<span class="bridge-from">Texto en español:</span>` +
+                        `<span class="bridge-arrow">→</span>` +
+                        `<span class="bridge-text">${escapeHtml(textForES)}</span>` +
+                        detectedNote
+                    );
+                } catch (e) {
+                    console.warn('Bridge translation falló:', e);
+                    clearBridge();
+                    showInputWarning('No se pudo contactar a Google Translate para traducir al español. Intenta de nuevo.');
+                    setBtn('Traducir');
+                    return;
+                }
+            } else {
+                clearBridge();
+            }
+
+            // A partir de aquí el flujo es idéntico al anterior, pero con `textForES`
+            // en lugar del valor crudo del input.
             setBtn('Traduciendo...');
             $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = 'Buscando...';
 
-            const urls = buildUrls(text);
+            const urls = buildUrls(textForES);
 
             // Mensajes de fallback que necesitamos detectar al final del flujo.
             const FALLBACK_DIDXAZAPP = 'No disponible por mantenimiento, intente más tarde';
@@ -1021,12 +1205,12 @@
             const didxFailed =
                 $resDx.value === '' ||
                 $resDx.value === FALLBACK_DIDXAZAPP ||
-                norm($resDx.value) === norm(text);
+                norm($resDx.value) === norm(textForES);
             const googleOk =
                 $resGoog.value &&
                 $resGoog.value !== FALLBACK_GOOGLE &&
                 $resGoog.value !== 'Sin resultados' &&
-                norm($resGoog.value) !== norm(text);
+                norm($resGoog.value) !== norm(textForES);
 
             if (didxFailed && googleOk) {
                 $resDx.value = $resGoog.value + '\n\n(traducción provista por Google Translate)';
