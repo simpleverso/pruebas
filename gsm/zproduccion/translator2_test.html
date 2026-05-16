@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+  function onKeyUp(event) {
+    var keycode = event.keyCode;
+    if(keycode == '13'){
+      traductorjs();
+    }
+  }
+</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Last-Modified" content="0">
+    <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>Didxazapp</title>
+    <meta name="description" content="Traductor Web Español - Zapoteco">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
+    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ABeeZee">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abel">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abhaya+Libre">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Adamina">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Advent+Pro">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aguafina+Script">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Akronim">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aladin">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alfa+Slab+One">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amarante">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amethysta">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amiko">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amiri">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amita">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anaheim">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Andika">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Antic">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Antic+Didone">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Archivo">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Archivo+Black">
+    <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
+    <!--<link rel="stylesheet" href="assets/css/dh-row-text-image-right.css">-->
+    <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
+    <link rel="stylesheet" href="assets/css/Footer-Basic.css">
+    <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image.css">
+    <link rel="stylesheet" href="assets/css/Highlight-Blue.css">
+    <link rel="stylesheet" href="assets/css/Highlight-Phone.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/css/Login-Form-Dark.css">
+    <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/css/ml-video.css">
+    <link rel="stylesheet" href="assets/css/smoothproducts.css">
+<style>
+body {
+  text-align: right;
+}
+</style>
+</head>
+
+<body>
+    <div class="container" id="info-container">
+        <div class="row" style="margin: 30px;height: 20px;"> </div>
+        <div>
+            <!--
+            <div class="col-md-12" style="margin: 5px;">
+                <h2 class="text-center text-info pulse animated">Traductor experimental Español - Zapoteco</h2>
+            </div>
+            -->
+            <div>
+                <form class="text-center" id="my-form" onsubmit="return false;" action="">
+		    Texto en español
+                    <div class="form-group">
+			    <label class="sr-only" for="firstname">First Name</label>
+			    <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" placeholder="Texto en español" minlength="2" maxlength="31" autofocus="" onkeyup="onKeyUp(event)" spellcheck="true" required>
+		    </div>
+                    Didxazapp
+                    <div class="form-group">
+			    <label class="sr-only" for="lastname">Last Name</label>
+			    <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" name="messages" readonly="" required="" placeholder="Resultado Traductor Didxazapp" rows="3"></textarea>
+		    </div>
+                    Fundacion H. C. Juchitan
+                    <div class="form-group">
+			    <label class="sr-only" for="phonenumber">Phone Number</label>
+			    <textarea class="form-control" data-aos="fade" id="txt_res_fundacionjuchitan" name="messages" readonly="" required="" placeholder="Resultado Traductor Fundación Juchitán" rows="3"></textarea>
+		    </div>
+        	     <div class="form-group">
+		    	<label class="sr-only" for="email">Email Address</label>
+		     </div>
+         		Fam Toledo
+        	    <div class="form-group">
+			<label class="sr-only" for="messages">Last Name</label>
+			<textarea class="form-control" data-aos="fade" id="txt_familia_toleto" style="height: 143px;" name="messages" readonly="" required="" placeholder="Resultado Traductor Familia Toledo" rows="8"></textarea>
+		    </div>
+			<button id="btn_traduc" name= "btn_traducir" onclick="traductorjs()" class="btn btn-primary" type="button">Traducir</button>
+			<center><br>
+					<!--<div class="clearfix">Ya viste la nueva seccion de animales?...TEST</div>-->
+					<a href="https://simpleverso.github.io/DidxazappWEB/imagetranslator/index.html" target="_blank" class="mask waves-effect waves-ripple waves-light">Traductor Video</a>			
+				</br>
+		    <!--<a href="sms:+5571381948?body=zapoteco perro" class="mask waves-effect waves-ripple waves-light">Ya probaste el traductor SMS? envia: zapoteco + palabra en español al 5571381948, y recibe su traduccion gratis en tu telefono</a>-->			
+			
+		    </center>
+</form>
+    </div>
+    </div>
+    </div>
+<nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container"><a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;SimplesoftMX&nbsp;</a><button data-toggle="collapse" class="navbar-toggler collapsed" data-target="#navcol-1" aria-expanded="false"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="navbar-collapse collapse" id="navcol-1" style="">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="https://simpleverso.github.io/DidxazappWEB/translator2.html">INICIO</a></li>
+                    <!--<li class="nav-item" role="presentation"><a class="nav-link" href="appHtml/app_partesDelCuerpo.html">Partes Del Cuerpo</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="appHtml/app_colores.html">Colores</a></li>-->
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="https://simpleverso.github.io/DidxazappWEB/appHtml/app_animales.html">Animales</a></li>
+		    <li class="nav-item" role="presentation"><a class="nav-link" href="https://simpleverso.github.io/DidxazappWEB/appHtml/app_numeros.html">Numeros</a></li>
+			<!--<li class="nav-item" role="presentation"><a class="nav-link" href="app_indumentaria.html">Vestimenta</a></li>-->
+			<!--<li class="nav-item" role="presentation"><a class="nav-link" href="app_frasesfrecuentes.html">Frases Comunes</a></li>-->
+			<!--<li class="nav-item" role="presentation"><a class="nav-link" href="donate.html">Chistes</a></li>-->
+		    <li class="nav-item" role="presentation"><a class="nav-link" href="https://simpleverso.github.io/DidxazappWEB/shunn-ia/">Traductor Voz</a></li>
+		    <li class="nav-item" role="presentation"><a class="nav-link" href="https://simpleverso.github.io/DidxazappWEB/imagetranslator/">Traductor Cámara</a></li>
+                </ul>
+        </div>
+        </div>
+    </nav>
+    <div class="footer-basic">
+        <footer>
+            <ul class="list-inline"></ul>
+            <p class="copyright">SimplesoftMX &amp; Didxaza Traducciones México - 2021 -  TEST</p>
+        </footer>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="assets/js/smoothproducts.min.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/bs-animation.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
+    <script src="assets/js/ml-video.js"></script>
+
+<!-- **Para uso de toast, snack y alert
+    <script src="assets/js/mdb.min.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+-->
+
+ <script>
+
+/* global txt_familia_toleto */
+/* global txt_res_didxazapp */
+/* global txt_texto_espanish */
+/* global txt_res_fundacionjuchitan */
+
+var didxazappActivo = true;
+var toledoActivo = true;
+var fundacionJuchitanActivo = true; //fallando desde
+	 
+	 
+function showAlert(text) {
+    window.alert(text);
+    return false;
+}
+
+	 
+function traductorjs()
+{
+	//showAlert('Buscando...');
+	document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">Traduciendo...</button>";
+	txt_familia_toleto.value = "";
+	txt_res_didxazapp.value = "";
+	txt_res_fundacionjuchitan.value = "";
+	var cantidad = 36;
+	var decide = Math.round(Math.random() * 10);
+	//console.log(decide);
+	var url = "";
+	var url2 = "";
+	var url3 = "";
+	
+	if( decide== 1 || decide==3 || decide == 5 || decide == 7 || decide == 9)
+	{
+		 url = "https://didxazapp.azurewebsites.net/service/didxaza.asmx/TraductorTOLEDO?palabra={0}&clave={1}";
+		 url2 = "https://didxazapp.azurewebsites.net/service/didxaza.asmx/quierofraseenzapotecoclave?damelafraseenespaniol={0}&clave={1}";
+		 url3 = "https://didxazapp.azurewebsites.net/service/didxaza.asmx/TraductorfundacionJuchitan?palabra={0}&clave={1}";
+	}
+	else
+	{
+		 url = "https://traductorzapoteco.azurewebsites.net/service/didxaza.asmx/TraductorTOLEDO?palabra={0}&clave={1}";
+		 url2 = "https://traductorzapoteco.azurewebsites.net/service/didxaza.asmx/quierofraseenzapotecoclave?damelafraseenespaniol={0}&clave={1}";
+		 url3 = "https://traductorzapoteco.azurewebsites.net/service/didxaza.asmx/TraductorfundacionJuchitan?palabra={0}&clave={1}";
+	}
+	
+	//var url = "https://traductorzapoteco.azurewebsites.net/service/didxaza.asmx/TraductorTOLEDO?palabra={0}&clave={1}";
+	//var url2 = "https://traductorzapoteco.azurewebsites.net/service/didxaza.asmx/quierofraseenzapotecoclave?damelafraseenespaniol={0}&clave={1}";
+	//var url3 = "https://traductorzapoteco.azurewebsites.net/service/didxaza.asmx/TraductorfundacionJuchitan?palabra={0}&clave={1}";
+
+	if (txt_texto_espanish.value.length<=cantidad && txt_texto_espanish.value.length >= 1) 
+	{
+		//alert("entra");
+		var textoobtenido = txt_texto_espanish.value;
+		url = url.replace(/\{0\}/g, textoobtenido.trim());
+	 	url = url.replace(/\{1\}/g, "p");
+		url2 = url2.replace(/\{0\}/g, textoobtenido.trim());
+		url2 = url2.replace(/\{1\}/g, "p");
+		url3 = url3.replace(/\{0\}/g, textoobtenido.trim());
+		url3 = url3.replace(/\{1\}/g, "p");
+		
+	////////////////////////////////////////////////////////DIDXAZAPP
+		if( didxazappActivo== true)
+		{
+			var request2 = new XMLHttpRequest();
+			request2.overrideMimeType('application/x-javascript; charset=utf-8');
+			//request2.overrideMimeType('application/x-www-form-urlencoded; charset=utf-1');
+			request2.open("GET", url2, true);
+			request2.onload = () => 
+			{
+				var textoRecuperado = request2.responseText.toString().substr(107,request2.responseText.length);
+				var pedazos = textoRecuperado.split("</string>");
+				//console.log(pedazos[0]);
+				pedazos[0] = pedazos[0].replace("Ã¡","á").replace("Ã©","é").replace("Ã","í").replace("Ã³","ó").replace("Ãº","ú");
+				pedazos[0] = pedazos[0].replace("íº","ú"); //añadir a github
+				pedazos[0] = pedazos[0].replace("Ã¡","á").replace("í¡","á");
+				pedazos[0] = pedazos[0].replace("í±","ñ");
+				txt_res_didxazapp.value += pedazos[0].toString();
+				document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">Traducir</button>";
+				//document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">No disponible por el momento...</button>";
+			};
+			request2.send();
+		}
+		else
+		{
+			txt_res_didxazapp.value = "No disponible por mantenimiento, intente más tarde";
+		}
+	
+		
+
+	///////////////////////////////////////////////////FUNDACION JUCHITAN
+		if( fundacionJuchitanActivo == true)
+		{
+			var request3 = new XMLHttpRequest();
+			request3.overrideMimeType('application/x-javascript; charset=utf-8');
+			request3.open("GET", "https://aulex.org/zap-es/?busca=sol", true);
+			request3.onload = () => 
+			{
+				var textoRecuperado = request3.responseText.toString();
+				var pedazos = textoRecuperado.Split("<!--Comienza contendio-->");
+			    var pageContents = pedazos[1];
+			    if(pageContents.Contains("No hay resultados para"))
+			    {
+				pageContents = "Sin resultados";
+			    }
+			    else
+			    { 
+				pageContents = pageContents.Substring(109,pageContents.Length-356);
+				pageContents = pageContents.Replace("<p><span class=dict>","");
+				pageContents = pageContents.Replace("&laquo;","");
+				pageContents = pageContents.Replace("</EM>","");
+				pageContents = pageContents.Replace("<EM>","");
+				pageContents = pageContents.Replace("</span>","");
+				pageContents = pageContents.Replace("<i>","");
+				pageContents = pageContents.Replace("<U>","");
+				pageContents = pageContents.Replace("</i>","");
+				pageContents = pageContents.Replace("</U>","");
+				pageContents = pageContents.Replace(":"," --> ");
+				pageContents = pageContents.Replace("</p>","");
+				pageContents = pageContents.Replace("<span class=text>","");
+				txt_res_fundacionjuchitan.value =  pageContents;
+			    }
+				
+				document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">Traducir</button>";
+				//document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">No disponible por el momento</button>";
+			};
+			request3.send();
+		}
+		else
+		{
+			txt_res_fundacionjuchitan.value = "No se pudo obtener informacion de: http://www.zapotecoteco.org.mx/";
+		}
+		
+	  //////////////////////////////////////////////////////////TOLEDO
+		if( toledoActivo == true)
+		{
+			var request = new XMLHttpRequest();
+			request.overrideMimeType('application/x-javascript; charset=utf-8');
+			request.open("GET", url, true);
+			request.onload = () => 
+			{
+				var textoRecuperado = request.responseText.toString().substr(213,request.responseText.length-172);
+
+				var pedazos = textoRecuperado.split("<string>");
+				pedazos[1] = pedazos[1].replace("</string>","").replace("</ArrayOfString>","");
+				pedazos[2] = pedazos[2].replace("</string>","").replace("</ArrayOfString>","");
+
+				pedazos[1] = pedazos[1].replace("Ã¡","á").replace("Ã©","é").replace("Ã","í").replace("Ã³","ó").replace("Ãº","ú"); //añadir a github
+				pedazos[1] = pedazos[1].replace("íº","ú");
+				pedazos[1] = pedazos[1].replace("í±","ñ");
+				pedazos[1] = pedazos[1].replace("Ã¡","á").replace("í¡","á");
+
+				pedazos[2] = pedazos[2].replace("Ã¡","á").replace("Ã©","é").replace("Ã","í").replace("Ã³","ó").replace("Ãº","ú"); //añadir a github
+				pedazos[2] = pedazos[2].replace("íº","ú"); 
+				pedazos[2] = pedazos[2].replace("í±","ñ");
+				pedazos[2] = pedazos[2].replace("Ã¡","á").replace("í¡","á");
+
+				var text1 = "";
+				var re = pedazos[1].split("|");
+				for (var index = 0; index < re.length; index++) 
+				{
+					 text1 += re[index]+"-->";
+				}
+				text1 = text1.replace("Definiciones:","Definiciones: \n");
+
+				var text0="";
+				var ped1 = text1.split("~");
+				for (var index = 0; index < ped1.length; index++) 
+				{
+					 text0 += ped1[index]+"\n";
+				}
+
+				var text2 = "";
+				var re2 = pedazos[2].split("|");
+				for (var index = 0; index < re2.length; index++) 
+				{
+					 text2 += re2[index]+"-->";
+				}
+				text2 = text2.replace("Ejemplos:","Ejemplos: \n");
+
+				var text3="";
+				var ped2 = text2.split("~");
+				for (var index = 0; index < ped2.length; index++) 
+				{
+					 text3 += ped2[index]+"\n";
+				}
+				text0 = text0.replace("Definiciones: ","");
+
+				if(text0.indexOf("-->", text0.length - "-->".length)) //quita restos de --> en la ultima linea
+				{
+					text0 = text0.substring(0, text0.length - 4);
+				}
+				
+				
+				if(text0.toString().trim() == "-->") // validar informacion
+				{
+					txt_familia_toleto.value = "Sin definiciones";
+				}
+				else
+				{
+					//txt_familia_toleto.value += text0.toString().trim();
+					txt_familia_toleto.value = text0.toString().trim(); //creo que esto quita el error de traduccion
+				}	
+				document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">Traducir</button>";
+				//document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">No disponible por el momento...</button>";
+			};
+			request.send();	
+		}
+		else
+		{
+			txt_familia_toleto.value = "No se pudo obtener informacion de: http://biyubi.com";
+		}
+	}
+	else
+	{
+		document.getElementById("btn_traduc").outerHTML = "<button id=\"btn_traduc\" name=\"btn_traducir\" onclick=\"traductorjs()\" class=\"btn btn-primary\" type=\"button\">No se pudo realizar el proceso</button>";
+		//alert("Debes ingresar más de una letra, Solo se aceptan frases cortas de hasta "+cantidad+" caracteres");
+	}	
+}
+    </script>
+</body>
+</html>
+

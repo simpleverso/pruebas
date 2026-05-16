@@ -1,0 +1,18 @@
+#splash {
+  background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL1qw__fSMU2xZjpO3LLv6BQwRgSDP4kgzF0PN8jxseXdVQnAtpw");
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#buttonsInlineFlex {
+  box-sizing: border-box;
+}
+
