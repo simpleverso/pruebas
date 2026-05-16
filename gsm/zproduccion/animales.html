@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Animales · Didxazapp</title>
-    <meta name="description" content="Galería de animales con sus nombres en Zapoteco del Istmo y español.">
+    <meta name="description" content="Galería de animales con sus nombres en Zapoteco del Istmo y español, organizados por categoría.">
     <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
     <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
@@ -60,7 +60,7 @@
         .navbar-toggler { border-color: var(--tx-border) !important; }
         .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
 
-        /* Encabezado */
+        /* Layout */
         .gallery-shell {
             max-width: 1180px;
             margin: 0 auto;
@@ -68,7 +68,7 @@
         }
         .gallery-heading {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
         .gallery-heading h1 {
             color: var(--tx-text-strong);
@@ -80,14 +80,73 @@
         .gallery-heading p {
             color: var(--tx-muted);
             font-size: 0.95rem;
-            margin: 0;
+            margin: 0 auto;
+            max-width: 720px;
         }
 
-        /* Grid responsivo de tarjetas */
+        /* Navegación de categorías (chips) */
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0 36px;
+            padding: 12px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            box-shadow: var(--tx-shadow);
+        }
+        .category-nav a {
+            display: inline-block;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--tx-label);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            text-decoration: none;
+            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+        }
+        .category-nav a:hover {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .category-nav a .count {
+            margin-left: 6px;
+            color: var(--tx-muted);
+            font-size: 0.72rem;
+        }
+        .category-nav a:hover .count { color: rgba(255,255,255,0.75); }
+
+        /* Sección por categoría */
+        .category-section { scroll-margin-top: 96px; margin-bottom: 44px; }
+        .category-title {
+            color: var(--tx-text-strong);
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            margin: 0 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--tx-border);
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .category-title .count {
+            color: var(--tx-muted);
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        /* Grid responsivo */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 22px;
+            gap: 18px;
         }
 
         .animal-card {
@@ -122,20 +181,51 @@
         }
         .animal-card:hover .animal-photo img { transform: scale(1.05); }
 
+        /* Placeholder cuando no hay imagen */
+        .animal-photo.is-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(79, 143, 207, 0.10), transparent 60%),
+                var(--tx-surface-2);
+        }
+        .animal-photo.is-placeholder .ph-icon {
+            color: var(--tx-border-2);
+            font-size: 38px;
+            transition: color 0.2s ease, transform 0.4s ease;
+        }
+        .animal-card:hover .animal-photo.is-placeholder .ph-icon {
+            color: var(--tx-primary);
+            transform: scale(1.08);
+        }
+        .animal-photo.is-placeholder::after {
+            content: "Sin imagen";
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            font-size: 0.66rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--tx-muted);
+            opacity: 0.6;
+        }
+
         .animal-body {
-            padding: 14px 16px 16px;
+            padding: 12px 14px 14px;
             border-top: 1px solid var(--tx-border);
         }
         .animal-name-zap {
             color: var(--tx-text-strong);
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 600;
             margin: 0 0 2px;
             letter-spacing: 0.005em;
+            word-break: break-word;
         }
         .animal-name-es {
             color: var(--tx-muted);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 400;
             margin: 0;
             display: flex;
@@ -145,10 +235,30 @@
         .animal-name-es::before {
             content: "";
             display: inline-block;
-            width: 18px;
+            width: 16px;
             height: 1px;
             background: var(--tx-border-2);
+            flex-shrink: 0;
         }
+        .animal-name-es.is-empty {
+            color: var(--tx-muted);
+            opacity: 0.55;
+            font-style: italic;
+        }
+
+        /* Atribución de fuente */
+        .source-note {
+            margin-top: 32px;
+            padding: 14px 18px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-primary-2);
+            border-radius: 8px;
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+        .source-note strong { color: var(--tx-label); font-weight: 600; }
 
         /* Footer */
         .footer-basic {
@@ -164,7 +274,6 @@
             text-align: center;
         }
 
-        /* Selección y scroll */
         ::selection {
             background: rgba(59, 130, 246, 0.45);
             color: var(--tx-text-strong);
@@ -174,7 +283,8 @@
             .gallery-shell { padding: 100px 16px 40px; }
             .gallery-heading h1 { font-size: 1.55rem; }
             .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-            .animal-body { padding: 12px 14px; }
+            .animal-body { padding: 10px 12px 12px; }
+            .category-title { font-size: 1.15rem; }
         }
     </style>
 </head>
@@ -203,12 +313,22 @@
     <main class="gallery-shell">
         <header class="gallery-heading">
             <h1>Animales en Zapoteco</h1>
-            <p>Galería de animales con su nombre en Zapoteco del Istmo y en español.</p>
+            <p>Catálogo de animales con sus nombres en Zapoteco del Istmo y español, organizado por categorías.</p>
         </header>
 
-        <section class="gallery-grid" id="animal-gallery">
-            <!-- Las tarjetas se generan dinámicamente desde el array `ANIMALES` para evitar HTML repetitivo. -->
-        </section>
+        <nav class="category-nav" id="category-nav" aria-label="Categorías de animales">
+            <!-- Generado dinámicamente -->
+        </nav>
+
+        <div id="content-root">
+            <!-- Las secciones y tarjetas se generan dinámicamente desde el array `ANIMAL_GROUPS`. -->
+        </div>
+
+        <p class="source-note">
+            <strong>Fuente:</strong> Recopilado por Israel Santiago y Silvia Guerra en los pueblos de
+            Juchitán, Álvaro Obregón, Xadani y La Ventosa (2016). Las entradas marcadas <em>«Sin imagen»</em>
+            aún no tienen ilustración asociada en el banco gráfico del proyecto.
+        </p>
     </main>
 
     <div class="footer-basic">
@@ -222,54 +342,293 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
 
     <script>
-        // Lista de animales (zapoteco + español + ruta de imagen).
-        // Las imágenes están alojadas en simpleverso.github.io para no duplicar binarios.
-        const ANIMALES = [
-            { zap: "Biizu",        es: "Abeja",        img: "abeja.jpg" },
-            { zap: "Meuxubi",      es: "Alacrán",      img: "alacran.png" },
-            { zap: "Bidxiguí",     es: "Araña",        img: "ara%C3%B1a.jpg" },
-            { zap: "Chisa",        es: "Ardilla",      img: "ardilla.png" },
-            { zap: "Ngupi",        es: "Armadillo",    img: "armadillo.jpg" },
-            { zap: "Guluuxu",      es: "Bagre",        img: "bagre.jpg" },
-            { zap: "Dendxu'",      es: "Borrego",      img: "borrego.jpg" },
-            { zap: "Mani'",        es: "Caballo",      img: "caballo.jpg" },
-            { zap: "Bendabuaa",    es: "Camarón",      img: "camaron.jpg" },
-            { zap: "Bihui",        es: "Cerdo",        img: "cerdo.jpg" },
-            { zap: "Biulú",        es: "Colibrí",      img: "colibri.jpg" },
-            { zap: "Leexhu",       es: "Conejo",       img: "conejo.jpg" },
-            { zap: "Mistu'",       es: "Gato",         img: "gato.jpg" },
-            { zap: "Tou'",         es: "Guajolote",    img: "guajolote.jpg" },
-            { zap: "Biri'",        es: "Hormiga",      img: "hormiga.jpg" },
-            { zap: "Guchachi'",    es: "Iguana",       img: "iguana.jpg" },
-            { zap: "Beedxe'",      es: "León / Tigre", img: "leon.png" },
-            { zap: "Xhumpirinisa", es: "Libélula",     img: "libelula.jpg" },
-            { zap: "Guugu'",       es: "Paloma",       img: "paloma.jpg" },
-            { zap: "Bi'cu",        es: "Perro",        img: "perro.jpg" },
-            { zap: "Biizi",        es: "Tlacuache",    img: "tlacuache.jpg" },
-            { zap: "Bigu",         es: "Tortuga",      img: "tortuga.jpeg" },
-            { zap: "Bidxiña",      es: "Venado",       img: "venado.jpg" },
+        // ============================================================================
+        //  ANIMAL_GROUPS
+        //  Grupos según taxonomía popular del documento "Nombre de animales en zapoteco"
+        //  (Israel Santiago y Silvia Guerra, 2016).
+        //  Cada entrada: { zap, es, img? }
+        //    - `img` es el slug del archivo en .../assets/img/animales/<slug>
+        //    - sin `img` el card muestra un placeholder
+        //    - `es` vacío "" se muestra atenuado como "(definición no disponible)"
+        // ============================================================================
+        const ANIMAL_GROUPS = [
+            {
+                id: "aves", title: "Aves",
+                items: [
+                    { zap: "Bere leele",            es: "Alcaraván" },
+                    { zap: "Bere ngola, tou",       es: "Guajolote", img: "guajolote.jpg" },
+                    { zap: "Bere xunaxi",           es: "Codorniz" },
+                    { zap: "Bere lucanda",          es: "Gallina ciega" },
+                    { zap: "Bere guidxa",           es: "Correcaminos" },
+                    { zap: "Bere",                  es: "Gallina" },
+                    { zap: "Bere nguiiu",           es: "Gallo (neologismo)" },
+                    { zap: "Bere huiini\u2019",     es: "Polluelo" },
+                    { zap: "Bigoose guiiba\u2019",  es: "Zanate rey" },
+                    { zap: "Bigoose buubu",         es: "Zanate (macho)" },
+                    { zap: "Bigoose guixi",         es: "Zanate (hembra)" },
+                    { zap: "Biulú",                 es: "Colibrí, chupamirto", img: "colibri.jpg" },
+                    { zap: "Bitindi ruaa yoo",      es: "Golondrina" },
+                    { zap: "Bitindi tijera",        es: "Papamoscas" },
+                    { zap: "Biguitu rini",          es: "Oropéndola" },
+                    { zap: "Bia\u2019qui\u2019",    es: "Cuervo" },
+                    { zap: "Bisiá",                 es: "Águila" },
+                    { zap: "Bisiá huiini\u2019",    es: "Gavilán" },
+                    { zap: "Bisiá gueedxe\u2019",   es: "Quebrantahuesos" },
+                    { zap: "Cha\u2019ca\u2019",     es: "Pájaro carpintero" },
+                    { zap: "Cha\u2019ca\u2019 guiiba\u2019", es: "Carpintero lineado" },
+                    { zap: "Chuitugui\u2019",       es: "Pájaro amarillo" },
+                    { zap: "Chonte",                es: "Cenzontle" },
+                    { zap: "Checuyu",               es: "Cuclillo" },
+                    { zap: "Chebixu, bixu",         es: "Paloma" },
+                    { zap: "Chicude",               es: "" },
+                    { zap: "Dama\u2019, Dama\u2019 gupa, Bacuxu", es: "Tecolote, lechuza" },
+                    { zap: "Dxundxuri",             es: "Tordo" },
+                    { zap: "Dxendrin",              es: "" },
+                    { zap: "Gudxu\u2019",           es: "Loro" },
+                    { zap: "Guugu, gugu huiini\u2019", es: "Tórtola" },
+                    { zap: "Gugu xtia, guladxe\u2019", es: "Paloma (ciudad)", img: "paloma.jpg" },
+                    { zap: "Gugu yú",               es: "Paloma (monte)" },
+                    { zap: "Gugu nisado\u2019",     es: "Gaviota reidora" },
+                    { zap: "Indxi huiini\u2019",    es: "" },
+                    { zap: "Nicu",                  es: "Yaguasa pico rojo" },
+                    { zap: "Ngu\u2019xhi\u2019",    es: "Zopilote" },
+                    { zap: "Nguengue",              es: "Guacamaya" },
+                    { zap: "Paguyeú\u2019",         es: "Chotacabras" },
+                    { zap: "So\u2019pe\u2019",      es: "Zopilote" },
+                    { zap: "So\u2019pe\u2019 huela", es: "Zopilote rey" },
+                    { zap: "Sugu",                  es: "Paloma" },
+                    { zap: "Xhiga",                 es: "Chachalaca" },
+                    { zap: "Xumbe\u2019",           es: "Garza" },
+                    { zap: "Xahui",                 es: "Urraca real" },
+                ],
+            },
+            {
+                id: "reptiles", title: "Reptiles",
+                items: [
+                    { zap: "Guchachi\u2019",        es: "Iguana", img: "iguana.jpg" },
+                    { zap: "Guchachi guixhe",       es: "Salamandra" },
+                    { zap: "Guela\u2019",           es: "Iguana verde" },
+                    { zap: "Guíu",                  es: "Iguana pequeña" },
+                    { zap: "Guragu\u2019",          es: "Lagartija" },
+                    { zap: "Guragu\u2019 yaana\u2019", es: "Lagartija seps" },
+                    { zap: "Yeeta",                 es: "Lagartija" },
+                    { zap: "Xaya",                  es: "Como salamandra" },
+                    { zap: "Ngolaxiñe",             es: "Escorpión, monstruo de gila" },
+                    { zap: "Be\u2019ñe\u2019",      es: "Lagarto o cocodrilo" },
+                    { zap: "Bigu, bigu guie\u2019", es: "Tortuga", img: "tortuga.jpeg" },
+                ],
+            },
+            {
+                id: "serpientes", title: "Serpientes",
+                items: [
+                    { zap: "Beenda\u2019 gubizi",   es: "Culebra de cascabel" },
+                    { zap: "Beenda\u2019 beedxe\u2019", es: "Cantil" },
+                    { zap: "Beenda\u2019 xiguidi",  es: "Chatillas" },
+                    { zap: "Beenda\u2019 doo xca",  es: "Tiene franjas negras y amarillas" },
+                    { zap: "Beenda\u2019 xiiñi\u2019 guiiche", es: "Culebra voladora" },
+                    { zap: "Beenda\u2019 yuze",     es: "Víbora con cuernos" },
+                    { zap: "Beenda\u2019 curria",   es: "Víbora asador" },
+                    { zap: "Beenda\u2019 gu\u2019se\u2019", es: "Ratonera" },
+                    { zap: "Beenda\u2019 gope\u2019", es: "Víbora sorda, boa" },
+                ],
+            },
+            {
+                id: "anfibios", title: "Anfibios",
+                items: [
+                    { zap: "Bilopa yoo, gupa yoo",  es: "Salamanquesa" },
+                    { zap: "Zumbidxi",              es: "Lagartija" },
+                    { zap: "Bidxi\u2019 mbo\u2019co\u2019", es: "Sapo" },
+                    { zap: "Bidxi\u2019 ñeegá",     es: "Rana" },
+                    { zap: "Bendayú",               es: "Lombriz de tierra" },
+                    { zap: "Bicuti\u2019",          es: "Gusano" },
+                    { zap: "Bi\u2019cu\u2019 nisa", es: "Nutria, perro de agua" },
+                ],
+            },
+            {
+                id: "aracnidos", title: "Arácnidos",
+                items: [
+                    { zap: "Bataana, bataana dxita", es: "Garrapata" },
+                    { zap: "Baquixhaba, bacaxaba, huacaxaba, huaquixaba", es: "Tarántula" },
+                    { zap: "Meuxubi",               es: "Alacrán", img: "alacran.png" },
+                    { zap: "Bidxiguí, bidxií",      es: "Araña", img: "ara%C3%B1a.jpg" },
+                    { zap: "Nágande",               es: "Ciempiés" },
+                    { zap: "Biichidxiñá",           es: "Ninfa de garrapata, pinolillo" },
+                ],
+            },
+            {
+                id: "insectos", title: "Insectos",
+                items: [
+                    { zap: "Biizu",                 es: "Abeja", img: "abeja.jpg" },
+                    { zap: "Biguidi, biguidi guie\u2019", es: "Mariposa" },
+                    { zap: "Bacuzaguí",             es: "Luciérnaga" },
+                    { zap: "Berendxinga",           es: "Grillo" },
+                    { zap: "Guxharu",               es: "Chapulín" },
+                    { zap: "Gusú\u2019, Usú",       es: "Langosta" },
+                    { zap: "Bichugaa",              es: "Saltamontes, revoltón" },
+                    { zap: "Bichi ndi",             es: "Grillo real, saltamontes, saltón" },
+                    { zap: "Daaya",                 es: "Campa mocha, mantis religiosa" },
+                    { zap: "Daaya yaga",            es: "Zacatón" },
+                    { zap: "Berendrú\u2019, berebr\u2019", es: "Hormiga león" },
+                    { zap: "Bacaguela",             es: "Tijereta, tijerilla" },
+                    { zap: "Bia\u2019lazi",         es: "Mosca" },
+                    { zap: "Xhumpirinisa, tapa staani\u2019", es: "Libélula", img: "libelula.jpg" },
+                    { zap: "Biuxi\u2019",           es: "Chahuistle, jején" },
+                    { zap: "Biati\u2019",           es: "Zancudo" },
+                    { zap: "Bidolaguí\u2019",       es: "Escarabajo" },
+                    { zap: "Bigarii",               es: "Chicharra" },
+                    { zap: "Biri",                  es: "Hormiga", img: "hormiga.jpg" },
+                    { zap: "Biiu",                  es: "Pulga" },
+                    { zap: "Biichi do\u2019 ri\u2019ni\u2019", es: "Piojo (ninfa 1)" },
+                    { zap: "Biichi do\u2019",       es: "Piojo (ninfa 2)" },
+                    { zap: "Biichi",                es: "Piojo (ninfa 3)" },
+                    { zap: "Biichi ro\u2019",       es: "Piojo adulto" },
+                    { zap: "Bichucu",               es: "Gorgojo" },
+                    { zap: "Loxo",                  es: "Nigua" },
+                ],
+            },
+            {
+                id: "abejas", title: "Abejas",
+                items: [
+                    { zap: "Bizu dxiña",            es: "" },
+                    { zap: "Bizu dxiñado\u2019",    es: "" },
+                    { zap: "Bizu do\u2019",         es: "" },
+                    { zap: "Bizu so\u2019pe\u2019", es: "" },
+                    { zap: "Bizu gue\u2019la\u2019, bizu gue\u2019la\u2019 gu\u2019xhu\u2019", es: "Avispa del papel" },
+                    { zap: "Bizu ndi\u2019",        es: "" },
+                    { zap: "Bizu yú",               es: "" },
+                    { zap: "Bizu nisa",             es: "" },
+                    { zap: "Bizu yaga",             es: "" },
+                    { zap: "Uxhuuya",               es: "Abeja diminuta, miel densa y dulce" },
+                ],
+            },
+            {
+                id: "mamiferos", title: "Mamíferos",
+                items: [
+                    { zap: "Danta, danda",          es: "Tapir" },
+                    { zap: "Beedxe\u2019",          es: "León, tigre, fiera", img: "leon.png" },
+                    { zap: "Beedxe yaga",           es: "Tigrillo" },
+                    { zap: "Beedxe chiiñu\u2019",   es: "Oso hormiguero" },
+                    { zap: "Bidxiña",               es: "Venado", img: "venado.jpg" },
+                    { zap: "Bixiidxu\u2019",        es: "Tejón" },
+                    { zap: "Gueu\u2019",            es: "Coyote" },
+                    { zap: "Ga\u2019na\u2019",      es: "Mapache" },
+                    { zap: "Chisa",                 es: "Ardilla", img: "ardilla.png" },
+                    { zap: "Lexu, Lempa, ñecu",     es: "Conejo", img: "conejo.jpg" },
+                    { zap: "Biana",                 es: "Liebre" },
+                    { zap: "Ngupi",                 es: "Armadillo", img: "armadillo.jpg" },
+                    { zap: "Bizi",                  es: "Tlacuache", img: "tlacuache.jpg" },
+                    { zap: "Be\u2019te\u2019",      es: "Zorrillo" },
+                    { zap: "Mixtu\u2019",           es: "Gato", img: "gato.jpg" },
+                    { zap: "Mixtu\u2019 gui\u2019xi\u2019", es: "Gato montés, lince rojo" },
+                    { zap: "Bihui",                 es: "Puerco, marrano", img: "cerdo.jpg" },
+                    { zap: "Bihui gui\u2019xi\u2019", es: "Jabalí" },
+                    { zap: "Bi\u2019cu\u2019",      es: "Perro", img: "perro.jpg" },
+                    { zap: "Huaga",                 es: "Ratón" },
+                    { zap: "Biziña",                es: "Ratoncito" },
+                    { zap: "Mani\u2019",            es: "Caballo", img: "caballo.jpg" },
+                    { zap: "Yuze",                  es: "Toro" },
+                    { zap: "Dendxu\u2019",          es: "Cordero, oveja", img: "borrego.jpg" },
+                    { zap: "Migu",                  es: "Chango" },
+                    { zap: "Ndxurru, ndxacu",       es: "Burro" },
+                    { zap: "Biguidiribeela",        es: "Murciélago" },
+                ],
+            },
+            {
+                id: "crustaceos", title: "Crustáceos y moluscos",
+                items: [
+                    { zap: "Benda buaa",            es: "Camarón", img: "camaron.jpg" },
+                    { zap: "Bitoope",               es: "Cangrejo" },
+                    { zap: "Bichu\u2019",           es: "Almeja (molusco)" },
+                    { zap: "Bichubé",               es: "Caracol (molusco)" },
+                ],
+            },
+            {
+                id: "cnidarios", title: "Cnidarios",
+                items: [
+                    { zap: "Cuaana\u2019 quichui\u2019", es: "Medusa blanca" },
+                    { zap: "Cuaana\u2019 xiñá",         es: "Medusa roja" },
+                ],
+            },
+            {
+                id: "peces", title: "Peces",
+                items: [
+                    { zap: "Benda",                 es: "Pescado" },
+                    { zap: "Benda du",              es: "" },
+                    { zap: "Benda duxeta",          es: "" },
+                    { zap: "Mili",                  es: "Lisa" },
+                    { zap: "Biliinda\u2019",        es: "Macabil" },
+                    { zap: "Guluuxu",               es: "Bagre", img: "bagre.jpg" },
+                    { zap: "Yolo",                  es: "Roncador" },
+                    { zap: "Dunu\u2019",            es: "Popoyote" },
+                    { zap: "Porote",                es: "" },
+                    { zap: "Go\u2019rio\u2019",     es: "" },
+                    { zap: "Biru",                  es: "" },
+                    { zap: "Behua",                 es: "Huachinango" },
+                    { zap: "Benda lu tapa",         es: "" },
+                    { zap: "Benda yaga",            es: "" },
+                    { zap: "Benda bata",            es: "" },
+                    { zap: "Benda uragu\u2019",     es: "" },
+                    { zap: "Benda bidxi\u2019",     es: "" },
+                    { zap: "Benda bi\u2019cu\u2019", es: "" },
+                    { zap: "Benda gayu",            es: "" },
+                    { zap: "Benda bizaa",           es: "" },
+                    { zap: "Benda gudó Diuxi",      es: "Lenguado" },
+                    { zap: "Benda gali\u2019",      es: "Anguila" },
+                ],
+            },
         ];
+
         const IMG_BASE = "https://simpleverso.github.io/DidxazappWEB/assets/img/animales/";
 
-        // Render
-        const $gallery = document.getElementById('animal-gallery');
-        const escapeHtml = s => s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-        $gallery.innerHTML = ANIMALES.map(a => `
-            <article class="animal-card">
-                <a class="animal-photo" href="${IMG_BASE}${a.img}" data-caption="${escapeHtml(a.zap)} — ${escapeHtml(a.es)}">
-                    <img src="${IMG_BASE}${a.img}" alt="${escapeHtml(a.es)} (${escapeHtml(a.zap)} en zapoteco)" loading="lazy">
-                </a>
+        // ---------- Render ----------
+        const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+        function renderCard(a) {
+            const photo = a.img
+                ? `<a class="animal-photo" href="${IMG_BASE}${a.img}" data-caption="${escapeHtml(a.zap)} — ${escapeHtml(a.es || '')}">
+                       <img src="${IMG_BASE}${a.img}" alt="${escapeHtml(a.es || a.zap)}" loading="lazy">
+                   </a>`
+                : `<div class="animal-photo is-placeholder" aria-hidden="true">
+                       <i class="fa fa-paw ph-icon" aria-hidden="true"></i>
+                   </div>`;
+
+            const esLine = a.es
+                ? `<p class="animal-name-es">${escapeHtml(a.es)}</p>`
+                : `<p class="animal-name-es is-empty">Definición no disponible</p>`;
+
+            return `<article class="animal-card">
+                ${photo}
                 <div class="animal-body">
                     <h3 class="animal-name-zap">${escapeHtml(a.zap)}</h3>
-                    <p class="animal-name-es">${escapeHtml(a.es)}</p>
+                    ${esLine}
                 </div>
-            </article>
-        `).join('');
+            </article>`;
+        }
 
-        // Lightbox: clic en la foto la abre a tamaño completo.
-        baguetteBox.run('#animal-gallery', { animation: 'fadeIn', captions: true });
+        function renderSection(group) {
+            return `<section class="category-section" id="${group.id}">
+                <h2 class="category-title">${escapeHtml(group.title)} <span class="count">${group.items.length}</span></h2>
+                <div class="gallery-grid" data-group="${group.id}">
+                    ${group.items.map(renderCard).join('')}
+                </div>
+            </section>`;
+        }
 
-        // Año automático en el footer
+        function renderNav() {
+            return ANIMAL_GROUPS.map(g =>
+                `<a href="#${g.id}">${escapeHtml(g.title)}<span class="count">${g.items.length}</span></a>`
+            ).join('');
+        }
+
+        document.getElementById('category-nav').innerHTML = renderNav();
+        document.getElementById('content-root').innerHTML = ANIMAL_GROUPS.map(renderSection).join('');
+
+        // Lightbox sólo aplica a las fotos reales (los placeholders no son <a>).
+        ANIMAL_GROUPS.forEach(g => {
+            baguetteBox.run(`.gallery-grid[data-group="${g.id}"]`, { animation: 'fadeIn', captions: true });
+        });
+
+        // Año automático
         document.getElementById('anio').textContent = new Date().getFullYear();
     </script>
     <script src="assets/js/page-config.js" data-page="animales"></script>
