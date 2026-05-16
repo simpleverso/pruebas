@@ -164,6 +164,12 @@
             }
             $btn.addEventListener('click', traductorjs);
             $input.addEventListener('keyup', (e) => { if (e.key === 'Enter') traductorjs(); });
+
+            // Pre-calienta puter.net.fetch (su primer uso suele ser lento por inicialización
+            // del worker/TLS). Si falla, no pasa nada: solo afectaría a la primera traducción.
+            if (window.puter && puter.net && puter.net.fetch) {
+                puter.net.fetch('https://aulex.org/zap-es/?busca=hola').catch(() => {});
+            }
         })();
 
         // ---- Helpers ----
@@ -245,9 +251,15 @@
         // Biyubi (sitio de Familia Toledo) devuelve una tabla con pares
         // <td>...<font color=#800000>zapoteco</font>...<td>...<font color=#006000>castellano</font>
         // Cuando no hay coincidencias, la tabla con <caption>Traducción de '...'</caption>
-        // simplemente no aparece.
+        // simplemente no aparece (pero el resto del layout sí).
         function parseBiyubi(html) {
-            if (!/<caption>\s*Traducci[óo]n de/i.test(html)) return 'Sin resultados';
+            const hasCaption = /<caption>\s*Traducci[óo]n de/i.test(html);
+            const hasFooter  = /Familia Toledo/i.test(html); // pista de que la página cargó completa
+
+            if (!hasCaption) {
+                if (hasFooter) return 'Sin resultados';        // página completa, sin coincidencias
+                throw new Error('biyubi: respuesta incompleta'); // probable cold-start, reintentar
+            }
 
             const stripTags = (s) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
             const decode = (s) => s
@@ -287,7 +299,11 @@
                 const rest = decode(stripTags(m[2])).trim();
                 if (word) lines.push(`${word}: ${rest}`);
             }
-            return lines.length ? fixMojibake(lines.join('\n')) : 'Sin resultados';
+            if (lines.length) return fixMojibake(lines.join('\n'));
+
+            // Respuesta inesperada (vacía, error transitorio de puter.net.fetch, etc.)
+            // Lanzamos para que runService pueda reintentar.
+            throw new Error('aulex: respuesta sin resultados ni marcador "No hay resultados"');
         }
 
         // Google Translate (endpoint público usado por el widget). La respuesta es:
@@ -319,12 +335,22 @@
 
         async function runService(enabled, url, parser, $target, fallback, opts) {
             if (!enabled) { $target.value = fallback; return; }
-            try {
-                const text = await fetchText(url, opts);
-                $target.value = parser(text);
-            } catch (e) {
-                $target.value = fallback;
+            const { retries = 0, retryDelay = 400 } = opts || {};
+            let lastErr;
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const text = await fetchText(url, opts);
+                    $target.value = parser(text);
+                    return;
+                } catch (e) {
+                    lastErr = e;
+                    if (attempt < retries) {
+                        await new Promise(r => setTimeout(r, retryDelay));
+                    }
+                }
             }
+            console.warn('runService failed:', url, lastErr);
+            $target.value = fallback;
         }
 
         // ---- Acción principal ----
@@ -345,11 +371,12 @@
                            'No disponible por mantenimiento, intente más tarde'),
                 runService(FEATURES.toledo, urls.biyubi, parseBiyubi, $resFam,
                            'No se pudo obtener información de: http://www.biyubi.com',
-                           { cors: false, encoding: 'windows-1252' }),
+                           { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
                 runService(FEATURES.aulexCajono, urls.aulex, parseAulex, $resAulx,
-                           'No se pudo obtener información de aulex.org', { cors: false }),
+                           'No se pudo obtener información de aulex.org',
+                           { cors: false, retries: 2, retryDelay: 500 }),
                 // Pequeño retraso antes de consultar Google para evitar rate-limiting.
-                new Promise(res => setTimeout(res, 1500)).then(() =>
+                new Promise(res => setTimeout(res, 1800)).then(() =>
                     runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
                                'No se pudo obtener información de Google Translate')),
             ]);
