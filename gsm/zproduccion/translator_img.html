@@ -77,6 +77,94 @@
             padding: 24px 22px;
         }
 
+        /* Banner de carga del modelo (visible mientras se descarga MobileNet) */
+        .model-loader {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            background: rgba(79, 143, 207, 0.08);
+            border: 1px solid var(--tx-border-2);
+            border-left: 3px solid var(--tx-primary-2);
+            border-radius: 8px;
+            transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease,
+                        margin 0.4s ease, padding 0.4s ease, border-width 0.4s ease;
+            overflow: hidden;
+            max-height: 200px;
+        }
+        .model-loader.is-hidden {
+            opacity: 0;
+            transform: translateY(-6px);
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            border-width: 0;
+            pointer-events: none;
+        }
+        .model-loader.is-success { border-left-color: #4ade80; background: rgba(74, 222, 128, 0.08); }
+        .model-loader.is-error   { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.08); }
+
+        .model-loader .ml-icon {
+            width: 38px; height: 38px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: rgba(107, 166, 224, 0.18);
+            color: var(--tx-primary-2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .model-loader.is-loading .ml-icon i { animation: tx-spin 2.4s linear infinite; }
+        .model-loader.is-success .ml-icon { color: #4ade80; background: rgba(74, 222, 128, 0.18); }
+        .model-loader.is-error   .ml-icon { color: #fca5a5; background: rgba(239, 68, 68, 0.16); }
+        @keyframes tx-spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        .model-loader .ml-text { flex: 1; min-width: 0; }
+        .model-loader .ml-title {
+            color: var(--tx-text-strong);
+            font-size: 0.92rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .model-loader .ml-subtitle {
+            color: var(--tx-muted);
+            font-size: 0.78rem;
+            margin-top: 1px;
+            line-height: 1.4;
+        }
+
+        /* Barra de progreso indeterminada */
+        .progress-bar {
+            position: relative;
+            margin-top: 8px;
+            height: 4px;
+            background: var(--tx-surface-3);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .progress-bar .bar {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 35%;
+            background: linear-gradient(90deg, var(--tx-primary-2), var(--tx-primary));
+            border-radius: 999px;
+            animation: tx-progress-slide 1.4s ease-in-out infinite;
+        }
+        @keyframes tx-progress-slide {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(385%); }
+        }
+        .model-loader.is-success .progress-bar,
+        .model-loader.is-error   .progress-bar { display: none; }
+
         /* Tabs de modo: Subir / Cámara */
         .mode-tabs {
             display: flex;
@@ -108,6 +196,9 @@
 
         /* Drop zone */
         .drop-zone {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
             border: 2px dashed var(--tx-border-2);
             border-radius: 12px;
             padding: 36px 20px;
@@ -121,7 +212,7 @@
             background: rgba(79, 143, 207, 0.06);
             color: var(--tx-text);
         }
-        .drop-zone .fa { font-size: 32px; margin-bottom: 10px; color: var(--tx-primary-2); }
+        .drop-zone .fa { display: block; font-size: 32px; margin: 0 auto 10px; color: var(--tx-primary-2); }
         .drop-zone p { margin: 0; font-size: 0.92rem; }
         .drop-zone .small { font-size: 0.78rem; color: var(--tx-muted); margin-top: 6px; }
 
@@ -383,6 +474,15 @@
         <p class="page-subtitle">Sube una foto o usa la cámara. El modelo identificará lo que aparece y mostrará su nombre en inglés, español y Zapoteco del Istmo.</p>
 
         <section class="img-card">
+            <div id="model-loader" class="model-loader is-loading" role="status" aria-live="polite">
+                <span class="ml-icon"><i class="fa fa-cog" aria-hidden="true"></i></span>
+                <div class="ml-text">
+                    <div class="ml-title" id="ml-title">Estamos preparando el sistema de análisis de imágenes…</div>
+                    <div class="ml-subtitle" id="ml-subtitle">Descargando modelo (≈14 MB). Solo la primera vez.</div>
+                    <div class="progress-bar"><div class="bar"></div></div>
+                </div>
+            </div>
+
             <div class="mode-tabs" role="tablist">
                 <button class="mode-tab is-active" data-mode="upload" type="button">
                     <i class="fa fa-cloud-upload" aria-hidden="true"></i> Subir imagen
@@ -426,10 +526,10 @@
             </div>
 
             <button class="btn-primary-tx" id="btn-classify" type="button" disabled>
-                <i class="fa fa-search" aria-hidden="true"></i> Iniciar detección
+                <i class="fa fa-refresh" aria-hidden="true"></i> Volver a analizar
             </button>
 
-            <div class="status-line" id="status-line">Presiona <strong>Iniciar detección</strong> para cargar el modelo y analizar la imagen.</div>
+            <div class="status-line" id="status-line">Sube una imagen, usa la cámara o elige un ejemplo. El análisis comenzará automáticamente.</div>
             <div id="alert-slot"></div>
 
             <section class="results-section" id="results-section" hidden>
@@ -494,10 +594,24 @@
         const $predGrid    = document.getElementById('prediction-grid');
 
         // ---- Estado ----
-        let model = null;
-        let modelLoading = false;
+        let modelPromise = null;     // Promise que se resuelve con el modelo cargado.
         let cameraStream = null;
         let currentImageEl = null; // <img> o <canvas> con la imagen actual
+
+        // ---- Banner de carga del modelo ----
+        const $loader     = document.getElementById('model-loader');
+        const $loaderTit  = document.getElementById('ml-title');
+        const $loaderSub  = document.getElementById('ml-subtitle');
+
+        function setLoader(state, title, subtitle) {
+            $loader.classList.remove('is-loading', 'is-success', 'is-error', 'is-hidden');
+            $loader.classList.add('is-' + state);
+            if (title)    $loaderTit.textContent = title;
+            if (subtitle) $loaderSub.textContent = subtitle;
+        }
+        function hideLoader() {
+            $loader.classList.add('is-hidden');
+        }
 
         // Caché de traducciones por término en inglés.
         // shape: { [enLower]: { es, zap } }
@@ -615,7 +729,9 @@
                 $btnClassify.disabled = false;
                 $resultsSec.hidden = true;
                 $predGrid.innerHTML = '';
-                setStatus('Imagen lista. Pulsa <strong>Iniciar detección</strong> para analizarla.', 'info');
+                // Análisis automático en cuanto la imagen termina de cargar.
+                // Si el modelo aún no está listo, runClassification esperará.
+                runClassification();
             };
             $previewImg.src = src;
             $previewWrap.classList.add('is-shown');
@@ -674,21 +790,34 @@
         });
 
         // ---- Modelo MobileNet ----
+        // Comenzamos a cargar el modelo en cuanto la página está lista (no en click).
+        // Si el usuario pulsa "Iniciar detección" antes de que termine, esperará a que
+        // se resuelva la misma promesa.
+        function loadModel() {
+            if (modelPromise) return modelPromise;
+            modelPromise = mobilenet.load({ version: 2, alpha: 1.0 })
+                .then(m => {
+                    setLoader('success',
+                        'Sistema de análisis de imágenes listo.',
+                        'Sube una imagen, usa la cámara o prueba con un ejemplo.');
+                    // Después de mostrar "listo" un par de segundos, escondemos el banner.
+                    setTimeout(hideLoader, 2200);
+                    return m;
+                })
+                .catch(err => {
+                    console.warn('model load failed:', err);
+                    setLoader('error',
+                        'No se pudo cargar el modelo de análisis.',
+                        'Verifica tu conexión y recarga la página para intentarlo de nuevo.');
+                    // Re-lanzamos para que ensureModel() también falle.
+                    throw err;
+                });
+            return modelPromise;
+        }
+
+        // Llamada por la acción principal: simplemente espera la promesa en curso.
         async function ensureModel() {
-            if (model) return model;
-            if (modelLoading) return null;
-            modelLoading = true;
-            setStatus('Cargando modelo (≈14 MB). La primera vez puede tardar unos segundos…', 'info');
-            try {
-                model = await mobilenet.load({ version: 2, alpha: 1.0 });
-                setStatus('Modelo cargado. Analizando imagen…', 'info');
-                return model;
-            } catch (e) {
-                console.warn('model load failed:', e);
-                setStatus('No se pudo cargar el modelo. Verifica tu conexión.', 'error');
-                modelLoading = false;
-                throw e;
-            }
+            return loadModel();
         }
 
         // ---- Clasificación ----
@@ -818,11 +947,15 @@
         }
 
         // ---- Acción principal ----
-        $btnClassify.addEventListener('click', async () => {
+        async function runClassification() {
             if (!currentImageEl) return;
             clearAlert();
             $btnClassify.disabled = true;
             try {
+                const ready = $loader.classList.contains('is-success') || $loader.classList.contains('is-hidden');
+                setStatus(ready
+                    ? 'Analizando imagen…'
+                    : 'Esperando a que termine la carga del sistema de análisis…', 'info');
                 const preds = await classifyWithCustomLabels(currentImageEl, 5);
                 setStatus('Listo. ' + preds.length + ' coincidencias detectadas. Traduciendo…', 'info');
                 renderPredictionSkeleton(preds);
@@ -837,10 +970,17 @@
             } finally {
                 $btnClassify.disabled = false;
             }
-        });
+        }
+        // El botón ahora es opcional: sirve para volver a analizar la misma imagen.
+        $btnClassify.addEventListener('click', runClassification);
 
         // Año automático
         document.getElementById('anio').textContent = new Date().getFullYear();
+
+        // Inicia la descarga del modelo en cuanto la página está lista.
+        // El usuario puede ya estar eligiendo una imagen mientras tanto; cuando pulse
+        // "Iniciar detección" simplemente esperará la misma promesa.
+        loadModel();
     })();
     </script>
     <script src="assets/js/page-config.js" data-page="translator_img"></script>
