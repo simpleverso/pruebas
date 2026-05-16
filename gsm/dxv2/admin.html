@@ -8,11 +8,152 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* === Dark blue theme ===
+         * Implemented as overrides on the existing Tailwind utility classes
+         * so we don't have to rewrite every class string in the markup.
+         * Palette:
+         *   bg base       #0b1220   page background (deep navy)
+         *   surface       #111c33   cards, panels
+         *   surface-2     #182747   raised elements (drop zones, modals, search)
+         *   surface-3     #1f3460   inputs, table headers
+         *   border        #243b6b   default borders
+         *   border-strong #355297   focused / hover borders
+         *   accent        #3b82f6   primary blue (buttons, focus rings)
+         *   accent-hover  #2563eb
+         *   text          #e6edff   primary text
+         *   text-soft     #a8b6dc   secondary
+         *   text-muted    #6c7ea8   tertiary
+         */
+
         body { font-family: 'Inter', sans-serif; }
-        .tab-button { transition: all 0.3s ease; }
-        .tab-button.active { border-color: #4F46E5; color: #4F46E5; background-color: rgba(79, 70, 229, 0.1); }
+
+        /* Page + body */
+        body.bg-gray-100 {
+            background-color: #0b1220 !important;
+            color: #e6edff !important;
+        }
+
+        /* Card / panel surfaces */
+        .bg-white {
+            background-color: #111c33 !important;
+            color: #e6edff !important;
+        }
+
+        /* Raised inner blocks (the gray-50 / gray-100 backgrounds) */
+        .bg-gray-50, .bg-gray-100 {
+            background-color: #182747 !important;
+            color: #e6edff !important;
+        }
+
+        /* Table headers, modal headers */
+        .bg-gray-200 {
+            background-color: #1f3460 !important;
+            color: #e6edff !important;
+        }
+
+        /* Borders */
+        .border, .border-gray-200, .border-gray-300 {
+            border-color: #243b6b !important;
+        }
+
+        /* Search box / inline inputs that only have `border rounded-md` */
+        input[type="text"]:not([class*="border-"]) {
+            border: 1px solid #243b6b !important;
+        }
+
+        /* Cancel buttons in modals (bg-gray-200 + text-gray-800 specific to the cancel chip) */
+        .hover\:bg-gray-300:hover {
+            background-color: #2a3f72 !important;
+        }
+
+        /* Bottom border under the tab strip */
+        .border-b.border-gray-200 {
+            border-bottom-color: #243b6b !important;
+        }
+
+        /* Text color helpers */
+        .text-gray-800 { color: #e6edff !important; }
+        .text-gray-700, .text-gray-600 { color: #c0cdee !important; }
+        .text-gray-500 { color: #a8b6dc !important; }
+        .text-gray-400 { color: #6c7ea8 !important; }
+
+        /* Indigo / purple accents -> unified blue */
+        .text-indigo-600 { color: #6ea8ff !important; }
+        .text-indigo-600.hover\:underline:hover { text-decoration: underline; }
+
+        /* Indigo buttons (used for "Fetch", main blue button below cards) */
+        .bg-indigo-600 { background-color: #3b82f6 !important; }
+        .hover\:bg-indigo-700:hover { background-color: #2563eb !important; }
+
+        /* Plain blue buttons (Translate, Add New Word, Add New Rule, modal save) */
+        .bg-blue-500 { background-color: #3b82f6 !important; }
+        .hover\:bg-blue-600:hover { background-color: #2563eb !important; }
+
+        /* Green buttons (Download as ...) */
+        .bg-green-600 { background-color: #1e63b8 !important; }
+        .hover\:bg-green-700:hover { background-color: #1b549b !important; }
+
+        /* Teal button (Run Tests) */
+        .bg-teal-500 { background-color: #2c79c2 !important; }
+        .hover\:bg-teal-600:hover { background-color: #2566a8 !important; }
+
+        /* Purple button (Suggest Rules) */
+        .bg-purple-500 { background-color: #4d6bd6 !important; }
+        .hover\:bg-purple-600:hover { background-color: #3f5ac0 !important; }
+
+        /* Inputs / textareas */
+        textarea, input[type="text"], input[type="search"], select {
+            background-color: #182747 !important;
+            color: #e6edff !important;
+            border-color: #243b6b !important;
+        }
+        textarea::placeholder, input::placeholder {
+            color: #6c7ea8 !important;
+        }
+
+        /* Tailwind focus ring/border classes used inline */
+        .focus\:ring-indigo-500:focus,
+        .focus\:ring-blue-500:focus {
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+        }
+        .focus\:border-indigo-500:focus,
+        .focus\:border-blue-500:focus {
+            border-color: #3b82f6 !important;
+        }
+
+        /* Drop zone (Drag & Drop area) */
+        .border-dashed.border-gray-300 {
+            border-color: #355297 !important;
+            background-color: #182747 !important;
+        }
+        .hover\:border-indigo-500:hover {
+            border-color: #3b82f6 !important;
+        }
+
+        /* Tab strip */
+        .tab-button {
+            transition: all 0.3s ease;
+            color: #a8b6dc;
+        }
+        .tab-button.active {
+            border-color: #3b82f6 !important;
+            color: #e6edff !important;
+            background-color: rgba(59, 130, 246, 0.18) !important;
+        }
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
+
+        /* Tables */
+        table { color: #e6edff; }
+        table tbody tr { background-color: #111c33; }
+        table tbody tr:nth-child(even) { background-color: #15224a; }
+        table tbody td { border-color: #243b6b; }
+
+        /* Status text colors used by the URL fetch panels */
+        .text-red-600 { color: #ff8a8a !important; }
+        .text-green-600 { color: #7ce4c1 !important; }
+
+        /* Toast notifications */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -24,16 +165,25 @@
             transform: translateY(20px);
             transition: opacity 0.3s ease, transform 0.3s ease;
             z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .toast.success { background-color: #10B981; }
-        .toast.error { background-color: #EF4444; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: #1f6f4a; }
+        .toast.error { background-color: #b03a3a; }
+
+        /* Drag-over highlight */
         .drag-over {
-            border-color: #4F46E5;
-            background-color: rgba(79, 70, 229, 0.05);
+            border-color: #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.12) !important;
+        }
+
+        /* Code-ish blocks */
+        .font-mono { color: #d6e0ff; }
+
+        /* Card shadows look better with a tint of blue on dark */
+        .shadow-md, .shadow-lg {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45),
+                        0 0 0 1px rgba(59, 130, 246, 0.08) !important;
         }
     </style>
 </head>
@@ -180,6 +330,18 @@
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h2 class="text-xl font-semibold mb-3">Database File (`database.js`)</h2>
 
+                <!-- Fetch from URL -->
+                <div class="mb-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <label for="db-url-input" class="block text-xs text-gray-600 mb-1">Fetch from URL (auto-detected)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="db-url-input" class="flex-1 border border-gray-300 rounded p-2 text-xs font-mono" placeholder="scripts/database.js">
+                        <button onclick="fetchAndLoadDatabase()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-3 rounded shadow whitespace-nowrap">
+                            <i class="fas fa-cloud-download-alt mr-1"></i>Fetch
+                        </button>
+                    </div>
+                    <p id="db-url-status" class="text-xs text-gray-500 mt-1 truncate"></p>
+                </div>
+
                 <!-- File Loader -->
                 <div id="db-drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-500 transition-colors mb-4">
                     <i class="fas fa-upload text-gray-400 mb-2"></i>
@@ -201,7 +363,19 @@
             <!-- Rules Card -->
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h2 class="text-xl font-semibold mb-3">Rules File (`rules.js`)</h2>
-                
+
+                <!-- Fetch from URL -->
+                <div class="mb-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <label for="rules-url-input" class="block text-xs text-gray-600 mb-1">Fetch from URL (auto-detected)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="rules-url-input" class="flex-1 border border-gray-300 rounded p-2 text-xs font-mono" placeholder="scripts/rules.js">
+                        <button onclick="fetchAndLoadRules()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-3 rounded shadow whitespace-nowrap">
+                            <i class="fas fa-cloud-download-alt mr-1"></i>Fetch
+                        </button>
+                    </div>
+                    <p id="rules-url-status" class="text-xs text-gray-500 mt-1 truncate"></p>
+                </div>
+
                 <!-- File Loader -->
                 <div id="rules-drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-500 transition-colors mb-4">
                      <i class="fas fa-upload text-gray-400 mb-2"></i>
@@ -355,7 +529,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Populate textareas with content from the loaded JS variables
     document.getElementById('database-input').value = getDatabaseContent();
     document.getElementById('rules-input').value = getRulesContent();
-    
+
+    // Auto-detect the canonical fetch URLs based on where admin.html is
+    // currently being served from, and pre-fill the inputs.
+    initFetchUrls();
+
     switchTab('translator'); // Set initial tab
     renderAll(); // Render tables and lists from the loaded data
 
@@ -611,6 +789,103 @@ function loadDataFromTextareas() {
     } catch (e) {
         console.error("Error parsing data from textareas:", e);
         showToast('Error loading data. Check console for details.', 'error');
+    }
+}
+
+// --- FETCH FROM URL ---
+//
+// Auto-detects where database.js / rules.js live based on the current
+// browser URL and lets the user fetch them on demand. The default layout
+// expects the files to live at <admin.html dir>/scripts/database.js and
+// <admin.html dir>/scripts/rules.js, but the user can edit either URL
+// before clicking Fetch.
+
+function resolveDefaultUrl(filename) {
+    // Use the current document URL as the base so relative paths resolve
+    // correctly no matter how the site is hosted (root, subfolder, custom
+    // mount point, file:// during local development, etc.).
+    try {
+        return new URL('scripts/' + filename, window.location.href).toString();
+    } catch (_) {
+        // Fallback for environments where URL constructor isn't happy
+        // with the current href (very old browsers / sandboxed iframes).
+        return 'scripts/' + filename;
+    }
+}
+
+function initFetchUrls() {
+    const dbInput = document.getElementById('db-url-input');
+    const rulesInput = document.getElementById('rules-url-input');
+    if (dbInput) dbInput.value = resolveDefaultUrl('database.js');
+    if (rulesInput) rulesInput.value = resolveDefaultUrl('rules.js');
+
+    // The status lines show what was actually resolved, even before any
+    // fetch happens, so the admin can verify the auto-detected location.
+    setUrlStatus('db-url-status', 'Auto-detected from page URL. Click Fetch to load.', 'info');
+    setUrlStatus('rules-url-status', 'Auto-detected from page URL. Click Fetch to load.', 'info');
+}
+
+function setUrlStatus(elementId, message, kind) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = message;
+    el.className = 'text-xs mt-1 truncate ' + (
+        kind === 'error' ? 'text-red-600' :
+        kind === 'success' ? 'text-green-600' :
+        'text-gray-500'
+    );
+}
+
+async function fetchTextFromUrl(url) {
+    // Cache-bust so the admin always sees the latest version of the file
+    // when they click Fetch repeatedly.
+    const bust = (url.includes('?') ? '&' : '?') + '_=' + Date.now();
+    const response = await fetch(url + bust, { cache: 'no-store' });
+    if (!response.ok) {
+        throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+    }
+    return await response.text();
+}
+
+async function fetchAndLoadDatabase() {
+    const input = document.getElementById('db-url-input');
+    const url = (input.value || '').trim();
+    if (!url) {
+        setUrlStatus('db-url-status', 'Enter a URL first.', 'error');
+        return;
+    }
+    setUrlStatus('db-url-status', 'Fetching ' + url + ' ...', 'info');
+    try {
+        const text = await fetchTextFromUrl(url);
+        document.getElementById('database-input').value = text;
+        // Reuse the existing loader so parsing/rendering paths stay
+        // identical to the manual textarea flow.
+        loadDataFromTextareas();
+        setUrlStatus('db-url-status', 'Loaded ' + text.length + ' chars from ' + url, 'success');
+    } catch (err) {
+        console.error('Failed to fetch database.js', err);
+        setUrlStatus('db-url-status', 'Fetch failed: ' + err.message, 'error');
+        showToast('Could not fetch database.js. Check the URL and your network.', 'error');
+    }
+}
+
+async function fetchAndLoadRules() {
+    const input = document.getElementById('rules-url-input');
+    const url = (input.value || '').trim();
+    if (!url) {
+        setUrlStatus('rules-url-status', 'Enter a URL first.', 'error');
+        return;
+    }
+    setUrlStatus('rules-url-status', 'Fetching ' + url + ' ...', 'info');
+    try {
+        const text = await fetchTextFromUrl(url);
+        document.getElementById('rules-input').value = text;
+        loadDataFromTextareas();
+        setUrlStatus('rules-url-status', 'Loaded ' + text.length + ' chars from ' + url, 'success');
+    } catch (err) {
+        console.error('Failed to fetch rules.js', err);
+        setUrlStatus('rules-url-status', 'Fetch failed: ' + err.message, 'error');
+        showToast('Could not fetch rules.js. Check the URL and your network.', 'error');
     }
 }
 
