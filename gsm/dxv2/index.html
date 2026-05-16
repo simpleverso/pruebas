@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zapotec Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-text {
+            background: -webkit-linear-gradient(#4F46E5, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-3xl md:text-4xl font-bold gradient-text">Zapotec Translator</h1>
+            <p class="text-gray-400 mt-2">Translate from Spanish to Isthmus Zapotec</p>
+        </div>
+
+        <!-- Translator Interface -->
+        <div class="space-y-4">
+            <!-- Spanish Input -->
+            <div>
+                <label for="spanish-input" class="block text-sm font-medium text-gray-300 mb-2">Spanish</label>
+                <textarea id="spanish-input" rows="5" class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" placeholder="Enter Spanish text to translate..."></textarea>
+            </div>
+
+            <!-- Translate Button -->
+            <div class="flex justify-center">
+                <button id="translate-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    Translate
+                </button>
+            </div>
+
+            <!-- Zapotec Output -->
+            <div>
+                <label for="zapotec-output" class="block text-sm font-medium text-gray-300 mb-2">Zapotec (Didxazá)</label>
+                <!-- Changed textarea to a div to support rich text (italics) -->
+                <div id="zapotec-output" class="w-full min-h-[120px] bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-300" aria-readonly="true">
+                    <span class="text-gray-500">Translation will appear here...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-xs text-gray-500 pt-4">
+            <p>Powered by client-side JavaScript. No server required.</p>
+        </div>
+    </div>
+
+    <!-- 
+      IMPORTANT: The order of these scripts is crucial for the app to work.
+      1. database.js: Contains the translation dictionary.
+      2. rules.js: Contains the grammatical rules.
+      3. translator.js: Contains the logic that uses the dictionary and rules.
+    -->
+    <script src="database.js"></script>
+    <script src="rules.js"></script>
+    <script src="translator.js"></script>
+</body>
+</html>

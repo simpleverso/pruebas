@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translator Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-button { transition: all 0.3s ease; }
+        .tab-button.active { border-color: #4F46E5; color: #4F46E5; background-color: rgba(79, 70, 229, 0.1); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success { background-color: #10B981; }
+        .toast.error { background-color: #EF4444; }
+        .drag-over {
+            border-color: #4F46E5;
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Translator Management Panel</h1>
+            <p class="text-gray-500 mt-2">Manage, test, and improve your Spanish-to-Zapotec translator.</p>
+        </header>
+
+        <!-- Main Interface with Tabs -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <!-- Tab Buttons -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent" onclick="switchTab('translator')">
+                    <i class="fas fa-language mr-2"></i>Live Translator
+                </button>
+                <button class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent" onclick="switchTab('database')">
+                    <i class="fas fa-book mr-2"></i>Database Manager
+                </button>
+                <button class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent" onclick="switchTab('rules')">
+                    <i class="fas fa-cogs mr-2"></i>Rules Manager
+                </button>
+                <button class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent" onclick="switchTab('suggester')">
+                    <i class="fas fa-lightbulb mr-2"></i>Rule Suggester
+                </button>
+                <button class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent" onclick="switchTab('tester')">
+                    <i class="fas fa-tasks mr-2"></i>Bulk Tester
+                </button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div>
+                <!-- Live Translator Panel -->
+                <div id="translator-panel" class="tab-panel space-y-4">
+                    <h3 class="text-lg font-semibold">Test Translation</h3>
+                    <div>
+                        <label for="spanish-input-tester" class="block text-sm font-medium text-gray-700 mb-1">Spanish Input</label>
+                        <textarea id="spanish-input-tester" rows="4" class="w-full border border-gray-300 rounded-lg p-2" placeholder="Enter Spanish text..."></textarea>
+                    </div>
+                    <button id="translate-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg">Translate</button>
+                    <div>
+                        <label for="zapotec-output" class="block text-sm font-medium text-gray-700 mb-1">Zapotec Output</label>
+                        <div id="zapotec-output" class="w-full min-h-[100px] bg-gray-100 border rounded-lg p-2"></div>
+                    </div>
+                     <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-2">Translation Steps</h3>
+                        <div id="translation-steps" class="space-y-2 bg-gray-50 p-4 rounded-lg border max-h-96 overflow-y-auto">
+                            <p class="text-gray-400">Steps will appear here after translation...</p>
+                        </div>
+                    </div>
+                    <div id="missing-words-section" class="mt-6 hidden">
+                        <h3 class="text-lg font-semibold mb-2">Add Missing Words</h3>
+                        <div id="missing-words-list" class="space-y-3 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <!-- Missing words will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Manager Panel -->
+                <div id="database-panel" class="tab-panel">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Dictionary Entries</h3>
+                         <button onclick="openAddWordModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Add New Word</button>
+                    </div>
+                    <input type="text" id="db-search" class="w-full p-2 border rounded-md mb-4" placeholder="Search Spanish or Zapotec...">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-200">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">Spanish</th>
+                                    <th class="py-2 px-4 text-left">Zapotec</th>
+                                    <th class="py-2 px-4 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="database-table-body">
+                                <!-- Rows will be injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Rules Manager Panel -->
+                <div id="rules-panel" class="tab-panel">
+                     <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Translation Rules</h3>
+                         <button onclick="openAddRuleModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Add New Rule</button>
+                    </div>
+                    <div id="rules-list" class="space-y-3">
+                        <!-- Rules will be injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Rule Suggester Panel -->
+                <div id="suggester-panel" class="tab-panel space-y-4">
+                    <h3 class="text-lg font-semibold">Get Rule Suggestions</h3>
+                    <div>
+                        <label for="suggester-spanish" class="block text-sm font-medium text-gray-700 mb-1">Spanish Phrase</label>
+                        <input type="text" id="suggester-spanish" class="w-full border border-gray-300 rounded-lg p-2" placeholder="e.g., en serio">
+                    </div>
+                    <div>
+                        <label for="suggester-expected" class="block text-sm font-medium text-gray-700 mb-1">Expected Zapotec Translation</label>
+                        <input type="text" id="suggester-expected" class="w-full border border-gray-300 rounded-lg p-2" placeholder="e.g., Dxandí'">
+                    </div>
+                    <button onclick="suggestRules()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg">Suggest Rules</button>
+                    <div>
+                        <h4 class="font-semibold mt-4">Suggestions:</h4>
+                        <div id="suggestions-output" class="bg-gray-100 p-4 rounded-lg min-h-[100px]"></div>
+                    </div>
+                </div>
+
+                <!-- Bulk Tester Panel -->
+                <div id="tester-panel" class="tab-panel space-y-4">
+                     <h3 class="text-lg font-semibold">Bulk Translation Test</h3>
+                     <div>
+                        <label for="bulk-input" class="block text-sm font-medium text-gray-700 mb-1">Test Cases (one per line: `spanish phrase | expected zapotec`)</label>
+                        <textarea id="bulk-input" rows="10" class="w-full border border-gray-300 rounded-lg p-2 font-mono text-sm" placeholder="hola | Xhi tal xha&#x0a;gracias | Xquixepe lii"></textarea>
+                    </div>
+                    <button onclick="runBulkTest()" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg">Run Tests</button>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white mt-4">
+                            <thead class="bg-gray-200">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">Status</th>
+                                    <th class="py-2 px-4 text-left">Spanish Input</th>
+                                    <th class="py-2 px-4 text-left">Expected Output</th>
+                                    <th class="py-2 px-4 text-left">Actual Output</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulk-results-body">
+                                <!-- Results will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Data Loading Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <!-- Database Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-3">Database File (`database.js`)</h2>
+
+                <!-- File Loader -->
+                <div id="db-drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-500 transition-colors mb-4">
+                    <i class="fas fa-upload text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-500">Drag & Drop or <label for="database-file-input" class="text-indigo-600 font-semibold hover:underline cursor-pointer">Select File</label></p>
+                    <input type="file" id="database-file-input" class="hidden" accept=".js">
+                    <p id="db-file-name" class="text-xs text-green-600 mt-2 font-semibold truncate"></p>
+                </div>
+                
+                <!-- Textarea for content -->
+                <p class="text-sm text-gray-500 mb-2">File Content:</p>
+                <textarea id="database-input" rows="8" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                
+                <!-- Download Button -->
+                <button onclick="downloadFile('database.js', document.getElementById('database-input').value)" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+                    <i class="fas fa-download mr-2"></i>Download as database.js
+                </button>
+            </div>
+            
+            <!-- Rules Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-3">Rules File (`rules.js`)</h2>
+                
+                <!-- File Loader -->
+                <div id="rules-drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-500 transition-colors mb-4">
+                     <i class="fas fa-upload text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-500">Drag & Drop or <label for="rules-file-input" class="text-indigo-600 font-semibold hover:underline cursor-pointer">Select File</label></p>
+                    <input type="file" id="rules-file-input" class="hidden" accept=".js">
+                     <p id="rules-file-name" class="text-xs text-green-600 mt-2 font-semibold truncate"></p>
+                </div>
+                
+                <!-- Textarea for content -->
+                <p class="text-sm text-gray-500 mb-2">File Content:</p>
+                <textarea id="rules-input" rows="8" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                
+                <!-- Download Button -->
+                <button onclick="downloadFile('rules.js', document.getElementById('rules-input').value)" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+                    <i class="fas fa-download mr-2"></i>Download as rules.js
+                </button>
+            </div>
+        </div>
+        <div class="text-center my-8">
+             <button onclick="loadDataFromTextareas()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 text-lg rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-sync-alt mr-2"></i>Load/Refresh Data into Panel
+            </button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="add-word-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 id="word-modal-title" class="text-xl font-semibold mb-4">Add New Word</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-word-key">
+                <div>
+                    <label for="modal-spanish-word" class="block text-sm font-medium text-gray-700">Spanish</label>
+                    <input type="text" id="modal-spanish-word" class="mt-1 w-full border border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label for="modal-zapotec-word" class="block text-sm font-medium text-gray-700">Zapotec</label>
+                    <input type="text" id="modal-zapotec-word" class="mt-1 w-full border border-gray-300 rounded-lg p-2">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="closeAddWordModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg">Cancel</button>
+                <button onclick="saveWord()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">Save</button>
+            </div>
+        </div>
+    </div>
+    
+     <div id="add-rule-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+            <h3 id="rule-modal-title" class="text-xl font-semibold mb-4">Add New Rule</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-rule-index">
+                <div>
+                    <label for="modal-rule-type" class="block text-sm font-medium text-gray-700">Rule Type</label>
+                    <select id="modal-rule-type" class="mt-1 w-full border border-gray-300 rounded-lg p-2">
+                        <option value="oneForOne">oneForOne</option>
+                        <option value="twoForOne">twoForOne</option>
+                        <option value="threeForOne">threeForOne</option>
+                        <option value="fourForOne">fourForOne</option>
+                        <option value="fiveForOne">fiveForOne</option>
+                        <option value="preprocess">preprocess</option>
+                        <option value="remove">remove</option>
+                        <option value="ifAtStart">ifAtStart</option>
+                        <option value="replaceWord">replaceWord</option>
+                        <option value="replaceIfNext">replaceIfNext</option>
+                        <option value="replaceIfPrevious">replaceIfPrevious</option>
+                        <option value="replaceEnding">replaceEnding</option>
+                        <option value="swapWords">swapWords</option>
+                        <option value="oneToMany">oneToMany</option>
+                    </select>
+                </div>
+                <div id="modal-rule-fields" class="space-y-3">
+                    <!-- Dynamic fields here -->
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="closeAddRuleModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg">Cancel</button>
+                <button onclick="saveRule()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">Save Rule</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- These files are for initial data load, but can be empty or missing. -->
+    <script src="database.js"></script>
+    <script src="rules.js"></script>
+    
+    <!-- Main Admin Panel Logic -->
+<script>
+// --- GLOBAL STATE ---
+// 'dictionary' and 'translationRules' are loaded from the external .js files.
+
+const ruleFieldTemplates = {
+    oneForOne: `
+        <div><label class="block text-xs">Word</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., quiero"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., amo"></div>`,
+    twoForOne: `
+        <div><label class="block text-xs">Words (comma separated)</label><input type="text" id="rule-field-words" class="w-full border rounded p-1" placeholder="e.g., en, serio"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., enserio"></div>`,
+    threeForOne: `
+        <div><label class="block text-xs">Words (comma separated)</label><input type="text" id="rule-field-words" class="w-full border rounded p-1" placeholder="e.g., no, les, digas"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., no3 ellos digas"></div>`,
+    fourForOne: `
+        <div><label class="block text-xs">Words (comma separated)</label><input type="text" id="rule-field-words" class="w-full border rounded p-1" placeholder="e.g., a, mi, me, gusta"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., megusta"></div>`,
+    fiveForOne: `
+        <div><label class="block text-xs">Words (comma separated)</label><input type="text" id="rule-field-words" class="w-full border rounded p-1" placeholder="e.g., word1, word2, word3, word4, word5"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., replacement"></div>`,
+    preprocess: `
+        <div><label class="block text-xs">Word to move</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., les"></div>`,
+    remove: `
+        <div><label class="block text-xs">Word to remove</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., el"></div>`,
+    ifAtStart: `
+        <div><label class="block text-xs">Word</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., hola"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., adios"></div>`,
+    replaceWord: `
+        <div><label class="block text-xs">Word</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., casa"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., hogar"></div>`,
+    replaceIfNext: `
+        <div><label class="block text-xs">Word to Replace</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., mi"></div>
+        <div><label class="block text-xs">Next Word</label><input type="text" id="rule-field-next" class="w-full border rounded p-1" placeholder="e.g., casa"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., el"></div>`,
+    replaceIfPrevious: `
+        <div><label class="block text-xs">Word to Replace</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., casa"></div>
+        <div><label class="block text-xs">Previous Word</label><input type="text" id="rule-field-previous" class="w-full border rounded p-1" placeholder="e.g., la"></div>
+        <div><label class="block text-xs">Replacement</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., hogar"></div>`,
+    replaceEnding: `
+        <div><label class="block text-xs">Target Word</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., corriendo"></div>
+        <div><label class="block text-xs">Old Ending</label><input type="text" id="rule-field-oldEnding" class="w-full border rounded p-1" placeholder="e.g., iendo"></div>
+        <div><label class="block text-xs">New Ending</label><input type="text" id="rule-field-newEnding" class="w-full border rounded p-1" placeholder="e.g., er"></div>`,
+    swapWords: `
+        <div><label class="block text-xs">Words to swap (comma separated)</label><input type="text" id="rule-field-words" class="w-full border rounded p-1" placeholder="e.g., carro, rojo"></div>`,
+    oneToMany: `
+        <div><label class="block text-xs">Word to split</label><input type="text" id="rule-field-word" class="w-full border rounded p-1" placeholder="e.g., contigo"></div>
+        <div><label class="block text-xs">Replacement Phrase</label><input type="text" id="rule-field-replacement" class="w-full border rounded p-1" placeholder="e.g., con ti"></div>`,
+};
+
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if the external files loaded correctly
+    if (typeof dictionary === 'undefined' || typeof translationRules === 'undefined') {
+        showToast('Error: database.js or rules.js not found. Load them using the panels below.', 'error');
+        window.dictionary = {};
+        window.translationRules = [];
+    }
+
+    // Populate textareas with content from the loaded JS variables
+    document.getElementById('database-input').value = getDatabaseContent();
+    document.getElementById('rules-input').value = getRulesContent();
+    
+    switchTab('translator'); // Set initial tab
+    renderAll(); // Render tables and lists from the loaded data
+
+    // --- EVENT LISTENERS ---
+    document.getElementById('translate-btn').addEventListener('click', () => {
+        const textToTranslate = document.getElementById('spanish-input-tester').value;
+        const { translation, steps, missingWords } = getTranslationDetails(textToTranslate);
+        document.getElementById('zapotec-output').innerHTML = translation || '<span class="text-gray-500">...</span>';
+        renderSteps(steps);
+        renderMissingWords(missingWords);
+    });
+    
+    document.getElementById('db-search').addEventListener('input', (e) => {
+        renderDatabaseTable(e.target.value);
+    });
+    
+    document.getElementById('modal-rule-type').addEventListener('change', (e) => {
+        updateRuleModalFields(e.target.value);
+    });
+
+    // --- FILE LOADING & DRAG-DROP ---
+    const setupDropZone = (zoneId, inputId, textareaId, fileNameId) => {
+        const zone = document.getElementById(zoneId);
+        const input = document.getElementById(inputId);
+        const textarea = document.getElementById(textareaId);
+        const fileNameEl = document.getElementById(fileNameId);
+
+        const handleFile = (file) => {
+            if (!file || !file.name.endsWith('.js')) {
+                showToast('Please select a valid .js file', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                textarea.value = e.target.result;
+                fileNameEl.textContent = file.name;
+                showToast(`${file.name} loaded. Click "Load/Refresh Data" to apply.`, 'success');
+            };
+            reader.readAsText(file);
+        };
+
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        input.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+    };
+    
+    setupDropZone('db-drop-zone', 'database-file-input', 'database-input', 'db-file-name');
+    setupDropZone('rules-drop-zone', 'rules-file-input', 'rules-input', 'rules-file-name');
+});
+
+// --- TRANSLATOR LOGIC ---
+function cleanText(text) {
+    if (!text || typeof text !== 'string') return '';
+    return text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s{2,}/g, " ");
+}
+
+function getTranslationDetails(spanishPhrase) {
+    if (!spanishPhrase || typeof spanishPhrase.trim() === '') {
+        return { translation: "", steps: [], missingWords: [] };
+    }
+    
+    const currentDictionary = window.dictionary || {};
+    const currentRules = window.translationRules || [];
+    const steps = [];
+    const missingWords = new Set();
+
+    let processedText = cleanText(spanishPhrase);
+    steps.push({
+        description: `<strong>Initial Text:</strong> Cleaned input`,
+        text: processedText
+    });
+
+    currentRules.forEach(rule => {
+        let textBeforeApplications = processedText;
+        let textBeforeRule;
+        
+        do {
+            textBeforeRule = processedText;
+            switch (rule.type) {
+                case 'oneForOne':
+                    processedText = processedText.replace(new RegExp(`\\b${rule.word}\\b`, 'g'), rule.replacement);
+                    break;
+                case 'twoForOne':
+                    processedText = processedText.replace(new RegExp(`\\b${rule.words[0]}\\s+${rule.words[1]}\\b`, 'g'), rule.replacement);
+                    break;
+                case 'threeForOne':
+                    processedText = processedText.replace(new RegExp(`\\b${rule.words[0]}\\s+${rule.words[1]}\\s+${rule.words[2]}\\b`, 'g'), rule.replacement);
+                    break;
+                case 'fourForOne':
+                     processedText = processedText.replace(new RegExp(`\\b${rule.words[0]}\\s+${rule.words[1]}\\s+${rule.words[2]}\\s+${rule.words[3]}\\b`, 'g'), rule.replacement);
+                    break;
+                 case 'fiveForOne':
+                     processedText = processedText.replace(new RegExp(`\\b${rule.words[0]}\\s+${rule.words[1]}\\s+${rule.words[2]}\\s+${rule.words[3]}\\s+${rule.words[4]}\\b`, 'g'), rule.replacement);
+                    break;
+                case 'remove':
+                    processedText = processedText.replace(new RegExp(`\\b${rule.word}\\b`, 'g'), '').replace(/\s\s+/g, ' ').trim();
+                    break;
+                case 'replaceEnding':
+                     if (processedText.includes(rule.word) && rule.word.endsWith(rule.oldEnding)) {
+                        const newWord = rule.word.slice(0, -rule.oldEnding.length) + rule.newEnding;
+                        processedText = processedText.replace(new RegExp(`\\b${rule.word}\\b`, 'g'), newWord);
+                    }
+                    break;
+                case 'swapWords':
+                     processedText = processedText.replace(new RegExp(`\\b${rule.words[0]}\\s+${rule.words[1]}\\b`, 'g'), `${rule.words[1]} ${rule.words[0]}`);
+                    break;
+                 case 'oneToMany':
+                    processedText = processedText.replace(new RegExp(`\\b${rule.word}\\b`, 'g'), rule.replacement);
+                    break;
+                case 'preprocess':
+                    let words = processedText.split(' ');
+                    let idx = words.indexOf(rule.word);
+                    if (idx !== -1 && idx < words.length - 1) {
+                        [words[idx], words[idx+1]] = [words[idx+1], words[idx]];
+                        processedText = words.join(' ');
+                    }
+                    break;
+            }
+        } while (processedText !== textBeforeRule);
+
+        if (processedText !== textBeforeApplications) {
+            steps.push({
+                description: `<strong>Rule Applied:</strong> ${rule.type} (${generateRuleDetails(rule)})`,
+                text: processedText
+            });
+        }
+    });
+
+    const words = processedText.split(' ');
+    const translatedWords = words.map(word => {
+        if (word.trim() === "") return "";
+        if (currentDictionary[word]) {
+            return currentDictionary[word];
+        } else {
+            missingWords.add(word);
+            return `<i>${word}</i>`;
+        }
+    });
+    const finalTranslation = translatedWords.join(' ');
+
+    steps.push({
+        description: `<strong>Dictionary Lookup:</strong> Final result`,
+        text: finalTranslation
+    });
+    
+    return { translation: finalTranslation, steps, missingWords: Array.from(missingWords) };
+}
+
+function generateRuleDetails(rule) {
+    switch(rule.type) {
+        case 'oneForOne': return `'${rule.word}' &rarr; '${rule.replacement}'`;
+        case 'twoForOne': case 'threeForOne': case 'fourForOne': case 'fiveForOne': case 'swapWords': return `'${rule.words.join(' ')}' ${rule.replacement ? `&rarr; '${rule.replacement}'` : '(swap)'}`;
+        case 'preprocess': return `move '${rule.word}' after next word`;
+        case 'remove': return `remove '${rule.word}'`;
+        case 'replaceEnding': return `in '${rule.word}', replace ending '-${rule.oldEnding}' &rarr; '-${rule.newEnding}'`;
+        case 'oneToMany': return `'${rule.word}' &rarr; '${rule.replacement}'`;
+        default: return 'details not available';
+    }
+}
+
+function renderSteps(steps) {
+    const container = document.getElementById('translation-steps');
+    container.innerHTML = '';
+    if (!steps || steps.length === 0) {
+        container.innerHTML = '<p class="text-gray-400">Enter text and translate to see steps.</p>';
+        return;
+    }
+
+    steps.forEach(step => {
+        const stepEl = document.createElement('div');
+        stepEl.className = 'p-2 border-b border-gray-200 last:border-b-0';
+        stepEl.innerHTML = `
+            <p class="text-sm text-gray-600">${step.description}</p>
+            <p class="font-mono text-indigo-700 bg-indigo-50 p-2 rounded mt-1 break-words">${step.text || '&nbsp;'}</p>
+        `;
+        container.appendChild(stepEl);
+    });
+}
+
+function renderMissingWords(words) {
+    const section = document.getElementById('missing-words-section');
+    const container = document.getElementById('missing-words-list');
+    container.innerHTML = '';
+
+    if (!words || words.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    section.style.display = 'block';
+
+    words.forEach(word => {
+        const wordEl = document.createElement('div');
+        wordEl.className = 'flex items-center gap-4 p-2 bg-white rounded-md';
+        wordEl.innerHTML = `
+            <span class="font-mono font-semibold text-gray-700 w-1/4">${word}</span>
+            <input type="text" id="missing-word-input-${word}" class="w-2/4 border border-gray-300 rounded-lg p-2" placeholder="Enter Zapotec translation...">
+            <button onclick="saveMissingWord('${word}')" class="w-1/4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg">
+                <i class="fas fa-save mr-1"></i> Save
+            </button>
+        `;
+        container.appendChild(wordEl);
+    });
+}
+
+function saveMissingWord(spanishWord) {
+    const input = document.getElementById(`missing-word-input-${spanishWord}`);
+    const zapotecTranslation = input.value.trim();
+
+    if (!zapotecTranslation) {
+        showToast('Please enter a Zapotec translation.', 'error');
+        return;
+    }
+
+    window.dictionary[spanishWord] = zapotecTranslation;
+    showToast(`'${spanishWord}' -> '${zapotecTranslation}' saved to dictionary.`, 'success');
+    updateTextareasAndRender();
+    
+    // Re-run the translation to update the output and steps
+    document.getElementById('translate-btn').click();
+}
+
+
+// --- DATA HANDLING ---
+function loadDataFromTextareas() {
+    try {
+        const dbText = document.getElementById('database-input').value;
+        const rulesText = document.getElementById('rules-input').value;
+
+        // Re-assign the global variables with the content from the textareas
+        window.dictionary = new Function(dbText.replace(/(?:var|let|const)\s+dictionary\s*=/,'return').replace(';', ''))();
+        window.translationRules = new Function(rulesText.replace(/(?:var|let|const)\s+translationRules\s*=/,'return').replace(';', ''))();
+        
+        showToast('Data loaded successfully from textareas!', 'success');
+        renderAll();
+    } catch (e) {
+        console.error("Error parsing data from textareas:", e);
+        showToast('Error loading data. Check console for details.', 'error');
+    }
+}
+
+function renderAll() {
+    renderDatabaseTable();
+    renderRulesList();
+}
+
+
+// --- UI & TABS ---
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.getElementById(`${tabName}-panel`).classList.add('active');
+    document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// --- DATABASE MANAGER ---
+function renderDatabaseTable(filter = '') {
+    const tbody = document.getElementById('database-table-body');
+    tbody.innerHTML = '';
+    const lowerFilter = filter.toLowerCase();
+    
+    const sortedKeys = Object.keys(window.dictionary || {}).sort();
+
+    for (const key of sortedKeys) {
+        const value = dictionary[key];
+        if (key.toLowerCase().includes(lowerFilter) || value.toLowerCase().includes(lowerFilter)) {
+            const row = document.createElement('tr');
+            row.className = 'border-b hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="py-2 px-4">${key}</td>
+                <td class="py-2 px-4">${value}</td>
+                <td class="py-2 px-4">
+                    <button class="text-blue-500 hover:text-blue-700 mr-2" onclick="editWord('${key}')"><i class="fas fa-edit"></i></button>
+                    <button class="text-red-500 hover:text-red-700" onclick="deleteWord('${key}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+    }
+}
+
+function openAddWordModal() {
+    document.getElementById('word-modal-title').innerText = 'Add New Word';
+    document.getElementById('edit-word-key').value = '';
+    document.getElementById('modal-spanish-word').value = '';
+    document.getElementById('modal-zapotec-word').value = '';
+    document.getElementById('modal-spanish-word').readOnly = false;
+    document.getElementById('add-word-modal').style.display = 'flex';
+}
+
+function closeAddWordModal() {
+    document.getElementById('add-word-modal').style.display = 'none';
+}
+
+function editWord(key) {
+    document.getElementById('word-modal-title').innerText = 'Edit Word';
+    document.getElementById('edit-word-key').value = key;
+    document.getElementById('modal-spanish-word').value = key;
+    document.getElementById('modal-zapotec-word').value = dictionary[key];
+    document.getElementById('modal-spanish-word').readOnly = true;
+    document.getElementById('add-word-modal').style.display = 'flex';
+}
+
+function saveWord() {
+    const oldKey = document.getElementById('edit-word-key').value;
+    const spanish = document.getElementById('modal-spanish-word').value.trim();
+    const zapotec = document.getElementById('modal-zapotec-word').value.trim();
+
+    if (!spanish || !zapotec) {
+        showToast('Both fields are required.', 'error');
+        return;
+    }
+
+    if (oldKey && oldKey !== spanish) {
+        delete dictionary[oldKey];
+    }
+    
+    dictionary[spanish] = zapotec;
+    showToast(`'${spanish}' saved successfully.`, 'success');
+    closeAddWordModal();
+    updateTextareasAndRender();
+}
+
+function deleteWord(key) {
+    if (confirm(`Are you sure you want to delete "${key}"?`)) {
+        delete dictionary[key];
+        showToast(`'${key}' deleted.`, 'success');
+        updateTextareasAndRender();
+    }
+}
+
+// --- RULES MANAGER ---
+function renderRulesList() {
+    const list = document.getElementById('rules-list');
+    list.innerHTML = '';
+    const rules = window.translationRules || [];
+    if (rules.length === 0) {
+        list.innerHTML = '<p class="text-gray-500">No rules defined.</p>';
+        return;
+    }
+    rules.forEach((rule, index) => {
+        const card = document.createElement('div');
+        card.className = 'bg-gray-50 p-3 rounded-lg border flex justify-between items-center';
+        
+        let details = `<span class="font-mono text-sm font-semibold bg-indigo-100 text-indigo-800 px-2 py-1 rounded">${rule.type}</span>`;
+        switch(rule.type) {
+            case 'oneForOne': details += ` <span class="font-mono">${rule.word} &rarr; ${rule.replacement}</span>`; break;
+            case 'twoForOne': case 'threeForOne': case 'fourForOne': case 'fiveForOne': case 'swapWords': details += ` <span class="font-mono">${rule.words.join(', ')} ${rule.replacement ? `&rarr; ${rule.replacement}` : ''}</span>`; break;
+            case 'preprocess': case 'remove': details += ` <span class="font-mono">${rule.word}</span>`; break;
+            case 'ifAtStart': details += ` <span class="font-mono">START: ${rule.word} &rarr; ${rule.replacement}</span>`; break;
+            case 'replaceWord': details += ` <span class="font-mono">${rule.word} &rarr; ${rule.replacement}</span>`; break;
+            case 'replaceIfNext': details += ` <span class="font-mono">${rule.word} (if next is ${rule.next}) &rarr; ${rule.replacement}</span>`; break;
+            case 'replaceIfPrevious': details += ` <span class="font-mono">${rule.word} (if previous is ${rule.previous}) &rarr; ${rule.replacement}</span>`; break;
+            case 'replaceEnding': details += ` <span class="font-mono">${rule.word} (-${rule.oldEnding} &rarr; -${rule.newEnding})</span>`; break;
+            case 'oneToMany': details += ` <span class="font-mono">${rule.word} &rarr; ${rule.replacement}</span>`; break;
+        }
+
+        const isFirst = index === 0;
+        const isLast = rules.length - 1;
+
+        card.innerHTML = `
+            <div>${details}</div>
+            <div class="flex items-center space-x-3">
+                <button class="text-gray-500 hover:text-gray-700 ${isFirst ? 'opacity-25 cursor-not-allowed' : ''}" onclick="moveRule(${index}, -1)" ${isFirst ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                <button class="text-gray-500 hover:text-gray-700 ${isLast ? 'opacity-25 cursor-not-allowed' : ''}" onclick="moveRule(${index}, 1)" ${isLast ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                <button class="text-blue-500 hover:text-blue-700" onclick="editRule(${index})"><i class="fas fa-edit"></i></button>
+                <button class="text-red-500 hover:text-red-700" onclick="deleteRule(${index})"><i class="fas fa-trash"></i></button>
+            </div>`;
+        list.appendChild(card);
+    });
+}
+
+function openAddRuleModal() {
+    document.getElementById('rule-modal-title').innerText = 'Add New Rule';
+    document.getElementById('edit-rule-index').value = '-1';
+    document.getElementById('modal-rule-type').value = 'oneForOne';
+    document.getElementById('modal-rule-type').disabled = false;
+    updateRuleModalFields('oneForOne');
+    document.getElementById('add-rule-modal').style.display = 'flex';
+}
+
+function editRule(index) {
+    const rule = translationRules[index];
+    document.getElementById('rule-modal-title').innerText = 'Edit Rule';
+    document.getElementById('edit-rule-index').value = index;
+    document.getElementById('modal-rule-type').value = rule.type;
+    document.getElementById('modal-rule-type').disabled = true;
+    updateRuleModalFields(rule.type);
+    
+    switch(rule.type) {
+        case 'oneForOne': 
+            document.getElementById('rule-field-word').value = rule.word;
+            document.getElementById('rule-field-replacement').value = rule.replacement;
+            break;
+        case 'twoForOne': case 'threeForOne': case 'fourForOne': case 'fiveForOne': case 'swapWords': 
+            document.getElementById('rule-field-words').value = rule.words.join(', ');
+            if(rule.replacement) document.getElementById('rule-field-replacement').value = rule.replacement;
+            break;
+        case 'preprocess': case 'remove': 
+            document.getElementById('rule-field-word').value = rule.word;
+            break;
+        case 'ifAtStart': case 'replaceWord':
+            document.getElementById('rule-field-word').value = rule.word;
+            document.getElementById('rule-field-replacement').value = rule.replacement;
+            break;
+        case 'replaceIfNext':
+            document.getElementById('rule-field-word').value = rule.word;
+            document.getElementById('rule-field-next').value = rule.next;
+            document.getElementById('rule-field-replacement').value = rule.replacement;
+            break;
+        case 'replaceIfPrevious':
+            document.getElementById('rule-field-word').value = rule.word;
+            document.getElementById('rule-field-previous').value = rule.previous;
+            document.getElementById('rule-field-replacement').value = rule.replacement;
+            break;
+        case 'replaceEnding':
+            document.getElementById('rule-field-word').value = rule.word;
+            document.getElementById('rule-field-oldEnding').value = rule.oldEnding;
+            document.getElementById('rule-field-newEnding').value = rule.newEnding;
+            break;
+        case 'oneToMany':
+            document.getElementById('rule-field-word').value = rule.word;
+            document.getElementById('rule-field-replacement').value = rule.replacement;
+            break;
+    }
+    document.getElementById('add-rule-modal').style.display = 'flex';
+}
+
+function closeAddRuleModal() {
+    document.getElementById('add-rule-modal').style.display = 'none';
+}
+
+function updateRuleModalFields(ruleType) {
+    document.getElementById('modal-rule-fields').innerHTML = ruleFieldTemplates[ruleType] || '';
+}
+
+function saveRule() {
+    const index = parseInt(document.getElementById('edit-rule-index').value, 10);
+    const type = document.getElementById('modal-rule-type').value;
+    const newRule = { type };
+    
+    try {
+        switch(type) {
+            case 'oneForOne':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                newRule.replacement = document.getElementById('rule-field-replacement').value.trim();
+                if (!newRule.word || !newRule.replacement) throw new Error("Fields cannot be empty.");
+                break;
+            case 'twoForOne': case 'threeForOne': case 'fourForOne': case 'fiveForOne': case 'swapWords':
+                newRule.words = document.getElementById('rule-field-words').value.split(',').map(w => w.trim()).filter(Boolean);
+                if (document.getElementById('rule-field-replacement')) {
+                    newRule.replacement = document.getElementById('rule-field-replacement').value.trim();
+                    if (!newRule.replacement && type !== 'swapWords') throw new Error("Replacement cannot be empty.");
+                }
+                const requiredLengths = { twoForOne: 2, threeForOne: 3, fourForOne: 4, fiveForOne: 5, swapWords: 2 };
+                if (newRule.words.length !== requiredLengths[type]) throw new Error(`Expected ${requiredLengths[type]} words.`);
+                break;
+             case 'preprocess': case 'remove':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                if (!newRule.word) throw new Error("Word cannot be empty.");
+                break;
+            case 'ifAtStart': case 'replaceWord':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                newRule.replacement = document.getElementById('rule-field-replacement').value.trim();
+                if (!newRule.word || !newRule.replacement) throw new Error("Fields cannot be empty.");
+                break;
+            case 'replaceIfNext':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                newRule.next = document.getElementById('rule-field-next').value.trim();
+                newRule.replacement = document.getElementById('rule-field-replacement').value.trim();
+                if (!newRule.word || !newRule.next || !newRule.replacement) throw new Error("All fields are required.");
+                break;
+            case 'replaceIfPrevious':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                newRule.previous = document.getElementById('rule-field-previous').value.trim();
+                newRule.replacement = document.getElementById('rule-field-replacement').value.trim();
+                if (!newRule.word || !newRule.previous || !newRule.replacement) throw new Error("All fields are required.");
+                break;
+            case 'replaceEnding':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                newRule.oldEnding = document.getElementById('rule-field-oldEnding').value.trim();
+                newRule.newEnding = document.getElementById('rule-field-newEnding').value.trim();
+                if (!newRule.word || !newRule.oldEnding) throw new Error("Word and Old Ending are required.");
+                break;
+            case 'oneToMany':
+                newRule.word = document.getElementById('rule-field-word').value.trim();
+                newRule.replacement = document.getElementById('rule-field-replacement').value.trim();
+                if (!newRule.word || !newRule.replacement) throw new Error("Fields cannot be empty.");
+                break;
+        }
+
+        if (index === -1) {
+            translationRules.push(newRule);
+        } else {
+            translationRules[index] = newRule;
+        }
+
+        showToast('Rule saved successfully.', 'success');
+        closeAddRuleModal();
+        updateTextareasAndRender();
+    } catch(e) {
+        showToast(e.message, 'error');
+    }
+}
+
+function deleteRule(index) {
+     if (confirm(`Are you sure you want to delete this rule?`)) {
+        translationRules.splice(index, 1);
+        showToast(`Rule deleted.`, 'success');
+        updateTextareasAndRender();
+    }
+}
+
+function moveRule(index, direction) {
+    if (direction === -1 && index > 0) {
+        [translationRules[index], translationRules[index - 1]] = [translationRules[index - 1], translationRules[index]];
+    } else if (direction === 1 && index < translationRules.length - 1) {
+        [translationRules[index], translationRules[index + 1]] = [translationRules[index + 1], translationRules[index]];
+    }
+    updateTextareasAndRender();
+}
+
+// --- RULE SUGGESTER ---
+function suggestRules() {
+    const spanish = document.getElementById('suggester-spanish').value;
+    const expected = document.getElementById('suggester-expected').value;
+    const outputDiv = document.getElementById('suggestions-output');
+    outputDiv.innerHTML = '';
+
+    if (!spanish || !expected) {
+        outputDiv.innerHTML = `<p class="text-gray-500">Please provide both a Spanish phrase and the expected Zapotec translation.</p>`;
+        return;
+    }
+
+    const { translation: actual } = getTranslationDetails(spanish);
+    const cleanedSpanishWords = cleanText(spanish).split(' ');
+    
+    let suggestions = [];
+
+    if (cleanedSpanishWords.length === 1 && !dictionary[cleanedSpanishWords[0]]) {
+        suggestions.push({
+            type: 'Dictionary Entry',
+            description: `Add <strong>'${cleanedSpanishWords[0]}'</strong> &rarr; <strong>'${expected}'</strong> to the dictionary.`,
+            action: () => {
+                dictionary[cleanedSpanishWords[0]] = expected;
+                updateTextareasAndRender();
+                showToast('Dictionary entry added!', 'success');
+            }
+        });
+    }
+
+    if (cleanedSpanishWords.length === 2) {
+         suggestions.push({
+            type: 'twoForOne Rule',
+            description: `Create a rule for <strong>'${cleanedSpanishWords.join(' ')}'</strong> &rarr; a new keyword, and then add that keyword to the dictionary translating to <strong>'${expected}'</strong>.`,
+            action: () => {
+                const newKeyword = cleanedSpanishWords.join('');
+                translationRules.push({ type: 'twoForOne', words: cleanedSpanishWords, replacement: newKeyword });
+                dictionary[newKeyword] = expected;
+                updateTextareasAndRender();
+                showToast('twoForOne rule and dictionary entry added!', 'success');
+            }
+        });
+    }
+    
+    if (suggestions.length === 0) {
+        outputDiv.innerHTML = `<p class="text-gray-500">No simple suggestions found. The current translation is: <code class="bg-gray-200 p-1 rounded">${actual}</code></p>`;
+    } else {
+        suggestions.forEach((s, i) => {
+            const suggestionEl = document.createElement('div');
+            suggestionEl.className = 'p-3 bg-blue-50 border-l-4 border-blue-400 mb-2';
+            suggestionEl.innerHTML = `
+                <p class="font-semibold">${s.type}</p>
+                <p>${s.description}</p>
+                <button class="text-sm bg-blue-500 text-white py-1 px-2 rounded mt-2 hover:bg-blue-600" id="sugg-btn-${i}">Apply Suggestion</button>
+            `;
+            outputDiv.appendChild(suggestionEl);
+             document.getElementById(`sugg-btn-${i}`).onclick = () => {
+                s.action();
+                suggestRules();
+            };
+        });
+    }
+}
+
+
+// --- BULK TESTER ---
+function runBulkTest() {
+    const testCases = document.getElementById('bulk-input').value.split('\n').filter(line => line.includes('|'));
+    const tbody = document.getElementById('bulk-results-body');
+    tbody.innerHTML = '';
+    
+    if(testCases.length === 0) return;
+
+    testCases.forEach(line => {
+        const parts = line.split('|');
+        if (parts.length !== 2) return;
+        
+        const spanish = parts[0].trim();
+        const expected = parts[1].trim();
+        const { translation: actual } = getTranslationDetails(spanish);
+        
+        const isPass = actual.replace(/<i>/g, '').replace(/<\/i>/g, '') === expected;
+        
+        const row = document.createElement('tr');
+        row.className = `border-b ${isPass ? 'bg-green-50' : 'bg-red-50'}`;
+        row.innerHTML = `
+            <td class="py-2 px-4">
+                <span class="font-bold ${isPass ? 'text-green-600' : 'text-red-600'}">${isPass ? 'PASS' : 'FAIL'}</span>
+            </td>
+            <td class="py-2 px-4">${spanish}</td>
+            <td class="py-2 px-4">${expected}</td>
+            <td class="py-2 px-4">${actual}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+
+// --- FILE & STATE SYNC ---
+function updateTextareasAndRender() {
+    document.getElementById('database-input').value = getDatabaseContent();
+    document.getElementById('rules-input').value = getRulesContent();
+    renderAll();
+}
+
+function getDatabaseContent() {
+    // Using window.dictionary to ensure we're accessing the global one.
+    return `let dictionary = ${JSON.stringify(window.dictionary, null, 4)};`;
+}
+
+function getRulesContent() {
+    return `let translationRules = ${JSON.stringify(window.translationRules, null, 4)};`;
+}
+
+function downloadFile(filename, content) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+</script>
+</body>
+</html>
+
