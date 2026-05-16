@@ -284,6 +284,57 @@
             .source-row { grid-template-columns: 1fr; }
         }
 
+        /* Input con botón de micrófono integrado */
+        .input-with-mic {
+            position: relative;
+        }
+        .input-with-mic .form-control {
+            padding-right: 48px; /* espacio para el botón */
+        }
+        .voice-btn {
+            position: absolute;
+            top: 50%;
+            right: 6px;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--tx-border-2);
+            background: var(--tx-surface);
+            color: var(--tx-primary-2);
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.05s ease;
+        }
+        .voice-btn:hover {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+        }
+        .voice-btn:active { transform: translateY(-50%) scale(0.94); }
+        .voice-btn:focus { outline: 2px solid var(--tx-accent); outline-offset: 1px; }
+        .voice-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+        .voice-btn[disabled]:hover {
+            background: var(--tx-surface);
+            border-color: var(--tx-border-2);
+            color: var(--tx-primary-2);
+        }
+        .voice-btn.is-listening {
+            background: linear-gradient(180deg, #b45309 0%, #7c2d12 100%);
+            border-color: #b45309;
+            color: #ffffff;
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6);
+            animation: tx-mic-pulse 1.4s ease-out infinite;
+        }
+        @keyframes tx-mic-pulse {
+            0%   { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0.55); }
+            70%  { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);    }
+            100% { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0);    }
+        }
+
         /* Select estilizado igual que los inputs */
         .site-form select.form-control {
             font-size: 0.95rem;
@@ -563,7 +614,12 @@
                     <div class="source-row">
                         <div class="source-input">
                             <label class="field-label" for="txt_texto_espanish">Palabra o frase</label>
-                            <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" autofocus spellcheck="true">
+                            <div class="input-with-mic">
+                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" autofocus spellcheck="true">
+                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz" title="Dictar por voz">
+                                    <i class="fa fa-microphone" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="source-lang">
                             <label class="field-label" for="src_lang">Idioma de origen</label>
@@ -663,6 +719,7 @@
             enablePage:        true,
             disclaimer:        true,
             spellCheck:        true,
+            voiceInput:        true,
             didxazapp:         true,
             toledo:            true,
             aulexCajono:       true,
@@ -674,6 +731,7 @@
             translator_enablePage:        'enablePage',
             translator_enableDisclaimer:  'disclaimer',
             translator_enableSpellCheck:  'spellCheck',
+            translator_enableVoiceInput:  'voiceInput',
             translator_enableDidxazapp:   'didxazapp',
             translator_enableToledo:      'toledo',
             translator_enableAulexCajono: 'aulexCajono',
@@ -705,6 +763,7 @@
         const $spell    = document.getElementById('spell_panel');
         const $srcLang  = document.getElementById('src_lang');
         const $bridge   = document.getElementById('bridge_panel');
+        const $voiceBtn = document.getElementById('btn_voice');
 
         // Año automático en el footer
         document.getElementById('anio').innerHTML += new Date().getFullYear();
@@ -768,6 +827,91 @@
                 clearBridge();
                 scheduleSpellCheck();
             });
+
+            // ---- Entrada por voz (Web Speech API) ----
+            // Mapa del selector a códigos BCP-47 que entiende SpeechRecognition.
+            const VOICE_LANG_MAP = {
+                es: 'es-MX', auto: 'es-MX', en: 'en-US', fr: 'fr-FR', pt: 'pt-BR',
+                it: 'it-IT', de: 'de-DE', ja: 'ja-JP', ko: 'ko-KR',
+                'zh-CN': 'zh-CN', ru: 'ru-RU', ar: 'ar-SA', hi: 'hi-IN',
+                // Idiomas indígenas/no soportados por el navegador: caemos a español.
+                nah: 'es-MX', qu: 'es-MX', yua: 'es-MX',
+            };
+
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!FEATURES.voiceInput || !SR) {
+                $voiceBtn.disabled = true;
+                $voiceBtn.title = !SR
+                    ? 'Tu navegador no soporta el reconocimiento de voz'
+                    : 'Entrada por voz desactivada';
+            } else {
+                let rec = null;
+                let listening = false;
+
+                const stopVoice = () => {
+                    listening = false;
+                    $voiceBtn.classList.remove('is-listening');
+                    $voiceBtn.setAttribute('aria-label', 'Dictar por voz');
+                    if (rec) { try { rec.stop(); } catch (e) { /* ignore */ } }
+                };
+
+                const startVoice = () => {
+                    rec = new SR();
+                    rec.lang = VOICE_LANG_MAP[$srcLang.value] || 'es-MX';
+                    rec.continuous = false;
+                    rec.interimResults = true;
+                    rec.maxAlternatives = 1;
+
+                    let finalText = '';
+                    rec.addEventListener('start', () => {
+                        listening = true;
+                        $voiceBtn.classList.add('is-listening');
+                        $voiceBtn.setAttribute('aria-label', 'Detener dictado');
+                        clearInputWarning();
+                        clearBridge();
+                    });
+                    rec.addEventListener('result', (ev) => {
+                        let interim = '';
+                        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+                            const r = ev.results[i];
+                            if (r.isFinal) finalText += r[0].transcript;
+                            else interim += r[0].transcript;
+                        }
+                        $input.value = (finalText + interim).trim();
+                        // Re-comprobar ortografía mientras se va escribiendo.
+                        scheduleSpellCheck();
+                    });
+                    rec.addEventListener('error', (ev) => {
+                        console.warn('voice error:', ev.error);
+                        if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+                            showInputWarning('Permiso del micrófono denegado. Acéptalo en tu navegador para dictar.');
+                        } else if (ev.error === 'no-speech') {
+                            showInputWarning('No se detectó voz. Inténtalo de nuevo.');
+                        } else if (ev.error === 'audio-capture') {
+                            showInputWarning('No se detectó un micrófono disponible.');
+                        } else if (ev.error === 'network') {
+                            showInputWarning('Error de red durante el reconocimiento de voz.');
+                        }
+                        stopVoice();
+                    });
+                    rec.addEventListener('end', () => {
+                        stopVoice();
+                        // Si tenemos texto final, traducimos automáticamente.
+                        if (finalText && finalText.trim().length) {
+                            $input.value = finalText.trim();
+                            traductorjs();
+                        }
+                    });
+
+                    try { rec.start(); }
+                    catch (e) { console.warn('rec.start failed:', e); stopVoice(); }
+                };
+
+                $voiceBtn.addEventListener('click', () => {
+                    if (listening) stopVoice();
+                    else startVoice();
+                });
+            }
 
             // Pre-calienta puter.net.fetch (su primer uso suele ser lento por inicialización
             // del worker/TLS). Si falla, no pasa nada: solo afectaría a la primera traducción.

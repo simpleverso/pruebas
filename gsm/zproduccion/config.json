@@ -8,6 +8,7 @@
   "translator_enablePage": true,
   "translator_enableDisclaimer": true,
   "translator_enableSpellCheck": true,
+  "translator_enableVoiceInput": true,
   "translator_enableDidxazapp": true,
   "translator_enableToledo": true,
   "translator_enableAulexCajono": true,
