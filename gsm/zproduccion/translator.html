@@ -86,14 +86,16 @@
         }
 
         /* Layout principal */
-        #info-container { padding-top: 90px; padding-bottom: 40px; max-width: 1180px; }
+        /* La navbar es fixed-top y mide ~88px (logo 55px + padding + borde).
+           Dejamos margen extra para que h1 nunca quede tapada por la navbar. */
+        #info-container { padding-top: 130px; padding-bottom: 40px; max-width: 1180px; }
         #info-container .row { height: auto !important; margin: 0 !important; }
 
         h1.pulse.animated {
             color: var(--tx-text-strong) !important;
             font-weight: 600;
             letter-spacing: -0.01em;
-            margin: 12px 0 28px;
+            margin: 0 0 28px;
             font-size: 1.9rem;
         }
 
@@ -405,7 +407,7 @@
 
         /* Responsive: en móvil ajustamos paddings y tipografía */
         @media (max-width: 767.98px) {
-            #info-container { padding-top: 80px; }
+            #info-container { padding-top: 110px; }
             .site-form { padding: 22px 18px; }
             h1.pulse.animated { font-size: 1.5rem; }
         }
@@ -634,7 +636,7 @@
     <div class="footer-basic">
         <footer>
             <ul class="list-inline"></ul>
-            <p class="copyright" id="anio">Nacubi research &amp; Didxaza Traducciones México - </p>
+            <p class="copyright" id="anio">Nacubi research - </p>
         </footer>
     </div>
 
