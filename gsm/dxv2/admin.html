@@ -299,6 +299,27 @@
                 <!-- Bulk Tester Panel -->
                 <div id="tester-panel" class="tab-panel space-y-4">
                      <h3 class="text-lg font-semibold">Bulk Translation Test</h3>
+
+                     <!-- Test file controls -->
+                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                         <p class="block text-xs text-gray-600 mb-2">
+                             Load test cases from a file or save the current set. One case per line, format <code class="font-mono">spanish | expected zapotec</code>. Lines starting with <code class="font-mono">#</code> are treated as comments.
+                         </p>
+                         <div class="flex flex-wrap gap-2">
+                             <input type="file" id="bulk-file-input" class="hidden" accept=".txt,.tests,.tsv,.csv,text/plain">
+                             <button onclick="document.getElementById('bulk-file-input').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-3 rounded shadow">
+                                 <i class="fas fa-folder-open mr-1"></i>Load Tests From File
+                             </button>
+                             <button onclick="saveBulkTestsToFile()" class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-3 rounded shadow">
+                                 <i class="fas fa-save mr-1"></i>Save Tests To File
+                             </button>
+                             <button onclick="saveBulkResultsToFile()" class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-3 rounded shadow">
+                                 <i class="fas fa-file-csv mr-1"></i>Save Results To CSV
+                             </button>
+                         </div>
+                         <p id="bulk-file-status" class="text-xs text-gray-500 mt-2 truncate"></p>
+                     </div>
+
                      <div>
                         <label for="bulk-input" class="block text-sm font-medium text-gray-700 mb-1">Test Cases (one per line: `spanish phrase | expected zapotec`)</label>
                         <textarea id="bulk-input" rows="10" class="w-full border border-gray-300 rounded-lg p-2 font-mono text-sm" placeholder="hola | Xhi tal xha&#x0a;gracias | Xquixepe lii"></textarea>
@@ -599,6 +620,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setupDropZone('db-drop-zone', 'database-file-input', 'database-input', 'db-file-name');
     setupDropZone('rules-drop-zone', 'rules-file-input', 'rules-input', 'rules-file-name');
+
+    // Bulk-test file picker. We don't reuse setupDropZone because it's
+    // .js-only and we want any plain-text file here.
+    const bulkFileInput = document.getElementById('bulk-file-input');
+    if (bulkFileInput) {
+        bulkFileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length) {
+                loadBulkTestsFromFile(e.target.files[0]);
+                // Reset so picking the same filename twice still fires change
+                e.target.value = '';
+            }
+        });
+    }
 });
 
 // --- TRANSLATOR LOGIC ---
@@ -1244,23 +1278,44 @@ function suggestRules() {
 
 
 // --- BULK TESTER ---
+
+// Holds the most recent run so the "Save Results To CSV" button has data
+// to export. Reset on every run.
+let lastBulkResults = [];
+
 function runBulkTest() {
-    const testCases = document.getElementById('bulk-input').value.split('\n').filter(line => line.includes('|'));
+    const lines = document.getElementById('bulk-input').value.split('\n');
     const tbody = document.getElementById('bulk-results-body');
     tbody.innerHTML = '';
-    
-    if(testCases.length === 0) return;
+    lastBulkResults = [];
+
+    // Skip blanks and #-prefixed comments. Each remaining line must contain a '|'.
+    const testCases = lines
+        .map(l => l.replace(/\r$/, ''))
+        .filter(l => l.trim() !== '' && !l.trim().startsWith('#') && l.includes('|'));
+
+    if (testCases.length === 0) {
+        setBulkFileStatus('No test cases found in the textarea.', 'info');
+        return;
+    }
+
+    let pass = 0;
+    let fail = 0;
 
     testCases.forEach(line => {
         const parts = line.split('|');
         if (parts.length !== 2) return;
-        
+
         const spanish = parts[0].trim();
         const expected = parts[1].trim();
         const { translation: actual } = getTranslationDetails(spanish);
-        
-        const isPass = actual.replace(/<i>/g, '').replace(/<\/i>/g, '') === expected;
-        
+
+        const cleanActual = actual.replace(/<i>/g, '').replace(/<\/i>/g, '');
+        const isPass = cleanActual === expected;
+        if (isPass) pass++; else fail++;
+
+        lastBulkResults.push({ status: isPass ? 'PASS' : 'FAIL', spanish, expected, actual: cleanActual });
+
         const row = document.createElement('tr');
         row.className = `border-b ${isPass ? 'bg-green-50' : 'bg-red-50'}`;
         row.innerHTML = `
@@ -1273,6 +1328,82 @@ function runBulkTest() {
         `;
         tbody.appendChild(row);
     });
+
+    setBulkFileStatus(`Run complete: ${pass} passed, ${fail} failed (${testCases.length} cases).`,
+                      fail === 0 ? 'success' : 'info');
+}
+
+// --- BULK TEST FILE I/O ---
+
+function setBulkFileStatus(message, kind) {
+    const el = document.getElementById('bulk-file-status');
+    if (!el) return;
+    el.textContent = message;
+    el.className = 'text-xs mt-2 truncate ' + (
+        kind === 'error' ? 'text-red-600' :
+        kind === 'success' ? 'text-green-600' :
+        'text-gray-500'
+    );
+}
+
+function loadBulkTestsFromFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const text = String(e.target.result || '');
+        document.getElementById('bulk-input').value = text;
+        const lineCount = text.split('\n').filter(l => l.trim() && !l.trim().startsWith('#') && l.includes('|')).length;
+        setBulkFileStatus(`Loaded ${file.name} (${text.length} chars, ${lineCount} test cases). Click "Run Tests" to execute.`, 'success');
+        showToast(`Tests loaded from ${file.name}`, 'success');
+    };
+    reader.onerror = () => {
+        setBulkFileStatus(`Could not read ${file.name}.`, 'error');
+        showToast(`Failed to read ${file.name}`, 'error');
+    };
+    reader.readAsText(file);
+}
+
+function saveBulkTestsToFile() {
+    const content = document.getElementById('bulk-input').value;
+    if (!content.trim()) {
+        setBulkFileStatus('Nothing to save — the test cases textarea is empty.', 'error');
+        return;
+    }
+    const stamp = bulkTimestampForFilename();
+    downloadFile(`tests-${stamp}.txt`, content);
+    setBulkFileStatus(`Saved tests as tests-${stamp}.txt`, 'success');
+}
+
+function saveBulkResultsToFile() {
+    if (!lastBulkResults || lastBulkResults.length === 0) {
+        setBulkFileStatus('Run the tests first; there are no results to save yet.', 'error');
+        return;
+    }
+    const csv = bulkResultsToCsv(lastBulkResults);
+    const stamp = bulkTimestampForFilename();
+    downloadFile(`tests-results-${stamp}.csv`, csv);
+    setBulkFileStatus(`Saved results as tests-results-${stamp}.csv`, 'success');
+}
+
+function bulkResultsToCsv(rows) {
+    const header = ['status', 'spanish', 'expected', 'actual'];
+    const escape = (v) => {
+        const s = String(v == null ? '' : v);
+        // Quote if it contains comma, quote, or newline. Double inner quotes.
+        if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+    };
+    const lines = [header.join(',')];
+    for (const r of rows) {
+        lines.push([escape(r.status), escape(r.spanish), escape(r.expected), escape(r.actual)].join(','));
+    }
+    return lines.join('\n') + '\n';
+}
+
+function bulkTimestampForFilename() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 }
 
 
