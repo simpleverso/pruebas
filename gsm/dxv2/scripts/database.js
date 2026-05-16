@@ -1,4 +1,3 @@
-// This file contains the dictionary for Spanish to Zapotec translations.
 let dictionary = {
     "hola": "Xhi tal xhac",
     "adiós": "cadu'yanu",
@@ -58,5 +57,17 @@ let dictionary = {
     "quesea": "gacani",
     "quitatelaropa": "biré xhabalu'",
     "te amo": "nadxiee lii",
-    "sanblasatempa": "Diaga beedxe'"
+    "sanblasatempa": "Diaga beedxe'",
+    "quiero": "Racaladxe",
+    "ver": "Guyaa",
+    "tusonrisa": "Gushidxilu",
+    "todo3": "Ira",
+    "día": "Dxi",
+    "de": "sti",
+    "grande": "Naro'ba",
+    "es": "Nga",
+    "gato": "Mistu'",
+    "subió": "Udxi'ba",
+    "al": "ra",
+    "cerro": "Daani"
 };
