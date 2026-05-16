@@ -463,6 +463,32 @@
             margin-bottom: 0.75rem;
             overflow: hidden;
             background: #161b22;
+            position: relative;
+        }
+        .notebook-panel .nb-copy-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, background 0.15s, color 0.15s;
+            z-index: 2;
+            font-family: inherit;
+        }
+        .notebook-panel .nb-render .cell:hover .nb-copy-btn { opacity: 1; }
+        .notebook-panel .nb-copy-btn:hover { background: #30363d; color: #e6edf3; }
+        .notebook-panel .nb-copy-btn.copied {
+            opacity: 1;
+            background: #1f6feb;
+            color: #fff;
+            border-color: #1f6feb;
         }
         .notebook-panel .nb-render .input {
             background: #0d1117;
@@ -4828,6 +4854,70 @@
             renderEl.innerHTML = '<div class="empty">No notebook loaded yet.</div>';
         }
 
+        // Read the original source of a notebook cell. Jupyter stores it as either
+        // a string or an array of strings (newline-joined when an array).
+        function getCellSource(cell) {
+            if (!cell) return '';
+            const src = cell.source;
+            if (Array.isArray(src)) return src.join('');
+            if (typeof src === 'string') return src;
+            return '';
+        }
+
+        // Robust copy: prefer the async Clipboard API, fall back to the deprecated
+        // execCommand path for non-secure contexts (file://, http://localhost on Safari, etc.).
+        async function copyToClipboard(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch(e) { /* fall through */ }
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                ta.style.pointerEvents = 'none';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        // Decorate every rendered cell with a copy button. Walks the rendered DOM
+        // and the source JSON in parallel — notebook.js emits cells in the same
+        // order as json.cells, so index alignment is reliable.
+        function attachCopyButtons(rootEl, json) {
+            const cellEls = rootEl.querySelectorAll('.cell');
+            const cells = (json && Array.isArray(json.cells)) ? json.cells : [];
+            cellEls.forEach((cellEl, i) => {
+                const cell = cells[i];
+                const source = getCellSource(cell);
+                if (!source) return; // skip empty cells (no copy button needed)
+                const btn = document.createElement('button');
+                btn.className = 'nb-copy-btn';
+                btn.type = 'button';
+                btn.textContent = 'Copy';
+                btn.title = (cell.cell_type === 'markdown' ? 'Copy markdown source' : 'Copy code') + ' — cell ' + (i + 1);
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const ok = await copyToClipboard(source);
+                    btn.textContent = ok ? '✓ Copied' : '✗ Failed';
+                    btn.classList.toggle('copied', ok);
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 1500);
+                });
+                cellEl.appendChild(btn);
+            });
+        }
+
         // Some .ipynb.txt files are wrapped (e.g. quoted-printable email encoding) or have
         // BOM / leading garbage. Be forgiving: strip BOM, find the first { and last }, then parse.
         function parseNotebookJson(raw) {
@@ -4872,6 +4962,7 @@
                 const parsed = nb.parse(json);
                 const rendered = parsed.render();
                 renderEl.appendChild(rendered);
+                attachCopyButtons(rendered, json);
                 lastRenderedJson = json;
                 lastRenderedLabel = sourceLabel || null;
                 saveLastNotebook(json, sourceLabel);
