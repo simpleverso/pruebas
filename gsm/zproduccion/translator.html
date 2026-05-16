@@ -26,31 +26,49 @@
     <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/css/ml-video.css">
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
     <style>
-        /* ===== Translator – paleta gris / azul ===== */
+        /* ===== Translator – paleta gris / azul (dark) ===== */
         :root {
-            --tx-bg:        #eef2f7;
-            --tx-surface:   #ffffff;
-            --tx-border:    #d6dde6;
-            --tx-text:      #1f2a37;
-            --tx-muted:     #6b7280;
-            --tx-label:     #475569;
-            --tx-primary:   #1f4e7a;
-            --tx-primary-2: #2c6ca8;
-            --tx-accent:    #3b82f6;
-            --tx-shadow:    0 6px 20px rgba(15, 30, 60, 0.08);
+            /* Capas de superficie */
+            --tx-bg-1:        #0b1322;   /* fondo más profundo */
+            --tx-bg-2:        #111c2f;   /* fondo del gradiente */
+            --tx-surface:     #1a2436;   /* tarjetas */
+            --tx-surface-2:   #131c2c;   /* inputs, controles */
+            --tx-surface-3:   #243047;   /* hover / chips */
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+
+            /* Texto */
+            --tx-text:        #e6ecf5;   /* texto principal */
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+
+            /* Azules de acento */
+            --tx-primary:     #4f8fcf;   /* azul claro principal */
+            --tx-primary-2:   #6ba6e0;   /* hover / brillo */
+            --tx-primary-deep:#22456b;   /* base de gradiente del botón */
+            --tx-accent:      #3b82f6;   /* foco */
+
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
         }
 
         body {
-            background: linear-gradient(180deg, #f6f8fb 0%, #e7eef6 100%);
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
             color: var(--tx-text);
             font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
         }
 
-        /* Navbar más sobrio, en línea con la paleta */
+        /* Navbar */
         .clean-navbar.bg-white {
-            background: #ffffff !important;
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-bottom: 1px solid var(--tx-border);
-            box-shadow: 0 1px 3px rgba(15, 30, 60, 0.04);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
         }
         .clean-navbar .nav-link {
             color: var(--tx-label) !important;
@@ -58,32 +76,28 @@
             letter-spacing: 0.02em;
         }
         .clean-navbar .nav-link.active,
-        .clean-navbar .nav-link:hover { color: var(--tx-primary) !important; }
-        .navbar-brand.logo { color: var(--tx-primary); font-weight: 600; }
+        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler {
+            border-color: var(--tx-border) !important;
+        }
+        .navbar-toggler-icon {
+            filter: invert(1) brightness(1.4) opacity(0.7);
+        }
 
         /* Layout principal */
         #info-container { padding-top: 90px; padding-bottom: 40px; max-width: 1180px; }
         #info-container .row { height: auto !important; margin: 0 !important; }
 
         h1.pulse.animated {
-            color: var(--tx-primary) !important;
+            color: var(--tx-text-strong) !important;
             font-weight: 600;
             letter-spacing: -0.01em;
             margin: 12px 0 28px;
             font-size: 1.9rem;
         }
 
-        /* Columna de información */
-        #contact-box {
-            padding: 8px 24px 8px 0;
-        }
-        #contact-text {
-            width: 100% !important;
-            color: var(--tx-text);
-            line-height: 1.65;
-            font-size: 0.96rem;
-        }
-        #contact-text strong { color: var(--tx-primary); }
+        /* Conservada por compatibilidad (no se usa en esta versión) */
         .info-box {
             display: flex; align-items: center; gap: 10px;
             margin: 10px 0;
@@ -92,36 +106,38 @@
         }
         .info-box .my-info-icons {
             color: var(--tx-primary-2);
-            background: #e6eef8;
+            background: rgba(107, 166, 224, 0.12);
             width: 32px; height: 32px;
             border-radius: 50%;
             display: inline-flex; align-items: center; justify-content: center;
             font-size: 14px;
         }
-        .info-box .text-info { color: var(--tx-primary) !important; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; }
-        #contact-box > span.text-justify {
-            display: block;
-            margin-top: 16px;
-            padding: 12px 14px;
-            font-size: 0.82rem;
-            color: var(--tx-muted);
-            background: #f3f6fa;
-            border-left: 3px solid var(--tx-border);
-            border-radius: 4px;
-            line-height: 1.55;
-        }
+        .info-box .text-info { color: var(--tx-primary-2) !important; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; }
 
         /* Tarjeta del formulario */
         .site-form {
             background: var(--tx-surface);
             border: 1px solid var(--tx-border);
             border-radius: 12px;
-            padding: 28px 26px;
+            padding: 28px 30px;
             box-shadow: var(--tx-shadow);
+            margin: 0 auto;
         }
         .site-form .form-group { margin-bottom: 6px; }
-
         .site-form form { text-align: left !important; }
+
+        /* Grid de resultados: 2 columnas en pantallas medianas+, 1 columna en móvil */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px 22px;
+            margin-top: 4px;
+        }
+        .result-cell { display: flex; flex-direction: column; }
+        @media (max-width: 575.98px) {
+            .results-grid { grid-template-columns: 1fr; gap: 0; }
+        }
+
         .field-label {
             display: block;
             font-size: 0.72rem;
@@ -136,37 +152,131 @@
             margin-left: 8px;
             padding: 1px 8px;
             border-radius: 999px;
-            background: #e6eef8;
+            background: rgba(107, 166, 224, 0.14);
             color: var(--tx-primary-2);
             font-size: 0.65rem;
             letter-spacing: 0.06em;
+            border: 1px solid rgba(107, 166, 224, 0.25);
         }
 
         /* Inputs y textareas */
         .site-form .form-control {
             font-size: 0.95rem;
             color: var(--tx-text);
-            background: #fafbfd;
+            background: var(--tx-surface-2);
             border: 1px solid var(--tx-border);
             border-radius: 8px;
             padding: 10px 12px;
             transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
             box-shadow: none;
         }
-        .site-form .form-control::placeholder { color: #9aa4b2; }
+        .site-form .form-control::placeholder { color: #6b7891; }
         .site-form .form-control:focus {
-            background: #ffffff;
+            background: #182236;
             border-color: var(--tx-accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
             outline: none;
+            color: var(--tx-text-strong);
         }
-        .site-form textarea.form-control {
-            background: #f8fafc;
-            resize: vertical;
-            min-height: 72px;
+        .site-form .form-control.is-invalid,
+        .site-form .form-control.is-invalid:focus {
+            border-color: #f59e0b;
+            background: #2a1f0a;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
+            color: #fde68a;
+        }
+
+        /* Aviso debajo del input cuando hay un problema con lo que escribió */
+        .input-warning {
+            margin: 8px 0 0;
+            padding: 9px 12px;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            color: #fcd34d;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-left: 3px solid #f59e0b;
+            border-radius: 6px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .input-warning::before {
+            content: "⚠";
+            font-size: 0.95rem;
+            line-height: 1;
+            margin-top: 1px;
+            color: #f59e0b;
+        }
+        .input-warning.shake { animation: tx-shake 0.4s ease; }
+        @keyframes tx-shake {
+            0%, 100% { transform: translateX(0); }
+            20%      { transform: translateX(-5px); }
+            40%      { transform: translateX(5px); }
+            60%      { transform: translateX(-3px); }
+            80%      { transform: translateX(3px); }
+        }
+
+        /* Sugerencias ortográficas */
+        .spell-panel {
+            margin: 8px 0 0;
+            padding: 10px 12px;
+            background: rgba(59, 130, 246, 0.06);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-accent);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            color: var(--tx-label);
+        }
+        .spell-panel.is-loading { opacity: 0.7; }
+        .spell-item { margin: 4px 0; }
+        .spell-item + .spell-item { border-top: 1px dashed var(--tx-border-2); padding-top: 6px; margin-top: 6px; }
+        .spell-word {
+            display: inline-block;
+            font-weight: 600;
+            color: #fcd34d;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.30);
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 4px;
             font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
-            font-size: 0.88rem;
-            line-height: 1.5;
+            font-size: 0.82rem;
+        }
+        .spell-arrow { color: var(--tx-muted); margin: 0 4px; }
+        .spell-chip {
+            display: inline-block;
+            padding: 2px 9px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.82rem;
+            font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
+            color: var(--tx-primary-2);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+        }
+        .spell-chip:hover {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #0b1322;
+        }
+        .spell-chip:focus {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 1px;
+        }
+        .spell-msg { margin: 0; }
+        .spell-msg.spell-ok { color: #4ade80; }
+
+        .site-form textarea.form-control {
+            background: var(--tx-surface-2);
+            resize: vertical;
+            min-height: 180px;
+            font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
         .site-form textarea.form-control[readonly] {
             color: var(--tx-text);
@@ -183,14 +293,18 @@
             letter-spacing: 0.06em;
             text-transform: uppercase;
             color: #ffffff;
-            background: linear-gradient(180deg, var(--tx-primary-2) 0%, var(--tx-primary) 100%);
+            background: linear-gradient(180deg, var(--tx-primary) 0%, var(--tx-primary-deep) 100%);
             border: 1px solid var(--tx-primary);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(31, 78, 122, 0.18);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             transition: transform 0.05s ease, box-shadow 0.15s ease, filter 0.15s ease;
         }
-        #btn_traduc:hover { filter: brightness(1.05); box-shadow: 0 6px 16px rgba(31, 78, 122, 0.25); }
-        #btn_traduc:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(31, 78, 122, 0.2); }
+        #btn_traduc:hover {
+            filter: brightness(1.10);
+            box-shadow: 0 8px 22px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+        #btn_traduc:active { transform: translateY(1px); }
+        #btn_traduc:focus { outline: 3px solid rgba(59, 130, 246, 0.35); outline-offset: 2px; }
 
         /* Footer */
         .footer-basic {
@@ -206,50 +320,200 @@
             text-align: center;
         }
 
-        /* Responsive: en móvil la columna de info va arriba con menos padding */
+        /* Selección de texto */
+        ::selection {
+            background: rgba(59, 130, 246, 0.45);
+            color: var(--tx-text-strong);
+        }
+
+        /* Scrollbar (WebKit) – discreto, en tono frío */
+        textarea::-webkit-scrollbar { width: 10px; height: 10px; }
+        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar-thumb {
+            background: var(--tx-surface-3);
+            border-radius: 999px;
+            border: 2px solid var(--tx-surface-2);
+        }
+        textarea::-webkit-scrollbar-thumb:hover { background: var(--tx-border-2); }
+
+        /* Responsive: en móvil ajustamos paddings y tipografía */
         @media (max-width: 767.98px) {
             #info-container { padding-top: 80px; }
-            #contact-box { padding: 0 0 12px; }
             .site-form { padding: 22px 18px; }
             h1.pulse.animated { font-size: 1.5rem; }
+        }
+
+        /* ===== Aviso (modal de aceptación) ===== */
+        .disclaimer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 22, 0.72);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 24px;
+            animation: tx-fade-in 0.2s ease;
+        }
+        @keyframes tx-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        .disclaimer-card {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 14px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+            max-width: 560px;
+            width: 100%;
+            padding: 32px 30px 26px;
+            animation: tx-card-in 0.25s ease;
+            color: var(--tx-text);
+        }
+        @keyframes tx-card-in {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .disclaimer-card h2 {
+            color: var(--tx-text-strong);
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            margin: 0 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .disclaimer-card h2 .fa {
+            background: rgba(107, 166, 224, 0.14);
+            color: var(--tx-primary-2);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            border: 1px solid rgba(107, 166, 224, 0.25);
+        }
+
+        .disclaimer-card p {
+            color: var(--tx-text);
+            font-size: 0.94rem;
+            line-height: 1.65;
+            margin: 0 0 18px;
+        }
+        .disclaimer-card p strong { color: var(--tx-primary-2); }
+        .disclaimer-card p.disclaimer-attribution {
+            font-size: 0.78rem;
+            line-height: 1.5;
+            color: var(--tx-muted);
+            background: var(--tx-surface-2);
+            border-left: 3px solid var(--tx-border-2);
+            border-radius: 4px;
+            padding: 10px 12px;
+            margin: 0;
+        }
+
+        .disclaimer-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid var(--tx-border);
+        }
+
+        .btn-disclaimer-accept {
+            padding: 10px 22px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #ffffff;
+            background: linear-gradient(180deg, var(--tx-primary) 0%, var(--tx-primary-deep) 100%);
+            border: 1px solid var(--tx-primary);
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+        }
+        .btn-disclaimer-accept:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 8px 22px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+        .btn-disclaimer-accept:active { transform: translateY(1px); }
+        .btn-disclaimer-accept:focus { outline: 3px solid rgba(59, 130, 246, 0.35); outline-offset: 2px; }
+
+        /* Mientras el aviso está abierto, bloqueamos scroll y ocultamos foco del fondo */
+        body.disclaimer-open { overflow: hidden; }
+        body.disclaimer-open #info-container,
+        body.disclaimer-open .clean-navbar,
+        body.disclaimer-open .footer-basic { filter: blur(1px); pointer-events: none; user-select: none; }
+
+        @media (max-width: 575.98px) {
+            .disclaimer-card { padding: 24px 20px 20px; }
+            .disclaimer-actions { flex-direction: column-reverse; align-items: stretch; }
+            .btn-disclaimer-accept { width: 100%; }
         }
     </style>
 </head>
 
 <body>
+    <div id="disclaimer" class="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title" aria-describedby="disclaimer-text" hidden>
+        <div class="disclaimer-card">
+            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> Aviso importante</h2>
+            <p id="disclaimer-text">
+                El traductor de español a zapoteco del istmo es un proyecto experimental con la
+                finalidad de generar herramientas capaces de realizar traducciones al idioma Zapoteco
+                desde el español. <strong>Sin embargo estas traducciones no siempre son exactas</strong>,
+                por lo que se debe evitar su uso en información médica, documentación oficial,
+                información técnica, tareas, libros, ensayos, tatuajes, etc. y se debe preferir
+                siempre la traducción humana.
+            </p>
+            <p class="disclaimer-attribution">
+                ***Las Traducciones de Fundación Historico Cultural Juchitán, aulex, Traductor
+                Familia Toledo, y Google se encuentran disponibles de manera gratuita en internet,
+                y pertenecen a Fundación Historico Cultural Juchitán, aulex, a la Familia Toledo
+                y Google respectivamente.***
+            </p>
+            <div class="disclaimer-actions">
+                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus>
+                    Acepto y continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container" id="info-container">
-        <div class="row">
+        <div class="row justify-content-center">
             <div class="col-md-12">
                 <h1 class="text-center text-info pulse animated">Traductor Español - Zapoteco del Istmo en linea</h1>
             </div>
-            <div class="col-12 col-sm-6 col-md-6" id="contact-box">
-                <p class="text-justify" id="contact-text">El traductor de español a zapoteco del
-                    istmo es un proyecto experimental con la finalidad de generar herramientas capaces de realizar
-                    traducciones al idioma Zapoteco desde el español. <strong>Sin embargo estas traducciones no siempre son exactas</strong>,
-                    por lo que se debe evitar su uso en documentación oficial, información médica, información técnica, tareas, libros, ensayos, tatuajes, etc.
-                    y se debe preferir siempre la traducción humana.</p>
-                <div class="info-box"><i class="fa fa-envelope my-info-icons"></i><span class="text-uppercase text-info">Email: </span><span>&nbsp; myred.zapoteca@gmail.com</span></div>
-                <div class="info-box"><i class="fa fa-phone-square my-info-icons"></i><span class="text-uppercase text-info">Telefono: </span><span>&nbsp; &nbsp; +52 3337282112</span></div>
-                <span class="text-justify">&nbsp;***Las Traducciones de Fundación Historico Cultural Juchitán, aulex y
-                    Traductor Familia Toledo se encuentran disponibles de manera gratuita en internet, y pertenecen a
-                    Fundación Historico Cultural Juchitán, aulex y a la Familia Toledo, respectivamente.***&nbsp;</span>
-            </div>
-            <div class="col-12 col-sm-6 col-md-6 site-form">
-                <form class="text-center" id="my-form" onsubmit="return false;" action="">
+            <div class="col-12 col-md-11 col-lg-10 col-xl-9 site-form">
+                <form id="my-form" onsubmit="return false;" action="">
                     <label class="field-label" for="txt_texto_espanish">Palabra o frase en español</label>
-                    <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto en español" minlength="2" maxlength="31" autofocus spellcheck="true">
+                    <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto en español" autofocus spellcheck="true">
+                    <div id="input_warning" class="input-warning" role="alert" aria-live="polite" hidden></div>
+                    <div id="spell_panel" class="spell-panel" aria-live="polite" hidden></div>
 
-                    <label class="field-label" for="txt_res_didxazapp">Zapoteco del Istmo <span class="src-tag">Didxazapp</span></label>
-                    <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" rows="3"></textarea>
-
-                    <label class="field-label" for="txt_familia_toleto">Zapoteco del Istmo <span class="src-tag">Fam Toledo</span></label>
-                    <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" rows="3"></textarea>
-
-                    <label class="field-label" for="txt_res_aulex_cajono">Zapoteco Cajono <span class="src-tag">Aulex (zap-es)</span></label>
-                    <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" rows="3"></textarea>
-
-                    <label class="field-label" for="txt_res_google">Zapoteco <span class="src-tag">Google Translate (es → zap)</span></label>
-                    <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" rows="3"></textarea>
+                    <div class="results-grid">
+                        <div class="result-cell">
+                            <label class="field-label" for="txt_res_didxazapp">Zapoteco del Istmo <span class="src-tag">Didxazapp</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" rows="8"></textarea>
+                        </div>
+                        <div class="result-cell">
+                            <label class="field-label" for="txt_familia_toleto">Zapoteco del Istmo <span class="src-tag">Fam Toledo</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" rows="8"></textarea>
+                        </div>
+                        <div class="result-cell">
+                            <label class="field-label" for="txt_res_aulex_cajono">Zapoteco Cajono <span class="src-tag">Aulex (zap-es)</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" rows="8"></textarea>
+                        </div>
+                        <div class="result-cell">
+                            <label class="field-label" for="txt_res_google">Zapoteco <span class="src-tag">Google Translate (es → zap)</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" rows="8"></textarea>
+                        </div>
+                    </div>
 
                     <button id="btn_traduc" class="btn btn-primary" type="button">Traducir</button>
                 </form>
@@ -302,6 +566,8 @@
         // Defaults: si config.json no carga, todo queda habilitado.
         const FEATURES = {
             enablePage:        true,
+            disclaimer:        true,
+            spellCheck:        true,
             didxazapp:         true,
             toledo:            true,
             aulexCajono:       true,
@@ -310,11 +576,13 @@
 
         // Mapeo: clave en config.json -> propiedad en FEATURES
         const CONFIG_MAP = {
-            translator_enablePage:       'enablePage',
-            translator_enableDidxazapp:  'didxazapp',
-            translator_enableToledo:     'toledo',
-            translator_enableAulexCajono:'aulexCajono',
-            translator_enableGoogle:     'google',
+            translator_enablePage:        'enablePage',
+            translator_enableDisclaimer:  'disclaimer',
+            translator_enableSpellCheck:  'spellCheck',
+            translator_enableDidxazapp:   'didxazapp',
+            translator_enableToledo:      'toledo',
+            translator_enableAulexCajono: 'aulexCajono',
+            translator_enableGoogle:      'google',
         };
 
         async function loadConfig() {
@@ -332,15 +600,46 @@
         }
 
         // ---- DOM refs ----
-        const $input   = document.getElementById('txt_texto_espanish');
-        const $btn     = document.getElementById('btn_traduc');
-        const $resDx   = document.getElementById('txt_res_didxazapp');
-        const $resFam  = document.getElementById('txt_familia_toleto');
-        const $resAulx = document.getElementById('txt_res_aulex_cajono');
-        const $resGoog = document.getElementById('txt_res_google');
+        const $input    = document.getElementById('txt_texto_espanish');
+        const $btn      = document.getElementById('btn_traduc');
+        const $resDx    = document.getElementById('txt_res_didxazapp');
+        const $resFam   = document.getElementById('txt_familia_toleto');
+        const $resAulx  = document.getElementById('txt_res_aulex_cajono');
+        const $resGoog  = document.getElementById('txt_res_google');
+        const $warning  = document.getElementById('input_warning');
+        const $spell    = document.getElementById('spell_panel');
 
         // Año automático en el footer
         document.getElementById('anio').innerHTML += new Date().getFullYear();
+
+        // Aviso experimental: requiere aceptación explícita en cada navegador.
+        // Una vez aceptado se guarda en localStorage para no volver a mostrarlo.
+        const DISCLAIMER_KEY = 'translator_disclaimer_accepted_v1';
+
+        function showDisclaimer() {
+            const overlay = document.getElementById('disclaimer');
+            const btn = document.getElementById('btn_disclaimer_accept');
+            if (!overlay || !btn) return Promise.resolve();
+
+            return new Promise((resolve) => {
+                overlay.hidden = false;
+                document.body.classList.add('disclaimer-open');
+                // Foco en el botón para accesibilidad de teclado.
+                setTimeout(() => btn.focus(), 50);
+
+                btn.addEventListener('click', () => {
+                    try { localStorage.setItem(DISCLAIMER_KEY, '1'); } catch (e) { /* modo privado */ }
+                    overlay.hidden = true;
+                    document.body.classList.remove('disclaimer-open');
+                    resolve();
+                }, { once: true });
+            });
+        }
+
+        function disclaimerAlreadyAccepted() {
+            try { return localStorage.getItem(DISCLAIMER_KEY) === '1'; }
+            catch (e) { return false; }
+        }
 
         // Inicialización: carga config.json y, si la página está deshabilitada,
         // muestra mensaje de mantenimiento; en caso contrario, conecta los eventos.
@@ -350,8 +649,22 @@
                 document.body.innerHTML = '<h4 class="text-center" data-bs-hover-animate="pulse">Página en mantenimiento</h4>';
                 return;
             }
+
+            // Bloquea la interacción hasta que el usuario acepte el aviso.
+            // Se puede desactivar desde config.json (translator_enableDisclaimer).
+            if (FEATURES.disclaimer && !disclaimerAlreadyAccepted()) {
+                await showDisclaimer();
+            }
+
             $btn.addEventListener('click', traductorjs);
             $input.addEventListener('keyup', (e) => { if (e.key === 'Enter') traductorjs(); });
+            // Limpia el aviso en cuanto el usuario empieza a corregir, y dispara
+            // la comprobación ortográfica con un pequeño retraso (debounce).
+            $input.addEventListener('input', () => {
+                clearInputWarning();
+                scheduleSpellCheck();
+            });
+            $spell.addEventListener('click', onSpellPanelClick);
 
             // Pre-calienta puter.net.fetch (su primer uso suele ser lento por inicialización
             // del worker/TLS). Si falla, no pasa nada: solo afectaría a la primera traducción.
@@ -541,22 +854,153 @@
             $target.value = fallback;
         }
 
-        // ---- Acción principal ----
-        async function traductorjs() {
-            const text = $input.value;
-            if (text.length < 1 || text.length > MAX_CHARS) {
-                setBtn('No se pudo realizar el proceso');
+        // ---- Aviso de validación ----
+        function showInputWarning(msg) {
+            $warning.textContent = msg;
+            $warning.hidden = false;
+            $input.classList.add('is-invalid');
+            // Reinicia la animación de shake aunque ya estuviera visible.
+            $warning.classList.remove('shake');
+            // Forza reflow para reiniciar la animación.
+            void $warning.offsetWidth;
+            $warning.classList.add('shake');
+            $input.focus();
+        }
+        function clearInputWarning() {
+            if ($warning.hidden) return;
+            $warning.hidden = true;
+            $warning.textContent = '';
+            $input.classList.remove('is-invalid');
+        }
+
+        // ---- Sugerencias ortográficas (LanguageTool API) ----
+        const LT_API = 'https://api.languagetool.org/v2/check';
+        // Reglas que ignoramos (ruido para una herramienta de traducción).
+        const LT_IGNORED_RULES = new Set([
+            'UPPERCASE_SENTENCE_START',
+            'PUNCTUATION_PARAGRAPH_END',
+            'WHITESPACE_RULE',
+        ]);
+        let spellTimer = null;
+        let spellAbort = null;
+        let spellSeq = 0;
+
+        function clearSpell() {
+            $spell.hidden = true;
+            $spell.innerHTML = '';
+            $spell.classList.remove('is-loading');
+            if (spellAbort) { spellAbort.abort(); spellAbort = null; }
+            if (spellTimer) { clearTimeout(spellTimer); spellTimer = null; }
+        }
+
+        function escapeHtml(s) {
+            return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+        }
+
+        function applySuggestion(offset, length, replacement) {
+            const v = $input.value;
+            $input.value = v.slice(0, offset) + replacement + v.slice(offset + length);
+            $input.focus();
+            // Reanaliza el texto corregido.
+            scheduleSpellCheck();
+        }
+
+        function renderSpell(text, matches) {
+            const filtered = matches.filter(m => !LT_IGNORED_RULES.has(m.rule && m.rule.id));
+            if (!filtered.length) {
+                $spell.classList.remove('is-loading');
+                $spell.innerHTML = '<p class="spell-msg spell-ok">✓ No se detectaron errores ortográficos.</p>';
+                $spell.hidden = false;
                 return;
             }
+            const items = filtered.slice(0, 5).map(m => {
+                const original = text.substr(m.offset, m.length);
+                const reps = (m.replacements || []).slice(0, 5);
+                const chips = reps.length
+                    ? reps.map(r =>
+                        `<button type="button" class="spell-chip" data-offset="${m.offset}" data-length="${m.length}" data-rep="${escapeHtml(r.value)}">${escapeHtml(r.value)}</button>`
+                      ).join('')
+                    : '<span class="spell-arrow">(sin sugerencias)</span>';
+                const msg = escapeHtml(m.shortMessage || m.message || '');
+                return `
+                    <div class="spell-item">
+                        <span class="spell-word">${escapeHtml(original)}</span>
+                        <span class="spell-arrow">→</span>
+                        ${chips}
+                        ${msg ? `<div class="spell-msg" style="margin-top:3px;font-size:0.78rem;color:var(--tx-muted);">${msg}</div>` : ''}
+                    </div>`;
+            }).join('');
+            $spell.classList.remove('is-loading');
+            $spell.innerHTML = items;
+            $spell.hidden = false;
+        }
+
+        async function runSpellCheck(text) {
+            if (spellAbort) spellAbort.abort();
+            spellAbort = new AbortController();
+            const seq = ++spellSeq;
+            $spell.classList.add('is-loading');
+            $spell.innerHTML = '<p class="spell-msg">Comprobando ortografía…</p>';
+            $spell.hidden = false;
+            try {
+                const body = new URLSearchParams({ language: 'es', text });
+                const r = await fetch(LT_API, { method: 'POST', body, signal: spellAbort.signal });
+                if (!r.ok) throw new Error('LT ' + r.status);
+                const data = await r.json();
+                // Si llegó otra petición más reciente, ignora ésta.
+                if (seq !== spellSeq) return;
+                renderSpell(text, data.matches || []);
+            } catch (e) {
+                if (e.name === 'AbortError') return;
+                console.warn('Spell-check falló:', e);
+                $spell.hidden = true;
+            }
+        }
+
+        function scheduleSpellCheck() {
+            if (!FEATURES.spellCheck) return;
+            if (spellTimer) clearTimeout(spellTimer);
+            const text = $input.value.trim();
+            if (text.length < 3) { clearSpell(); return; }
+            spellTimer = setTimeout(() => runSpellCheck(text), 600);
+        }
+
+        // Delegación: aplicar la sugerencia al hacer clic en cualquier chip.
+        function onSpellPanelClick(ev) {
+            const btn = ev.target.closest('.spell-chip');
+            if (!btn) return;
+            const offset = parseInt(btn.dataset.offset, 10);
+            const length = parseInt(btn.dataset.length, 10);
+            const rep = btn.dataset.rep || '';
+            if (!Number.isFinite(offset) || !Number.isFinite(length)) return;
+            applySuggestion(offset, length, rep);
+        }
+
+        // ---- Acción principal ----
+        async function traductorjs() {
+            const text = $input.value.trim();
+            if (text.length === 0) {
+                showInputWarning('Escribe una palabra o frase en español antes de traducir.');
+                return;
+            }
+            if (text.length > MAX_CHARS) {
+                showInputWarning(`El texto es demasiado largo. Máximo ${MAX_CHARS} caracteres (actualmente ${text.length}).`);
+                return;
+            }
+            clearInputWarning();
 
             setBtn('Traduciendo...');
             $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = 'Buscando...';
 
             const urls = buildUrls(text);
 
+            // Mensajes de fallback que necesitamos detectar al final del flujo.
+            const FALLBACK_DIDXAZAPP = 'No disponible por mantenimiento, intente más tarde';
+            const FALLBACK_GOOGLE    = 'No se pudo obtener información de Google Translate';
+
             await Promise.all([
                 runService(FEATURES.didxazapp, urls.didxazapp, parseDidxazapp, $resDx,
-                           'No disponible por mantenimiento, intente más tarde'),
+                           FALLBACK_DIDXAZAPP),
                 runService(FEATURES.toledo, urls.biyubi, parseBiyubi, $resFam,
                            'No se pudo obtener información de: http://www.biyubi.com',
                            { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
@@ -566,8 +1010,27 @@
                 // Pequeño retraso antes de consultar Google para evitar rate-limiting.
                 new Promise(res => setTimeout(res, 1800)).then(() =>
                     runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
-                               'No se pudo obtener información de Google Translate')),
+                               FALLBACK_GOOGLE)),
             ]);
+
+            // Fallback inteligente: si Didxazapp no pudo traducir (devuelve la misma
+            // palabra, vacío o un mensaje de error) y Google sí lo logró, mostramos la
+            // respuesta de Google en el campo de Didxazapp para que el usuario tenga
+            // al menos una opción.
+            const norm = s => (s || '').trim().toLowerCase().replace(/[\s.,;:!¡¿?]+$/g, '');
+            const didxFailed =
+                $resDx.value === '' ||
+                $resDx.value === FALLBACK_DIDXAZAPP ||
+                norm($resDx.value) === norm(text);
+            const googleOk =
+                $resGoog.value &&
+                $resGoog.value !== FALLBACK_GOOGLE &&
+                $resGoog.value !== 'Sin resultados' &&
+                norm($resGoog.value) !== norm(text);
+
+            if (didxFailed && googleOk) {
+                $resDx.value = $resGoog.value + '\n\n(traducción provista por Google Translate)';
+            }
 
             setBtn('Traducir');
         }
