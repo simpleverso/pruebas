@@ -809,28 +809,114 @@
         });
 
         // ---- Modelo MobileNet ----
+        // Estrategia de carga (con caché en IndexedDB):
+        //   1. Intentamos `tf.loadGraphModel('indexeddb://...')`. Si el modelo
+        //      ya estuvo en una sesión anterior, vuelve casi instantáneo y sin red.
+        //   2. Si no hay caché, descargamos MobileNet vía el helper oficial
+        //      (@tensorflow-models/mobilenet) y, una vez listo, guardamos el
+        //      grafo interno en IndexedDB con `model.save('indexeddb://...')`.
+        //      Esa promesa se ejecuta en segundo plano: si falla (cuota llena,
+        //      navegación privada, etc.) el juego sigue funcionando.
+        //   3. La página solo usa `m.infer(img, false)`, así que devolvemos un
+        //      objeto compatible que delega en `tf.GraphModel.execute` cuando
+        //      la carga vino de la caché.
+        //
+        // Versionamos la clave por arquitectura del modelo. Si en el futuro
+        // cambias `version` o `alpha`, sube también `MODEL_CACHE_KEY` para
+        // forzar una redescarga.
+        const MODEL_CACHE_KEY = 'didxazapp-mobilenet-v2-1.0';
+        const MODEL_CACHE_URL = 'indexeddb://' + MODEL_CACHE_KEY;
+
+        // Wrapper mínimo: expone solo los métodos que la página realmente usa.
+        function wrapGraphModel(graphModel) {
+            const IMG_SIZE = 224;
+            const MEAN = 127.5;
+            const STD = 127.5;
+            return {
+                model: graphModel,
+                // Mismo contrato que `mobilenet.MobileNet.prototype.infer`:
+                // recibe un HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|
+                // tf.Tensor y devuelve un tensor con los logits (1×1001 para v2).
+                infer(input, embedding) {
+                    return tf.tidy(() => {
+                        let image = input instanceof tf.Tensor ? input : tf.browser.fromPixels(input);
+                        if (image.shape.length === 3) image = image.expandDims(0);
+                        // MobileNet v2 espera [-1, 1].
+                        const resized = tf.image.resizeBilinear(image, [IMG_SIZE, IMG_SIZE]);
+                        const normalized = resized.toFloat().sub(MEAN).div(STD);
+                        // El resultado de `execute` puede ser tensor o array de
+                        // tensores según la firma del modelo guardado.
+                        const out = graphModel.execute(normalized);
+                        return Array.isArray(out) ? out[0] : out;
+                    });
+                },
+            };
+        }
+
+        async function loadFromCache() {
+            // Listar entradas en IndexedDB es más confiable que intentar cargar
+            // y atrapar el error (ese error contamina la consola).
+            try {
+                const inventory = await tf.io.listModels();
+                if (!inventory[MODEL_CACHE_URL]) return null;
+                const graphModel = await tf.loadGraphModel(MODEL_CACHE_URL);
+                return wrapGraphModel(graphModel);
+            } catch (err) {
+                console.warn('mobilenet cache read failed; falling back to network:', err);
+                return null;
+            }
+        }
+
+        async function downloadAndCache() {
+            // Camino por defecto: usamos el helper oficial. Eso descarga
+            // model.json + los shards de pesos a través del CDN.
+            const m = await mobilenet.load({ version: 2, alpha: 1.0 });
+            // Guardamos el grafo interno para sesiones futuras. Si el navegador
+            // rechaza la escritura (modo privado, cuota llena, etc.) no es
+            // bloqueante: la siguiente sesión simplemente volverá a descargar.
+            const inner = m.model;
+            if (inner && typeof inner.save === 'function') {
+                inner.save(MODEL_CACHE_URL).catch(saveErr => {
+                    console.warn('mobilenet cache write failed:', saveErr);
+                });
+            }
+            return m;
+        }
+
         // Comenzamos a cargar el modelo en cuanto la página está lista (no en click).
         // Si el usuario pulsa "Iniciar detección" antes de que termine, esperará a que
         // se resuelva la misma promesa.
         function loadModel() {
             if (modelPromise) return modelPromise;
-            modelPromise = mobilenet.load({ version: 2, alpha: 1.0 })
-                .then(m => {
+            modelPromise = (async () => {
+                // 1) Intento desde IndexedDB.
+                const cached = await loadFromCache();
+                if (cached) {
                     setLoader('success',
-                        'Sistema de análisis de imágenes listo.',
-                        'Sube una imagen, usa la cámara o prueba con un ejemplo.');
-                    // Después de mostrar "listo" un par de segundos, escondemos el banner.
-                    setTimeout(hideLoader, 2200);
-                    return m;
-                })
-                .catch(err => {
-                    console.warn('model load failed:', err);
-                    setLoader('error',
-                        'No se pudo cargar el modelo de análisis.',
-                        'Verifica tu conexión y recarga la página para intentarlo de nuevo.');
-                    // Re-lanzamos para que ensureModel() también falle.
-                    throw err;
-                });
+                        'Modelo cargado desde caché del navegador.',
+                        'Sin descarga: la página se abrió al instante.');
+                    setTimeout(hideLoader, 1500);
+                    return cached;
+                }
+                // 2) Sin caché: descargar y guardar para la próxima vez.
+                setLoader('loading',
+                    'Descargando modelo de análisis (primera vez)…',
+                    'Las próximas visitas usarán la copia guardada en este navegador.');
+                const m = await downloadAndCache();
+                setLoader('success',
+                    'Sistema de análisis de imágenes listo.',
+                    'Sube una imagen, usa la cámara o prueba con un ejemplo.');
+                setTimeout(hideLoader, 2200);
+                return m;
+            })().catch(err => {
+                console.warn('model load failed:', err);
+                setLoader('error',
+                    'No se pudo cargar el modelo de análisis.',
+                    'Verifica tu conexión y recarga la página para intentarlo de nuevo.');
+                // Re-lanzamos para que ensureModel() también falle.
+                modelPromise = null; // permite reintento al recargar
+                throw err;
+            });
             return modelPromise;
         }
 
