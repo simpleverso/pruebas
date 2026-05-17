@@ -211,6 +211,37 @@
         .mode-panel { display: none; }
         .mode-panel.is-active { display: block; }
 
+        /* Selector de cámara */
+        .camera-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .camera-controls-label {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--tx-label);
+            margin: 0;
+            white-space: nowrap;
+        }
+        .camera-select {
+            flex: 1 1 220px;
+            min-width: 0;
+            padding: 8px 12px;
+            font-size: 0.86rem;
+            color: var(--tx-text-strong);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.12s ease, background 0.12s ease;
+        }
+        .camera-select:hover:not(:disabled) { border-color: var(--tx-primary); }
+        .camera-select:focus { outline: 2px solid var(--tx-accent); outline-offset: 1px; }
+        .camera-select:disabled { opacity: 0.6; cursor: not-allowed; }
+
         /* Drop zone */
         .drop-zone {
             display: block;
@@ -526,6 +557,12 @@
             </div>
 
             <div class="mode-panel" id="panel-camera">
+                <div class="camera-controls">
+                    <label class="camera-controls-label" for="camera-device">Cámara:</label>
+                    <select class="camera-select" id="camera-device" disabled>
+                        <option value="">Buscando dispositivos…</option>
+                    </select>
+                </div>
                 <div class="preview-wrap is-shown" id="camera-wrap">
                     <video id="camera-video" autoplay playsinline muted></video>
                     <div class="preview-actions">
@@ -606,6 +643,7 @@
         const $camVideo    = document.getElementById('camera-video');
         const $camCapture  = document.getElementById('cam-capture');
         const $camStop     = document.getElementById('cam-stop');
+        const $camDevice   = document.getElementById('camera-device');
         const $btnClassify = document.getElementById('btn-classify');
         const $status      = document.getElementById('status-line');
         const $alertSlot   = document.getElementById('alert-slot');
@@ -615,6 +653,8 @@
         // ---- Estado ----
         let modelPromise = null;     // Promise que se resuelve con el modelo cargado.
         let cameraStream = null;
+        let selectedDeviceId = null; // deviceId elegido en el selector (null = automático)
+        let devicesEnumerated = false;
         let currentImageEl = null; // <img> o <canvas> con la imagen actual
 
         // ---- Banner de carga del modelo ----
@@ -767,16 +807,73 @@
         });
 
         // ---- Cámara ----
+        // Refresca la lista de cámaras disponibles. Los `label` solo están disponibles
+        // después de conceder permiso a `getUserMedia`, así que llamamos a esto otra vez
+        // tras abrir el primer stream para obtener nombres legibles.
+        async function refreshCameraDevices() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                $camDevice.innerHTML = '<option value="">Cámara no disponible</option>';
+                $camDevice.disabled = true;
+                return [];
+            }
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cams = devices.filter(d => d.kind === 'videoinput');
+                if (!cams.length) {
+                    $camDevice.innerHTML = '<option value="">Sin cámaras detectadas</option>';
+                    $camDevice.disabled = true;
+                    return [];
+                }
+                // Si la selección actual ya no existe, la limpiamos.
+                if (selectedDeviceId && !cams.some(c => c.deviceId === selectedDeviceId)) {
+                    selectedDeviceId = null;
+                }
+                const previousValue = selectedDeviceId || '';
+                $camDevice.innerHTML = cams.map((cam, i) => {
+                    const label = cam.label || `Cámara ${i + 1}`;
+                    return `<option value="${escapeHtml(cam.deviceId)}">${escapeHtml(label)}</option>`;
+                }).join('');
+                $camDevice.disabled = false;
+                if (previousValue && cams.some(c => c.deviceId === previousValue)) {
+                    $camDevice.value = previousValue;
+                } else {
+                    selectedDeviceId = $camDevice.value || null;
+                }
+                devicesEnumerated = true;
+                return cams;
+            } catch (e) {
+                console.warn('enumerateDevices error:', e);
+                $camDevice.innerHTML = '<option value="">No se pudo listar dispositivos</option>';
+                $camDevice.disabled = true;
+                return [];
+            }
+        }
+
         async function startCamera() {
             if (cameraStream) return;
             clearAlert();
+            if (!devicesEnumerated) {
+                await refreshCameraDevices();
+            }
+            const videoConstraints = selectedDeviceId
+                ? { deviceId: { exact: selectedDeviceId } }
+                : { facingMode: 'environment' };
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' }, audio: false,
+                    video: videoConstraints, audio: false,
                 });
                 $camVideo.srcObject = cameraStream;
                 await $camVideo.play().catch(() => {});
                 $camCapture.disabled = false;
+                // Tras abrir un stream tenemos permiso, así que ahora los labels son visibles.
+                // Volvemos a enumerar para mostrar los nombres reales y sincronizar el select
+                // con el deviceId que terminó usándose.
+                const cams = await refreshCameraDevices();
+                const activeId = cameraStream.getVideoTracks()[0]?.getSettings().deviceId;
+                if (activeId && cams.some(c => c.deviceId === activeId)) {
+                    selectedDeviceId = activeId;
+                    $camDevice.value = activeId;
+                }
                 setStatus('Cámara activa. Encuadra el objeto y pulsa <strong>Capturar foto</strong>.', 'info');
             } catch (e) {
                 console.warn('camera error:', e);
@@ -792,6 +889,21 @@
             $camVideo.srcObject = null;
             $camCapture.disabled = true;
         }
+        // Cambiar de dispositivo: reabrimos el stream con el nuevo deviceId.
+        $camDevice.addEventListener('change', async () => {
+            selectedDeviceId = $camDevice.value || null;
+            // Solo reiniciamos si el panel de cámara está activo o ya hay un stream.
+            if ($panelCamera.classList.contains('is-active') || cameraStream) {
+                stopCamera();
+                await startCamera();
+            }
+        });
+        // El SO puede conectar/desconectar cámaras durante la sesión.
+        if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+            navigator.mediaDevices.addEventListener('devicechange', () => { refreshCameraDevices(); });
+        }
+        // Lista inicial (sin labels hasta que haya permiso).
+        refreshCameraDevices();
         $camStop.addEventListener('click', () => {
             stopCamera();
             // Cambia de tab a Subir.
