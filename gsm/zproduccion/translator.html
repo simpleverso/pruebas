@@ -175,6 +175,7 @@
             border: 1px solid var(--tx-border);
             border-radius: 8px;
             padding: 10px 12px;
+            line-height: 1.5; /* Suficiente para acentos y descendentes (ñ, ó, ü, j, etc.) */
             transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
             box-shadow: none;
         }
@@ -349,6 +350,11 @@
             border: 1px solid var(--tx-border);
             border-radius: 8px;
             padding: 10px 36px 10px 12px;
+            line-height: 1.5;
+            /* Algunos navegadores (Safari) ignoran line-height en <select>;
+               un min-height fija el alto para que el texto con acentos
+               (Detectar automáticamente, 한국어, العربية…) no quede recortado. */
+            min-height: 44px;
             cursor: pointer;
             appearance: none;
             -webkit-appearance: none;
