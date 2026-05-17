@@ -687,8 +687,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link active" href="index.html">INICIO</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="translator.html">TRADUCTOR</a></li>
                     <li class="nav-item"><a class="nav-link" href="translator_img.html">Imagen</a></li>
                     <li class="nav-item"><a class="nav-link" href="numeros.html">Numeros</a></li>
                     <li class="nav-item"><a class="nav-link" href="animales.html">Animales</a></li>
@@ -719,6 +719,22 @@
             if (window.ResizeObserver) {
                 try { new ResizeObserver(update).observe(navEl); } catch (_) { /* noop */ }
             }
+        })();
+
+        // Highlight the nav link that matches the current page, regardless
+        // of which <a> happens to have a hardcoded `active` class. This
+        // makes the menu robust against copy-paste mistakes between pages.
+        (function highlightCurrentNav() {
+            var links = document.querySelectorAll('.clean-navbar .nav-link');
+            if (!links.length) return;
+            var here = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+            // Treat empty path (server root) as index.html.
+            if (!here) here = 'index.html';
+            links.forEach(function (a) {
+                var href = (a.getAttribute('href') || '').split('/').pop().toLowerCase();
+                if (href === here) a.classList.add('active');
+                else a.classList.remove('active');
+            });
         })();
     </script>
 
