@@ -60,6 +60,11 @@
             background-attachment: fixed;
             color: var(--tx-text);
             font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            /* Reserve space for the fixed navbar so nothing sits behind it.
+               --nav-offset is updated at runtime to match the navbar's
+               actual rendered height; the fallback covers initial paint. */
+            --nav-offset: 96px;
+            padding-top: var(--nav-offset);
         }
 
         /* Navbar */
@@ -86,9 +91,10 @@
         }
 
         /* Layout principal */
-        /* La navbar es fixed-top y mide ~88px (logo 55px + padding + borde).
-           Dejamos margen extra para que h1 nunca quede tapada por la navbar. */
-        #info-container { padding-top: 130px; padding-bottom: 40px; max-width: 1180px; }
+        /* Body reserves the navbar's height via --nav-offset (set above and
+           refined at runtime), so the container only needs a small visual
+           gap between the navbar and the heading. */
+        #info-container { padding-top: 24px; padding-bottom: 40px; max-width: 1180px; }
         #info-container .row { height: auto !important; margin: 0 !important; }
 
         h1.pulse.animated {
@@ -458,7 +464,7 @@
 
         /* Responsive: en móvil ajustamos paddings y tipografía */
         @media (max-width: 767.98px) {
-            #info-container { padding-top: 110px; }
+            #info-container { padding-top: 16px; }
             .site-form { padding: 22px 18px; }
             h1.pulse.animated { font-size: 1.5rem; }
         }
@@ -692,6 +698,30 @@
             </div>
         </div>
     </nav>
+
+    <script>
+        // Keep --nav-offset in sync with the navbar's real height so the
+        // page heading is never tucked behind the fixed-top navbar. This
+        // runs as soon as the navbar exists in the DOM and re-checks on
+        // load (when web fonts and the logo image have settled) and on
+        // resize/orientation changes.
+        (function syncNavOffset() {
+            var navEl = document.querySelector('.clean-navbar');
+            if (!navEl) return;
+            function update() {
+                var h = Math.ceil(navEl.getBoundingClientRect().height);
+                if (h > 0) document.body.style.setProperty('--nav-offset', h + 'px');
+            }
+            update();
+            window.addEventListener('load', update);
+            window.addEventListener('resize', update);
+            // Mobile nav expand/collapse changes height mid-session; watch it.
+            if (window.ResizeObserver) {
+                try { new ResizeObserver(update).observe(navEl); } catch (_) { /* noop */ }
+            }
+        })();
+    </script>
+
     <div class="footer-basic">
         <footer>
             <ul class="list-inline"></ul>
