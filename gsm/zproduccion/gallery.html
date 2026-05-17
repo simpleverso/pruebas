@@ -8,7 +8,24 @@
     <meta name="description" content="Traductor Web Español - Zapoteco">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <!-- Bootstrap 4.3.1 served from cdnjs (matches the bootstrap.bundle.min.js below) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        /* Restore the two project-specific tweaks that the upstream
+           bootstrap.min.css was carrying: a slightly cooler info color
+           and Montserrat as the default sans-serif. The Montserrat
+           webfont is already loaded via the <link> below this block. */
+        :root { --info: #3b99e0; }
+        body { font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+        .bg-info { background-color: #3b99e0 !important; }
+        .text-info { color: #3b99e0 !important; }
+        .border-info { border-color: #3b99e0 !important; }
+        .btn-info { background-color: #3b99e0; border-color: #3b99e0; }
+        .btn-info:hover { background-color: #2d83c4; border-color: #2778b8; }
+        .btn-outline-info { color: #3b99e0; border-color: #3b99e0; }
+        .btn-outline-info:hover { background-color: #3b99e0; border-color: #3b99e0; }
+        .alert-info { color: #1f5077; background-color: #d8eaf9; border-color: #c8e0f5; }
+    </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
