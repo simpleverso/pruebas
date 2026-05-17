@@ -71,7 +71,7 @@
 
         /* Layout */
         .game-shell {
-            max-width: 1100px;
+            max-width: 1240px;
             margin: 0 auto;
             padding: 110px 20px 60px;
         }
@@ -294,10 +294,10 @@
             perspective: 1000px;
             margin: 0 auto;
         }
-        .board[data-pairs="4"]  { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 520px; }
-        .board[data-pairs="8"]  { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 600px; }
-        .board[data-pairs="12"] { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 820px; }
-        .board[data-pairs="16"] { grid-template-columns: repeat(8, minmax(0, 1fr)); max-width: 980px; }
+        .board[data-pairs="4"]  { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; }
+        .board[data-pairs="8"]  { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 760px; }
+        .board[data-pairs="12"] { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 1000px; }
+        .board[data-pairs="16"] { grid-template-columns: repeat(8, minmax(0, 1fr)); max-width: 1180px; }
 
         .card {
             position: relative;
@@ -341,26 +341,32 @@
             transform: rotateY(180deg);
             flex-direction: column;
             gap: 4px;
+            /* Tightened padding so the image can dominate the card face. */
+            padding: 6px 6px 8px;
         }
         .card-front .emoji {
-            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-size: clamp(2.2rem, 7vw, 3.4rem);
             line-height: 1;
         }
         .card-front img.animal-img {
-            width: 64%;
-            max-height: 60%;
+            /* Larger and dominant: fills most of the card so the animal is
+               easy to identify even at the higher difficulties. */
+            width: 92%;
+            max-height: 72%;
+            flex: 1 1 auto;
+            min-height: 0;
             object-fit: contain;
         }
         .card-front .label {
-            font-size: clamp(0.7rem, 1.6vw, 0.95rem);
+            font-size: clamp(0.78rem, 1.8vw, 1.05rem);
             font-weight: 600;
             color: var(--tx-text-strong);
-            line-height: 1.1;
+            line-height: 1.15;
             word-break: break-word;
             padding: 0 4px;
         }
         .card-front .lang {
-            font-size: 0.6rem;
+            font-size: 0.62rem;
             font-weight: 600;
             letter-spacing: 0.12em;
             text-transform: uppercase;
