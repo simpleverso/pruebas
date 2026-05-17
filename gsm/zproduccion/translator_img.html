@@ -242,6 +242,11 @@
         .camera-select:focus { outline: 2px solid var(--tx-accent); outline-offset: 1px; }
         .camera-select:disabled { opacity: 0.6; cursor: not-allowed; }
 
+        /* Swap entre vista en vivo y foto capturada dentro del mismo contenedor. */
+        #camera-wrap #camera-photo { display: none; }
+        #camera-wrap.is-captured #camera-video { display: none; }
+        #camera-wrap.is-captured #camera-photo { display: block; }
+
         /* Drop zone */
         .drop-zone {
             display: block;
@@ -565,6 +570,7 @@
                 </div>
                 <div class="preview-wrap is-shown" id="camera-wrap">
                     <video id="camera-video" autoplay playsinline muted></video>
+                    <img id="camera-photo" alt="Foto capturada">
                     <div class="preview-actions">
                         <button type="button" id="cam-stop"><i class="fa fa-times"></i> Cerrar</button>
                     </div>
@@ -641,6 +647,7 @@
         const $previewClear= document.getElementById('preview-clear');
         const $camWrap     = document.getElementById('camera-wrap');
         const $camVideo    = document.getElementById('camera-video');
+        const $camPhoto    = document.getElementById('camera-photo');
         const $camCapture  = document.getElementById('cam-capture');
         const $camStop     = document.getElementById('cam-stop');
         const $camDevice   = document.getElementById('camera-device');
@@ -852,6 +859,10 @@
         async function startCamera() {
             if (cameraStream) return;
             clearAlert();
+            // Si veníamos mostrando una foto fija, volvemos al feed.
+            $camWrap.classList.remove('is-captured');
+            $camPhoto.removeAttribute('src');
+            setCaptureButton(false);
             if (!devicesEnumerated) {
                 await refreshCameraDevices();
             }
@@ -906,18 +917,68 @@
         refreshCameraDevices();
         $camStop.addEventListener('click', () => {
             stopCamera();
+            // Limpia foto capturada y restaura el botón.
+            $camWrap.classList.remove('is-captured');
+            $camPhoto.removeAttribute('src');
+            setCaptureButton(false);
+            // Si la foto capturada era el elemento activo, lo soltamos.
+            if (currentImageEl === $camPhoto) {
+                currentImageEl = null;
+                $btnClassify.disabled = true;
+                $resultsSec.hidden = true;
+                $predGrid.innerHTML = '';
+                setStatus('Sube una imagen o usa la cámara para empezar.');
+            }
             // Cambia de tab a Subir.
             $tabs.forEach(t => t.classList.toggle('is-active', t.dataset.mode === 'upload'));
             $panelUpload.classList.add('is-active');
             $panelCamera.classList.remove('is-active');
         });
-        $camCapture.addEventListener('click', () => {
+        // Alterna el botón de captura entre "Capturar foto" y "Volver a tomar".
+        function setCaptureButton(captured) {
+            if (captured) {
+                $camCapture.dataset.mode = 'retake';
+                $camCapture.innerHTML = '<i class="fa fa-refresh" aria-hidden="true"></i> Volver a tomar';
+            } else {
+                $camCapture.dataset.mode = 'capture';
+                $camCapture.innerHTML = '<i class="fa fa-camera" aria-hidden="true"></i> Capturar foto';
+            }
+        }
+
+        $camCapture.addEventListener('click', async () => {
+            // Modo "volver a tomar": reabrimos el feed sobre el mismo contenedor.
+            if ($camCapture.dataset.mode === 'retake') {
+                await startCamera();
+                return;
+            }
             if (!cameraStream) return;
+            // Capturamos el frame actual a un canvas, lo mostramos como foto fija
+            // dentro del propio camera-wrap y detenemos el stream.
             const canvas = document.createElement('canvas');
             canvas.width  = $camVideo.videoWidth || 640;
             canvas.height = $camVideo.videoHeight || 480;
             canvas.getContext('2d').drawImage($camVideo, 0, 0, canvas.width, canvas.height);
-            setPreviewImage(canvas.toDataURL('image/jpeg', 0.92));
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+            $camPhoto.onload = () => {
+                // El elemento que clasificará el modelo es la foto en el camera-wrap.
+                currentImageEl = $camPhoto;
+                $btnClassify.disabled = false;
+                $resultsSec.hidden = true;
+                $predGrid.innerHTML = '';
+                runClassification();
+            };
+            $camPhoto.src = dataUrl;
+
+            $camWrap.classList.add('is-captured');
+            stopCamera();
+            // Permitimos al usuario volver a tomar otra foto sin cerrar el panel.
+            $camCapture.disabled = false;
+            setCaptureButton(true);
+
+            // Limpiamos el preview de subida para no tener dos imágenes en pantalla.
+            $previewWrap.classList.remove('is-shown');
+            $previewImg.removeAttribute('src');
         });
 
         // ---- Modelo MobileNet ----
