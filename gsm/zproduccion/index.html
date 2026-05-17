@@ -297,42 +297,6 @@
             color: var(--tx-text-strong);
         }
 
-        /* ----- Stats ----- */
-        .stats-shell {
-            max-width: 1180px;
-            margin: 0 auto;
-            padding: 0 24px 80px;
-        }
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            padding: 28px 26px;
-            background: var(--tx-surface);
-            border: 1px solid var(--tx-border);
-            border-radius: 14px;
-            box-shadow: var(--tx-shadow);
-        }
-        .stat-cell { text-align: center; padding: 6px 8px; }
-        .stat-number {
-            font-size: 1.9rem;
-            font-weight: 700;
-            color: var(--tx-text-strong);
-            letter-spacing: -0.01em;
-            line-height: 1;
-            background: linear-gradient(120deg, var(--tx-primary-2), var(--tx-accent));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .stat-label {
-            font-size: 0.74rem;
-            color: var(--tx-muted);
-            margin-top: 6px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
         /* ----- Footer ----- */
         .footer-basic {
             background: transparent;
@@ -370,9 +334,7 @@
 
         @media (max-width: 575.98px) {
             .hero { padding: 130px 18px 56px; }
-            .features-shell, .stats-shell { padding-left: 18px; padding-right: 18px; }
-            .stats-row { padding: 22px 14px; }
-            .stat-number { font-size: 1.5rem; }
+            .features-shell { padding-left: 18px; padding-right: 18px; }
         }
 
         /* ----- Sección destacada (XHUNI) ----- */
@@ -658,28 +620,6 @@
                     tu navegador a las fuentes públicas; no hay cuentas ni seguimiento.
                 </p>
                 <span class="feature-cta" style="opacity: 0.6;">Sin cuentas requeridas</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats -->
-    <section class="stats-shell">
-        <div class="stats-row reveal">
-            <div class="stat-cell">
-                <div class="stat-number">4</div>
-                <div class="stat-label">Fuentes de traducción</div>
-            </div>
-            <div class="stat-cell">
-                <div class="stat-number">168+</div>
-                <div class="stat-label">Animales catalogados</div>
-            </div>
-            <div class="stat-cell">
-                <div class="stat-number">22</div>
-                <div class="stat-label">Números con audio</div>
-            </div>
-            <div class="stat-cell">
-                <div class="stat-number">15</div>
-                <div class="stat-label">Idiomas de origen</div>
             </div>
         </div>
     </section>
