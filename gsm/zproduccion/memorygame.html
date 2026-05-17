@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Memorama de Animales · Didxazapp</title>
-    <meta name="description" content="Juego de memoria: empareja los nombres de animales en inglés y español. Personaliza tu jugador y elige la dificultad.">
+    <meta name="description" content="Juego de memoria: empareja los nombres de animales en zapoteco y español. Personaliza tu jugador y elige la dificultad.">
     <link rel="icon" type="image/png" sizes="512x512" href="https://simpleverso.github.io/DidxazappWEB/assets/img/Dictionary-icon.png">
     <link rel="stylesheet" href="https://simpleverso.github.io/DidxazappWEB/assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
@@ -479,7 +479,7 @@
     <main class="game-shell">
         <header class="game-heading">
             <h1>Memorama de Animales</h1>
-            <p>Empareja los nombres de los animales en inglés y español. Personaliza tu jugador y elige la dificultad.</p>
+            <p>Empareja los nombres de los animales en zapoteco y español. Personaliza tu jugador y elige la dificultad.</p>
         </header>
 
         <!-- Welcome screen -->
@@ -499,6 +499,15 @@
                 </div>
             </div>
 
+
+            <div class="form-group" style="margin-top: 14px;">
+                <label class="field-label" for="zap-audio-base">URL base para audio en zapoteco (opcional)</label>
+                <input type="url" id="zap-audio-base" class="field-input" placeholder="https://tu-host.com/audios/animales" autocomplete="off">
+                <p style="margin: 6px 0 0; font-size: 0.78rem; color: var(--tx-muted);">
+                    Se usará como prefijo para cargar <code>&lt;slug&gt;_zap.mp3</code> al voltear las cartas en zapoteco.
+                    Déjalo vacío para usar las rutas locales por defecto.
+                </p>
+            </div>
             <div style="display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap;">
                 <button id="start-btn" class="btn-tx" type="button">¡Empezar a jugar!</button>
                 <label class="toolbar-toggle" title="Si existe animals.js junto a este archivo, se usará esa lista.">
@@ -559,32 +568,76 @@
 
     <script>
         // ===========================================================
-        //  MEMORAMA – animales (EN/ES)
+        //  MEMORAMA – animales (ZAP/ES)
         //  Inspirado en el ejemplo "animal_memory_game" + lista externa opcional.
         // ===========================================================
 
-        // Lista por defecto.
+        // ----------------------------------------------------------------
+        //  Lista de animales para el memorama (versión zapoteco / español).
+        //  Cada entrada admite:
+        //    zap       : nombre en zapoteco (carta ZAP)
+        //    es        : nombre en español  (carta ES)
+        //    emoji     : respaldo cuando no hay imagen, o si la imagen no
+        //                se puede cargar (404, ruta inválida, etc.)
+        //    image     : ruta a una imagen local o URL absoluta
+        //    soundEs   : ruta al audio en español  (carta ES)
+        //    soundZap  : ruta al audio en zapoteco (carta ZAP)
+        //    soundFile : (legacy) audio único para ambas cartas si no
+        //                defines soundEs / soundZap
+        //
+        //  Si el usuario captura una "URL base para audio en zapoteco" en la
+        //  pantalla inicial, esa URL se usará para construir
+        //  `<base>/<slug>_zap.mp3` automáticamente, ignorando soundZap.
+        //
+        //  Cuando no hay audio reproducible, el motor cae al TTS del
+        //  navegador leyendo el nombre en español (los engines de TTS no
+        //  hablan zapoteco).
+        // ----------------------------------------------------------------
+        const IMG_BASE   = 'assets/img/animales/';
+        const AUDIO_BASE = 'assets/audios/animales/';
+        const audio = (slug, lang) => `${AUDIO_BASE}${slug}_${lang}.mp3`;
+
         const DEFAULT_ANIMALS = [
-            { emoji: '🐶', en: 'Dog',       es: 'Perro' },
-            { emoji: '🐱', en: 'Cat',       es: 'Gato' },
-            { emoji: '🐮', en: 'Cow',       es: 'Vaca' },
-            { emoji: '🐷', en: 'Pig',       es: 'Cerdo' },
-            { emoji: '🐔', en: 'Chicken',   es: 'Gallina' },
-            { emoji: '🐴', en: 'Horse',     es: 'Caballo' },
-            { emoji: '🐑', en: 'Sheep',     es: 'Oveja' },
-            { emoji: '🐦', en: 'Bird',      es: 'Pájaro' },
-            { emoji: '🐢', en: 'Turtle',    es: 'Tortuga' },
-            { emoji: '🐠', en: 'Fish',      es: 'Pez' },
-            { emoji: '🐝', en: 'Bee',       es: 'Abeja' },
-            { emoji: '🦋', en: 'Butterfly', es: 'Mariposa' },
-            { emoji: '🐘', en: 'Elephant',  es: 'Elefante' },
-            { emoji: '🦁', en: 'Lion',      es: 'León' },
-            { emoji: '🐯', en: 'Tiger',     es: 'Tigre' },
-            { emoji: '🐻', en: 'Bear',      es: 'Oso' },
-            { emoji: '🐼', en: 'Panda',     es: 'Panda' },
-            { emoji: '🐰', en: 'Rabbit',    es: 'Conejo' },
-            { emoji: '🐭', en: 'Mouse',     es: 'Ratón' },
-            { emoji: '🦊', en: 'Fox',       es: 'Zorro' },
+            { emoji: '🐶', zap: "Bi'cu'", es: "Perro", image: IMG_BASE + "perro.jpg", soundEs: audio('perro', 'es'), soundZap: audio('perro', 'zap') },
+            { emoji: '🐱', zap: "Mixtu'", es: "Gato", image: IMG_BASE + "gato.jpg", soundEs: audio('gato', 'es'), soundZap: audio('gato', 'zap') },
+            { emoji: '🐷', zap: "Bihui", es: "Cerdo", image: IMG_BASE + "cerdo.jpg", soundEs: audio('cerdo', 'es'), soundZap: audio('cerdo', 'zap') },
+            { emoji: '🐔', zap: "Bere", es: "Gallina", image: IMG_BASE + "gallina.webp", soundEs: audio('gallina', 'es'), soundZap: audio('gallina', 'zap') },
+            { emoji: '🐓', zap: "Bere nguiiu", es: "Gallo", image: IMG_BASE + "gallo.webp", soundEs: audio('gallo', 'es'), soundZap: audio('gallo', 'zap') },
+            { emoji: '🐴', zap: "Mani'", es: "Caballo", image: IMG_BASE + "caballo.jpg", soundEs: audio('caballo', 'es'), soundZap: audio('caballo', 'zap') },
+            { emoji: '🐑', zap: "Dendxu'", es: "Borrego", image: IMG_BASE + "borrego.jpg", soundEs: audio('borrego', 'es'), soundZap: audio('borrego', 'zap') },
+            { emoji: '🦅', zap: "Bisiá", es: "Águila", image: IMG_BASE + "aguila.webp", soundEs: audio('aguila', 'es'), soundZap: audio('aguila', 'zap') },
+            { emoji: '🐢', zap: "Bigu", es: "Tortuga", image: IMG_BASE + "tortuga.jpeg", soundEs: audio('tortuga', 'es'), soundZap: audio('tortuga', 'zap') },
+            { emoji: '🐝', zap: "Biizu", es: "Abeja", image: IMG_BASE + "abeja.jpg", soundEs: audio('abeja', 'es'), soundZap: audio('abeja', 'zap') },
+            { emoji: '🐞', zap: "Bacuzaguí", es: "Luciérnaga", image: IMG_BASE + "luciernaga.jpg", soundEs: audio('luciernaga', 'es'), soundZap: audio('luciernaga', 'zap') },
+            { emoji: '🦋', zap: "Xhumpirinisa", es: "Libélula", image: IMG_BASE + "libelula.jpg", soundEs: audio('libelula', 'es'), soundZap: audio('libelula', 'zap') },
+            { emoji: '🦁', zap: "Beedxe'", es: "León", image: IMG_BASE + "leon.png", soundEs: audio('leon', 'es'), soundZap: audio('leon', 'zap') },
+            { emoji: '🐰', zap: "Lexu", es: "Conejo", image: IMG_BASE + "conejo.jpg", soundEs: audio('conejo', 'es'), soundZap: audio('conejo', 'zap') },
+            { emoji: '🐿️', zap: "Chisa", es: "Ardilla", image: IMG_BASE + "ardilla.png", soundEs: audio('ardilla', 'es'), soundZap: audio('ardilla', 'zap') },
+            { emoji: '🦌', zap: "Bidxiña", es: "Venado", image: IMG_BASE + "venado.jpg", soundEs: audio('venado', 'es'), soundZap: audio('venado', 'zap') },
+            { emoji: '🦇', zap: "Biguidiribeela", es: "Murciélago", image: IMG_BASE + "murcielago.jpg", soundEs: audio('murcielago', 'es'), soundZap: audio('murcielago', 'zap') },
+            { emoji: '🐒', zap: "Migu", es: "Mono", image: IMG_BASE + "mono.jpg", soundEs: audio('mono', 'es'), soundZap: audio('mono', 'zap') },
+            { emoji: '🐊', zap: "Be'ñe'", es: "Cocodrilo", image: IMG_BASE + "cocodrilo.jpg", soundEs: audio('cocodrilo', 'es'), soundZap: audio('cocodrilo', 'zap') },
+            { emoji: '🦎', zap: "Guchachi'", es: "Iguana", image: IMG_BASE + "iguana.jpg", soundEs: audio('iguana', 'es'), soundZap: audio('iguana', 'zap') },
+            { emoji: '🐍', zap: "Beenda' gubizi", es: "Víbora de cascabel", image: IMG_BASE + "vibora_cascabel.webp", soundEs: audio('vibora_cascabel', 'es'), soundZap: audio('vibora_cascabel', 'zap') },
+            { emoji: '🐸', zap: "Bidxi' mbo'co'", es: "Sapo", image: IMG_BASE + "sapo.webp", soundEs: audio('sapo', 'es'), soundZap: audio('sapo', 'zap') },
+            { emoji: '🦂', zap: "Meuxubi", es: "Alacrán", image: IMG_BASE + "alacran.png", soundEs: audio('alacran', 'es'), soundZap: audio('alacran', 'zap') },
+            { emoji: '🕸️', zap: "Bidxiguí", es: "Araña", image: IMG_BASE + "ara%C3%B1a.jpg", soundEs: audio('arana', 'es'), soundZap: audio('arana', 'zap') },
+            { emoji: '🐜', zap: "Biri", es: "Hormiga", image: IMG_BASE + "hormiga.jpg", soundEs: audio('hormiga', 'es'), soundZap: audio('hormiga', 'zap') },
+            { emoji: '🐦', zap: "Biulú", es: "Colibrí", image: IMG_BASE + "colibri.jpg", soundEs: audio('colibri', 'es'), soundZap: audio('colibri', 'zap') },
+            { emoji: '🦃', zap: "Tou", es: "Guajolote", image: IMG_BASE + "guajolote.jpg", soundEs: audio('guajolote', 'es'), soundZap: audio('guajolote', 'zap') },
+            { emoji: '🦉', zap: "Dama'", es: "Lechuza", image: IMG_BASE + "lechuza.jpg", soundEs: audio('lechuza', 'es'), soundZap: audio('lechuza', 'zap') },
+            { emoji: '🐤', zap: "Bere guidxa", es: "Correcaminos", image: IMG_BASE + "correcaminos.jpg", soundEs: audio('correcaminos', 'es'), soundZap: audio('correcaminos', 'zap') },
+            { emoji: '🐤', zap: "Bere xunaxi", es: "Codorniz", image: IMG_BASE + "codorniz.jpg", soundEs: audio('codorniz', 'es'), soundZap: audio('codorniz', 'zap') },
+            { emoji: '🦅', zap: "Ngu'xhi'", es: "Zopilote", image: IMG_BASE + "zopilote.jpg", soundEs: audio('zopilote', 'es'), soundZap: audio('zopilote', 'zap') },
+            { emoji: '🦡', zap: "Ngupi", es: "Armadillo", image: IMG_BASE + "armadillo.jpg", soundEs: audio('armadillo', 'es'), soundZap: audio('armadillo', 'zap') },
+            { emoji: '🐀', zap: "Bizi", es: "Tlacuache", image: IMG_BASE + "tlacuache.jpg", soundEs: audio('tlacuache', 'es'), soundZap: audio('tlacuache', 'zap') },
+            { emoji: '🦦', zap: "Bi'cu' nisa", es: "Nutria", image: IMG_BASE + "nutria.webp", soundEs: audio('nutria', 'es'), soundZap: audio('nutria', 'zap') },
+            { emoji: '🦎', zap: "Bilopa yoo", es: "Salamanquesa", image: IMG_BASE + "salamanquesa.webp", soundEs: audio('salamanquesa', 'es'), soundZap: audio('salamanquesa', 'zap') },
+            { emoji: '🦐', zap: "Benda buaa", es: "Camarón", image: IMG_BASE + "camaron.jpg", soundEs: audio('camaron', 'es'), soundZap: audio('camaron', 'zap') },
+            { emoji: '🐟', zap: "Guluuxu", es: "Bagre", image: IMG_BASE + "bagre.jpg", soundEs: audio('bagre', 'es'), soundZap: audio('bagre', 'zap') },
+            { emoji: '🕊️', zap: "Gugu", es: "Paloma", image: IMG_BASE + "paloma.jpg", soundEs: audio('paloma', 'es'), soundZap: audio('paloma', 'zap') },
+            { emoji: '🐤', zap: "Bere leele", es: "Alcaraván", image: IMG_BASE + "alcaravan.jpg", soundEs: audio('alcaravan', 'es'), soundZap: audio('alcaravan', 'zap') },
+            { emoji: '🐜', zap: "Berendrú'", es: "Hormiga león", image: IMG_BASE + "hormiga_leon.jpg", soundEs: audio('hormiga_leon', 'es'), soundZap: audio('hormiga_leon', 'zap') },
         ];
 
         // Paleta de colores para el jugador (fondo de la carta vuelta).
@@ -602,6 +655,7 @@
             player: { name: 'Jugador', color: PALETTE[0] },
             pairsTarget: 8,
             useExternal: false,
+            zapAudioBase: '',         // base URL the user provides for Zapotec audio (overrides per-entry soundZap when set)
             board: [],   // {id, pairKey, lang, animal, matched}
             firstPick: null,
             secondPick: null,
@@ -665,6 +719,8 @@
             const nameInput = $('#player-name').value.trim();
             state.player.name = nameInput || 'Jugador';
             state.useExternal = $('#use-external').checked;
+            state.zapAudioBase = ($('#zap-audio-base').value || '').trim();
+            try { localStorage.setItem('mg.zapAudioBase', state.zapAudioBase); } catch (_) {}
             if (state.useExternal && (!Array.isArray(window.externalAnimals) || !window.externalAnimals.length)) {
                 state.useExternal = false;
                 $('#use-external').checked = false;
@@ -678,6 +734,10 @@
         }
 
         function showWelcome() {
+            try {
+                const saved = localStorage.getItem('mg.zapAudioBase');
+                if (saved != null) $('#zap-audio-base').value = saved;
+            } catch (_) {}
             $('#welcome-screen').hidden = false;
             $('#game-screen').hidden = true;
             $('#win-modal').classList.remove('is-open');
@@ -707,11 +767,11 @@
             const target = Math.min(state.pairsTarget, pool.length);
             const picked = shuffle(pool).slice(0, target);
 
-            // Por cada animal, generamos dos cartas: EN y ES.
+            // Por cada animal, generamos dos cartas: ZAP y ES.
             const cards = [];
             picked.forEach((a, idx) => {
-                const pairKey = a.emoji || `${a.en}|${a.es}|${idx}`;
-                cards.push({ id: `${pairKey}-en-${idx}`, pairKey, lang: 'en', animal: a, matched: false });
+                const pairKey = a.emoji || `${a.zap}|${a.es}|${idx}`;
+                cards.push({ id: `${pairKey}-zap-${idx}`, pairKey, lang: 'zap', animal: a, matched: false });
                 cards.push({ id: `${pairKey}-es-${idx}`, pairKey, lang: 'es', animal: a, matched: false });
             });
             state.board = shuffle(cards);
@@ -748,11 +808,16 @@
 
         function renderCardContent(c) {
             const a = c.animal;
-            const label = c.lang === 'en' ? a.en : a.es;
-            const lang = c.lang === 'en' ? 'EN' : 'ES';
+            const label = c.lang === 'zap' ? a.zap : a.es;
+            const lang  = c.lang === 'zap' ? 'ZAP' : 'ES';
+            const fallbackEmoji = escapeHtml(a.emoji || '🐾');
+            // If `image` is set we prefer it, but on a 404 / decode error we
+            // swap the broken <img> for the emoji fallback at runtime so the
+            // card never renders an ugly broken-image icon.
             const visual = a.image
-                ? `<img class="animal-img" src="${escapeHtml(a.image)}" alt="${escapeHtml(label)}" loading="lazy">`
-                : `<span class="emoji" aria-hidden="true">${escapeHtml(a.emoji || '🐾')}</span>`;
+                ? `<img class="animal-img" src="${escapeHtml(a.image)}" alt="${escapeHtml(label)}" loading="lazy"
+                        onerror="this.outerHTML='<span class=&quot;emoji&quot; aria-hidden=&quot;true&quot;>${fallbackEmoji}</span>';">`
+                : `<span class="emoji" aria-hidden="true">${fallbackEmoji}</span>`;
             return `
                 ${visual}
                 <span class="label">${escapeHtml(label)}</span>
@@ -826,27 +891,90 @@
             $('#pairs-count').textContent = state.matched;
             $('#pairs-total').textContent = state.board.length / 2;
         }
+        // Build a URL by joining a base prefix with a relative path safely:
+        // ensures exactly one '/' between them, leaves absolute URLs alone.
+        function joinUrl(base, rel) {
+            if (!base) return rel;
+            if (/^https?:\/\//i.test(rel)) return rel;
+            const a = String(base).replace(/\/+$/, '');
+            const b = String(rel).replace(/^\/+/, '');
+            return a + '/' + b;
+        }
+
+        // Best-effort slug extraction from an animal's local image filename.
+        // Lets us synthesize zapAudioBase + '<slug>_zap.mp3' even when the
+        // entry didn't pre-compute soundZap.
+        function slugFor(a) {
+            if (!a || !a.image) return '';
+            const base = a.image.split('/').pop() || '';
+            return base.replace(/\.[a-zA-Z0-9]+$/, '');
+        }
 
         // ---------- Voz ----------
+        // Estrategia de audio:
+        //   1. Si el animal define soundEs / soundEn según el idioma de la
+        //      carta volteada, intentamos reproducirlo.
+        //   2. Si solo trae `soundFile` (formato legacy), usamos ese para
+        //      ambos idiomas.
+        //   3. Si la reproducción falla (404, formato no soportado, autoplay
+        //      bloqueado por el navegador) caemos automáticamente a TTS.
+        //   4. Si el animal no trae ningún audio, usamos TTS directamente.
         function playSpeech(card) {
             const a = card.animal;
-            // Si el animal trae soundFile, se prioriza.
-            if (a.soundFile) {
-                try {
-                    const audio = new Audio(a.soundFile);
-                    audio.volume = 0.85;
-                    audio.play().catch(() => {});
-                    return;
-                } catch (e) { /* fallback a TTS */ }
+            // Per-language tracks. For Zapotec, allow a global URL override
+            // (state.zapAudioBase) so users can point at a remote audio host
+            // without editing the entry list.
+            let trackForLang = card.lang === 'zap' ? a.soundZap : a.soundEs;
+            if (card.lang === 'zap' && state.zapAudioBase && !trackForLang) {
+                trackForLang = joinUrl(state.zapAudioBase, slugFor(a) + '_zap.mp3');
+            } else if (card.lang === 'zap' && state.zapAudioBase) {
+                // If the user provided a base URL, prefer it over the local default.
+                trackForLang = joinUrl(state.zapAudioBase, slugFor(a) + '_zap.mp3');
             }
+            const audioSrc = trackForLang || a.soundFile;
+
+            if (audioSrc) {
+                try {
+                    const sound = new Audio(audioSrc);
+                    sound.volume = 0.85;
+                    // Si falla la carga (red, 404, codec) usamos TTS.
+                    sound.addEventListener('error', () => speakWithTts(card), { once: true });
+                    const playPromise = sound.play();
+                    if (playPromise && typeof playPromise.then === 'function') {
+                        playPromise.catch(() => speakWithTts(card));
+                    }
+                    return;
+                } catch (e) {
+                    // Constructor lanzó (URL inválida, etc.). Usar TTS.
+                }
+            }
+            speakWithTts(card);
+        }
+
+        function speakWithTts(card) {
             if (!('speechSynthesis' in window)) return;
             try {
-                const utter = new SpeechSynthesisUtterance(card.lang === 'en' ? a.en : a.es);
-                utter.lang = card.lang === 'en' ? 'en-US' : 'es-ES';
-                utter.rate = 0.95;
-                utter.volume = 0.9;
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(utter);
+                const a = card.animal;
+                if (card.lang === 'zap') {
+                    // Browser TTS engines don't speak Zapotec. Without an
+                    // audio file or remote base URL, the safest fallback
+                    // is to read the Spanish equivalent so the player still
+                    // hears something useful. This is silent if speech
+                    // synthesis itself is unavailable.
+                    const utter = new SpeechSynthesisUtterance(a.es);
+                    utter.lang = 'es-ES';
+                    utter.rate = 0.92;
+                    utter.volume = 0.9;
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(utter);
+                } else {
+                    const utter = new SpeechSynthesisUtterance(a.es);
+                    utter.lang = 'es-ES';
+                    utter.rate = 0.95;
+                    utter.volume = 0.9;
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(utter);
+                }
             } catch (e) { /* silencioso */ }
         }
 
