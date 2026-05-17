@@ -500,14 +500,6 @@
             </div>
 
 
-            <div class="form-group" style="margin-top: 14px;">
-                <label class="field-label" for="zap-audio-base">URL base para audio en zapoteco (opcional)</label>
-                <input type="url" id="zap-audio-base" class="field-input" placeholder="https://tu-host.com/audios/animales" autocomplete="off">
-                <p style="margin: 6px 0 0; font-size: 0.78rem; color: var(--tx-muted);">
-                    Se usará como prefijo para cargar <code>&lt;slug&gt;_zap.mp3</code> al voltear las cartas en zapoteco.
-                    Déjalo vacío para usar las rutas locales por defecto.
-                </p>
-            </div>
             <div style="display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap;">
                 <button id="start-btn" class="btn-tx" type="button">¡Empezar a jugar!</button>
                 <label class="toolbar-toggle" title="Si existe animals.js junto a este archivo, se usará esa lista.">
@@ -585,9 +577,9 @@
         //    soundFile : (legacy) audio único para ambas cartas si no
         //                defines soundEs / soundZap
         //
-        //  Si el usuario captura una "URL base para audio en zapoteco" en la
-        //  pantalla inicial, esa URL se usará para construir
-        //  `<base>/<slug>_zap.mp3` automáticamente, ignorando soundZap.
+        //  Las rutas pueden ser locales (`assets/audios/animales/<archivo>.mp3`)
+        //  o URLs absolutas (`https://tu-host.com/audios/perro_zap.mp3`).
+        //  Edita los campos soundZap por animal para apuntar al audio real.
         //
         //  Cuando no hay audio reproducible, el motor cae al TTS del
         //  navegador leyendo el nombre en español (los engines de TTS no
@@ -598,6 +590,17 @@
         const audio = (slug, lang) => `${AUDIO_BASE}${slug}_${lang}.mp3`;
 
         const DEFAULT_ANIMALS = [
+            // Ejemplo: cómo apuntar a un audio en zapoteco alojado en un servidor remoto.
+            // Sustituye `soundZap` por la URL real (https://...). Si el archivo no
+            // carga, el motor cae automáticamente al TTS leyendo el nombre en español.
+            // {
+            //     emoji: '🐶',
+            //     zap: "Bi'cu'",
+            //     es: "Perro",
+            //     image: IMG_BASE + "perro.jpg",
+            //     soundEs: audio('perro', 'es'),
+            //     soundZap: 'https://tu-host.com/audios/zap/perro.mp3',
+            // },
             { emoji: '🐶', zap: "Bi'cu'", es: "Perro", image: IMG_BASE + "perro.jpg", soundEs: audio('perro', 'es'), soundZap: audio('perro', 'zap') },
             { emoji: '🐱', zap: "Mixtu'", es: "Gato", image: IMG_BASE + "gato.jpg", soundEs: audio('gato', 'es'), soundZap: audio('gato', 'zap') },
             { emoji: '🐷', zap: "Bihui", es: "Cerdo", image: IMG_BASE + "cerdo.jpg", soundEs: audio('cerdo', 'es'), soundZap: audio('cerdo', 'zap') },
@@ -655,7 +658,6 @@
             player: { name: 'Jugador', color: PALETTE[0] },
             pairsTarget: 8,
             useExternal: false,
-            zapAudioBase: '',         // base URL the user provides for Zapotec audio (overrides per-entry soundZap when set)
             board: [],   // {id, pairKey, lang, animal, matched}
             firstPick: null,
             secondPick: null,
@@ -719,8 +721,6 @@
             const nameInput = $('#player-name').value.trim();
             state.player.name = nameInput || 'Jugador';
             state.useExternal = $('#use-external').checked;
-            state.zapAudioBase = ($('#zap-audio-base').value || '').trim();
-            try { localStorage.setItem('mg.zapAudioBase', state.zapAudioBase); } catch (_) {}
             if (state.useExternal && (!Array.isArray(window.externalAnimals) || !window.externalAnimals.length)) {
                 state.useExternal = false;
                 $('#use-external').checked = false;
@@ -734,10 +734,6 @@
         }
 
         function showWelcome() {
-            try {
-                const saved = localStorage.getItem('mg.zapAudioBase');
-                if (saved != null) $('#zap-audio-base').value = saved;
-            } catch (_) {}
             $('#welcome-screen').hidden = false;
             $('#game-screen').hidden = true;
             $('#win-modal').classList.remove('is-open');
@@ -891,46 +887,24 @@
             $('#pairs-count').textContent = state.matched;
             $('#pairs-total').textContent = state.board.length / 2;
         }
-        // Build a URL by joining a base prefix with a relative path safely:
-        // ensures exactly one '/' between them, leaves absolute URLs alone.
-        function joinUrl(base, rel) {
-            if (!base) return rel;
-            if (/^https?:\/\//i.test(rel)) return rel;
-            const a = String(base).replace(/\/+$/, '');
-            const b = String(rel).replace(/^\/+/, '');
-            return a + '/' + b;
-        }
-
-        // Best-effort slug extraction from an animal's local image filename.
-        // Lets us synthesize zapAudioBase + '<slug>_zap.mp3' even when the
-        // entry didn't pre-compute soundZap.
-        function slugFor(a) {
-            if (!a || !a.image) return '';
-            const base = a.image.split('/').pop() || '';
-            return base.replace(/\.[a-zA-Z0-9]+$/, '');
-        }
 
         // ---------- Voz ----------
         // Estrategia de audio:
-        //   1. Si el animal define soundEs / soundEn según el idioma de la
-        //      carta volteada, intentamos reproducirlo.
-        //   2. Si solo trae `soundFile` (formato legacy), usamos ese para
-        //      ambos idiomas.
+        //   1. Cada animal en DEFAULT_ANIMALS define soundEs y soundZap
+        //      (rutas locales o URLs absolutas). Se elige según la carta.
+        //   2. `soundFile` (legacy) se usa como respaldo si la entrada no
+        //      define soundEs / soundZap.
         //   3. Si la reproducción falla (404, formato no soportado, autoplay
-        //      bloqueado por el navegador) caemos automáticamente a TTS.
-        //   4. Si el animal no trae ningún audio, usamos TTS directamente.
+        //      bloqueado por el navegador) o no hay pista, caemos al TTS del
+        //      navegador leyendo el nombre en español.
+        //   4. Si el navegador no soporta speechSynthesis, el flip queda
+        //      silencioso (sin error visible al usuario).
         function playSpeech(card) {
             const a = card.animal;
-            // Per-language tracks. For Zapotec, allow a global URL override
-            // (state.zapAudioBase) so users can point at a remote audio host
-            // without editing the entry list.
-            let trackForLang = card.lang === 'zap' ? a.soundZap : a.soundEs;
-            if (card.lang === 'zap' && state.zapAudioBase && !trackForLang) {
-                trackForLang = joinUrl(state.zapAudioBase, slugFor(a) + '_zap.mp3');
-            } else if (card.lang === 'zap' && state.zapAudioBase) {
-                // If the user provided a base URL, prefer it over the local default.
-                trackForLang = joinUrl(state.zapAudioBase, slugFor(a) + '_zap.mp3');
-            }
+            // Pista por idioma. La fuente se define por animal en el array
+            // DEFAULT_ANIMALS (campos soundEs / soundZap). Si está vacía o
+            // falla la carga, caemos a TTS leyendo el nombre en español.
+            const trackForLang = card.lang === 'zap' ? a.soundZap : a.soundEs;
             const audioSrc = trackForLang || a.soundFile;
 
             if (audioSrc) {
@@ -956,11 +930,11 @@
             try {
                 const a = card.animal;
                 if (card.lang === 'zap') {
-                    // Browser TTS engines don't speak Zapotec. Without an
-                    // audio file or remote base URL, the safest fallback
-                    // is to read the Spanish equivalent so the player still
-                    // hears something useful. This is silent if speech
-                    // synthesis itself is unavailable.
+                    // Browser TTS engines don't speak Zapotec. When the
+                    // animal has no soundZap (or it fails to load), we
+                    // read the Spanish equivalent so the player still
+                    // hears something useful. Silent if speechSynthesis
+                    // itself is unavailable.
                     const utter = new SpeechSynthesisUtterance(a.es);
                     utter.lang = 'es-ES';
                     utter.rate = 0.92;
