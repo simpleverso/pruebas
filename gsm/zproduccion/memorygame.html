@@ -276,17 +276,6 @@
         }
         .stats-bar .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        .toolbar-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--tx-muted);
-            font-size: 0.78rem;
-            cursor: pointer;
-            user-select: none;
-        }
-        .toolbar-toggle input { accent-color: var(--tx-primary); }
-
         /* ---------- Board ---------- */
         .board {
             display: grid;
@@ -508,9 +497,6 @@
 
             <div style="display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap;">
                 <button id="start-btn" class="btn-tx" type="button">¡Empezar a jugar!</button>
-                <label class="toolbar-toggle" title="Si existe animals.js junto a este archivo, se usará esa lista.">
-                    <input type="checkbox" id="use-external"> Usar lista externa (animals.js)
-                </label>
             </div>
         </section>
 
@@ -726,11 +712,20 @@
         function startGame() {
             const nameInput = $('#player-name').value.trim();
             state.player.name = nameInput || 'Jugador';
-            state.useExternal = $('#use-external').checked;
+
+            // The "use external list" toggle was removed from the welcome
+            // screen but the underlying logic stays in place. To enable an
+            // external list programmatically (e.g. from DevTools or a
+            // future settings panel), set:
+            //
+            //     window.externalAnimals = [ /* same shape as DEFAULT_ANIMALS */ ];
+            //     state.useExternal = true;
+            //
+            // before invoking startGame() / newRound(). getActiveAnimalList()
+            // already honors this without any UI involvement.
             if (state.useExternal && (!Array.isArray(window.externalAnimals) || !window.externalAnimals.length)) {
                 state.useExternal = false;
-                $('#use-external').checked = false;
-                alert('No se encontró animals.js junto a este archivo, se usará la lista por defecto.');
+                console.warn('memorygame: state.useExternal is true but window.externalAnimals is missing; falling back to DEFAULT_ANIMALS.');
             }
 
             $('#welcome-screen').hidden = true;
