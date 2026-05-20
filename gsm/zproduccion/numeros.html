@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Números · Didxazapp</title>
-    <meta name="description" content="Galería de números con su nombre en Zapoteco del Istmo y español, con audio de pronunciación.">
+    <meta name="description" content="Galería de números con su nombre en Zapoteco del Istmo, español e inglés, con audio de pronunciación.">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
     <!-- Bootstrap 4.3.1 served from cdnjs (matches the bootstrap.bundle.min.js below) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -152,26 +152,34 @@
             color: var(--tx-text-strong);
             font-size: 1.05rem;
             font-weight: 600;
-            margin: 0 0 2px;
+            margin: 0 0 4px;
             letter-spacing: 0.005em;
             word-break: break-word;
         }
-        .number-name-es {
-            color: var(--tx-muted);
-            font-size: 0.85rem;
-            font-weight: 400;
-            margin: 0;
+
+        /* Líneas de nombre (ES / EN) */
+        .number-name-row {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             gap: 8px;
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--tx-muted);
         }
-        .number-name-es::before {
-            content: "";
-            display: inline-block;
-            width: 18px;
-            height: 1px;
-            background: var(--tx-border-2);
+        .number-name-row + .number-name-row { margin-top: 2px; }
+        .number-name-row .lang-tag {
+            flex-shrink: 0;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.14);
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            padding: 1px 6px;
+            border-radius: 999px;
+            text-transform: uppercase;
         }
+        .number-name-row .name-text { word-break: break-word; }
 
         /* Botón de audio */
         .audio-btn {
@@ -263,7 +271,7 @@
     <main class="gallery-shell">
         <header class="gallery-heading">
             <h1>Números en Zapoteco</h1>
-            <p>Galería de números con su nombre en Zapoteco del Istmo, español y audio de pronunciación.</p>
+            <p>Galería de números con su nombre en Zapoteco del Istmo, español, inglés y audio de pronunciación.</p>
         </header>
 
         <section class="gallery-grid" id="number-gallery">
@@ -281,29 +289,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Lista de números (zapoteco + español + slug compartido para imagen y audio).
+        // Lista de números (zapoteco + español + inglés + slug compartido para imagen y audio).
         const NUMEROS = [
-            { zap: "Gasti'",                  es: "Cero",      slug: "cero" },
-            { zap: "Tobi",                    es: "Uno",       slug: "uno" },
-            { zap: "Chupa",                   es: "Dos",       slug: "dos" },
-            { zap: "Chonna",                  es: "Tres",      slug: "tres" },
-            { zap: "Tapa",                    es: "Cuatro",    slug: "cuatro" },
-            { zap: "Ga'yu'",                  es: "Cinco",     slug: "cinco" },
-            { zap: "Xho'pa'",                 es: "Seis",      slug: "seis" },
-            { zap: "Gaadxe",                  es: "Siete",     slug: "siete" },
-            { zap: "Xhoono",                  es: "Ocho",      slug: "ocho" },
-            { zap: "Ga'",                     es: "Nueve",     slug: "nueve" },
-            { zap: "Chii",                    es: "Diez",      slug: "diez" },
-            { zap: "Gande",                   es: "Veinte",    slug: "veinte" },
-            { zap: "Gande Chii",              es: "Treinta",   slug: "treinta" },
-            { zap: "Chupa late gande",        es: "Cuarenta",  slug: "cuarenta" },
-            { zap: "Chupa late gande chii",   es: "Cincuenta", slug: "cincuenta" },
-            { zap: "Chonna late gande",       es: "Sesenta",   slug: "sesenta" },
-            { zap: "Chonna late gande chii",  es: "Setenta",   slug: "setenta" },
-            { zap: "Tapa late gande",         es: "Ochenta",   slug: "ochenta" },
-            { zap: "Tapa late gande chii",    es: "Noventa",   slug: "noventa" },
-            { zap: "Ti gayuaa",               es: "Cien",      slug: "cien" },
-            { zap: "Ti mil",                  es: "Mil",       slug: "mil" },
+            { zap: "Gasti'",                  es: "Cero",      en: "Zero",     slug: "cero" },
+            { zap: "Tobi",                    es: "Uno",       en: "One",      slug: "uno" },
+            { zap: "Chupa",                   es: "Dos",       en: "Two",      slug: "dos" },
+            { zap: "Chonna",                  es: "Tres",      en: "Three",    slug: "tres" },
+            { zap: "Tapa",                    es: "Cuatro",    en: "Four",     slug: "cuatro" },
+            { zap: "Ga'yu'",                  es: "Cinco",     en: "Five",     slug: "cinco" },
+            { zap: "Xho'pa'",                 es: "Seis",      en: "Six",      slug: "seis" },
+            { zap: "Gaadxe",                  es: "Siete",     en: "Seven",    slug: "siete" },
+            { zap: "Xhoono",                  es: "Ocho",      en: "Eight",    slug: "ocho" },
+            { zap: "Ga'",                     es: "Nueve",     en: "Nine",     slug: "nueve" },
+            { zap: "Chii",                    es: "Diez",      en: "Ten",      slug: "diez" },
+            { zap: "Gande",                   es: "Veinte",    en: "Twenty",   slug: "veinte" },
+            { zap: "Gande Chii",              es: "Treinta",   en: "Thirty",   slug: "treinta" },
+            { zap: "Chupa late gande",        es: "Cuarenta",  en: "Forty",    slug: "cuarenta" },
+            { zap: "Chupa late gande chii",   es: "Cincuenta", en: "Fifty",    slug: "cincuenta" },
+            { zap: "Chonna late gande",       es: "Sesenta",   en: "Sixty",    slug: "sesenta" },
+            { zap: "Chonna late gande chii",  es: "Setenta",   en: "Seventy",  slug: "setenta" },
+            { zap: "Tapa late gande",         es: "Ochenta",   en: "Eighty",   slug: "ochenta" },
+            { zap: "Tapa late gande chii",    es: "Noventa",   en: "Ninety",   slug: "noventa" },
+            { zap: "Ti gayuaa",               es: "Cien",      en: "One hundred", slug: "cien" },
+            { zap: "Ti mil",                  es: "Mil",       en: "One thousand", slug: "mil" },
         ];
         const IMG_BASE   = "assets/img/numeros/";
         const AUDIO_BASE = "assets/audios/numeros/";
@@ -319,7 +327,8 @@
                 <div class="number-body">
                     <div class="number-text">
                         <h3 class="number-name-zap">${escapeHtml(n.zap)}</h3>
-                        <p class="number-name-es">${escapeHtml(n.es)}</p>
+                        <p class="number-name-row"><span class="lang-tag">ES</span><span class="name-text">${escapeHtml(n.es)}</span></p>
+                        <p class="number-name-row"><span class="lang-tag">EN</span><span class="name-text">${escapeHtml(n.en)}</span></p>
                     </div>
                     <button type="button" class="audio-btn" data-audio="${AUDIO_BASE}${n.slug}.mp3"
                             aria-label="Reproducir pronunciación de ${escapeHtml(n.zap)}" title="Escuchar">
