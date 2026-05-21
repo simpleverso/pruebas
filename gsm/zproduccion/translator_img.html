@@ -497,6 +497,46 @@
             .pred-card { grid-template-columns: 56px 1fr; }
             .pred-confidence { width: 50px; height: 50px; font-size: 0.72rem; }
         }
+
+        /* Toggle ES / EN, exclusivo de esta página (no toca el menú) */
+        .ui-lang-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+        .ui-lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            box-shadow: var(--tx-shadow);
+        }
+        .ui-lang-toggle button {
+            appearance: none;
+            border: 0;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            background: transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .ui-lang-toggle button:hover { color: var(--tx-text-strong); }
+        .ui-lang-toggle button.is-active {
+            background: var(--tx-primary);
+            color: #ffffff;
+        }
+        .ui-lang-toggle button:focus-visible {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 
@@ -525,77 +565,84 @@
     </nav>
 
     <main class="img-shell">
-        <h1 class="page-title">Traductor de imágenes</h1>
-        <p class="page-subtitle">Sube una foto o usa la cámara. El modelo identificará lo que aparece y mostrará su nombre en inglés, español y Zapoteco del Istmo.</p>
+        <h1 class="page-title" data-i18n="page.title">Traductor de imágenes</h1>
+        <p class="page-subtitle" data-i18n="page.subtitle">Sube una foto o usa la cámara. El modelo identificará lo que aparece y mostrará su nombre en inglés, español y Zapoteco del Istmo.</p>
 
         <section class="img-card">
+            <div class="ui-lang-row">
+                <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
+                    <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                    <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
+                </div>
+            </div>
+
             <div id="model-loader" class="model-loader is-loading" role="status" aria-live="polite">
                 <span class="ml-icon"><i class="fa fa-cog" aria-hidden="true"></i></span>
                 <div class="ml-text">
-                    <div class="ml-title" id="ml-title">Estamos preparando el sistema de análisis de imágenes…</div>
-                    <div class="ml-subtitle" id="ml-subtitle">Descargando modelo (≈14 MB). Solo la primera vez.</div>
+                    <div class="ml-title" id="ml-title" data-i18n="loader.title">Estamos preparando el sistema de análisis de imágenes…</div>
+                    <div class="ml-subtitle" id="ml-subtitle" data-i18n="loader.subtitle">Descargando modelo (≈14 MB). Solo la primera vez.</div>
                     <div class="progress-bar"><div class="bar"></div></div>
                 </div>
             </div>
 
             <div class="mode-tabs" role="tablist">
                 <button class="mode-tab is-active" data-mode="upload" type="button">
-                    <i class="fa fa-cloud-upload" aria-hidden="true"></i> Subir imagen
+                    <i class="fa fa-cloud-upload" aria-hidden="true"></i> <span data-i18n="tab.upload">Subir imagen</span>
                 </button>
                 <button class="mode-tab" data-mode="camera" type="button">
-                    <i class="fa fa-camera" aria-hidden="true"></i> Usar cámara
+                    <i class="fa fa-camera" aria-hidden="true"></i> <span data-i18n="tab.camera">Usar cámara</span>
                 </button>
             </div>
 
             <div class="mode-panel is-active" id="panel-upload">
                 <label class="drop-zone" id="drop-zone" for="file-input">
                     <i class="fa fa-image" aria-hidden="true"></i>
-                    <p>Arrastra una imagen aquí o haz clic para elegir un archivo</p>
-                    <p class="small">JPG, PNG, GIF · máximo 10 MB</p>
+                    <p data-i18n="drop.primary">Arrastra una imagen aquí o haz clic para elegir un archivo</p>
+                    <p class="small" data-i18n="drop.formats">JPG, PNG, GIF · máximo 10 MB</p>
                 </label>
                 <input type="file" id="file-input" accept="image/*" hidden>
 
                 <div class="samples-block">
-                    <p class="samples-label">¿No tienes una imagen a la mano? Prueba con un ejemplo:</p>
+                    <p class="samples-label" data-i18n="samples.label">¿No tienes una imagen a la mano? Prueba con un ejemplo:</p>
                     <div class="samples-grid" id="samples-grid"></div>
                 </div>
             </div>
 
             <div class="mode-panel" id="panel-camera">
                 <div class="camera-controls">
-                    <label class="camera-controls-label" for="camera-device">Cámara:</label>
+                    <label class="camera-controls-label" for="camera-device" data-i18n="camera.label">Cámara:</label>
                     <select class="camera-select" id="camera-device" disabled>
-                        <option value="">Buscando dispositivos…</option>
+                        <option value="" data-i18n="camera.searching">Buscando dispositivos…</option>
                     </select>
                 </div>
                 <div class="preview-wrap is-shown" id="camera-wrap">
                     <video id="camera-video" autoplay playsinline muted></video>
-                    <img id="camera-photo" alt="Foto capturada">
+                    <img id="camera-photo" alt="Foto capturada" data-i18n-alt="camera.photo_alt">
                     <div class="preview-actions">
-                        <button type="button" id="cam-stop"><i class="fa fa-times"></i> Cerrar</button>
+                        <button type="button" id="cam-stop"><i class="fa fa-times"></i> <span data-i18n="camera.close">Cerrar</span></button>
                     </div>
                 </div>
                 <button class="btn-primary-tx" id="cam-capture" type="button" disabled>
-                    <i class="fa fa-camera" aria-hidden="true"></i> Capturar foto
+                    <i class="fa fa-camera" aria-hidden="true"></i> <span data-i18n="camera.capture">Capturar foto</span>
                 </button>
             </div>
 
             <div class="preview-wrap" id="preview-wrap">
-                <img id="preview-img" alt="Imagen seleccionada">
+                <img id="preview-img" alt="Imagen seleccionada" data-i18n-alt="preview.alt">
                 <div class="preview-actions">
-                    <button type="button" id="preview-clear"><i class="fa fa-times"></i> Quitar</button>
+                    <button type="button" id="preview-clear"><i class="fa fa-times"></i> <span data-i18n="preview.clear">Quitar</span></button>
                 </div>
             </div>
 
             <button class="btn-primary-tx" id="btn-classify" type="button" disabled>
-                <i class="fa fa-refresh" aria-hidden="true"></i> Volver a analizar
+                <i class="fa fa-refresh" aria-hidden="true"></i> <span data-i18n="btn.reanalyze">Volver a analizar</span>
             </button>
 
-            <div class="status-line" id="status-line">Sube una imagen, usa la cámara o elige un ejemplo. El análisis comenzará automáticamente.</div>
+            <div class="status-line" id="status-line" data-i18n="status.idle">Sube una imagen, usa la cámara o elige un ejemplo. El análisis comenzará automáticamente.</div>
             <div id="alert-slot"></div>
 
             <section class="results-section" id="results-section" hidden>
-                <h2>Objetos detectados</h2>
+                <h2 data-i18n="results.title">Objetos detectados</h2>
                 <div class="prediction-grid" id="prediction-grid"></div>
             </section>
         </section>
@@ -663,6 +710,167 @@
         let selectedDeviceId = null; // deviceId elegido en el selector (null = automático)
         let devicesEnumerated = false;
         let currentImageEl = null; // <img> o <canvas> con la imagen actual
+
+        // ---- i18n: toggle ES / EN solo para esta página ----
+        // Los nodos con `data-i18n="key"` reciben textContent del diccionario.
+        // `data-i18n-alt` y `data-i18n-aria-label` ajustan los atributos.
+        // La función `t(key, params)` interpola `{var}` en strings dinámicos.
+        const UI_LANG_KEY = 'translator_img_ui_lang_v1';
+        const I18N = {
+            es: {
+                'page.title': 'Traductor de imágenes',
+                'page.subtitle': 'Sube una foto o usa la cámara. El modelo identificará lo que aparece y mostrará su nombre en inglés, español y Zapoteco del Istmo.',
+                'loader.title': 'Estamos preparando el sistema de análisis de imágenes…',
+                'loader.subtitle': 'Descargando modelo (≈14 MB). Solo la primera vez.',
+                'tab.upload': 'Subir imagen',
+                'tab.camera': 'Usar cámara',
+                'drop.primary': 'Arrastra una imagen aquí o haz clic para elegir un archivo',
+                'drop.formats': 'JPG, PNG, GIF · máximo 10 MB',
+                'samples.label': '¿No tienes una imagen a la mano? Prueba con un ejemplo:',
+                'samples.try_with': 'Probar con: {tag}',
+                'camera.label': 'Cámara:',
+                'camera.searching': 'Buscando dispositivos…',
+                'camera.unavailable': 'Cámara no disponible',
+                'camera.none': 'Sin cámaras detectadas',
+                'camera.list_failed': 'No se pudo listar dispositivos',
+                'camera.fallback_label': 'Cámara {n}',
+                'camera.close': 'Cerrar',
+                'camera.capture': 'Capturar foto',
+                'camera.retake': 'Volver a tomar',
+                'camera.photo_alt': 'Foto capturada',
+                'preview.alt': 'Imagen seleccionada',
+                'preview.clear': 'Quitar',
+                'btn.reanalyze': 'Volver a analizar',
+                'results.title': 'Objetos detectados',
+                'pred.translating': 'Traduciendo…',
+                'pred.unavailable': 'No disponible',
+                'status.idle': 'Sube una imagen, usa la cámara o elige un ejemplo. El análisis comenzará automáticamente.',
+                'status.idle_short': 'Sube una imagen o usa la cámara para empezar.',
+                'status.loading_sample': 'Cargando ejemplo…',
+                'status.camera_active': 'Cámara activa. Encuadra el objeto y pulsa <strong>Capturar foto</strong>.',
+                'status.analyzing': 'Analizando imagen…',
+                'status.waiting_model': 'Esperando a que termine la carga del sistema de análisis…',
+                'status.detected_n': 'Listo. {n} coincidencias detectadas. Traduciendo…',
+                'status.done': 'Detección y traducción completadas.',
+                'status.error': 'Ocurrió un error al analizar la imagen.',
+                'alert.sample_load': '<strong>No se pudo cargar la imagen de ejemplo.</strong> Verifica tu conexión.',
+                'alert.not_image': '<strong>El archivo no es una imagen.</strong>',
+                'alert.too_big': '<strong>La imagen es muy grande.</strong> Máximo 10 MB.',
+                'alert.camera_denied': '<strong>No se pudo acceder a la cámara.</strong> Acepta el permiso o conecta una cámara.',
+                'model.cached_title': 'Modelo cargado desde caché del navegador.',
+                'model.cached_subtitle': 'Sin descarga: la página se abrió al instante.',
+                'model.downloading_title': 'Descargando modelo de análisis (primera vez)…',
+                'model.downloading_subtitle': 'Las próximas visitas usarán la copia guardada en este navegador.',
+                'model.ready_title': 'Sistema de análisis de imágenes listo.',
+                'model.ready_subtitle': 'Sube una imagen, usa la cámara o prueba con un ejemplo.',
+                'model.error_title': 'No se pudo cargar el modelo de análisis.',
+                'model.error_subtitle': 'Verifica tu conexión y recarga la página para intentarlo de nuevo.',
+            },
+            en: {
+                'page.title': 'Image translator',
+                'page.subtitle': 'Upload a photo or use the camera. The model will identify what appears and show its name in English, Spanish, and Isthmus Zapotec.',
+                'loader.title': 'Preparing the image analysis system…',
+                'loader.subtitle': 'Downloading model (≈14 MB). First time only.',
+                'tab.upload': 'Upload image',
+                'tab.camera': 'Use camera',
+                'drop.primary': 'Drag an image here or click to choose a file',
+                'drop.formats': 'JPG, PNG, GIF · max 10 MB',
+                'samples.label': "Don't have an image handy? Try a sample:",
+                'samples.try_with': 'Try with: {tag}',
+                'camera.label': 'Camera:',
+                'camera.searching': 'Searching devices…',
+                'camera.unavailable': 'Camera not available',
+                'camera.none': 'No cameras detected',
+                'camera.list_failed': 'Could not list devices',
+                'camera.fallback_label': 'Camera {n}',
+                'camera.close': 'Close',
+                'camera.capture': 'Take photo',
+                'camera.retake': 'Retake',
+                'camera.photo_alt': 'Captured photo',
+                'preview.alt': 'Selected image',
+                'preview.clear': 'Remove',
+                'btn.reanalyze': 'Analyze again',
+                'results.title': 'Detected objects',
+                'pred.translating': 'Translating…',
+                'pred.unavailable': 'Not available',
+                'status.idle': 'Upload an image, use the camera, or pick a sample. Analysis starts automatically.',
+                'status.idle_short': 'Upload an image or use the camera to get started.',
+                'status.loading_sample': 'Loading sample…',
+                'status.camera_active': 'Camera active. Frame the object and press <strong>Take photo</strong>.',
+                'status.analyzing': 'Analyzing image…',
+                'status.waiting_model': 'Waiting for the analysis system to finish loading…',
+                'status.detected_n': 'Done. {n} matches detected. Translating…',
+                'status.done': 'Detection and translation complete.',
+                'status.error': 'Something went wrong while analyzing the image.',
+                'alert.sample_load': '<strong>Could not load the sample image.</strong> Check your connection.',
+                'alert.not_image': '<strong>The file is not an image.</strong>',
+                'alert.too_big': '<strong>The image is too large.</strong> Max 10 MB.',
+                'alert.camera_denied': '<strong>Could not access the camera.</strong> Allow permission or connect a camera.',
+                'model.cached_title': 'Model loaded from browser cache.',
+                'model.cached_subtitle': 'No download: the page opened instantly.',
+                'model.downloading_title': 'Downloading analysis model (first time)…',
+                'model.downloading_subtitle': 'Future visits will use the copy saved in this browser.',
+                'model.ready_title': 'Image analysis system ready.',
+                'model.ready_subtitle': 'Upload an image, use the camera, or try a sample.',
+                'model.error_title': 'Could not load the analysis model.',
+                'model.error_subtitle': 'Check your connection and reload the page to try again.',
+            },
+        };
+
+        let UI_LANG = (() => {
+            try {
+                const saved = localStorage.getItem(UI_LANG_KEY);
+                if (saved === 'es' || saved === 'en') return saved;
+            } catch (e) { /* ignore */ }
+            return 'es';
+        })();
+
+        function t(key, params) {
+            const dict = I18N[UI_LANG] || I18N.es;
+            let s = (dict[key] !== undefined) ? dict[key] : (I18N.es[key] !== undefined ? I18N.es[key] : key);
+            if (params) {
+                s = s.replace(/\{(\w+)\}/g, (_, k) => (params[k] !== undefined ? params[k] : `{${k}}`));
+            }
+            return s;
+        }
+
+        function applyI18n() {
+            document.documentElement.lang = UI_LANG;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = t(el.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+                el.setAttribute('alt', t(el.dataset.i18nAlt));
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+                el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                el.setAttribute('title', t(el.dataset.i18nTitle));
+            });
+            document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+                const active = b.dataset.uiLang === UI_LANG;
+                b.classList.toggle('is-active', active);
+                b.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            // Re-renderiza ejemplos y refresca el botón de captura para que sus
+            // textos queden en el idioma activo.
+            if (typeof renderSamples === 'function') renderSamples();
+            if (typeof setCaptureButton === 'function') {
+                setCaptureButton($camCapture && $camCapture.dataset.mode === 'retake');
+            }
+        }
+
+        function setUiLang(lang) {
+            if (lang !== 'es' && lang !== 'en') return;
+            UI_LANG = lang;
+            try { localStorage.setItem(UI_LANG_KEY, lang); } catch (e) { /* ignore */ }
+            applyI18n();
+        }
+
+        document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+            b.addEventListener('click', () => setUiLang(b.dataset.uiLang));
+        });
 
         // ---- Banner de carga del modelo ----
         const $loader     = document.getElementById('model-loader');
@@ -734,12 +942,16 @@
         function renderSamples() {
             const $samples = document.getElementById('samples-grid');
             $samples.innerHTML = SAMPLE_IMAGES.map(s => `
-                <button type="button" class="sample-thumb" data-src="${SAMPLE_BASE}${s.slug}" title="Probar con: ${escapeHtml(s.tag)}">
+                <button type="button" class="sample-thumb" data-src="${SAMPLE_BASE}${s.slug}" title="${escapeHtml(t('samples.try_with', { tag: s.tag }))}">
                     <img src="${SAMPLE_BASE}${s.slug}" alt="${escapeHtml(s.tag)}" loading="lazy">
                     <span class="sample-tag">${escapeHtml(s.tag)}</span>
                 </button>
             `).join('');
-            $samples.addEventListener('click', (ev) => {
+            // Evitar binders duplicados al re-renderizar (cambio de idioma):
+            // remplazamos el grid por un clon limpio y volvemos a registrar el listener.
+            const fresh = $samples.cloneNode(true);
+            $samples.parentNode.replaceChild(fresh, $samples);
+            fresh.addEventListener('click', (ev) => {
                 const btn = ev.target.closest('.sample-thumb');
                 if (!btn) return;
                 useSampleImage(btn.dataset.src);
@@ -750,7 +962,7 @@
         // GitHub Pages devuelve `Access-Control-Allow-Origin: *`, así que esto funciona.
         function useSampleImage(url) {
             clearAlert();
-            setStatus('Cargando ejemplo…', 'info');
+            setStatus(t('status.loading_sample'), 'info');
             const probe = new Image();
             probe.crossOrigin = 'anonymous';
             probe.referrerPolicy = 'no-referrer';
@@ -762,22 +974,26 @@
                 setPreviewImage(url);
             };
             probe.onerror = () => {
-                showAlert('warn', '<strong>No se pudo cargar la imagen de ejemplo.</strong> Verifica tu conexión.');
-                setStatus('Sube una imagen o usa la cámara para empezar.');
+                showAlert('warn', t('alert.sample_load'));
+                setStatus(t('status.idle_short'));
             };
             probe.src = url;
         }
 
         renderSamples();
 
+        // Aplicamos el idioma elegido (o el predeterminado) sobre toda la UI estática.
+        // Se hace después de renderSamples para que las muestras también queden traducidas.
+        applyI18n();
+
         function handleFile(file) {
             clearAlert();
             if (!file.type.startsWith('image/')) {
-                showAlert('warn', '<strong>El archivo no es una imagen.</strong>');
+                showAlert('warn', t('alert.not_image'));
                 return;
             }
             if (file.size > MAX_FILE_BYTES) {
-                showAlert('warn', '<strong>La imagen es muy grande.</strong> Máximo 10 MB.');
+                showAlert('warn', t('alert.too_big'));
                 return;
             }
             // Para uploads y capturas de cámara la imagen es local (data URL) y no
@@ -810,7 +1026,7 @@
             $resultsSec.hidden = true;
             $predGrid.innerHTML = '';
             $fileInput.value = '';
-            setStatus('Sube una imagen o usa la cámara para empezar.');
+            setStatus(t('status.idle_short'));
         });
 
         // ---- Cámara ----
@@ -819,7 +1035,7 @@
         // tras abrir el primer stream para obtener nombres legibles.
         async function refreshCameraDevices() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-                $camDevice.innerHTML = '<option value="">Cámara no disponible</option>';
+                $camDevice.innerHTML = `<option value="">${escapeHtml(t('camera.unavailable'))}</option>`;
                 $camDevice.disabled = true;
                 return [];
             }
@@ -827,7 +1043,7 @@
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const cams = devices.filter(d => d.kind === 'videoinput');
                 if (!cams.length) {
-                    $camDevice.innerHTML = '<option value="">Sin cámaras detectadas</option>';
+                    $camDevice.innerHTML = `<option value="">${escapeHtml(t('camera.none'))}</option>`;
                     $camDevice.disabled = true;
                     return [];
                 }
@@ -837,7 +1053,7 @@
                 }
                 const previousValue = selectedDeviceId || '';
                 $camDevice.innerHTML = cams.map((cam, i) => {
-                    const label = cam.label || `Cámara ${i + 1}`;
+                    const label = cam.label || t('camera.fallback_label', { n: i + 1 });
                     return `<option value="${escapeHtml(cam.deviceId)}">${escapeHtml(label)}</option>`;
                 }).join('');
                 $camDevice.disabled = false;
@@ -850,7 +1066,7 @@
                 return cams;
             } catch (e) {
                 console.warn('enumerateDevices error:', e);
-                $camDevice.innerHTML = '<option value="">No se pudo listar dispositivos</option>';
+                $camDevice.innerHTML = `<option value="">${escapeHtml(t('camera.list_failed'))}</option>`;
                 $camDevice.disabled = true;
                 return [];
             }
@@ -885,11 +1101,11 @@
                     selectedDeviceId = activeId;
                     $camDevice.value = activeId;
                 }
-                setStatus('Cámara activa. Encuadra el objeto y pulsa <strong>Capturar foto</strong>.', 'info');
+                setStatus(t('status.camera_active'), 'info');
             } catch (e) {
                 console.warn('camera error:', e);
                 $camCapture.disabled = true;
-                showAlert('warn', '<strong>No se pudo acceder a la cámara.</strong> Acepta el permiso o conecta una cámara.');
+                showAlert('warn', t('alert.camera_denied'));
             }
         }
         function stopCamera() {
@@ -927,7 +1143,7 @@
                 $btnClassify.disabled = true;
                 $resultsSec.hidden = true;
                 $predGrid.innerHTML = '';
-                setStatus('Sube una imagen o usa la cámara para empezar.');
+                setStatus(t('status.idle_short'));
             }
             // Cambia de tab a Subir.
             $tabs.forEach(t => t.classList.toggle('is-active', t.dataset.mode === 'upload'));
@@ -938,10 +1154,10 @@
         function setCaptureButton(captured) {
             if (captured) {
                 $camCapture.dataset.mode = 'retake';
-                $camCapture.innerHTML = '<i class="fa fa-refresh" aria-hidden="true"></i> Volver a tomar';
+                $camCapture.innerHTML = `<i class="fa fa-refresh" aria-hidden="true"></i> ${escapeHtml(t('camera.retake'))}`;
             } else {
                 $camCapture.dataset.mode = 'capture';
-                $camCapture.innerHTML = '<i class="fa fa-camera" aria-hidden="true"></i> Capturar foto';
+                $camCapture.innerHTML = `<i class="fa fa-camera" aria-hidden="true"></i> ${escapeHtml(t('camera.capture'))}`;
             }
         }
 
@@ -1065,27 +1281,19 @@
                 // 1) Intento desde IndexedDB.
                 const cached = await loadFromCache();
                 if (cached) {
-                    setLoader('success',
-                        'Modelo cargado desde caché del navegador.',
-                        'Sin descarga: la página se abrió al instante.');
+                    setLoader('success', t('model.cached_title'), t('model.cached_subtitle'));
                     setTimeout(hideLoader, 1500);
                     return cached;
                 }
                 // 2) Sin caché: descargar y guardar para la próxima vez.
-                setLoader('loading',
-                    'Descargando modelo de análisis (primera vez)…',
-                    'Las próximas visitas usarán la copia guardada en este navegador.');
+                setLoader('loading', t('model.downloading_title'), t('model.downloading_subtitle'));
                 const m = await downloadAndCache();
-                setLoader('success',
-                    'Sistema de análisis de imágenes listo.',
-                    'Sube una imagen, usa la cámara o prueba con un ejemplo.');
+                setLoader('success', t('model.ready_title'), t('model.ready_subtitle'));
                 setTimeout(hideLoader, 2200);
                 return m;
             })().catch(err => {
                 console.warn('model load failed:', err);
-                setLoader('error',
-                    'No se pudo cargar el modelo de análisis.',
-                    'Verifica tu conexión y recarga la página para intentarlo de nuevo.');
+                setLoader('error', t('model.error_title'), t('model.error_subtitle'));
                 // Re-lanzamos para que ensureModel() también falle.
                 modelPromise = null; // permite reintento al recargar
                 throw err;
@@ -1185,6 +1393,7 @@
 
         // ---- Render de resultados ----
         function renderPredictionSkeleton(preds) {
+            const translating = escapeHtml(t('pred.translating'));
             $predGrid.innerHTML = preds.map((p, i) => `
                 <div class="pred-card" data-i="${i}">
                     <div class="pred-confidence" style="--p:${(p.probability * 100).toFixed(1)}">
@@ -1197,11 +1406,11 @@
                         </div>
                         <div class="pred-lang-row">
                             <span class="pred-lang-tag">ES</span>
-                            <span class="pred-lang-text is-loading" data-lang="es">Traduciendo…</span>
+                            <span class="pred-lang-text is-loading" data-lang="es">${translating}</span>
                         </div>
                         <div class="pred-lang-row">
                             <span class="pred-lang-tag">ZAP</span>
-                            <span class="pred-lang-text is-loading" data-lang="zap">Traduciendo…</span>
+                            <span class="pred-lang-text is-loading" data-lang="zap">${translating}</span>
                         </div>
                     </div>
                 </div>
@@ -1219,9 +1428,9 @@
             esEl.classList.remove('is-loading');
             zapEl.classList.remove('is-loading');
             if (resolved.es) { esEl.textContent = resolved.es; }
-            else { esEl.classList.add('is-empty'); esEl.textContent = 'No disponible'; }
+            else { esEl.classList.add('is-empty'); esEl.textContent = t('pred.unavailable'); }
             if (resolved.zap) { zapEl.textContent = resolved.zap; }
-            else { zapEl.classList.add('is-empty'); zapEl.textContent = 'No disponible'; }
+            else { zapEl.classList.add('is-empty'); zapEl.textContent = t('pred.unavailable'); }
         }
 
         // ---- Acción principal ----
@@ -1231,20 +1440,18 @@
             $btnClassify.disabled = true;
             try {
                 const ready = $loader.classList.contains('is-success') || $loader.classList.contains('is-hidden');
-                setStatus(ready
-                    ? 'Analizando imagen…'
-                    : 'Esperando a que termine la carga del sistema de análisis…', 'info');
+                setStatus(ready ? t('status.analyzing') : t('status.waiting_model'), 'info');
                 const preds = await classifyWithCustomLabels(currentImageEl, 5);
-                setStatus('Listo. ' + preds.length + ' coincidencias detectadas. Traduciendo…', 'info');
+                setStatus(t('status.detected_n', { n: preds.length }), 'info');
                 renderPredictionSkeleton(preds);
                 // Resolvemos en paralelo, pero limitamos para no saturar el endpoint público.
                 await Promise.all(preds.map((p, i) =>
                     resolveLabel(p.label).then(r => fillPrediction(i, r))
                 ));
-                setStatus('Detección y traducción completadas.', 'info');
+                setStatus(t('status.done'), 'info');
             } catch (e) {
                 console.warn('classify error:', e);
-                setStatus('Ocurrió un error al analizar la imagen.', 'error');
+                setStatus(t('status.error'), 'error');
             } finally {
                 $btnClassify.disabled = false;
             }
