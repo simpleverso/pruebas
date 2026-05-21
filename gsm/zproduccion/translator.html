@@ -599,6 +599,47 @@
         body.disclaimer-open .clean-navbar,
         body.disclaimer-open .footer-basic { filter: blur(1px); pointer-events: none; user-select: none; }
 
+        /* Toggle ES / EN, exclusivo de esta página (no toca el menú) */
+        .ui-lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            box-shadow: var(--tx-shadow);
+            margin-bottom: 14px;
+        }
+        .ui-lang-toggle button {
+            appearance: none;
+            border: 0;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            background: transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .ui-lang-toggle button:hover { color: var(--tx-text-strong); }
+        .ui-lang-toggle button.is-active {
+            background: var(--tx-primary);
+            color: #ffffff;
+        }
+        .ui-lang-toggle button:focus-visible {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 2px;
+        }
+        .ui-lang-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+
         @media (max-width: 575.98px) {
             .disclaimer-card { padding: 24px 20px 20px; }
             .disclaimer-actions { flex-direction: column-reverse; align-items: stretch; }
@@ -610,8 +651,8 @@
 <body>
     <div id="disclaimer" class="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title" aria-describedby="disclaimer-text" hidden>
         <div class="disclaimer-card">
-            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> Aviso importante</h2>
-            <p id="disclaimer-text">
+            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> <span data-i18n="disclaimer.title">Aviso importante</span></h2>
+            <p id="disclaimer-text" data-i18n-html="disclaimer.body">
                 El traductor de español a zapoteco del istmo es un proyecto experimental con la
                 finalidad de generar herramientas capaces de realizar traducciones al idioma Zapoteco
                 desde el español. <strong>Sin embargo estas traducciones no siempre son exactas</strong>,
@@ -619,14 +660,14 @@
                 información técnica, tareas, libros, ensayos, tatuajes, etc. y se debe preferir
                 siempre la traducción humana.
             </p>
-            <p class="disclaimer-attribution">
+            <p class="disclaimer-attribution" data-i18n="disclaimer.attribution">
                 ***Las Traducciones de Fundación Historico Cultural Juchitán, aulex, Traductor
                 Familia Toledo, y Google se encuentran disponibles de manera gratuita en internet,
                 y pertenecen a Fundación Historico Cultural Juchitán, aulex, a la Familia Toledo
                 y Google respectivamente.***
             </p>
             <div class="disclaimer-actions">
-                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus>
+                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus data-i18n="disclaimer.accept">
                     Acepto y continuar
                 </button>
             </div>
@@ -636,36 +677,42 @@
     <div class="container" id="info-container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h2 class="text-center text-info pulse animated">Traductor Español - Zapoteco del Istmo en linea</h2>
+                <h2 class="text-center text-info pulse animated" data-i18n="page.title">Traductor Español - Zapoteco del Istmo en linea</h2>
             </div>
             <div class="col-12 col-md-11 col-lg-10 col-xl-9 site-form">
+                <div class="ui-lang-row">
+                    <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
+                        <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                        <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
+                    </div>
+                </div>
                 <form id="my-form" onsubmit="return false;" action="">
                     <div class="source-row">
                         <div class="source-input">
-                            <label class="field-label" for="txt_texto_espanish">Palabra o frase</label>
+                            <label class="field-label" for="txt_texto_espanish" data-i18n="form.input_label">Palabra o frase</label>
                             <div class="input-with-mic">
-                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" autofocus spellcheck="true">
-                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz" title="Dictar por voz">
+                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" data-i18n-placeholder="form.input_placeholder" autofocus spellcheck="true">
+                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz" title="Dictar por voz" data-i18n-aria-label="voice.start" data-i18n-title="voice.start">
                                     <i class="fa fa-microphone" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="source-lang">
-                            <label class="field-label" for="src_lang">Idioma de origen</label>
+                            <label class="field-label" for="src_lang" data-i18n="form.src_label">Idioma de origen</label>
                             <select class="form-control" id="src_lang">
-                                <option value="es" selected>Español</option>
-                                <option value="auto">Detectar automáticamente</option>
-                                <option value="nah">Náhuatl</option>
-                                <option value="yua">Maya yucateco</option>
-                                <option value="qu">Quechua</option>
+                                <option value="es" selected data-i18n="lang.es">Español</option>
+                                <option value="auto" data-i18n="lang.auto">Detectar automáticamente</option>
+                                <option value="nah" data-i18n="lang.nah">Náhuatl</option>
+                                <option value="yua" data-i18n="lang.yua">Maya yucateco</option>
+                                <option value="qu" data-i18n="lang.qu">Quechua</option>
                                 <option value="en">English</option>
                                 <option value="fr">Français</option>
                                 <option value="pt">Português</option>
                                 <option value="it">Italiano</option>
                                 <option value="de">Deutsch</option>
-                                <option value="ja">日本語 (Japonés)</option>
-                                <option value="ko">한국어 (Coreano)</option>
-                                <option value="zh-CN">中文 (Chino)</option>
+                                <option value="ja" data-i18n="lang.ja">日本語 (Japonés)</option>
+                                <option value="ko" data-i18n="lang.ko">한국어 (Coreano)</option>
+                                <option value="zh-CN" data-i18n="lang.zh">中文 (Chino)</option>
                                 <option value="ru">Русский</option>
                                 <option value="ar">العربية</option>
                                 <option value="hi">हिन्दी</option>
@@ -678,24 +725,24 @@
 
                     <div class="results-grid">
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_didxazapp">Zapoteco del Istmo <span class="src-tag">Didxazapp V1</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" rows="8"></textarea>
+                            <label class="field-label" for="txt_res_didxazapp"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Didxazapp V1</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.didxazapp" rows="8"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_familia_toleto">Zapoteco del Istmo <span class="src-tag">Familia Toledo</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" rows="8"></textarea>
+                            <label class="field-label" for="txt_familia_toleto"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Familia Toledo</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.toledo" rows="8"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_aulex_cajono">Zapoteco Cajono <span class="src-tag">Aulex (zap-es)</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" rows="8"></textarea>
+                            <label class="field-label" for="txt_res_aulex_cajono"><span data-i18n="result.cajono">Zapoteco Cajono</span> <span class="src-tag">Aulex (zap-es)</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" data-i18n-placeholder="result.placeholder.aulex" rows="8"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_google">Zapoteco del Istmo <span class="src-tag">Google</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" rows="8"></textarea>
+                            <label class="field-label" for="txt_res_google"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Google</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" data-i18n-placeholder="result.placeholder.google" rows="8"></textarea>
                         </div>
                     </div>
 
-                    <button id="btn_traduc" class="btn btn-primary" type="button">Traducir</button>
+                    <button id="btn_traduc" class="btn btn-primary" type="button" data-i18n="btn.translate">Traducir</button>
                 </form>
             </div>
             <div class="clearfix"></div>
@@ -837,6 +884,194 @@
         const $bridge   = document.getElementById('bridge_panel');
         const $voiceBtn = document.getElementById('btn_voice');
 
+        // ---- i18n: toggle ES / EN solo para esta página ----
+        // Cualquier elemento con `data-i18n="key"` recibe su textContent del diccionario.
+        // `data-i18n-html` permite insertar HTML (p. ej. el aviso con <strong>).
+        // `data-i18n-placeholder`, `data-i18n-aria-label`, `data-i18n-title` ajustan
+        // los atributos correspondientes. La función global `t(key, ...args)` permite
+        // formatear strings dinámicos en el resto del script.
+        const UI_LANG_KEY = 'translator_ui_lang_v1';
+        const I18N = {
+            es: {
+                'page.title': 'Traductor Español - Zapoteco del Istmo en linea',
+                'form.input_label': 'Palabra o frase',
+                'form.input_placeholder': 'Texto a traducir',
+                'form.src_label': 'Idioma de origen',
+                'btn.translate': 'Traducir',
+                'btn.translating': 'Traduciendo...',
+                'voice.start': 'Dictar por voz',
+                'voice.stop': 'Detener dictado',
+                'voice.unsupported': 'Tu navegador no soporta el reconocimiento de voz',
+                'voice.disabled': 'Entrada por voz desactivada',
+                'voice.error.permission': 'Permiso del micrófono denegado. Acéptalo en tu navegador para dictar.',
+                'voice.error.no_speech': 'No se detectó voz. Inténtalo de nuevo.',
+                'voice.error.no_mic': 'No se detectó un micrófono disponible.',
+                'voice.error.network': 'Error de red durante el reconocimiento de voz.',
+                'lang.es': 'Español',
+                'lang.auto': 'Detectar automáticamente',
+                'lang.nah': 'Náhuatl',
+                'lang.yua': 'Maya yucateco',
+                'lang.qu': 'Quechua',
+                'lang.ja': '日本語 (Japonés)',
+                'lang.ko': '한국어 (Coreano)',
+                'lang.zh': '中文 (Chino)',
+                'result.istmo': 'Zapoteco del Istmo',
+                'result.cajono': 'Zapoteco Cajono',
+                'result.placeholder.didxazapp': 'Resultado Didxazapp - Zapoteco del Istmo',
+                'result.placeholder.toledo': 'Resultado Fam Toledo - Zapoteco del Istmo',
+                'result.placeholder.aulex': 'Resultado Aulex - Zapoteco Cajono',
+                'result.placeholder.google': 'Resultado Google Translate - Zapoteco',
+                'result.searching': 'Buscando...',
+                'result.no_results': 'Sin resultados',
+                'result.fallback.didxazapp_maint': 'No disponible por mantenimiento, intente más tarde',
+                'result.fallback.google': 'No se pudo obtener información de Google Translate',
+                'result.fallback.toledo': 'No se pudo obtener información de: http://www.biyubi.com',
+                'result.fallback.aulex': 'No se pudo obtener información de aulex.org',
+                'result.google_provided': '(traducción provista por Google Translate)',
+                'warn.empty': 'Escribe una palabra o frase antes de traducir.',
+                'warn.too_long': 'El texto es demasiado largo. Máximo {max} caracteres (actualmente {len}).',
+                'warn.bridge_failed': 'No se pudo traducir el texto al español. Intenta otro idioma o revisa el texto.',
+                'warn.google_unreachable': 'No se pudo contactar a Google Translate para traducir al español. Intenta de nuevo.',
+                'bridge.from': 'Traduciendo desde <strong>{lang}</strong>…',
+                'bridge.in_spanish': 'Texto en español:',
+                'bridge.detected': '(detectado: <strong>{lang}</strong>)',
+                'spell.checking': 'Comprobando ortografía…',
+                'spell.no_errors': '✓ No se detectaron errores ortográficos.',
+                'spell.no_suggestions': '(sin sugerencias)',
+                'disclaimer.title': 'Aviso importante',
+                'disclaimer.body':
+                    'El traductor de español a zapoteco del istmo es un proyecto experimental con la ' +
+                    'finalidad de generar herramientas capaces de realizar traducciones al idioma Zapoteco ' +
+                    'desde el español. <strong>Sin embargo estas traducciones no siempre son exactas</strong>, ' +
+                    'por lo que se debe evitar su uso en información médica, documentación oficial, ' +
+                    'información técnica, tareas, libros, ensayos, tatuajes, etc. y se debe preferir ' +
+                    'siempre la traducción humana.',
+                'disclaimer.attribution':
+                    '***Las Traducciones de Fundación Historico Cultural Juchitán, aulex, Traductor ' +
+                    'Familia Toledo, y Google se encuentran disponibles de manera gratuita en internet, ' +
+                    'y pertenecen a Fundación Historico Cultural Juchitán, aulex, a la Familia Toledo ' +
+                    'y Google respectivamente.***',
+                'disclaimer.accept': 'Acepto y continuar',
+                'maintenance': 'Página en mantenimiento',
+            },
+            en: {
+                'page.title': 'Online Spanish — Isthmus Zapotec Translator',
+                'form.input_label': 'Word or phrase',
+                'form.input_placeholder': 'Text to translate',
+                'form.src_label': 'Source language',
+                'btn.translate': 'Translate',
+                'btn.translating': 'Translating...',
+                'voice.start': 'Speak to dictate',
+                'voice.stop': 'Stop dictation',
+                'voice.unsupported': 'Your browser does not support speech recognition',
+                'voice.disabled': 'Voice input is disabled',
+                'voice.error.permission': 'Microphone access denied. Allow it in your browser to dictate.',
+                'voice.error.no_speech': 'No speech detected. Try again.',
+                'voice.error.no_mic': 'No microphone was detected.',
+                'voice.error.network': 'Network error during speech recognition.',
+                'lang.es': 'Spanish',
+                'lang.auto': 'Detect automatically',
+                'lang.nah': 'Nahuatl',
+                'lang.yua': 'Yucatec Maya',
+                'lang.qu': 'Quechua',
+                'lang.ja': '日本語 (Japanese)',
+                'lang.ko': '한국어 (Korean)',
+                'lang.zh': '中文 (Chinese)',
+                'result.istmo': 'Isthmus Zapotec',
+                'result.cajono': 'Cajono Zapotec',
+                'result.placeholder.didxazapp': 'Didxazapp result - Isthmus Zapotec',
+                'result.placeholder.toledo': 'Familia Toledo result - Isthmus Zapotec',
+                'result.placeholder.aulex': 'Aulex result - Cajono Zapotec',
+                'result.placeholder.google': 'Google Translate result - Zapotec',
+                'result.searching': 'Searching...',
+                'result.no_results': 'No results',
+                'result.fallback.didxazapp_maint': 'Unavailable for maintenance, please try later',
+                'result.fallback.google': 'Could not reach Google Translate',
+                'result.fallback.toledo': 'Could not reach: http://www.biyubi.com',
+                'result.fallback.aulex': 'Could not reach aulex.org',
+                'result.google_provided': '(translation provided by Google Translate)',
+                'warn.empty': 'Type a word or phrase before translating.',
+                'warn.too_long': 'Text is too long. Max {max} characters (currently {len}).',
+                'warn.bridge_failed': 'Could not translate the text to Spanish. Try another language or check the text.',
+                'warn.google_unreachable': 'Could not reach Google Translate to translate to Spanish. Please try again.',
+                'bridge.from': 'Translating from <strong>{lang}</strong>…',
+                'bridge.in_spanish': 'Spanish text:',
+                'bridge.detected': '(detected: <strong>{lang}</strong>)',
+                'spell.checking': 'Checking spelling…',
+                'spell.no_errors': '✓ No spelling errors detected.',
+                'spell.no_suggestions': '(no suggestions)',
+                'disclaimer.title': 'Important notice',
+                'disclaimer.body':
+                    'The Spanish to Isthmus Zapotec translator is an experimental project ' +
+                    'aimed at building tools that can produce translations into Zapotec from Spanish. ' +
+                    '<strong>However, these translations are not always accurate</strong>, ' +
+                    'so they should not be used for medical information, official documentation, ' +
+                    'technical information, schoolwork, books, essays, tattoos, etc. Human translation ' +
+                    'should always be preferred.',
+                'disclaimer.attribution':
+                    '***Translations from Fundación Histórico Cultural Juchitán, Aulex, the Familia Toledo ' +
+                    'translator, and Google are available for free online, and belong to Fundación Histórico ' +
+                    'Cultural Juchitán, Aulex, the Familia Toledo, and Google respectively.***',
+                'disclaimer.accept': 'I accept and continue',
+                'maintenance': 'Page under maintenance',
+            },
+        };
+
+        let UI_LANG = (() => {
+            try {
+                const saved = localStorage.getItem(UI_LANG_KEY);
+                if (saved === 'es' || saved === 'en') return saved;
+            } catch (e) { /* ignore */ }
+            return 'es';
+        })();
+
+        function t(key, params) {
+            const dict = I18N[UI_LANG] || I18N.es;
+            let s = (dict[key] !== undefined) ? dict[key] : (I18N.es[key] !== undefined ? I18N.es[key] : key);
+            if (params) {
+                s = s.replace(/\{(\w+)\}/g, (_, k) => (params[k] !== undefined ? params[k] : `{${k}}`));
+            }
+            return s;
+        }
+
+        function applyI18n() {
+            document.documentElement.lang = UI_LANG;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = t(el.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                el.innerHTML = t(el.dataset.i18nHtml);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.dataset.i18nPlaceholder);
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+                el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                el.setAttribute('title', t(el.dataset.i18nTitle));
+            });
+            // Estado visual del toggle
+            document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+                const active = b.dataset.uiLang === UI_LANG;
+                b.classList.toggle('is-active', active);
+                b.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+        }
+
+        function setUiLang(lang) {
+            if (lang !== 'es' && lang !== 'en') return;
+            UI_LANG = lang;
+            try { localStorage.setItem(UI_LANG_KEY, lang); } catch (e) { /* ignore */ }
+            applyI18n();
+        }
+
+        document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+            b.addEventListener('click', () => setUiLang(b.dataset.uiLang));
+        });
+
+        applyI18n();
+
         // Año automático en el footer
         document.getElementById('anio').innerHTML += new Date().getFullYear();
 
@@ -874,7 +1109,7 @@
         (async function init() {
             await loadConfig();
             if (!FEATURES.enablePage) {
-                document.body.innerHTML = '<h4 class="text-center" data-bs-hover-animate="pulse">Página en mantenimiento</h4>';
+                document.body.innerHTML = '<h4 class="text-center" data-bs-hover-animate="pulse">' + t('maintenance') + '</h4>';
                 return;
             }
 
@@ -913,9 +1148,7 @@
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!FEATURES.voiceInput || !SR) {
                 $voiceBtn.disabled = true;
-                $voiceBtn.title = !SR
-                    ? 'Tu navegador no soporta el reconocimiento de voz'
-                    : 'Entrada por voz desactivada';
+                $voiceBtn.title = !SR ? t('voice.unsupported') : t('voice.disabled');
             } else {
                 let rec = null;
                 let listening = false;
@@ -923,7 +1156,7 @@
                 const stopVoice = () => {
                     listening = false;
                     $voiceBtn.classList.remove('is-listening');
-                    $voiceBtn.setAttribute('aria-label', 'Dictar por voz');
+                    $voiceBtn.setAttribute('aria-label', t('voice.start'));
                     if (rec) { try { rec.stop(); } catch (e) { /* ignore */ } }
                 };
 
@@ -938,7 +1171,7 @@
                     rec.addEventListener('start', () => {
                         listening = true;
                         $voiceBtn.classList.add('is-listening');
-                        $voiceBtn.setAttribute('aria-label', 'Detener dictado');
+                        $voiceBtn.setAttribute('aria-label', t('voice.stop'));
                         clearInputWarning();
                         clearBridge();
                     });
@@ -956,13 +1189,13 @@
                     rec.addEventListener('error', (ev) => {
                         console.warn('voice error:', ev.error);
                         if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
-                            showInputWarning('Permiso del micrófono denegado. Acéptalo en tu navegador para dictar.');
+                            showInputWarning(t('voice.error.permission'));
                         } else if (ev.error === 'no-speech') {
-                            showInputWarning('No se detectó voz. Inténtalo de nuevo.');
+                            showInputWarning(t('voice.error.no_speech'));
                         } else if (ev.error === 'audio-capture') {
-                            showInputWarning('No se detectó un micrófono disponible.');
+                            showInputWarning(t('voice.error.no_mic'));
                         } else if (ev.error === 'network') {
-                            showInputWarning('Error de red durante el reconocimiento de voz.');
+                            showInputWarning(t('voice.error.network'));
                         }
                         stopVoice();
                     });
@@ -1077,7 +1310,7 @@
             const hasFooter  = /Familia Toledo/i.test(html); // pista de que la página cargó completa
 
             if (!hasCaption) {
-                if (hasFooter) return 'Sin resultados';        // página completa, sin coincidencias
+                if (hasFooter) return t('result.no_results');        // página completa, sin coincidencias
                 throw new Error('biyubi: respuesta incompleta'); // probable cold-start, reintentar
             }
 
@@ -1095,14 +1328,14 @@
                 const cas = decode(stripTags(m[2]));
                 if (zap) lines.push(`${zap}: ${cas}`);
             }
-            return lines.length ? lines.join('\n') : 'Sin resultados';
+            return lines.length ? lines.join('\n') : t('result.no_results');
         }
 
         // Aulex devuelve HTML con varios <p>, cada uno con la forma:
         //   <p><span class=dict>palabra:</span> resto del texto</p>
         // Si no hay coincidencias incluye "No hay resultados".
         function parseAulex(html) {
-            if (/No hay resultados/i.test(html)) return 'Sin resultados';
+            if (/No hay resultados/i.test(html)) return t('result.no_results');
 
             const stripTags = (s) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
             const decode = (s) => s
@@ -1131,10 +1364,10 @@
         // Si la frase es larga, viene fragmentada en varios elementos del primer array.
         function parseGoogle(json) {
             let data;
-            try { data = JSON.parse(json); } catch (e) { return 'Sin resultados'; }
+            try { data = JSON.parse(json); } catch (e) { return t('result.no_results'); }
             const segments = (data && data[0]) || [];
             const out = segments.map(s => (s && s[0]) || '').join('').trim();
-            return out || 'Sin resultados';
+            return out || t('result.no_results');
         }
 
         // Detección de idioma: data[2] devuelve el código BCP-47 (ej. "en", "fr", "ja").
@@ -1250,7 +1483,7 @@
             const filtered = matches.filter(m => !LT_IGNORED_RULES.has(m.rule && m.rule.id));
             if (!filtered.length) {
                 $spell.classList.remove('is-loading');
-                $spell.innerHTML = '<p class="spell-msg spell-ok">✓ No se detectaron errores ortográficos.</p>';
+                $spell.innerHTML = '<p class="spell-msg spell-ok">' + escapeHtml(t('spell.no_errors')) + '</p>';
                 $spell.hidden = false;
                 return;
             }
@@ -1261,7 +1494,7 @@
                     ? reps.map(r =>
                         `<button type="button" class="spell-chip" data-offset="${m.offset}" data-length="${m.length}" data-rep="${escapeHtml(r.value)}">${escapeHtml(r.value)}</button>`
                       ).join('')
-                    : '<span class="spell-arrow">(sin sugerencias)</span>';
+                    : `<span class="spell-arrow">${escapeHtml(t('spell.no_suggestions'))}</span>`;
                 const msg = escapeHtml(m.shortMessage || m.message || '');
                 return `
                     <div class="spell-item">
@@ -1281,7 +1514,7 @@
             spellAbort = new AbortController();
             const seq = ++spellSeq;
             $spell.classList.add('is-loading');
-            $spell.innerHTML = '<p class="spell-msg">Comprobando ortografía…</p>';
+            $spell.innerHTML = '<p class="spell-msg">' + escapeHtml(t('spell.checking')) + '</p>';
             $spell.hidden = false;
             try {
                 // Mapeamos los códigos del selector a los que entiende LanguageTool.
@@ -1343,11 +1576,11 @@
         async function traductorjs() {
             const raw = $input.value.trim();
             if (raw.length === 0) {
-                showInputWarning('Escribe una palabra o frase antes de traducir.');
+                showInputWarning(t('warn.empty'));
                 return;
             }
             if (raw.length > MAX_CHARS) {
-                showInputWarning(`El texto es demasiado largo. Máximo ${MAX_CHARS} caracteres (actualmente ${raw.length}).`);
+                showInputWarning(t('warn.too_long', { max: MAX_CHARS, len: raw.length }));
                 return;
             }
             clearInputWarning();
@@ -1358,22 +1591,22 @@
             // y usamos el resultado como entrada al pipeline existente.
             let textForES = raw;
             if (srcLang !== 'es') {
-                setBtn('Traduciendo...');
-                showBridge(`<span class="bridge-from">Traduciendo desde <strong>${escapeHtml(langLabel(srcLang))}</strong>…</span>`, true);
+                setBtn(t('btn.translating'));
+                showBridge(`<span class="bridge-from">${t('bridge.from', { lang: escapeHtml(langLabel(srcLang)) })}</span>`, true);
                 try {
                     const bridge = await googleTranslate(raw, srcLang, 'es');
-                    if (!bridge.text || bridge.text === 'Sin resultados') {
+                    if (!bridge.text || bridge.text === t('result.no_results')) {
                         clearBridge();
-                        showInputWarning('No se pudo traducir el texto al español. Intenta otro idioma o revisa el texto.');
-                        setBtn('Traducir');
+                        showInputWarning(t('warn.bridge_failed'));
+                        setBtn(t('btn.translate'));
                         return;
                     }
                     textForES = bridge.text;
                     const detectedNote = (srcLang === 'auto' && bridge.detected)
-                        ? ` <span class="bridge-from">(detectado: <strong>${escapeHtml(langLabel(bridge.detected) || bridge.detected)}</strong>)</span>`
+                        ? ` <span class="bridge-from">${t('bridge.detected', { lang: escapeHtml(langLabel(bridge.detected) || bridge.detected) })}</span>`
                         : '';
                     showBridge(
-                        `<span class="bridge-from">Texto en español:</span>` +
+                        `<span class="bridge-from">${escapeHtml(t('bridge.in_spanish'))}</span>` +
                         `<span class="bridge-arrow">→</span>` +
                         `<span class="bridge-text">${escapeHtml(textForES)}</span>` +
                         detectedNote
@@ -1381,8 +1614,8 @@
                 } catch (e) {
                     console.warn('Bridge translation falló:', e);
                     clearBridge();
-                    showInputWarning('No se pudo contactar a Google Translate para traducir al español. Intenta de nuevo.');
-                    setBtn('Traducir');
+                    showInputWarning(t('warn.google_unreachable'));
+                    setBtn(t('btn.translate'));
                     return;
                 }
             } else {
@@ -1391,23 +1624,23 @@
 
             // A partir de aquí el flujo es idéntico al anterior, pero con `textForES`
             // en lugar del valor crudo del input.
-            setBtn('Traduciendo...');
-            $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = 'Buscando...';
+            setBtn(t('btn.translating'));
+            $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = t('result.searching');
 
             const urls = buildUrls(textForES);
 
             // Mensajes de fallback que necesitamos detectar al final del flujo.
-            const FALLBACK_DIDXAZAPP = 'No disponible por mantenimiento, intente más tarde';
-            const FALLBACK_GOOGLE    = 'No se pudo obtener información de Google Translate';
+            const FALLBACK_DIDXAZAPP = t('result.fallback.didxazapp_maint');
+            const FALLBACK_GOOGLE    = t('result.fallback.google');
 
             await Promise.all([
                 runService(FEATURES.didxazapp, urls.didxazapp, parseDidxazapp, $resDx,
                            FALLBACK_DIDXAZAPP),
                 runService(FEATURES.toledo, urls.biyubi, parseBiyubi, $resFam,
-                           'No se pudo obtener información de: http://www.biyubi.com',
+                           t('result.fallback.toledo'),
                            { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
                 runService(FEATURES.aulexCajono, urls.aulex, parseAulex, $resAulx,
-                           'No se pudo obtener información de aulex.org',
+                           t('result.fallback.aulex'),
                            { cors: false, retries: 2, retryDelay: 500 }),
                 // Pequeño retraso antes de consultar Google para evitar rate-limiting.
                 new Promise(res => setTimeout(res, 1800)).then(() =>
@@ -1427,14 +1660,14 @@
             const googleOk =
                 $resGoog.value &&
                 $resGoog.value !== FALLBACK_GOOGLE &&
-                $resGoog.value !== 'Sin resultados' &&
+                $resGoog.value !== t('result.no_results') &&
                 norm($resGoog.value) !== norm(textForES);
 
             if (didxFailed && googleOk) {
-                $resDx.value = $resGoog.value + '\n\n(traducción provista por Google Translate)';
+                $resDx.value = $resGoog.value + '\n\n' + t('result.google_provided');
             }
 
-            setBtn('Traducir');
+            setBtn(t('btn.translate'));
         }
     </script>
 </body>
