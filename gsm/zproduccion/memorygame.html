@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Memorama de Animales · Didxazapp</title>
-    <meta name="description" content="Juego de memoria: empareja los nombres de animales en zapoteco y español. Personaliza tu jugador y elige la dificultad.">
+    <meta name="description" content="Juego de memoria: empareja los nombres de animales en zapoteco con su nombre en español o inglés. Personaliza tu jugador y elige la dificultad.">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
     <!-- Bootstrap 4.3.1 served from cdnjs (matches the bootstrap.bundle.min.js below) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -188,6 +188,95 @@
             color: #ffffff;
             text-shadow: 0 1px 2px rgba(0,0,0,0.45);
             font-size: 0.85rem;
+        }
+
+        /* Selector de par de idiomas (ZAP–ES vs ZAP–EN) */
+        .lang-pair-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .lang-pair-btn {
+            flex: 1 1 140px;
+            min-width: 0;
+            padding: 9px 14px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--tx-label);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .lang-pair-btn:hover { color: var(--tx-text-strong); border-color: var(--tx-primary); }
+        .lang-pair-btn.is-active {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+        }
+        .lang-pair-btn .lang-pair-tag {
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.14);
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            padding: 1px 6px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+        .lang-pair-btn.is-active .lang-pair-tag {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Toggle ES / EN del idioma de la interfaz, exclusivo de esta página. */
+        .ui-lang-row {
+            display: flex;
+            justify-content: flex-end;
+            margin: 0 auto 14px;
+            max-width: 1180px;
+            padding: 0 24px;
+        }
+        .ui-lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            box-shadow: var(--tx-shadow);
+        }
+        .ui-lang-toggle button {
+            appearance: none;
+            border: 0;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            background: transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .ui-lang-toggle button:hover { color: var(--tx-text-strong); }
+        .ui-lang-toggle button.is-active {
+            background: var(--tx-primary);
+            color: #ffffff;
+        }
+        .ui-lang-toggle button:focus-visible {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 2px;
         }
 
         .btn-tx {
@@ -489,68 +578,92 @@
     </nav>
 
     <main class="game-shell">
+        <div class="ui-lang-row">
+            <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
+                <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
+            </div>
+        </div>
         <header class="game-heading">
-            <h1>Memorama de Animales</h1>
-            <p>Empareja los nombres de los animales en zapoteco y español. Personaliza tu jugador y elige la dificultad.</p>
+            <h1 data-i18n="page.title">Memorama de Animales</h1>
+            <p data-i18n="page.subtitle">Empareja los nombres de los animales: zapoteco con español o con inglés. Personaliza tu jugador y elige la dificultad.</p>
         </header>
 
         <!-- Welcome screen -->
         <section id="welcome-screen" class="panel welcome-wrap" aria-labelledby="welcome-title">
-            <h2 id="welcome-title">¡Bienvenido/a!</h2>
-            <p class="lead-sub">Personaliza tu juego antes de empezar.</p>
+            <h2 id="welcome-title" data-i18n="welcome.title">¡Bienvenido/a!</h2>
+            <p class="lead-sub" data-i18n="welcome.subtitle">Personaliza tu juego antes de empezar.</p>
 
             <div class="form-group">
-                <label class="field-label" for="player-name">Tu nombre</label>
-                <input type="text" id="player-name" class="field-input" maxlength="24" placeholder="Escribe tu nombre">
+                <label class="field-label" for="player-name" data-i18n="welcome.name_label">Tu nombre</label>
+                <input type="text" id="player-name" class="field-input" maxlength="24" placeholder="Escribe tu nombre" data-i18n-placeholder="welcome.name_placeholder">
             </div>
 
             <div class="form-group" style="margin-top: 14px;">
-                <label class="field-label">Elige tu color</label>
-                <div class="color-row" id="color-row" role="radiogroup" aria-label="Color del jugador">
+                <label class="field-label" data-i18n="welcome.color_label">Elige tu color</label>
+                <div class="color-row" id="color-row" role="radiogroup" aria-label="Color del jugador" data-i18n-aria-label="welcome.color_aria">
                     <!-- swatches -->
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+                <label class="field-label" data-i18n="welcome.langpair_label">Idiomas a emparejar</label>
+                <div class="lang-pair-row" id="lang-pair-row" role="radiogroup" aria-label="Pareja de idiomas" data-i18n-aria-label="welcome.langpair_aria">
+                    <button type="button" class="lang-pair-btn is-active" data-pair="es" role="radio" aria-checked="true">
+                        <span class="lang-pair-tag">ZAP</span>
+                        <span>↔</span>
+                        <span class="lang-pair-tag">ES</span>
+                        <span data-i18n="langpair.es">Zapoteco — Español</span>
+                    </button>
+                    <button type="button" class="lang-pair-btn" data-pair="en" role="radio" aria-checked="false">
+                        <span class="lang-pair-tag">ZAP</span>
+                        <span>↔</span>
+                        <span class="lang-pair-tag">EN</span>
+                        <span data-i18n="langpair.en">Zapoteco — English</span>
+                    </button>
                 </div>
             </div>
 
 
             <div style="display:flex; align-items:center; gap:10px; margin-top:18px; flex-wrap:wrap;">
-                <button id="start-btn" class="btn-tx" type="button">¡Empezar a jugar!</button>
+                <button id="start-btn" class="btn-tx" type="button" data-i18n="welcome.start">¡Empezar a jugar!</button>
             </div>
         </section>
 
         <!-- Game screen -->
         <section id="game-screen" hidden>
-            <nav class="difficulty-bar" id="difficulty-bar" aria-label="Dificultad">
-                <button class="difficulty-btn" data-pairs="4">Fácil (4)</button>
-                <button class="difficulty-btn is-active" data-pairs="8">Medio (8)</button>
-                <button class="difficulty-btn" data-pairs="12">Difícil (12)</button>
-                <button class="difficulty-btn" data-pairs="16">Experto (16)</button>
+            <nav class="difficulty-bar" id="difficulty-bar" aria-label="Dificultad" data-i18n-aria-label="game.difficulty_aria">
+                <button class="difficulty-btn" data-pairs="4" data-i18n="diff.easy">Fácil (4)</button>
+                <button class="difficulty-btn is-active" data-pairs="8" data-i18n="diff.medium">Medio (8)</button>
+                <button class="difficulty-btn" data-pairs="12" data-i18n="diff.hard">Difícil (12)</button>
+                <button class="difficulty-btn" data-pairs="16" data-i18n="diff.expert">Experto (16)</button>
             </nav>
 
             <div class="stats-bar">
                 <span class="player-tag"><span class="player-dot" id="player-dot"></span><span id="player-tag-name">Jugador</span></span>
                 <div class="d-flex flex-wrap" style="gap:18px;">
-                    <span class="stat">Movimientos: <strong id="moves-count">0</strong></span>
-                    <span class="stat">Pares: <strong id="pairs-count">0</strong>/<strong id="pairs-total">0</strong></span>
+                    <span class="stat"><span data-i18n="stats.moves">Movimientos</span>: <strong id="moves-count">0</strong></span>
+                    <span class="stat"><span data-i18n="stats.pairs">Pares</span>: <strong id="pairs-count">0</strong>/<strong id="pairs-total">0</strong></span>
                 </div>
                 <div class="right-actions">
-                    <button class="btn-tx btn-tx-ghost" type="button" id="restart-btn"><i class="fa fa-refresh"></i>&nbsp;Reiniciar</button>
-                    <button class="btn-tx btn-tx-ghost" type="button" id="settings-btn"><i class="fa fa-cog"></i>&nbsp;Cambiar jugador</button>
+                    <button class="btn-tx btn-tx-ghost" type="button" id="restart-btn"><i class="fa fa-refresh"></i>&nbsp;<span data-i18n="game.restart">Reiniciar</span></button>
+                    <button class="btn-tx btn-tx-ghost" type="button" id="settings-btn"><i class="fa fa-cog"></i>&nbsp;<span data-i18n="game.change_player">Cambiar jugador</span></button>
                 </div>
             </div>
 
-            <div id="board" class="board" data-pairs="8" aria-label="Tablero del memorama"></div>
+            <div id="board" class="board" data-pairs="8" aria-label="Tablero del memorama" data-i18n-aria-label="game.board_aria"></div>
         </section>
     </main>
 
     <!-- Win modal -->
     <div class="tx-modal-backdrop" id="win-modal" role="dialog" aria-modal="true" aria-labelledby="win-title">
         <div class="tx-modal panel">
-            <h3 id="win-title">¡Felicidades!</h3>
-            <p id="win-greeting">¡Encontraste todos los pares!</p>
-            <div class="summary" id="win-summary">Completaste el juego en 0 movimientos.</div>
+            <h3 id="win-title" data-i18n="win.title">¡Felicidades!</h3>
+            <p id="win-greeting" data-i18n="win.greeting_default">¡Encontraste todos los pares!</p>
+            <div class="summary" id="win-summary" data-i18n="win.summary_default">Completaste el juego en 0 movimientos.</div>
             <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-                <button class="btn-tx" id="play-again-btn" type="button">Jugar de nuevo</button>
-                <button class="btn-tx btn-tx-ghost" id="change-player-btn" type="button">Cambiar jugador</button>
+                <button class="btn-tx" id="play-again-btn" type="button" data-i18n="win.play_again">Jugar de nuevo</button>
+                <button class="btn-tx btn-tx-ghost" id="change-player-btn" type="button" data-i18n="win.change_player">Cambiar jugador</button>
             </div>
         </div>
     </div>
@@ -578,6 +691,7 @@
         //  Cada entrada admite:
         //    zap       : nombre en zapoteco (carta ZAP)
         //    es        : nombre en español  (carta ES)
+        //    en        : nombre en inglés   (carta EN)
         //    emoji     : respaldo cuando no hay imagen, o si la imagen no
         //                se puede cargar (404, ruta inválida, etc.)
         //    image     : ruta a una imagen local o URL absoluta
@@ -610,46 +724,46 @@
             //     soundEs: audio('perro', 'es'),
             //     soundZap: 'https://tu-host.com/audios/zap/perro.mp3',
             // },
-            { emoji: '🐶', zap: "Bi'cu'", es: "Perro", image: IMG_BASE + "perro.jpg", soundEs: audio('perro', 'es'), soundZap: audio('perro', 'zap') },
-            { emoji: '🐱', zap: "Mixtu'", es: "Gato", image: IMG_BASE + "gato.jpg", soundEs: audio('gato', 'es'), soundZap: audio('gato', 'zap') },
-            { emoji: '🐷', zap: "Bihui", es: "Cerdo", image: IMG_BASE + "cerdo.jpg", soundEs: audio('cerdo', 'es'), soundZap: audio('cerdo', 'zap') },
-            { emoji: '🐔', zap: "Bere", es: "Gallina", image: IMG_BASE + "gallina.webp", soundEs: audio('gallina', 'es'), soundZap: audio('gallina', 'zap') },
-            { emoji: '🐓', zap: "Bere nguiiu", es: "Gallo", image: IMG_BASE + "gallo.webp", soundEs: audio('gallo', 'es'), soundZap: audio('gallo', 'zap') },
-            { emoji: '🐴', zap: "Mani'", es: "Caballo", image: IMG_BASE + "caballo.jpg", soundEs: audio('caballo', 'es'), soundZap: audio('caballo', 'zap') },
-            { emoji: '🐑', zap: "Dendxu'", es: "Borrego", image: IMG_BASE + "borrego.jpg", soundEs: audio('borrego', 'es'), soundZap: audio('borrego', 'zap') },
-            { emoji: '🦅', zap: "Bisiá", es: "Águila", image: IMG_BASE + "aguila.webp", soundEs: audio('aguila', 'es'), soundZap: audio('aguila', 'zap') },
-            { emoji: '🐢', zap: "Bigu", es: "Tortuga", image: IMG_BASE + "tortuga.jpeg", soundEs: audio('tortuga', 'es'), soundZap: audio('tortuga', 'zap') },
-            { emoji: '🐝', zap: "Biizu", es: "Abeja", image: IMG_BASE + "abeja.jpg", soundEs: audio('abeja', 'es'), soundZap: audio('abeja', 'zap') },
-            { emoji: '🐞', zap: "Bacuzaguí", es: "Luciérnaga", image: IMG_BASE + "luciernaga.jpg", soundEs: audio('luciernaga', 'es'), soundZap: audio('luciernaga', 'zap') },
-            { emoji: '🦋', zap: "Xhumpirinisa", es: "Libélula", image: IMG_BASE + "libelula.jpg", soundEs: audio('libelula', 'es'), soundZap: audio('libelula', 'zap') },
-            { emoji: '🦁', zap: "Beedxe'", es: "León", image: IMG_BASE + "leon.png", soundEs: audio('leon', 'es'), soundZap: audio('leon', 'zap') },
-            { emoji: '🐰', zap: "Lexu", es: "Conejo", image: IMG_BASE + "conejo.jpg", soundEs: audio('conejo', 'es'), soundZap: audio('conejo', 'zap') },
-            { emoji: '🐿️', zap: "Chisa", es: "Ardilla", image: IMG_BASE + "ardilla.png", soundEs: audio('ardilla', 'es'), soundZap: audio('ardilla', 'zap') },
-            { emoji: '🦌', zap: "Bidxiña", es: "Venado", image: IMG_BASE + "venado.jpg", soundEs: audio('venado', 'es'), soundZap: audio('venado', 'zap') },
-            { emoji: '🦇', zap: "Biguidiribeela", es: "Murciélago", image: IMG_BASE + "murcielago.jpg", soundEs: audio('murcielago', 'es'), soundZap: audio('murcielago', 'zap') },
-            { emoji: '🐒', zap: "Migu", es: "Mono", image: IMG_BASE + "mono.jpg", soundEs: audio('mono', 'es'), soundZap: audio('mono', 'zap') },
-            { emoji: '🐊', zap: "Be'ñe'", es: "Cocodrilo", image: IMG_BASE + "cocodrilo.jpg", soundEs: audio('cocodrilo', 'es'), soundZap: audio('cocodrilo', 'zap') },
-            { emoji: '🦎', zap: "Guchachi'", es: "Iguana", image: IMG_BASE + "iguana.jpg", soundEs: audio('iguana', 'es'), soundZap: audio('iguana', 'zap') },
-            { emoji: '🐍', zap: "Beenda' gubizi", es: "Víbora de cascabel", image: IMG_BASE + "vibora_cascabel.webp", soundEs: audio('vibora_cascabel', 'es'), soundZap: audio('vibora_cascabel', 'zap') },
-            { emoji: '🐸', zap: "Bidxi' mbo'co'", es: "Sapo", image: IMG_BASE + "sapo.webp", soundEs: audio('sapo', 'es'), soundZap: audio('sapo', 'zap') },
-            { emoji: '🦂', zap: "Meuxubi", es: "Alacrán", image: IMG_BASE + "alacran.png", soundEs: audio('alacran', 'es'), soundZap: audio('alacran', 'zap') },
-            { emoji: '🕸️', zap: "Bidxiguí", es: "Araña", image: IMG_BASE + "ara%C3%B1a.jpg", soundEs: audio('arana', 'es'), soundZap: audio('arana', 'zap') },
-            { emoji: '🐜', zap: "Biri", es: "Hormiga", image: IMG_BASE + "hormiga.jpg", soundEs: audio('hormiga', 'es'), soundZap: audio('hormiga', 'zap') },
-            { emoji: '🐦', zap: "Biulú", es: "Colibrí", image: IMG_BASE + "colibri.jpg", soundEs: audio('colibri', 'es'), soundZap: audio('colibri', 'zap') },
-            { emoji: '🦃', zap: "Tou", es: "Guajolote", image: IMG_BASE + "guajolote.jpg", soundEs: audio('guajolote', 'es'), soundZap: audio('guajolote', 'zap') },
-            { emoji: '🦉', zap: "Dama'", es: "Lechuza", image: IMG_BASE + "lechuza.jpg", soundEs: audio('lechuza', 'es'), soundZap: audio('lechuza', 'zap') },
-            { emoji: '🐤', zap: "Bere guidxa", es: "Correcaminos", image: IMG_BASE + "correcaminos.jpg", soundEs: audio('correcaminos', 'es'), soundZap: audio('correcaminos', 'zap') },
-            { emoji: '🐤', zap: "Bere xunaxi", es: "Codorniz", image: IMG_BASE + "codorniz.jpg", soundEs: audio('codorniz', 'es'), soundZap: audio('codorniz', 'zap') },
-            { emoji: '🦅', zap: "Ngu'xhi'", es: "Zopilote", image: IMG_BASE + "zopilote.jpg", soundEs: audio('zopilote', 'es'), soundZap: audio('zopilote', 'zap') },
-            { emoji: '🦡', zap: "Ngupi", es: "Armadillo", image: IMG_BASE + "armadillo.jpg", soundEs: audio('armadillo', 'es'), soundZap: audio('armadillo', 'zap') },
-            { emoji: '🐀', zap: "Bizi", es: "Tlacuache", image: IMG_BASE + "tlacuache.jpg", soundEs: audio('tlacuache', 'es'), soundZap: audio('tlacuache', 'zap') },
-            { emoji: '🦦', zap: "Bi'cu' nisa", es: "Nutria", image: IMG_BASE + "nutria.webp", soundEs: audio('nutria', 'es'), soundZap: audio('nutria', 'zap') },
-            { emoji: '🦎', zap: "Bilopa yoo", es: "Salamanquesa", image: IMG_BASE + "salamanquesa.webp", soundEs: audio('salamanquesa', 'es'), soundZap: audio('salamanquesa', 'zap') },
-            { emoji: '🦐', zap: "Benda buaa", es: "Camarón", image: IMG_BASE + "camaron.jpg", soundEs: audio('camaron', 'es'), soundZap: audio('camaron', 'zap') },
-            { emoji: '🐟', zap: "Guluuxu", es: "Bagre", image: IMG_BASE + "bagre.jpg", soundEs: audio('bagre', 'es'), soundZap: audio('bagre', 'zap') },
-            { emoji: '🕊️', zap: "Gugu", es: "Paloma", image: IMG_BASE + "paloma.jpg", soundEs: audio('paloma', 'es'), soundZap: audio('paloma', 'zap') },
-            { emoji: '🐤', zap: "Bere leele", es: "Alcaraván", image: IMG_BASE + "alcaravan.jpg", soundEs: audio('alcaravan', 'es'), soundZap: audio('alcaravan', 'zap') },
-            { emoji: '🐜', zap: "Berendrú'", es: "Hormiga león", image: IMG_BASE + "hormiga_leon.jpg", soundEs: audio('hormiga_leon', 'es'), soundZap: audio('hormiga_leon', 'zap') },
+            { emoji: '🐶', zap: "Bi'cu'", es: "Perro", en: "Dog", image: IMG_BASE + "perro.jpg", soundEs: audio('perro', 'es'), soundZap: audio('perro', 'zap') },
+            { emoji: '🐱', zap: "Mixtu'", es: "Gato", en: "Cat", image: IMG_BASE + "gato.jpg", soundEs: audio('gato', 'es'), soundZap: audio('gato', 'zap') },
+            { emoji: '🐷', zap: "Bihui", es: "Cerdo", en: "Pig", image: IMG_BASE + "cerdo.jpg", soundEs: audio('cerdo', 'es'), soundZap: audio('cerdo', 'zap') },
+            { emoji: '🐔', zap: "Bere", es: "Gallina", en: "Hen", image: IMG_BASE + "gallina.webp", soundEs: audio('gallina', 'es'), soundZap: audio('gallina', 'zap') },
+            { emoji: '🐓', zap: "Bere nguiiu", es: "Gallo", en: "Rooster", image: IMG_BASE + "gallo.webp", soundEs: audio('gallo', 'es'), soundZap: audio('gallo', 'zap') },
+            { emoji: '🐴', zap: "Mani'", es: "Caballo", en: "Horse", image: IMG_BASE + "caballo.jpg", soundEs: audio('caballo', 'es'), soundZap: audio('caballo', 'zap') },
+            { emoji: '🐑', zap: "Dendxu'", es: "Borrego", en: "Sheep", image: IMG_BASE + "borrego.jpg", soundEs: audio('borrego', 'es'), soundZap: audio('borrego', 'zap') },
+            { emoji: '🦅', zap: "Bisiá", es: "Águila", en: "Eagle", image: IMG_BASE + "aguila.webp", soundEs: audio('aguila', 'es'), soundZap: audio('aguila', 'zap') },
+            { emoji: '🐢', zap: "Bigu", es: "Tortuga", en: "Turtle", image: IMG_BASE + "tortuga.jpeg", soundEs: audio('tortuga', 'es'), soundZap: audio('tortuga', 'zap') },
+            { emoji: '🐝', zap: "Biizu", es: "Abeja", en: "Bee", image: IMG_BASE + "abeja.jpg", soundEs: audio('abeja', 'es'), soundZap: audio('abeja', 'zap') },
+            { emoji: '🐞', zap: "Bacuzaguí", es: "Luciérnaga", en: "Firefly", image: IMG_BASE + "luciernaga.jpg", soundEs: audio('luciernaga', 'es'), soundZap: audio('luciernaga', 'zap') },
+            { emoji: '🦋', zap: "Xhumpirinisa", es: "Libélula", en: "Dragonfly", image: IMG_BASE + "libelula.jpg", soundEs: audio('libelula', 'es'), soundZap: audio('libelula', 'zap') },
+            { emoji: '🦁', zap: "Beedxe'", es: "León", en: "Lion", image: IMG_BASE + "leon.png", soundEs: audio('leon', 'es'), soundZap: audio('leon', 'zap') },
+            { emoji: '🐰', zap: "Lexu", es: "Conejo", en: "Rabbit", image: IMG_BASE + "conejo.jpg", soundEs: audio('conejo', 'es'), soundZap: audio('conejo', 'zap') },
+            { emoji: '🐿️', zap: "Chisa", es: "Ardilla", en: "Squirrel", image: IMG_BASE + "ardilla.png", soundEs: audio('ardilla', 'es'), soundZap: audio('ardilla', 'zap') },
+            { emoji: '🦌', zap: "Bidxiña", es: "Venado", en: "Deer", image: IMG_BASE + "venado.jpg", soundEs: audio('venado', 'es'), soundZap: audio('venado', 'zap') },
+            { emoji: '🦇', zap: "Biguidiribeela", es: "Murciélago", en: "Bat", image: IMG_BASE + "murcielago.jpg", soundEs: audio('murcielago', 'es'), soundZap: audio('murcielago', 'zap') },
+            { emoji: '🐒', zap: "Migu", es: "Mono", en: "Monkey", image: IMG_BASE + "mono.jpg", soundEs: audio('mono', 'es'), soundZap: audio('mono', 'zap') },
+            { emoji: '🐊', zap: "Be'ñe'", es: "Cocodrilo", en: "Crocodile", image: IMG_BASE + "cocodrilo.jpg", soundEs: audio('cocodrilo', 'es'), soundZap: audio('cocodrilo', 'zap') },
+            { emoji: '🦎', zap: "Guchachi'", es: "Iguana", en: "Iguana", image: IMG_BASE + "iguana.jpg", soundEs: audio('iguana', 'es'), soundZap: audio('iguana', 'zap') },
+            { emoji: '🐍', zap: "Beenda' gubizi", es: "Víbora de cascabel", en: "Rattlesnake", image: IMG_BASE + "vibora_cascabel.webp", soundEs: audio('vibora_cascabel', 'es'), soundZap: audio('vibora_cascabel', 'zap') },
+            { emoji: '🐸', zap: "Bidxi' mbo'co'", es: "Sapo", en: "Toad", image: IMG_BASE + "sapo.webp", soundEs: audio('sapo', 'es'), soundZap: audio('sapo', 'zap') },
+            { emoji: '🦂', zap: "Meuxubi", es: "Alacrán", en: "Scorpion", image: IMG_BASE + "alacran.png", soundEs: audio('alacran', 'es'), soundZap: audio('alacran', 'zap') },
+            { emoji: '🕸️', zap: "Bidxiguí", es: "Araña", en: "Spider", image: IMG_BASE + "ara%C3%B1a.jpg", soundEs: audio('arana', 'es'), soundZap: audio('arana', 'zap') },
+            { emoji: '🐜', zap: "Biri", es: "Hormiga", en: "Ant", image: IMG_BASE + "hormiga.jpg", soundEs: audio('hormiga', 'es'), soundZap: audio('hormiga', 'zap') },
+            { emoji: '🐦', zap: "Biulú", es: "Colibrí", en: "Hummingbird", image: IMG_BASE + "colibri.jpg", soundEs: audio('colibri', 'es'), soundZap: audio('colibri', 'zap') },
+            { emoji: '🦃', zap: "Tou", es: "Guajolote", en: "Turkey", image: IMG_BASE + "guajolote.jpg", soundEs: audio('guajolote', 'es'), soundZap: audio('guajolote', 'zap') },
+            { emoji: '🦉', zap: "Dama'", es: "Lechuza", en: "Barn owl", image: IMG_BASE + "lechuza.jpg", soundEs: audio('lechuza', 'es'), soundZap: audio('lechuza', 'zap') },
+            { emoji: '🐤', zap: "Bere guidxa", es: "Correcaminos", en: "Roadrunner", image: IMG_BASE + "correcaminos.jpg", soundEs: audio('correcaminos', 'es'), soundZap: audio('correcaminos', 'zap') },
+            { emoji: '🐤', zap: "Bere xunaxi", es: "Codorniz", en: "Quail", image: IMG_BASE + "codorniz.jpg", soundEs: audio('codorniz', 'es'), soundZap: audio('codorniz', 'zap') },
+            { emoji: '🦅', zap: "Ngu'xhi'", es: "Zopilote", en: "Vulture", image: IMG_BASE + "zopilote.jpg", soundEs: audio('zopilote', 'es'), soundZap: audio('zopilote', 'zap') },
+            { emoji: '🦡', zap: "Ngupi", es: "Armadillo", en: "Armadillo", image: IMG_BASE + "armadillo.jpg", soundEs: audio('armadillo', 'es'), soundZap: audio('armadillo', 'zap') },
+            { emoji: '🐀', zap: "Bizi", es: "Tlacuache", en: "Opossum", image: IMG_BASE + "tlacuache.jpg", soundEs: audio('tlacuache', 'es'), soundZap: audio('tlacuache', 'zap') },
+            { emoji: '🦦', zap: "Bi'cu' nisa", es: "Nutria", en: "Otter", image: IMG_BASE + "nutria.webp", soundEs: audio('nutria', 'es'), soundZap: audio('nutria', 'zap') },
+            { emoji: '🦎', zap: "Bilopa yoo", es: "Salamanquesa", en: "House gecko", image: IMG_BASE + "salamanquesa.webp", soundEs: audio('salamanquesa', 'es'), soundZap: audio('salamanquesa', 'zap') },
+            { emoji: '🦐', zap: "Benda buaa", es: "Camarón", en: "Shrimp", image: IMG_BASE + "camaron.jpg", soundEs: audio('camaron', 'es'), soundZap: audio('camaron', 'zap') },
+            { emoji: '🐟', zap: "Guluuxu", es: "Bagre", en: "Catfish", image: IMG_BASE + "bagre.jpg", soundEs: audio('bagre', 'es'), soundZap: audio('bagre', 'zap') },
+            { emoji: '🕊️', zap: "Gugu", es: "Paloma", en: "Pigeon", image: IMG_BASE + "paloma.jpg", soundEs: audio('paloma', 'es'), soundZap: audio('paloma', 'zap') },
+            { emoji: '🐤', zap: "Bere leele", es: "Alcaraván", en: "Thick-knee", image: IMG_BASE + "alcaravan.jpg", soundEs: audio('alcaravan', 'es'), soundZap: audio('alcaravan', 'zap') },
+            { emoji: '🐜', zap: "Berendrú'", es: "Hormiga león", en: "Antlion", image: IMG_BASE + "hormiga_leon.jpg", soundEs: audio('hormiga_leon', 'es'), soundZap: audio('hormiga_leon', 'zap') },
         ];
 
         // Paleta de colores para el jugador (fondo de la carta vuelta).
@@ -663,10 +777,22 @@
         ];
 
         // ---------- Estado ----------
+        const LANG_PAIR_KEY = 'memorygame_lang_pair_v1';
+        const initialLangPair = (() => {
+            try {
+                const saved = localStorage.getItem(LANG_PAIR_KEY);
+                if (saved === 'es' || saved === 'en') return saved;
+            } catch (e) { /* ignore */ }
+            return 'es';
+        })();
+
         const state = {
-            player: { name: 'Jugador', color: PALETTE[0] },
+            player: { name: '', color: PALETTE[0] },
             pairsTarget: 8,
             useExternal: false,
+            // Idioma de la carta no-zapoteco. Las parejas siempre cruzan ZAP con
+            // este idioma (es o en). Persistido en localStorage.
+            langPair: initialLangPair,
             board: [],   // {id, pairKey, lang, animal, matched}
             firstPick: null,
             secondPick: null,
@@ -674,6 +800,141 @@
             moves: 0,
             matched: 0,
         };
+
+        // ---------- i18n: toggle ES / EN para la interfaz ----------
+        // Independiente del langPair de las cartas. Cualquier nodo con
+        // `data-i18n="key"` (o `data-i18n-placeholder`, `data-i18n-aria-label`)
+        // se traduce al pulsar el toggle. Las cadenas dinámicas usan `t()`.
+        const UI_LANG_KEY = 'memorygame_ui_lang_v1';
+        const I18N = {
+            es: {
+                'page.title': 'Memorama de Animales',
+                'page.subtitle': 'Empareja los nombres de los animales: zapoteco con español o con inglés. Personaliza tu jugador y elige la dificultad.',
+                'welcome.title': '¡Bienvenido/a!',
+                'welcome.subtitle': 'Personaliza tu juego antes de empezar.',
+                'welcome.name_label': 'Tu nombre',
+                'welcome.name_placeholder': 'Escribe tu nombre',
+                'welcome.color_label': 'Elige tu color',
+                'welcome.color_aria': 'Color del jugador',
+                'welcome.langpair_label': 'Idiomas a emparejar',
+                'welcome.langpair_aria': 'Pareja de idiomas',
+                'langpair.es': 'Zapoteco — Español',
+                'langpair.en': 'Zapoteco — English',
+                'welcome.start': '¡Empezar a jugar!',
+                'diff.easy': 'Fácil (4)',
+                'diff.medium': 'Medio (8)',
+                'diff.hard': 'Difícil (12)',
+                'diff.expert': 'Experto (16)',
+                'game.difficulty_aria': 'Dificultad',
+                'game.board_aria': 'Tablero del memorama',
+                'game.restart': 'Reiniciar',
+                'game.change_player': 'Cambiar jugador',
+                'stats.moves': 'Movimientos',
+                'stats.pairs': 'Pares',
+                'player.default': 'Jugador',
+                'card.aria': 'Carta {n}',
+                'win.title': '¡Felicidades!',
+                'win.greeting_default': '¡Encontraste todos los pares!',
+                'win.summary_default': 'Completaste el juego en 0 movimientos.',
+                'win.greeting': '¡Felicidades, {name}!',
+                'win.summary': 'Completaste {pairs} pares en {moves} movimientos.',
+                'win.play_again': 'Jugar de nuevo',
+                'win.change_player': 'Cambiar jugador',
+            },
+            en: {
+                'page.title': 'Animal Memory Game',
+                'page.subtitle': 'Match animal names: Zapotec with Spanish or with English. Customize your player and pick a difficulty.',
+                'welcome.title': 'Welcome!',
+                'welcome.subtitle': 'Customize your game before you start.',
+                'welcome.name_label': 'Your name',
+                'welcome.name_placeholder': 'Type your name',
+                'welcome.color_label': 'Pick your color',
+                'welcome.color_aria': 'Player color',
+                'welcome.langpair_label': 'Languages to match',
+                'welcome.langpair_aria': 'Language pair',
+                'langpair.es': 'Zapotec — Spanish',
+                'langpair.en': 'Zapotec — English',
+                'welcome.start': "Let's play!",
+                'diff.easy': 'Easy (4)',
+                'diff.medium': 'Medium (8)',
+                'diff.hard': 'Hard (12)',
+                'diff.expert': 'Expert (16)',
+                'game.difficulty_aria': 'Difficulty',
+                'game.board_aria': 'Memory game board',
+                'game.restart': 'Restart',
+                'game.change_player': 'Change player',
+                'stats.moves': 'Moves',
+                'stats.pairs': 'Pairs',
+                'player.default': 'Player',
+                'card.aria': 'Card {n}',
+                'win.title': 'Congratulations!',
+                'win.greeting_default': 'You found all the pairs!',
+                'win.summary_default': 'You completed the game in 0 moves.',
+                'win.greeting': 'Congratulations, {name}!',
+                'win.summary': 'You matched {pairs} pairs in {moves} moves.',
+                'win.play_again': 'Play again',
+                'win.change_player': 'Change player',
+            },
+        };
+
+        let UI_LANG = (() => {
+            try {
+                const saved = localStorage.getItem(UI_LANG_KEY);
+                if (saved === 'es' || saved === 'en') return saved;
+            } catch (e) { /* ignore */ }
+            return 'es';
+        })();
+
+        function t(key, params) {
+            const dict = I18N[UI_LANG] || I18N.es;
+            let s = (dict[key] !== undefined) ? dict[key] : (I18N.es[key] !== undefined ? I18N.es[key] : key);
+            if (params) {
+                s = s.replace(/\{(\w+)\}/g, (_, k) => (params[k] !== undefined ? params[k] : `{${k}}`));
+            }
+            return s;
+        }
+
+        function applyI18n() {
+            document.documentElement.lang = UI_LANG;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = t(el.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.dataset.i18nPlaceholder);
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+                el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+            });
+            document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+                const active = b.dataset.uiLang === UI_LANG;
+                b.classList.toggle('is-active', active);
+                b.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            // Player tag: si el usuario nunca tipeó un nombre, mostramos el
+            // "Jugador" / "Player" del idioma activo. Si ya escribió uno, lo dejamos.
+            const $tag = document.getElementById('player-tag-name');
+            if ($tag) {
+                if (!state.player.name || state.player.name === 'Jugador' || state.player.name === 'Player') {
+                    $tag.textContent = t('player.default');
+                }
+            }
+            // aria-label de cada carta del tablero (si ya hay tablero)
+            document.querySelectorAll('#board .card[data-index]').forEach(card => {
+                const i = parseInt(card.dataset.index, 10);
+                if (!Number.isNaN(i)) card.setAttribute('aria-label', t('card.aria', { n: i + 1 }));
+            });
+        }
+
+        function setUiLang(lang) {
+            if (lang !== 'es' && lang !== 'en') return;
+            UI_LANG = lang;
+            try { localStorage.setItem(UI_LANG_KEY, lang); } catch (e) { /* ignore */ }
+            applyI18n();
+        }
+
+        document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+            b.addEventListener('click', () => setUiLang(b.dataset.uiLang));
+        });
 
         // ---------- Helpers ----------
         const $ = sel => document.querySelector(sel);
@@ -723,12 +984,12 @@
         function applyPlayerTheme() {
             document.documentElement.style.setProperty('--player-front', state.player.color);
             $('#player-dot').style.background = state.player.color;
-            $('#player-tag-name').textContent = state.player.name || 'Jugador';
+            $('#player-tag-name').textContent = state.player.name || t('player.default');
         }
 
         function startGame() {
             const nameInput = $('#player-name').value.trim();
-            state.player.name = nameInput || 'Jugador';
+            state.player.name = nameInput || t('player.default');
 
             // The "use external list" toggle was removed from the welcome
             // screen but the underlying logic stays in place. To enable an
@@ -769,6 +1030,34 @@
             });
         }
 
+        // ---------- Lang pair (ZAP–ES vs ZAP–EN) ----------
+        function bindLangPair() {
+            const row = $('#lang-pair-row');
+            if (!row) return;
+            // Sincroniza la UI con el estado inicial (puede venir de localStorage).
+            row.querySelectorAll('.lang-pair-btn').forEach(b => {
+                const active = b.dataset.pair === state.langPair;
+                b.classList.toggle('is-active', active);
+                b.setAttribute('aria-checked', active ? 'true' : 'false');
+            });
+            row.addEventListener('click', e => {
+                const btn = e.target.closest('.lang-pair-btn');
+                if (!btn) return;
+                const pair = btn.dataset.pair;
+                if (pair !== 'es' && pair !== 'en') return;
+                if (state.langPair === pair) return;
+                state.langPair = pair;
+                try { localStorage.setItem(LANG_PAIR_KEY, pair); } catch (err) { /* ignore */ }
+                row.querySelectorAll('.lang-pair-btn').forEach(b2 => {
+                    const active = b2.dataset.pair === pair;
+                    b2.classList.toggle('is-active', active);
+                    b2.setAttribute('aria-checked', active ? 'true' : 'false');
+                });
+                // Si ya hay un tablero en juego, lo regeneramos con el nuevo idioma.
+                if (!$('#game-screen').hidden) newRound();
+            });
+        }
+
         // ---------- Board ----------
         function newRound() {
             state.firstPick = null;
@@ -781,12 +1070,13 @@
             const target = Math.min(state.pairsTarget, pool.length);
             const picked = shuffle(pool).slice(0, target);
 
-            // Por cada animal, generamos dos cartas: ZAP y ES.
+            // Por cada animal, generamos dos cartas: ZAP y la del idioma elegido (ES o EN).
             const cards = [];
+            const otherLang = state.langPair; // 'es' o 'en'
             picked.forEach((a, idx) => {
                 const pairKey = a.emoji || `${a.zap}|${a.es}|${idx}`;
                 cards.push({ id: `${pairKey}-zap-${idx}`, pairKey, lang: 'zap', animal: a, matched: false });
-                cards.push({ id: `${pairKey}-es-${idx}`, pairKey, lang: 'es', animal: a, matched: false });
+                cards.push({ id: `${pairKey}-${otherLang}-${idx}`, pairKey, lang: otherLang, animal: a, matched: false });
             });
             state.board = shuffle(cards);
 
@@ -799,7 +1089,7 @@
             board.dataset.pairs = state.pairsTarget;
             board.innerHTML = state.board.map((c, i) => `
                 <div class="card" data-index="${i}" tabindex="0" role="button"
-                     aria-label="Carta ${i + 1}">
+                     aria-label="${escapeHtml(t('card.aria', { n: i + 1 }))}">
                     <div class="card-face card-back" aria-hidden="true">
                         <i class="fa fa-paw"></i>
                     </div>
@@ -822,8 +1112,11 @@
 
         function renderCardContent(c) {
             const a = c.animal;
-            const label = c.lang === 'zap' ? a.zap : a.es;
-            const lang  = c.lang === 'zap' ? 'ZAP' : 'ES';
+            // c.lang puede ser 'zap', 'es' o 'en'.
+            let label, lang;
+            if (c.lang === 'zap')      { label = a.zap; lang = 'ZAP'; }
+            else if (c.lang === 'en')  { label = a.en || a.es; lang = 'EN'; }
+            else                       { label = a.es;  lang = 'ES'; }
             const fallbackEmoji = escapeHtml(a.emoji || '🐾');
             // If `image` is set we prefer it, but on a 404 / decode error we
             // swap the broken <img> for the emoji fallback at runtime so the
@@ -920,9 +1213,12 @@
         function playSpeech(card) {
             const a = card.animal;
             // Pista por idioma. La fuente se define por animal en el array
-            // DEFAULT_ANIMALS (campos soundEs / soundZap). Si está vacía o
-            // falla la carga, caemos a TTS leyendo el nombre en español.
-            const trackForLang = card.lang === 'zap' ? a.soundZap : a.soundEs;
+            // DEFAULT_ANIMALS (campos soundEs / soundZap / soundEn). Si está vacía
+            // o falla la carga, caemos a TTS.
+            let trackForLang;
+            if (card.lang === 'zap')      trackForLang = a.soundZap;
+            else if (card.lang === 'en')  trackForLang = a.soundEn;
+            else                          trackForLang = a.soundEs;
             const audioSrc = trackForLang || a.soundFile;
 
             if (audioSrc) {
@@ -947,33 +1243,42 @@
             if (!('speechSynthesis' in window)) return;
             try {
                 const a = card.animal;
+                let text, lang, rate;
                 if (card.lang === 'zap') {
                     // Browser TTS engines don't speak Zapotec. When the
-                    // animal has no soundZap (or it fails to load), we
-                    // read the Spanish equivalent so the player still
-                    // hears something useful. Silent if speechSynthesis
-                    // itself is unavailable.
-                    const utter = new SpeechSynthesisUtterance(a.es);
-                    utter.lang = 'es-ES';
-                    utter.rate = 0.92;
-                    utter.volume = 0.9;
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(utter);
+                    // animal has no soundZap (or it fails to load), fall
+                    // back to whichever non-zap language the user chose
+                    // so the player still hears something useful.
+                    if (state.langPair === 'en') {
+                        text = a.en || a.es;
+                        lang = 'en-US';
+                    } else {
+                        text = a.es;
+                        lang = 'es-ES';
+                    }
+                    rate = 0.92;
+                } else if (card.lang === 'en') {
+                    text = a.en || a.es;
+                    lang = 'en-US';
+                    rate = 0.95;
                 } else {
-                    const utter = new SpeechSynthesisUtterance(a.es);
-                    utter.lang = 'es-ES';
-                    utter.rate = 0.95;
-                    utter.volume = 0.9;
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(utter);
+                    text = a.es;
+                    lang = 'es-ES';
+                    rate = 0.95;
                 }
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = lang;
+                utter.rate = rate;
+                utter.volume = 0.9;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utter);
             } catch (e) { /* silencioso */ }
         }
 
         // ---------- Win modal ----------
         function showWinModal() {
-            $('#win-greeting').textContent = `¡Felicidades, ${state.player.name}!`;
-            $('#win-summary').textContent = `Completaste ${state.matched} pares en ${state.moves} movimientos.`;
+            $('#win-greeting').textContent = t('win.greeting', { name: state.player.name });
+            $('#win-summary').textContent = t('win.summary', { pairs: state.matched, moves: state.moves });
             $('#win-modal').classList.add('is-open');
         }
 
@@ -1001,7 +1306,9 @@
         // ---------- Init ----------
         buildSwatches();
         bindDifficulty();
+        bindLangPair();
         bindGlobal();
+        applyI18n();
         applyPlayerTheme();
         document.getElementById('anio').textContent = new Date().getFullYear();
     </script>
