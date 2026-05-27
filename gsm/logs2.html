@@ -1843,6 +1843,7 @@
         let chatHistory = [];
         let isLoading = false;
         let stopRequested = false;
+        let engineDead = false; // set when WebGPU loses the device; forces a reload on next send
         let currentActiveEngine = null; // reference for stop button
         const STORAGE_KEY = 'webllm_chat_history';
         const messagesEl = document.getElementById('chatMessages');
@@ -2129,6 +2130,7 @@
                     legacyEngine = null;
                 }
                 loadedModelId = modelId;
+                engineDead = false;
                 statusEl.textContent = 'Ready — ' + modelId;
                 progressEl.style.display = 'none';
                 inputEl.disabled = false;
@@ -2159,8 +2161,10 @@
             let activeEngine = null;
             if (provider === 'webllm') {
                 activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
-                if (!activeEngine || selectedModelId !== loadedModelId) {
-                    addMessage('system', activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...');
+                if (!activeEngine || selectedModelId !== loadedModelId || engineDead) {
+                    addMessage('system', engineDead
+                        ? 'GPU device was lost on the last turn (likely out of memory). Reloading model…'
+                        : (activeEngine ? 'Switching model...' : 'No model loaded. Loading default model...'));
                     await window.loadLLMModel();
                     activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
                     if (!activeEngine) return; // load failed
@@ -2218,6 +2222,33 @@
                 let cancelStream = () => {};
 
                 if (provider === 'webllm') {
+                    // --- Pre-flight token estimate ---
+                    // Rough heuristic (~4 chars/token). Refuse to send if we'd clearly
+                    // exceed the configured context window — this is what causes
+                    // "A valid external Instance reference no longer exists" (WebGPU OOM).
+                    const ctxWin = getModelContextWindow(loadedModelId);
+                    if (ctxWin) {
+                        const promptChars = finalMsgs.reduce((s, m) => s + (typeof m.content === 'string' ? m.content.length : 0), 0);
+                        const promptTokens = Math.ceil(promptChars / 4);
+                        // Reserve some headroom for the response (1/8 of context, min 256, max 1024).
+                        const reserve = Math.max(256, Math.min(1024, Math.floor(ctxWin / 8)));
+                        if (promptTokens + reserve > ctxWin) {
+                            const msg = `Prompt is too large for the model's context window. ` +
+                                `Estimated ~${promptTokens.toLocaleString()} prompt tokens vs ${ctxWin.toLocaleString()} context (need ~${reserve} for the reply). ` +
+                                `Reduce attached log files (lower per-file cap or remove files), pick a model with a larger context, or raise "Context size" and reload.`;
+                            assistantDiv.textContent = '⚠️ ' + msg;
+                            assistantDiv.style.color = '#d29922';
+                            chatHistory.pop(); // remove the user message we optimistically pushed
+                            document.getElementById('chatStopBtn').style.display = 'none';
+                            currentActiveEngine = null;
+                            inputEl.disabled = false;
+                            sendBtn.disabled = false;
+                            inputEl.value = text; // restore so the user can edit
+                            inputEl.focus();
+                            return;
+                        }
+                    }
+
                     const requestBody = {
                         messages: finalMsgs,
                         stream: true,
@@ -2304,7 +2335,20 @@
                     saveToStorage();
                 }
             } catch (err) {
-                assistantDiv.textContent = 'Error: ' + err.message;
+                const msg = (err && err.message) || String(err);
+                // Detect WebGPU device-lost / OOM. After this, the engine instance is
+                // dead and every subsequent call throws the same error until reload.
+                const isDeviceLost = /external Instance reference no longer exists|Device was lost|OutOfMemory|GPUDevice was destroyed|GPUBuffer/i.test(msg);
+                if (isDeviceLost && provider === 'webllm') {
+                    engineDead = true;
+                    assistantDiv.textContent =
+                        '⚠️ GPU device was lost (likely out of memory for this prompt size). ' +
+                        'The next message will reload the model automatically. ' +
+                        'To avoid this: lower the per-file char cap on attached log files, attach fewer files, or pick a smaller "Context size".';
+                    assistantDiv.style.color = '#d29922';
+                } else {
+                    assistantDiv.textContent = 'Error: ' + msg;
+                }
             } finally {
                 currentRemoteStream = null;
                 currentAbortController = null;
