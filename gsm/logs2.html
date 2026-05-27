@@ -1102,6 +1102,17 @@
                 <button onclick="resendLast()" class="tertiary-button" title="Resend last message with current model">Resend</button>
                 <button id="thinkToggleBtn" onclick="toggleThinking()" title="Enable/disable reasoning (thinking)" style="width:auto;padding:8px 12px;font-size:1rem;background:#21262d;border:1px solid #30363d;border-radius:8px;cursor:pointer;color:#484f58;line-height:1;">🧠</button>
             </div>
+            <div class="chat-model-row" style="margin-top:0.4rem;align-items:center;">
+                <label for="llmCtxOverride" style="font-size:0.78rem;color:#8b949e;font-weight:normal;white-space:nowrap;">Context size:</label>
+                <select id="llmCtxOverride"
+                    title="Context window size applied at the next model Load. The precompiled WASM does NOT cap this — pick a value that fits your model and available VRAM/RAM. Larger context uses more memory for the KV cache."
+                    style="flex:1;min-width:0;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;">
+                    <option value="4096">4096</option>
+                    <option value="8192">8192</option>
+                    <option value="16384" selected>16384 (default)</option>
+                    <option value="32768">32768</option>
+                </select>
+            </div>
             <div id="llmStatus">Select a model and click Load to start.</div>
             <div id="llmStats" style="font-size:0.75rem;color:#484f58;margin-top:0.2rem;min-height:1em;"></div>
             <div id="llmContextInfo" style="font-size:0.75rem;color:#484f58;margin-top:0.15rem;min-height:1em;"></div>
@@ -1253,22 +1264,54 @@
         ];
         const legacyModelIds = new Set(customModels.filter(m => m._useLegacy).map(m => m.model_id));
 
-        function getAppConfig() {
+        // --- Context-size override (per-load) ---
+        const CTX_OVERRIDE_KEY = 'webllm_ctx_override';
+        function getCtxOverride() {
+            const el = document.getElementById('llmCtxOverride');
+            const v = parseInt(el?.value, 10);
+            return Number.isFinite(v) && v > 0 ? v : null;
+        }
+        function applyCtxOverride(modelList, targetModelId) {
+            const ctx = getCtxOverride();
+            if (!ctx) return modelList;
+            return modelList.map(m => {
+                if (m.model_id !== targetModelId) return m;
+                return { ...m, overrides: { ...(m.overrides || {}), context_window_size: ctx } };
+            });
+        }
+        // Restore + persist override input
+        try {
+            window.addEventListener('DOMContentLoaded', () => {
+                const el = document.getElementById('llmCtxOverride');
+                if (!el) return;
+                const saved = localStorage.getItem(CTX_OVERRIDE_KEY);
+                if (saved && Array.from(el.options).some(o => o.value === saved)) {
+                    el.value = saved;
+                }
+                el.addEventListener('change', () => {
+                    try { localStorage.setItem(CTX_OVERRIDE_KEY, el.value); } catch(e) {}
+                    try { updateContextInfo(loadedModelId, null); } catch(e) {}
+                });
+            });
+        } catch(e) {}
+
+        function getAppConfig(targetModelId) {
             const resolvedCustom = customModels.filter(m => !m._useLegacy).map(m => ({
                 ...m,
                 model_lib: m.model_lib || (webllm.modelLibURLPrefix + webllm.modelVersion + '/Qwen3-4B-q4f32_1-ctx4k_cs1k-webgpu.wasm'),
             }));
+            const fullList = [
+                ...webllm.prebuiltAppConfig.model_list,
+                ...resolvedCustom,
+            ];
             return {
                 ...webllm.prebuiltAppConfig,
                 useIndexedDBCache: true,
-                model_list: [
-                    ...webllm.prebuiltAppConfig.model_list,
-                    ...resolvedCustom,
-                ],
+                model_list: applyCtxOverride(fullList, targetModelId),
             };
         }
 
-        function getLegacyAppConfig() {
+        function getLegacyAppConfig(targetModelId) {
             const legacyPrefix = 'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/';
             const legacyVersion = 'v0_2_48';
             const resolved = customModels.filter(m => m._useLegacy).map(m => ({
@@ -1279,15 +1322,18 @@
                 low_resource_required: m.low_resource_required ?? true,
                 overrides: m.overrides || {},
             }));
-            return { useIndexedDBCache: true, model_list: resolved };
+            return { useIndexedDBCache: true, model_list: applyCtxOverride(resolved, targetModelId) };
         }
 
         // --- Context window helper ---
         // Returns the configured context_window_size for a given model_id, looking
         // through custom models, the WebLLM prebuilt list, and the legacy app config.
+        // If the user has set a UI override, that wins.
         function getModelContextWindow(modelId) {
             if (!modelId) return null;
             try {
+                const override = getCtxOverride();
+                if (override) return override;
                 const lists = [];
                 if (webllm && webllm.prebuiltAppConfig && Array.isArray(webllm.prebuiltAppConfig.model_list)) {
                     lists.push(webllm.prebuiltAppConfig.model_list);
@@ -2060,7 +2106,7 @@
                 loadedModelId = null;
 
                 if (isLegacy) {
-                    const appConfig = getLegacyAppConfig();
+                    const appConfig = getLegacyAppConfig(modelId);
                     legacyEngine = new webllmLegacy.MLCEngine({ appConfig });
                     legacyEngine.setInitProgressCallback((report) => {
                         statusEl.textContent = report.text || 'Loading...';
@@ -2071,7 +2117,7 @@
                     await legacyEngine.reload(modelId, { temperature: 1.0, top_p: 1 });
                     engine = null;
                 } else {
-                    const appConfig = getAppConfig();
+                    const appConfig = getAppConfig(modelId);
                     engine = new webllm.MLCEngine({ appConfig });
                     engine.setInitProgressCallback((report) => {
                         statusEl.textContent = report.text || 'Loading...';
