@@ -1168,7 +1168,7 @@
                         Drop log files here or click to pick (.txt, .log, .json, .csv, .md, .yaml, .yml, .xml, .py, .cs, .html, .js)
                     </div>
                     <input type="file" id="llmLogFileInput" multiple accept=".txt,.log,.json,.csv,.md,.yaml,.yml,.xml,.py,.cs,.html,.htm,.js,text/*" style="display:none;">
-                    <div id="llmLogFilesList" style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;font-size:0.78rem;"></div>
+                    <div id="llmLogFilesList" style="display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto;font-size:0.78rem;"></div>
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                         <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#8b949e;cursor:pointer;">
                             <input type="checkbox" id="llmLogFilesUse" checked style="width:13px;height:13px;accent-color:#58a6ff;"> Include in chat
@@ -1461,14 +1461,30 @@
                 const cap = getCapChars();
                 logFilesContext.forEach((f, idx) => {
                     const row = document.createElement('div');
-                    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;background:#161b22;border:1px solid #21262d;border-radius:6px;';
+                    row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:6px 8px;background:#161b22;border:1px solid #21262d;border-radius:6px;';
                     const effective = Math.min(f.content.length, cap);
-                    const truncBadge = f.content.length > cap ? ` <span style="color:#d29922;">(truncated)</span>` : '';
-                    row.innerHTML = `
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;color:#c9d1d9;" title="${f.name}">📄 ${f.name}</span>
-                        <span style="color:#8b949e;font-size:0.72rem;white-space:nowrap;">${f.size.toLocaleString()} B · ~${estimateTokens(f.content.slice(0, effective)).toLocaleString()} tok${truncBadge}</span>
-                        <button data-idx="${idx}" class="logfile-remove" title="Remove" style="background:transparent;border:none;color:#f85149;cursor:pointer;font-size:0.9rem;padding:0 2px;">✕</button>
-                    `;
+                    const truncBadge = f.content.length > cap ? ` <span style="color:#d29922;">· truncated</span>` : '';
+                    // Two-line layout: filename on its own line so long names stay readable.
+                    const nameDiv = document.createElement('div');
+                    nameDiv.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;';
+                    const nameLine = document.createElement('div');
+                    nameLine.style.cssText = 'color:#c9d1d9;font-size:0.82rem;word-break:break-all;line-height:1.3;';
+                    nameLine.textContent = '📄 ' + f.name;
+                    const metaLine = document.createElement('div');
+                    metaLine.style.cssText = 'color:#8b949e;font-size:0.72rem;';
+                    metaLine.innerHTML = `${f.size.toLocaleString()} B · ~${estimateTokens(f.content.slice(0, effective)).toLocaleString()} tok${truncBadge}`;
+                    nameDiv.appendChild(nameLine);
+                    nameDiv.appendChild(metaLine);
+
+                    const rmBtn = document.createElement('button');
+                    rmBtn.dataset.idx = String(idx);
+                    rmBtn.className = 'logfile-remove';
+                    rmBtn.title = 'Remove ' + f.name;
+                    rmBtn.textContent = '✕';
+                    rmBtn.style.cssText = 'flex-shrink:0;background:transparent;border:none;color:#f85149;cursor:pointer;font-size:1rem;padding:0 4px;line-height:1;align-self:center;';
+
+                    row.appendChild(nameDiv);
+                    row.appendChild(rmBtn);
                     listEl.appendChild(row);
                 });
                 listEl.querySelectorAll('.logfile-remove').forEach(btn => {
@@ -1506,6 +1522,9 @@
                 }
             }
             renderLogFilesList();
+            // Auto-open the section so newly added filenames are immediately visible.
+            const section = document.getElementById('llmLogFilesSection');
+            if (section && logFilesContext.length > 0) section.open = true;
         }
 
         window.clearLogFiles = function() {
