@@ -91,6 +91,12 @@
             font-size: 0.85rem;
             white-space: nowrap;
         }
+        /* Log files list — defeat the global "button{display:block;width:100%}" rule. */
+        #llmLogFilesList .logfile-remove {
+            display: inline-block !important;
+            width: auto !important;
+            padding: 0 6px !important;
+        }
         #llmStatus {
             font-size: 0.8rem;
             color: #8b949e;
@@ -1461,20 +1467,19 @@
                 const cap = getCapChars();
                 logFilesContext.forEach((f, idx) => {
                     const row = document.createElement('div');
-                    row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:6px 8px;background:#161b22;border:1px solid #21262d;border-radius:6px;';
+                    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 8px;background:#161b22;border:1px solid #21262d;border-radius:6px;';
                     const effective = Math.min(f.content.length, cap);
                     const isTrunc = f.content.length > cap;
 
-                    // Name + meta column (block elements so each line stays on its own row).
-                    const nameDiv = document.createElement('div');
-                    nameDiv.style.cssText = 'flex:1 1 auto;min-width:0;';
-
-                    const nameLine = document.createElement('div');
-                    nameLine.style.cssText = 'display:block;color:#e6edf3;font-size:0.85rem;font-weight:600;word-break:break-all;line-height:1.35;margin-bottom:3px;';
+                    // Filename — flexes, ellipsizes when there's not enough room.
+                    const nameLine = document.createElement('span');
+                    nameLine.style.cssText = 'flex:1 1 auto;min-width:0;color:#e6edf3;font-size:0.85rem;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+                    nameLine.title = f.name;
                     nameLine.textContent = '📄 ' + f.name;
 
-                    const metaLine = document.createElement('div');
-                    metaLine.style.cssText = 'display:block;color:#8b949e;font-size:0.72rem;line-height:1.3;';
+                    // Metadata — sits to the right of the name on the same row.
+                    const metaLine = document.createElement('span');
+                    metaLine.style.cssText = 'flex:0 0 auto;color:#8b949e;font-size:0.72rem;line-height:1.3;white-space:nowrap;';
                     const metaParts = [
                         `${f.size.toLocaleString()} B`,
                         `~${estimateTokens(f.content.slice(0, effective)).toLocaleString()} tok`,
@@ -1483,17 +1488,18 @@
                     metaLine.textContent = metaParts.join(' · ');
                     if (isTrunc) metaLine.style.color = '#d29922';
 
-                    nameDiv.appendChild(nameLine);
-                    nameDiv.appendChild(metaLine);
-
                     const rmBtn = document.createElement('button');
                     rmBtn.dataset.idx = String(idx);
                     rmBtn.className = 'logfile-remove';
                     rmBtn.title = 'Remove ' + f.name;
                     rmBtn.textContent = '✕';
-                    rmBtn.style.cssText = 'flex:0 0 auto;background:transparent;border:none;color:#f85149;cursor:pointer;font-size:1rem;padding:0 4px;line-height:1;align-self:center;';
+                    // !important needed because there is a global "button { display:block; width:100% }"
+                    // rule earlier in the stylesheet that would otherwise force this button to span
+                    // the whole row and push the filename column to zero width.
+                    rmBtn.style.cssText = 'flex:0 0 auto !important;display:inline-block !important;width:auto !important;padding:0 6px !important;background:transparent !important;border:none !important;color:#f85149 !important;cursor:pointer;font-size:1rem;line-height:1;align-self:center;font-weight:normal;border-radius:4px;';
 
-                    row.appendChild(nameDiv);
+                    row.appendChild(nameLine);
+                    row.appendChild(metaLine);
                     row.appendChild(rmBtn);
                     listEl.appendChild(row);
                 });
