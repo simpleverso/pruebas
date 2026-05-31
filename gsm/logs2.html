@@ -2292,16 +2292,33 @@
                         statusEl.textContent = 'Downloading ' + meta.label + '...';
                         const networkRes = await fetch(meta.url);
                         if (!networkRes.ok) throw new Error('HTTP ' + networkRes.status + ' fetching model');
-                        // Store a clone in the Cache API for next time. Done in the
-                        // background — the user-facing stream still consumes the original.
-                        if (cache) {
-                            try {
-                                await cache.put(meta.url, networkRes.clone());
-                            } catch (e) {
-                                console.warn('Failed to store model in Cache API:', e);
-                            }
+                        // Split the response body so we can both display progress AND
+                        // store it in the Cache API. Awaiting cache.put() on the full
+                        // body would block the progress bar until the entire model is
+                        // downloaded, which is what was hiding progress before.
+                        if (cache && networkRes.body && typeof networkRes.body.tee === 'function') {
+                            const [forUi, forCache] = networkRes.body.tee();
+                            // Re-wrap each branch in a Response object. The cache branch
+                            // needs the headers from the original so Content-Type etc.
+                            // are preserved; the UI branch needs them so content-length
+                            // is still readable.
+                            const cacheRes = new Response(forCache, {
+                                status: networkRes.status,
+                                statusText: networkRes.statusText,
+                                headers: networkRes.headers,
+                            });
+                            // Fire-and-forget: do NOT await, otherwise we block until
+                            // the entire body is consumed, which kills progress.
+                            cache.put(meta.url, cacheRes).catch(e => console.warn('Cache put failed:', e));
+                            fetchRes = new Response(forUi, {
+                                status: networkRes.status,
+                                statusText: networkRes.statusText,
+                                headers: networkRes.headers,
+                            });
+                        } else {
+                            // No tee support or no cache: stream directly from network.
+                            fetchRes = networkRes;
                         }
-                        fetchRes = networkRes;
                     }
 
                     const totalHdr = fetchRes.headers.get('content-length');
