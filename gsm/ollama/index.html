@@ -1079,6 +1079,154 @@
             ];
             const legacyModelIds = new Set(customWebLLMModels.filter(m => m._useLegacy).map(m => m.model_id));
 
+            // --- LiteRT-LM (Gemma 4) State ---
+            // SDK is loaded lazily on first use. https://ai.google.dev/edge/litert-lm/js
+            const LITERTLM_MODELS = [
+                { id: 'gemma-4-E2B-it', label: 'Gemma 4 E2B (it)', url: 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.litertlm' },
+                { id: 'gemma-4-E4B-it', label: 'Gemma 4 E4B (it)', url: 'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it-web.litertlm' },
+            ];
+            let litertlmSdk = null;
+            let litertlmEngine = null;
+            let litertlmLoadedModelId = null;
+            let litertlmLoading = false;
+            async function ensureLitertlmSdk() {
+                if (litertlmSdk) return litertlmSdk;
+                litertlmSdk = await import('https://cdn.jsdelivr.net/npm/@litert-lm/core/+esm');
+                return litertlmSdk;
+            }
+            async function ensureLitertlmModel(modelId) {
+                if (litertlmLoadedModelId === modelId && litertlmEngine) return;
+                if (litertlmLoading) throw new Error('LiteRT-LM is already loading a model. Please wait.');
+                const meta = LITERTLM_MODELS.find(m => m.id === modelId);
+                if (!meta) throw new Error('Unknown LiteRT-LM model: ' + modelId);
+                litertlmLoading = true;
+                showMessage(`LiteRT-LM: Downloading/loading ${meta.label}... First load may take a while (model file is several hundred MB).`, 'success');
+                try {
+                    if (litertlmEngine && typeof litertlmEngine.delete === 'function') { try { await litertlmEngine.delete(); } catch(e) {} }
+                    litertlmEngine = null;
+                    const sdk = await ensureLitertlmSdk();
+
+                    // --- Streaming fetch with progress reporting ---
+                    // The SDK accepts a URL, ReadableStream, or Blob for `model`. We
+                    // fetch the model ourselves so we can report download progress
+                    // through showMessage(), the same way WebLLM does via setInitProgressCallback.
+                    const fetchRes = await fetch(meta.url, { cache: 'force-cache' });
+                    if (!fetchRes.ok) throw new Error('HTTP ' + fetchRes.status + ' fetching model');
+                    const totalHdr = fetchRes.headers.get('content-length');
+                    const total = totalHdr ? parseInt(totalHdr, 10) : 0;
+                    let received = 0;
+                    let lastUiUpdate = 0;
+                    const formatBytes = (n) => {
+                        if (!n) return '0 B';
+                        const units = ['B', 'KB', 'MB', 'GB'];
+                        let i = 0; let v = n;
+                        while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+                        return v.toFixed(v >= 100 ? 0 : v >= 10 ? 1 : 2) + ' ' + units[i];
+                    };
+                    const upstream = fetchRes.body.getReader();
+                    const modelStream = new ReadableStream({
+                        async pull(controller) {
+                            const { done, value } = await upstream.read();
+                            if (done) {
+                                showMessage(`LiteRT-LM: Initializing ${meta.label} on WebGPU...`, 'success');
+                                controller.close();
+                                return;
+                            }
+                            received += value.byteLength;
+                            const now = performance.now();
+                            // Throttle UI updates so the toast doesn't churn.
+                            if (now - lastUiUpdate > 250) {
+                                lastUiUpdate = now;
+                                if (total > 0) {
+                                    const pct = (received / total * 100).toFixed(1);
+                                    showMessage(`LiteRT-LM: Downloading ${meta.label}: ${formatBytes(received)} / ${formatBytes(total)} (${pct}%)`, 'success');
+                                } else {
+                                    showMessage(`LiteRT-LM: Downloading ${meta.label}: ${formatBytes(received)}`, 'success');
+                                }
+                            }
+                            controller.enqueue(value);
+                        },
+                        cancel(reason) { try { upstream.cancel(reason); } catch(e) {} },
+                    });
+
+                    litertlmEngine = await sdk.Engine.create({
+                        model: modelStream,
+                        mainExecutorSettings: { maxNumTokens: 4096 },
+                    });
+                    litertlmLoadedModelId = modelId;
+                    showMessage(`LiteRT-LM: ${meta.label} loaded and ready.`, 'success');
+                } catch (err) {
+                    showMessage(`LiteRT-LM load failed: ${err.message || err}`, 'error');
+                    throw err;
+                } finally {
+                    litertlmLoading = false;
+                }
+            }
+            async function callLiteRTLM(modelId, promptOrMessages, systemInstruction = null, stream = false, onDebug = null) {
+                await ensureLitertlmModel(modelId);
+                // Build preface (system + history) and the new user text.
+                const prefaceMsgs = [];
+                if (systemInstruction) prefaceMsgs.push({ role: 'system', content: systemInstruction });
+                let userText = '';
+                if (typeof promptOrMessages === 'string') {
+                    userText = promptOrMessages;
+                } else if (Array.isArray(promptOrMessages)) {
+                    const cleaned = promptOrMessages
+                        .filter(m => m.role !== 'system')
+                        .map(m => ({ role: m.role === 'model' ? 'assistant' : m.role, content: m.content }));
+                    const lastUserIdx = cleaned.map(m => m.role).lastIndexOf('user');
+                    if (lastUserIdx >= 0) {
+                        userText = typeof cleaned[lastUserIdx].content === 'string' ? cleaned[lastUserIdx].content : '';
+                        prefaceMsgs.push(...cleaned.slice(0, lastUserIdx));
+                    } else {
+                        prefaceMsgs.push(...cleaned);
+                    }
+                }
+                if (onDebug) onDebug({ model: modelId, preface: prefaceMsgs, user: userText, stream });
+                const conversation = await litertlmEngine.createConversation(
+                    prefaceMsgs.length ? { preface: { messages: prefaceMsgs } } : undefined
+                );
+                if (stream) {
+                    const it = conversation.sendMessageStreaming(userText);
+                    let chunks = [];
+                    let resolveNext = null;
+                    let done = false;
+                    (async () => {
+                        try {
+                            for await (const chunk of it) {
+                                if (chunk && Array.isArray(chunk.content)) {
+                                    let s = '';
+                                    for (const item of chunk.content) {
+                                        if (item && item.type === 'text' && typeof item.text === 'string') s += item.text;
+                                        else if (typeof item === 'string') s += item;
+                                    }
+                                    if (s) chunks.push(s);
+                                }
+                                if (resolveNext) { const r = resolveNext; resolveNext = null; r(); }
+                            }
+                        } finally { done = true; if (resolveNext) { const r = resolveNext; resolveNext = null; r(); } }
+                    })();
+                    return {
+                        reader: {
+                            async read() {
+                                if (chunks.length > 0) return { done: false, value: chunks.splice(0, chunks.length).join('') };
+                                if (done) return { done: true, value: undefined };
+                                await new Promise(r => { resolveNext = r; });
+                                if (chunks.length > 0) return { done: false, value: chunks.splice(0, chunks.length).join('') };
+                                return { done: true, value: undefined };
+                            }
+                        },
+                        processChunk: (value) => [value],
+                    };
+                }
+                // Non-streaming
+                const response = await conversation.sendMessage(userText);
+                if (response && Array.isArray(response.content)) {
+                    return response.content.map(it => (it && it.type === 'text' ? it.text : '')).join('');
+                }
+                return '';
+            }
+
             // Strip <think>...</think> blocks from model output
             function stripThinking(text) {
                 if (showThinkingCheckbox.checked) return text;
@@ -1835,6 +1983,7 @@
                 const dictContext = searchDictionary(prompt); if (dictContext) prompt = dictContext + prompt;
                 const globalSP = systemPrompt.value.trim();
                 if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model.startsWith('litertlm:')) { const rawModel = model.replace('litertlm:', ''); const result = await callLiteRTLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); const result = await callPuter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); const result = await callOpenRouter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); const result = await callNvidia(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
@@ -2956,6 +3105,7 @@
                 try {
                     let responseText = "";
                     if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('litertlm:')) { const rawModel = model.replace('litertlm:', ''); if (shouldStream) { const sh = await callLiteRTLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callLiteRTLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebugWrapped); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); if (shouldStream) { const sh = await callNvidia(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNvidia(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
@@ -2993,6 +3143,11 @@
                 if (model.startsWith('webllm:')) {
                     const rawModel = model.replace('webllm:', '');
                     try { const sh = await callWebLLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; let displayResponse = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; const filtered = tf.push(chunk); if (filtered) { displayResponse += filtered; typingBubble.innerHTML = mdToHtml(displayResponse); historyEl.scrollTop = historyEl.scrollHeight; } }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`WebLLM response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model.startsWith('litertlm:')) {
+                    const rawModel = model.replace('litertlm:', '');
+                    try { const sh = await callLiteRTLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; let displayResponse = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; const filtered = tf.push(chunk); if (filtered) { displayResponse += filtered; typingBubble.innerHTML = mdToHtml(displayResponse); historyEl.scrollTop = historyEl.scrollHeight; } }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`LiteRT-LM response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model.startsWith('puter:')) {
@@ -3128,6 +3283,10 @@
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
                 if (lmStudioModels.length > 0) { const lmsHeader = document.createElement('option'); lmsHeader.disabled = true; lmsHeader.textContent = '--- LM Studio Models ---'; selectElement.appendChild(lmsHeader); lmStudioModels.forEach(m => { const opt = document.createElement('option'); opt.value = `lmstudio:${m.id}`; opt.textContent = `🖥️ [LM Studio] ${m.id}`; selectElement.appendChild(opt); }); }
                 if (webllmAvailableModels.length > 0 && WEBLLM_ENABLED) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
+                {
+                    const litHeader = document.createElement('option'); litHeader.disabled = true; litHeader.textContent = '--- LiteRT-LM (In-Browser, Gemma 4) ---'; selectElement.appendChild(litHeader);
+                    LITERTLM_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `litertlm:${m.id}`; opt.textContent = `✨ [LiteRT-LM] ${m.label}`; selectElement.appendChild(opt); });
+                }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
                 else { const noOllama = document.createElement('option'); noOllama.disabled = true; noOllama.textContent = '(No Local Ollama Models Found)'; selectElement.appendChild(noOllama); }
                 if (currentValue) { const allOpts = Array.from(selectElement.options); if(allOpts.some(o => o.value === currentValue)) selectElement.value = currentValue; }

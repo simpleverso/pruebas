@@ -2223,14 +2223,61 @@
 
                     const sdk = await ensureLitertlmSdk();
                     const ctx = getCtxOverride() || 4096;
-                    progressBar.style.width = '20%';
-                    statusEl.textContent = 'Downloading & initializing ' + meta.label + '...';
+                    progressBar.style.width = '0%';
+
+                    // --- Streaming fetch with progress ---
+                    // The LiteRT-LM SDK accepts a URL, ReadableStream, or Blob for `model`.
+                    // We download the file ourselves so we can drive the existing progress
+                    // bar. Bytes are forwarded to the SDK via a ReadableStream as they arrive.
+                    statusEl.textContent = 'Downloading ' + meta.label + '...';
+                    const fetchRes = await fetch(meta.url, { cache: 'force-cache' });
+                    if (!fetchRes.ok) throw new Error('HTTP ' + fetchRes.status + ' fetching model');
+                    const totalHdr = fetchRes.headers.get('content-length');
+                    const total = totalHdr ? parseInt(totalHdr, 10) : 0;
+                    let received = 0;
+                    let lastUiUpdate = 0;
+                    const formatBytes = (n) => {
+                        if (!n) return '0 B';
+                        const units = ['B', 'KB', 'MB', 'GB'];
+                        let i = 0; let v = n;
+                        while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+                        return v.toFixed(v >= 100 ? 0 : v >= 10 ? 1 : 2) + ' ' + units[i];
+                    };
+
+                    const upstream = fetchRes.body.getReader();
+                    const modelStream = new ReadableStream({
+                        async pull(controller) {
+                            const { done, value } = await upstream.read();
+                            if (done) {
+                                progressBar.style.width = '100%';
+                                statusEl.textContent = 'Initializing ' + meta.label + ' on WebGPU...';
+                                controller.close();
+                                return;
+                            }
+                            received += value.byteLength;
+                            // Throttle UI updates to ~10/sec to keep the page responsive.
+                            const now = performance.now();
+                            if (now - lastUiUpdate > 100) {
+                                lastUiUpdate = now;
+                                if (total > 0) {
+                                    // Reserve top 5% of the bar for SDK initialization.
+                                    const pct = Math.min(95, (received / total) * 95);
+                                    progressBar.style.width = pct.toFixed(1) + '%';
+                                    statusEl.textContent = `Downloading ${meta.label}: ${formatBytes(received)} / ${formatBytes(total)} (${(received / total * 100).toFixed(1)}%)`;
+                                } else {
+                                    statusEl.textContent = `Downloading ${meta.label}: ${formatBytes(received)}`;
+                                }
+                            }
+                            controller.enqueue(value);
+                        },
+                        cancel(reason) { try { upstream.cancel(reason); } catch(e) {} },
+                    });
 
                     litertlmEngine = await sdk.Engine.create({
-                        model: meta.url,
+                        model: modelStream,
                         mainExecutorSettings: { maxNumTokens: ctx },
                     });
-                    progressBar.style.width = '80%';
+                    progressBar.style.width = '100%';
                     litertlmConvo = await litertlmEngine.createConversation();
 
                     loadedModelId = modelId;
