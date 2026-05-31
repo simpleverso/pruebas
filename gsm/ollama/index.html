@@ -303,6 +303,9 @@
                         <button id="test-connection-btn" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
                             Reload Models & Test
                         </button>
+                        <button id="litertlm-cache-btn" type="button" class="px-4 py-2 bg-purple-700 text-white rounded-lg font-semibold hover:bg-purple-800 transition shadow focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800" title="Inspect or clear cached LiteRT-LM (Gemma 4) model files">
+                            ✨ LiteRT-LM Cache…
+                        </button>
                         <!-- Debug Mode Toggle -->
                         <div class="flex items-center">
                             <input type="checkbox" id="debug-mode-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2 focus:ring-offset-gray-800">
@@ -1085,6 +1088,7 @@
                 { id: 'gemma-4-E2B-it', label: 'Gemma 4 E2B (it)', url: 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.litertlm' },
                 { id: 'gemma-4-E4B-it', label: 'Gemma 4 E4B (it)', url: 'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it-web.litertlm' },
             ];
+            const LITERTLM_CACHE_NAME = 'litertlm-models-v1';
             let litertlmSdk = null;
             let litertlmEngine = null;
             let litertlmLoadedModelId = null;
@@ -1094,6 +1098,45 @@
                 litertlmSdk = await import('https://cdn.jsdelivr.net/npm/@litert-lm/core/+esm');
                 return litertlmSdk;
             }
+
+            // Inspect / clear cached LiteRT-LM model files. Exposed on window so
+            // it can be called from the browser console or a future UI button.
+            window.manageLitertlmCache = async function() {
+                if (!('caches' in window)) {
+                    showMessage('Cache API is not available in this browser.', 'error');
+                    return;
+                }
+                try {
+                    const cache = await caches.open(LITERTLM_CACHE_NAME);
+                    const reqs = await cache.keys();
+                    const fmt = (n) => {
+                        if (!n) return '0 B';
+                        const u = ['B','KB','MB','GB']; let i = 0; let v = n;
+                        while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+                        return v.toFixed(v >= 100 ? 0 : v >= 10 ? 1 : 2) + ' ' + u[i];
+                    };
+                    if (!reqs.length) {
+                        alert('LiteRT-LM cache is empty.\nModels will be downloaded on first use.');
+                        return;
+                    }
+                    const sizes = await Promise.all(reqs.map(async r => {
+                        const res = await cache.match(r);
+                        const blob = res ? await res.blob() : null;
+                        return { url: r.url, size: blob ? blob.size : 0 };
+                    }));
+                    const total = sizes.reduce((s, e) => s + e.size, 0);
+                    const list = sizes.map(s => `• ${s.url.split('/').pop()} — ${fmt(s.size)}`).join('\n');
+                    const ok = confirm(
+                        `LiteRT-LM cached models (${fmt(total)} total):\n\n${list}\n\nClick OK to clear the cache, or Cancel to keep it.`
+                    );
+                    if (ok) {
+                        await caches.delete(LITERTLM_CACHE_NAME);
+                        showMessage('LiteRT-LM cache cleared.', 'success');
+                    }
+                } catch (err) {
+                    showMessage('Cache error: ' + (err?.message || err), 'error');
+                }
+            };
             async function ensureLitertlmModel(modelId) {
                 if (litertlmLoadedModelId === modelId && litertlmEngine) return;
                 if (litertlmLoading) throw new Error('LiteRT-LM is already loading a model. Please wait.');
@@ -1106,12 +1149,53 @@
                     litertlmEngine = null;
                     const sdk = await ensureLitertlmSdk();
 
-                    // --- Streaming fetch with progress reporting ---
+                    // --- Streaming fetch with progress reporting + persistent cache ---
                     // The SDK accepts a URL, ReadableStream, or Blob for `model`. We
-                    // fetch the model ourselves so we can report download progress
-                    // through showMessage(), the same way WebLLM does via setInitProgressCallback.
-                    const fetchRes = await fetch(meta.url, { cache: 'force-cache' });
-                    if (!fetchRes.ok) throw new Error('HTTP ' + fetchRes.status + ' fetching model');
+                    // fetch the model ourselves so we can:
+                    //   1) report download progress through showMessage(), and
+                    //   2) store it in the Cache API so reloads don't re-download
+                    //      (the browser HTTP cache evicts large files).
+                    let cache = null;
+                    let cachedResponse = null;
+                    try {
+                        cache = await caches.open(LITERTLM_CACHE_NAME);
+                        cachedResponse = await cache.match(meta.url);
+                    } catch (e) {
+                        console.warn('Cache API unavailable, falling back to network only:', e);
+                    }
+
+                    let fetchRes;
+                    let fromCache = false;
+                    if (cachedResponse) {
+                        fromCache = true;
+                        showMessage(`LiteRT-LM: Loading ${meta.label} from local cache...`, 'success');
+                        fetchRes = cachedResponse;
+                    } else {
+                        showMessage(`LiteRT-LM: Downloading ${meta.label}...`, 'success');
+                        const networkRes = await fetch(meta.url);
+                        if (!networkRes.ok) throw new Error('HTTP ' + networkRes.status + ' fetching model');
+                        // tee() the body so progress reporting and the cache write run
+                        // in parallel. Awaiting cache.put() on the original body would
+                        // block until the entire download finished, hiding progress.
+                        if (cache && networkRes.body && typeof networkRes.body.tee === 'function') {
+                            const [forUi, forCache] = networkRes.body.tee();
+                            const cacheRes = new Response(forCache, {
+                                status: networkRes.status,
+                                statusText: networkRes.statusText,
+                                headers: networkRes.headers,
+                            });
+                            // Fire-and-forget: do NOT await.
+                            cache.put(meta.url, cacheRes).catch(e => console.warn('Cache put failed:', e));
+                            fetchRes = new Response(forUi, {
+                                status: networkRes.status,
+                                statusText: networkRes.statusText,
+                                headers: networkRes.headers,
+                            });
+                        } else {
+                            fetchRes = networkRes;
+                        }
+                    }
+
                     const totalHdr = fetchRes.headers.get('content-length');
                     const total = totalHdr ? parseInt(totalHdr, 10) : 0;
                     let received = 0;
@@ -1137,11 +1221,12 @@
                             // Throttle UI updates so the toast doesn't churn.
                             if (now - lastUiUpdate > 250) {
                                 lastUiUpdate = now;
+                                const verb = fromCache ? 'Loading from cache' : 'Downloading';
                                 if (total > 0) {
                                     const pct = (received / total * 100).toFixed(1);
-                                    showMessage(`LiteRT-LM: Downloading ${meta.label}: ${formatBytes(received)} / ${formatBytes(total)} (${pct}%)`, 'success');
+                                    showMessage(`LiteRT-LM: ${verb} ${meta.label}: ${formatBytes(received)} / ${formatBytes(total)} (${pct}%)`, 'success');
                                 } else {
-                                    showMessage(`LiteRT-LM: Downloading ${meta.label}: ${formatBytes(received)}`, 'success');
+                                    showMessage(`LiteRT-LM: ${verb} ${meta.label}: ${formatBytes(received)}`, 'success');
                                 }
                             }
                             controller.enqueue(value);
@@ -3265,6 +3350,12 @@
                 } catch (e) { showMessage(`Delete failed: ${e.message}`, 'error'); }
             }
             cmdRefreshListBtn.addEventListener('click', () => checkConnectionAndLoadModels());
+
+            // LiteRT-LM model cache management
+            const litertlmCacheBtn = document.getElementById('litertlm-cache-btn');
+            if (litertlmCacheBtn) {
+                litertlmCacheBtn.addEventListener('click', () => window.manageLitertlmCache());
+            }
 
             // --- Model Loading (with timeouts and parallel requests from mysql3) ---
             function populateModelSelect(selectElement, models) {
