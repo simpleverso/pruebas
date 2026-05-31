@@ -1340,6 +1340,8 @@
             try {
                 const override = getCtxOverride();
                 if (override) return override;
+                // LiteRT-LM models: default 4096 unless overridden via the UI input.
+                if (modelId.startsWith && modelId.startsWith('litertlm:')) return 4096;
                 const lists = [];
                 if (webllm && webllm.prebuiltAppConfig && Array.isArray(webllm.prebuiltAppConfig.model_list)) {
                     lists.push(webllm.prebuiltAppConfig.model_list);
@@ -1653,6 +1655,19 @@
                 selectEl.appendChild(og);
             }
 
+            // LiteRT-LM (Gemma 4 on WebGPU, in-browser via @litert-lm/core)
+            {
+                const og = document.createElement('optgroup');
+                og.label = 'LiteRT-LM (in-browser, Gemma 4)';
+                LITERTLM_MODELS.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = `litertlm:${m.id}`;
+                    opt.textContent = `✨ ${m.label}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
             if (lmStudioAvailableModels.length > 0) {
                 const og = document.createElement('optgroup');
                 og.label = 'LM Studio (local)';
@@ -1816,13 +1831,45 @@
             if (!modelId) return 'webllm';
             if (modelId.startsWith('lmstudio:')) return 'lmstudio';
             if (modelId.startsWith('puter:')) return 'puter';
+            if (modelId.startsWith('litertlm:')) return 'litertlm';
             return 'webllm';
         }
         function stripProvider(modelId) {
             if (!modelId) return '';
             if (modelId.startsWith('lmstudio:')) return modelId.slice('lmstudio:'.length);
             if (modelId.startsWith('puter:')) return modelId.slice('puter:'.length);
+            if (modelId.startsWith('litertlm:')) return modelId.slice('litertlm:'.length);
             return modelId;
+        }
+
+        // --- LiteRT-LM (Gemma 4 on WebGPU) -----------------------------------
+        // https://ai.google.dev/edge/litert-lm/js
+        // Loaded lazily on first use to avoid pulling the SDK on every page load.
+        const LITERTLM_MODELS = [
+            {
+                id: 'gemma-4-E2B-it',
+                label: 'Gemma 4 E2B (it)',
+                url: 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.litertlm',
+            },
+            {
+                id: 'gemma-4-E4B-it',
+                label: 'Gemma 4 E4B (it)',
+                url: 'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it-web.litertlm',
+            },
+        ];
+        let litertlmSdk = null;     // cached module
+        let litertlmEngine = null;  // current Engine instance
+        let litertlmConvo = null;   // current Conversation instance
+        async function ensureLitertlmSdk() {
+            if (litertlmSdk) return litertlmSdk;
+            litertlmSdk = await import('https://cdn.jsdelivr.net/npm/@litert-lm/core/+esm');
+            return litertlmSdk;
+        }
+        async function unloadLitertlm() {
+            try { if (litertlmConvo && typeof litertlmConvo.cancel === 'function') litertlmConvo.cancel(); } catch(e) {}
+            litertlmConvo = null;
+            try { if (litertlmEngine && typeof litertlmEngine.delete === 'function') await litertlmEngine.delete(); } catch(e) {}
+            litertlmEngine = null;
         }
 
         // LM Studio streaming caller (OpenAI-compatible /v1/chat/completions)
@@ -2056,7 +2103,9 @@
             const provider = getProvider(loadedModelId);
             const hasModel = provider === 'webllm'
                 ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
-                : !!loadedModelId;
+                : provider === 'litertlm'
+                    ? !!litertlmEngine
+                    : !!loadedModelId;
             if (!hasModel) {
                 addMessage('system', 'No model loaded. Loading default model...');
                 await window.loadLLMModel();
@@ -2128,6 +2177,7 @@
                 // Clean up any previously loaded local engine to free VRAM
                 if (engine && typeof engine.unload === 'function') { try { await engine.unload(); } catch(e) {} }
                 if (legacyEngine && typeof legacyEngine.unload === 'function') { try { await legacyEngine.unload(); } catch(e) {} }
+                await unloadLitertlm();
                 engine = null;
                 legacyEngine = null;
                 loadedModelId = modelId;
@@ -2140,6 +2190,67 @@
                 addMessage('system', `${label} model selected. Start chatting.`);
                 applyThinkingUIForModel(modelId);
                 inputEl.focus();
+                return;
+            }
+
+            // LiteRT-LM (Gemma 4) in-browser path
+            if (provider === 'litertlm') {
+                isLoading = true;
+                const rawId = stripProvider(modelId);
+                const meta = LITERTLM_MODELS.find(m => m.id === rawId);
+                if (!meta) {
+                    statusEl.textContent = 'Unknown LiteRT-LM model: ' + rawId;
+                    isLoading = false;
+                    return;
+                }
+                statusEl.textContent = 'Loading ' + meta.label + ' (LiteRT-LM)...';
+                progressEl.style.display = 'block';
+                progressBar.style.width = '0%';
+                inputEl.disabled = true;
+                sendBtn.disabled = true;
+                messagesEl.innerHTML = '';
+                chatHistory = [];
+                addMessage('system', 'Loading model: ' + meta.label + '. First load may take a while (model file is several hundred MB).');
+
+                try {
+                    // Free other local engines to make room
+                    if (engine && typeof engine.unload === 'function') { try { await engine.unload(); } catch(e) {} }
+                    if (legacyEngine && typeof legacyEngine.unload === 'function') { try { await legacyEngine.unload(); } catch(e) {} }
+                    engine = null;
+                    legacyEngine = null;
+                    await unloadLitertlm();
+                    loadedModelId = null;
+
+                    const sdk = await ensureLitertlmSdk();
+                    const ctx = getCtxOverride() || 4096;
+                    progressBar.style.width = '20%';
+                    statusEl.textContent = 'Downloading & initializing ' + meta.label + '...';
+
+                    litertlmEngine = await sdk.Engine.create({
+                        model: meta.url,
+                        mainExecutorSettings: { maxNumTokens: ctx },
+                    });
+                    progressBar.style.width = '80%';
+                    litertlmConvo = await litertlmEngine.createConversation();
+
+                    loadedModelId = modelId;
+                    engineDead = false;
+                    statusEl.textContent = 'Ready — ' + meta.label + ' (ctx ' + ctx + ')';
+                    progressEl.style.display = 'none';
+                    inputEl.disabled = false;
+                    sendBtn.disabled = false;
+                    messagesEl.innerHTML = '';
+                    addMessage('system', 'Model loaded. Start chatting.');
+                    applyThinkingUIForModel(modelId);
+                    updateContextInfo(modelId, null);
+                    inputEl.focus();
+                } catch (err) {
+                    statusEl.textContent = 'Error: ' + (err?.message || err);
+                    progressEl.style.display = 'none';
+                    addMessage('system', 'Failed to load LiteRT-LM model: ' + (err?.message || err));
+                } finally {
+                    isLoading = false;
+                }
                 return;
             }
 
@@ -2164,6 +2275,7 @@
                 if (legacyEngine && typeof legacyEngine.unload === 'function') {
                     try { await legacyEngine.unload(); } catch(e) {}
                 }
+                await unloadLitertlm();
                 engine = null;
                 legacyEngine = null;
                 loadedModelId = null;
@@ -2231,6 +2343,13 @@
                     activeEngine = legacyModelIds.has(loadedModelId) ? legacyEngine : engine;
                     if (!activeEngine) return; // load failed
                 }
+            } else if (provider === 'litertlm') {
+                if (!litertlmEngine || !litertlmConvo || selectedModelId !== loadedModelId) {
+                    addMessage('system', litertlmEngine ? 'Switching LiteRT-LM model...' : 'No LiteRT-LM model loaded. Loading...');
+                    await window.loadLLMModel();
+                    if (!litertlmEngine || !litertlmConvo) return; // load failed
+                }
+                activeEngine = litertlmEngine;
             } else {
                 if (selectedModelId !== loadedModelId) {
                     await window.loadLLMModel();
@@ -2283,16 +2402,16 @@
                 let getChunkDelta = (chunk) => chunk; // default: string chunks
                 let cancelStream = () => {};
 
-                if (provider === 'webllm') {
-                    // --- Pre-flight token estimate ---
-                    // Rough heuristic (~4 chars/token). Refuse to send if we'd clearly
-                    // exceed the configured context window — this is what causes
-                    // "A valid external Instance reference no longer exists" (WebGPU OOM).
+                // --- Pre-flight token estimate (in-browser providers) ---
+                // Rough heuristic (~4 chars/token). Refuse to send if we'd clearly
+                // exceed the configured context window — this is what causes
+                // "A valid external Instance reference no longer exists" on WebGPU
+                // and similar OOM crashes on LiteRT-LM.
+                if (provider === 'webllm' || provider === 'litertlm') {
                     const ctxWin = getModelContextWindow(loadedModelId);
                     if (ctxWin) {
                         const promptChars = finalMsgs.reduce((s, m) => s + (typeof m.content === 'string' ? m.content.length : 0), 0);
                         const promptTokens = Math.ceil(promptChars / 4);
-                        // Reserve some headroom for the response (1/8 of context, min 256, max 1024).
                         const reserve = Math.max(256, Math.min(1024, Math.floor(ctxWin / 8)));
                         if (promptTokens + reserve > ctxWin) {
                             const msg = `Prompt is too large for the model's context window. ` +
@@ -2300,17 +2419,19 @@
                                 `Reduce attached log files (lower per-file cap or remove files), pick a model with a larger context, or raise "Context size" and reload.`;
                             assistantDiv.textContent = '⚠️ ' + msg;
                             assistantDiv.style.color = '#d29922';
-                            chatHistory.pop(); // remove the user message we optimistically pushed
+                            chatHistory.pop();
                             document.getElementById('chatStopBtn').style.display = 'none';
                             currentActiveEngine = null;
                             inputEl.disabled = false;
                             sendBtn.disabled = false;
-                            inputEl.value = text; // restore so the user can edit
+                            inputEl.value = text;
                             inputEl.focus();
                             return;
                         }
                     }
+                }
 
+                if (provider === 'webllm') {
                     const requestBody = {
                         messages: finalMsgs,
                         stream: true,
@@ -2337,6 +2458,38 @@
                     streamIter = iter;
                     getChunkDelta = (s) => s || '';
                     cancelStream = () => { try { iter.cancel && iter.cancel(); } catch(e) {} };
+                } else if (provider === 'litertlm') {
+                    // LiteRT-LM keeps its own conversation state. To stay consistent
+                    // with the rest of the chat (which re-injects system prompt +
+                    // log files each turn), re-create the conversation per call:
+                    // everything up to the new user message becomes the preface,
+                    // and we stream just the latest user text.
+                    if (!litertlmEngine) throw new Error('LiteRT-LM engine not initialized.');
+                    const lastUserIdx = finalMsgs.map(m => m.role).lastIndexOf('user');
+                    const prefaceMsgs = lastUserIdx >= 0 ? finalMsgs.slice(0, lastUserIdx) : finalMsgs;
+                    const lastUserText = lastUserIdx >= 0
+                        ? (typeof finalMsgs[lastUserIdx].content === 'string' ? finalMsgs[lastUserIdx].content : '')
+                        : '';
+
+                    // Recycle the previous conversation so resources are released.
+                    try { if (litertlmConvo && typeof litertlmConvo.cancel === 'function') litertlmConvo.cancel(); } catch(e) {}
+                    litertlmConvo = await litertlmEngine.createConversation(
+                        prefaceMsgs.length ? { preface: { messages: prefaceMsgs } } : undefined
+                    );
+
+                    const stream = litertlmConvo.sendMessageStreaming(lastUserText);
+                    streamIter = stream;
+                    getChunkDelta = (chunk) => {
+                        // chunk.content is an array of { type: 'text', text: '...' } items
+                        if (!chunk || !Array.isArray(chunk.content)) return '';
+                        let s = '';
+                        for (const item of chunk.content) {
+                            if (item && item.type === 'text' && typeof item.text === 'string') s += item.text;
+                            else if (typeof item === 'string') s += item;
+                        }
+                        return s;
+                    };
+                    cancelStream = () => { try { litertlmConvo && litertlmConvo.cancel && litertlmConvo.cancel(); } catch(e) {} };
                 }
 
                 let full = '';
@@ -2434,6 +2587,10 @@
                     try { currentActiveEngine.abort(); } catch(e) {}
                 }
             }
+            // LiteRT-LM cancel
+            if (litertlmConvo && typeof litertlmConvo.cancel === 'function') {
+                try { litertlmConvo.cancel(); } catch(e) {}
+            }
             // Remote stream abort (LM Studio / Puter)
             if (currentAbortController) {
                 try { currentAbortController.abort(); } catch(e) {}
@@ -2449,7 +2606,9 @@
             const provider = getProvider(loadedModelId);
             const hasModel = provider === 'webllm'
                 ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
-                : !!loadedModelId;
+                : provider === 'litertlm'
+                    ? !!litertlmEngine
+                    : !!loadedModelId;
             addMessage('system', hasModel ? 'Chat cleared. History kept in storage.' : 'No model loaded yet.');
             try { updateContextInfo(loadedModelId, null); } catch(e) {}
         };
