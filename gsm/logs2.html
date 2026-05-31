@@ -1118,6 +1118,7 @@
                     <option value="16384">16384</option>
                     <option value="32768">32768</option>
                 </select>
+                <button onclick="manageLitertlmCache()" class="tertiary-button" title="Inspect or clear cached LiteRT-LM model files" style="width:auto;padding:6px 10px;font-size:0.78rem;">Cache…</button>
             </div>
             <div id="llmStatus">Select a model and click Load to start.</div>
             <div id="llmStats" style="font-size:0.75rem;color:#484f58;margin-top:0.2rem;min-height:1em;"></div>
@@ -1872,6 +1873,48 @@
             litertlmEngine = null;
         }
 
+        // --- LiteRT-LM persistent cache (Cache API) ---
+        // Models are several hundred MB. The browser's HTTP cache evicts large
+        // resources, so we explicitly store them in a Cache API bucket that
+        // survives reloads. Exposed as a helper button in the UI.
+        const LITERTLM_CACHE_NAME = 'litertlm-models-v1';
+        window.manageLitertlmCache = async function() {
+            if (!('caches' in window)) {
+                alert('Cache API is not available in this browser.');
+                return;
+            }
+            try {
+                const cache = await caches.open(LITERTLM_CACHE_NAME);
+                const reqs = await cache.keys();
+                const formatBytes = (n) => {
+                    if (!n) return '0 B';
+                    const u = ['B','KB','MB','GB']; let i = 0; let v = n;
+                    while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+                    return v.toFixed(v >= 100 ? 0 : v >= 10 ? 1 : 2) + ' ' + u[i];
+                };
+                if (!reqs.length) {
+                    alert('LiteRT-LM cache is empty.\nModels will be downloaded on first use.');
+                    return;
+                }
+                const sizes = await Promise.all(reqs.map(async r => {
+                    const res = await cache.match(r);
+                    const blob = res ? await res.blob() : null;
+                    return { url: r.url, size: blob ? blob.size : 0 };
+                }));
+                const total = sizes.reduce((s, e) => s + e.size, 0);
+                const list = sizes.map(s => `• ${s.url.split('/').pop()} — ${formatBytes(s.size)}`).join('\n');
+                const ok = confirm(
+                    `LiteRT-LM cached models (${formatBytes(total)} total):\n\n${list}\n\nClick OK to clear the cache, or Cancel to keep it.`
+                );
+                if (ok) {
+                    await caches.delete(LITERTLM_CACHE_NAME);
+                    alert('LiteRT-LM cache cleared. Models will be re-downloaded on next load.');
+                }
+            } catch (err) {
+                alert('Cache error: ' + (err?.message || err));
+            }
+        };
+
         // LM Studio streaming caller (OpenAI-compatible /v1/chat/completions)
         async function callLMStudio(rawModel, messages, { signal } = {}) {
             const endpointInput = document.getElementById('lmstudioEndpoint');
@@ -2225,13 +2268,42 @@
                     const ctx = getCtxOverride() || 4096;
                     progressBar.style.width = '0%';
 
-                    // --- Streaming fetch with progress ---
-                    // The LiteRT-LM SDK accepts a URL, ReadableStream, or Blob for `model`.
-                    // We download the file ourselves so we can drive the existing progress
-                    // bar. Bytes are forwarded to the SDK via a ReadableStream as they arrive.
-                    statusEl.textContent = 'Downloading ' + meta.label + '...';
-                    const fetchRes = await fetch(meta.url, { cache: 'force-cache' });
-                    if (!fetchRes.ok) throw new Error('HTTP ' + fetchRes.status + ' fetching model');
+                    // --- Streaming fetch with progress + persistent cache ---
+                    // The browser's HTTP cache won't reliably store the model: it has
+                    // a per-resource size cap (~5% of disk cache) that excludes 400 MB+
+                    // files. Use the Cache API instead, which has no such restriction
+                    // and survives reloads.
+                    let cache = null;
+                    let cachedResponse = null;
+                    try {
+                        cache = await caches.open(LITERTLM_CACHE_NAME);
+                        cachedResponse = await cache.match(meta.url);
+                    } catch (e) {
+                        console.warn('Cache API unavailable, falling back to network only:', e);
+                    }
+
+                    let fetchRes;
+                    let fromCache = false;
+                    if (cachedResponse) {
+                        fromCache = true;
+                        statusEl.textContent = 'Loading ' + meta.label + ' from local cache...';
+                        fetchRes = cachedResponse;
+                    } else {
+                        statusEl.textContent = 'Downloading ' + meta.label + '...';
+                        const networkRes = await fetch(meta.url);
+                        if (!networkRes.ok) throw new Error('HTTP ' + networkRes.status + ' fetching model');
+                        // Store a clone in the Cache API for next time. Done in the
+                        // background — the user-facing stream still consumes the original.
+                        if (cache) {
+                            try {
+                                await cache.put(meta.url, networkRes.clone());
+                            } catch (e) {
+                                console.warn('Failed to store model in Cache API:', e);
+                            }
+                        }
+                        fetchRes = networkRes;
+                    }
+
                     const totalHdr = fetchRes.headers.get('content-length');
                     const total = totalHdr ? parseInt(totalHdr, 10) : 0;
                     let received = 0;
@@ -2259,13 +2331,14 @@
                             const now = performance.now();
                             if (now - lastUiUpdate > 100) {
                                 lastUiUpdate = now;
+                                const verb = fromCache ? 'Loading from cache' : 'Downloading';
                                 if (total > 0) {
                                     // Reserve top 5% of the bar for SDK initialization.
                                     const pct = Math.min(95, (received / total) * 95);
                                     progressBar.style.width = pct.toFixed(1) + '%';
-                                    statusEl.textContent = `Downloading ${meta.label}: ${formatBytes(received)} / ${formatBytes(total)} (${(received / total * 100).toFixed(1)}%)`;
+                                    statusEl.textContent = `${verb} ${meta.label}: ${formatBytes(received)} / ${formatBytes(total)} (${(received / total * 100).toFixed(1)}%)`;
                                 } else {
-                                    statusEl.textContent = `Downloading ${meta.label}: ${formatBytes(received)}`;
+                                    statusEl.textContent = `${verb} ${meta.label}: ${formatBytes(received)}`;
                                 }
                             }
                             controller.enqueue(value);
