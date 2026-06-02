@@ -5133,6 +5133,8 @@
                     .replace(/[\u{E0020}-\u{E007F}]/gu, '')   // tags
                     // Common symbols: bullets, arrows, math, misc
                     .replace(/[•◦▪▸▹►▻→←↑↓↔↕⇒⇐⇑⇓⇔★☆✓✔✗✘✕✖✦✧◆◇○●□■△▲▽▼◁◀▷▶♠♣♥♦♩♪♫♬§¶†‡©®™°±×÷≠≈≤≥∞∑∏√∫∂∆∇∈∉⊂⊃⊆⊇∪∩∧∨¬∀∃∅⊕⊗⊥∥⟨⟩⌈⌉⌊⌋«»‹›¡¿]/g, '')
+                    // Em/en/figure/horizontal-bar dashes → comma (e.g. "foo — bar" → "foo, bar")
+                    .replace(/\s*[\u2012\u2013\u2014\u2015]\s*/g, ', ')
                     // Tabs to space
                     .replace(/\t/g, ' ')
                     // Non-printable control chars
