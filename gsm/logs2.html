@@ -1113,8 +1113,8 @@
                 <select id="llmCtxOverride"
                     title="Context window size applied at the next model Load. The precompiled WASM does NOT cap this — pick a value that fits your model and available VRAM/RAM. Larger context uses more memory for the KV cache."
                     style="flex:1;min-width:0;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;">
-                    <option value="4096">4096</option>
-                    <option value="8192" selected>8192 (default)</option>
+                    <option value="4096" selected>4096 (default)</option>
+                    <option value="8192">8192</option>
                     <option value="16384">16384</option>
                     <option value="32768">32768</option>
                 </select>
@@ -1723,6 +1723,8 @@
         }
 
         // Probe LM Studio /models and refresh the dropdown.
+        // When invoked from the button (showErrors=true), the first detected LM Studio
+        // model is auto-selected in the dropdown.
         async function refreshLMStudioModels(showErrors = false) {
             const input = document.getElementById('lmstudioEndpoint');
             if (!input) return;
@@ -1739,6 +1741,14 @@
                 lmStudioAvailableModels = models;
                 try { localStorage.setItem(LMSTUDIO_ENDPOINT_KEY, endpoint); } catch(e) {}
                 populateModelSelect();
+                // On an explicit refresh (button click), select the first LM Studio model.
+                if (showErrors && models.length > 0) {
+                    const selectEl = document.getElementById('llmModelSelect');
+                    const firstVal = `lmstudio:${models[0]}`;
+                    if (selectEl && Array.from(selectEl.options).some(o => o.value === firstVal)) {
+                        selectEl.value = firstVal;
+                    }
+                }
                 if (showErrors) {
                     const el = document.getElementById('llmStatus');
                     if (el) el.textContent = `LM Studio: ${models.length} model(s) found.`;
