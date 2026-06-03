@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Title -->
     <title>Text, JSON & Base64 Tools</title>
-    <!-- Puter.js (cloud AI). Loaded only when ?enablePuter=true. -->
+    <!-- Puter.js (cloud AI). Enabled by default; pass ?enablePuter=false to disable. -->
     <script>
         (function() {
             try {
                 const params = new URLSearchParams(window.location.search);
                 const v = params.get('enablePuter');
-                window.__PUTER_ENABLED__ = (v === 'true' || v === '1');
+                // Enabled by default. Only an explicit opt-out disables it.
+                window.__PUTER_ENABLED__ = !(v === 'false' || v === '0');
                 if (window.__PUTER_ENABLED__) {
                     const s = document.createElement('script');
                     s.src = 'https://js.puter.com/v2/';
@@ -1851,11 +1852,37 @@
         }
 
         // Update the UI whenever the selection changes (even before load)
+        let puterWarningAcknowledged = false;
         document.getElementById('llmModelSelect').addEventListener('change', (e) => {
             applyThinkingUIForModel(e.target.value);
+            maybeWarnCloudModel(e.target.value);
         });
         // And apply it now for the initial selection
         try { applyThinkingUIForModel(document.getElementById('llmModelSelect').value); } catch(e) {}
+
+        // Warn when a cloud (Puter) model is chosen — these send your prompts,
+        // chat history, and any attached log files to a third-party cloud over
+        // the internet, unlike the in-browser (WebLLM / LiteRT-LM) options.
+        function maybeWarnCloudModel(modelId) {
+            const statusEl = document.getElementById('llmStatus');
+            if (modelId && modelId.startsWith('puter:')) {
+                const raw = modelId.slice('puter:'.length);
+                if (statusEl) {
+                    statusEl.innerHTML = `⚠️ <span style="color:#d29922;">Cloud model "${raw}" selected — messages and attached files will be sent over the internet to Puter (a third-party service). Do not use with confidential logs.</span>`;
+                }
+                if (!puterWarningAcknowledged) {
+                    puterWarningAcknowledged = true;
+                    setTimeout(() => {
+                        alert('Heads up: "' + raw + '" is a CLOUD model.\n\n' +
+                            'Your prompts, chat history, and any attached log files will be sent over the internet to Puter, a third-party service.\n\n' +
+                            'For private/offline use, pick a WebLLM or LiteRT-LM (in-browser) model instead.');
+                    }, 0);
+                }
+            } else if (statusEl && statusEl.textContent.startsWith('⚠️')) {
+                // Clear a lingering cloud warning when switching back to a local model.
+                statusEl.textContent = 'Select a model and click Load to start.';
+            }
+        }
 
         // --- Provider routing ---
         function getProvider(modelId) {

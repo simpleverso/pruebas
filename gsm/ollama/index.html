@@ -1525,15 +1525,21 @@
                 'qwen/qwen3-coder-480b-a35b-instruct',
             ];
 
-            // Puter models are hidden by default. Enable via URL flag: ?enablePuter=true
+            // Puter cloud models are enabled by default. Disable via URL flag: ?enablePuter=false
             const PUTER_ENABLED = (() => {
-                try { const v = new URLSearchParams(window.location.search).get('enablePuter'); return v === 'true' || v === '1'; }
-                catch(e) { return false; }
+                try { const v = new URLSearchParams(window.location.search).get('enablePuter'); return !(v === 'false' || v === '0'); }
+                catch(e) { return true; }
             })();
 
-            // WebLLM in-browser models are hidden by default. Enable via URL flag: ?enablewebllm=true
+            // WebLLM in-browser models are enabled by default. Disable via URL flag: ?enablewebllm=false
             const WEBLLM_ENABLED = (() => {
-                try { const params = new URLSearchParams(window.location.search); const v = params.get('enablewebllm') || params.get('enableWebllm') || params.get('enableWebLLM'); return v === 'true' || v === '1'; }
+                try { const params = new URLSearchParams(window.location.search); const v = params.get('enablewebllm') || params.get('enableWebllm') || params.get('enableWebLLM'); return !(v === 'false' || v === '0'); }
+                catch(e) { return true; }
+            })();
+
+            // LiteRT-LM (Gemma 4) in-browser models are hidden by default. Enable via URL flag: ?enablelitert=true
+            const LITERTLM_ENABLED = (() => {
+                try { const v = new URLSearchParams(window.location.search).get('enablelitert'); return v === 'true' || v === '1'; }
                 catch(e) { return false; }
             })();
 
@@ -3374,7 +3380,7 @@
                 modelsToShow.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `☁️ ${m.name || m.id}`; selectElement.appendChild(opt); });
                 if (lmStudioModels.length > 0) { const lmsHeader = document.createElement('option'); lmsHeader.disabled = true; lmsHeader.textContent = '--- LM Studio Models ---'; selectElement.appendChild(lmsHeader); lmStudioModels.forEach(m => { const opt = document.createElement('option'); opt.value = `lmstudio:${m.id}`; opt.textContent = `🖥️ [LM Studio] ${m.id}`; selectElement.appendChild(opt); }); }
                 if (webllmAvailableModels.length > 0 && WEBLLM_ENABLED) { const wllmHeader = document.createElement('option'); wllmHeader.disabled = true; wllmHeader.textContent = '--- WebLLM (In-Browser) Models ---'; selectElement.appendChild(wllmHeader); webllmAvailableModels.forEach(m => { const opt = document.createElement('option'); opt.value = `webllm:${m}`; opt.textContent = `🧠 [WebLLM] ${m}`; selectElement.appendChild(opt); }); }
-                {
+                if (LITERTLM_ENABLED) {
                     const litHeader = document.createElement('option'); litHeader.disabled = true; litHeader.textContent = '--- LiteRT-LM (In-Browser, Gemma 4) ---'; selectElement.appendChild(litHeader);
                     LITERTLM_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `litertlm:${m.id}`; opt.textContent = `✨ [LiteRT-LM] ${m.label}`; selectElement.appendChild(opt); });
                 }
