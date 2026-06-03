@@ -1559,10 +1559,10 @@
                 catch(e) { return true; }
             })();
 
-            // LiteRT-LM (Gemma 4) in-browser models are hidden by default. Enable via URL flag: ?enablelitert=true
+            // LiteRT-LM (Gemma 4) in-browser models are enabled by default. Disable via URL flag: ?enablelitert=false
             const LITERTLM_ENABLED = (() => {
-                try { const v = new URLSearchParams(window.location.search).get('enablelitert'); return v === 'true' || v === '1'; }
-                catch(e) { return false; }
+                try { const v = new URLSearchParams(window.location.search).get('enablelitert'); return !(v === 'false' || v === '0'); }
+                catch(e) { return true; }
             })();
 
             // --- Load Saved Values ---
