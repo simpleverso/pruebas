@@ -356,6 +356,7 @@
                                 </div>
                             </div>
                             <div id="dict-file-list" class="mt-2 flex flex-wrap gap-1"></div>
+                            <div id="dict-stats" class="mt-1 text-xs text-gray-400" style="min-height:1.2em;"></div>
                             <div id="dict-refs-display" class="hidden mt-2 max-h-48 overflow-y-auto bg-gray-900 border border-purple-800 rounded-lg p-3 text-xs text-purple-200 font-mono"></div>
                         </div>
                     </div>
@@ -1360,7 +1361,20 @@
                 dictLines = []; dictFileNames = [];
                 dictStatus.textContent = 'No files loaded';
                 dictFileList.innerHTML = '';
+                updateDictStats();
             });
+
+            // Calculate and display Characters, Tokens (est.), and Words for all loaded dictionary content.
+            const dictStatsEl = document.getElementById('dict-stats');
+            function updateDictStats() {
+                if (!dictStatsEl) return;
+                if (!dictLines.length) { dictStatsEl.textContent = ''; return; }
+                const allText = dictLines.map(l => l.text).join('\n');
+                const chars = allText.length;
+                const tokens = Math.ceil(chars / 4); // ~4 chars per token heuristic
+                const words = allText.split(/\s+/).filter(w => w.length > 0).length;
+                dictStatsEl.textContent = `Characters: ${chars.toLocaleString()} · Tokens (est.): ${tokens.toLocaleString()} · Words: ${words.toLocaleString()}`;
+            }
 
             // Toggle dictionary section enabled/disabled
             function updateDictEnabledState() {
@@ -1415,6 +1429,7 @@
                             dictFileNames = dictFileNames.filter(n => n !== fileName);
                             tag.remove();
                             dictStatus.textContent = dictLines.length > 0 ? `${dictLines.length} lines from ${dictFileNames.length} file(s)` : 'No files loaded';
+                            updateDictStats();
                         });
                         tag.appendChild(removeBtn);
                         dictFileList.appendChild(tag);
@@ -1424,6 +1439,7 @@
                 }
                 dictStatus.textContent = `${dictLines.length} lines from ${dictFileNames.length} file(s)`;
                 dictFileInput.value = '';
+                updateDictStats();
             });
 
             function searchDictionary(userText) {
