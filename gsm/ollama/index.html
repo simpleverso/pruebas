@@ -1538,6 +1538,10 @@
             ];
             const NVIDIA_MODELS = [
                 'nvidia/nemotron-mini-4b-instruct',
+                'nvidia/nemotron-3-super-120b-a12b',
+                'openai/gpt-oss-120b',
+                'openai/gpt-oss-20b',
+                'qwen/qwen3-next-80b-a3b-instruct',
                 'qwen/qwen3-coder-480b-a35b-instruct',
             ];
 
@@ -2054,6 +2058,15 @@
 
             // NVIDIA integrate.api.nvidia.com caller (OpenAI-compatible)
             // Uses puter.net.fetch (CORS-free) when Puter.js is available, otherwise native fetch.
+            // The nemotron-3-super-120b model supports reasoning (thinking) via extra_body.
+            const NVIDIA_THINKING_MODELS = ['nvidia/nemotron-3-super-120b-a12b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+            // Per-model parameter overrides (temperature, top_p, max_tokens).
+            const NVIDIA_MODEL_PARAMS = {
+                'nvidia/nemotron-3-super-120b-a12b': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'openai/gpt-oss-120b': { temperature: 1, top_p: 1, max_tokens: 4096 },
+                'openai/gpt-oss-20b': { temperature: 1, top_p: 1, max_tokens: 4096 },
+                'qwen/qwen3-next-80b-a3b-instruct': { temperature: 0.6, top_p: 0.7, max_tokens: 4096 },
+            };
             async function callNvidia(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
                 const apiKey = nvidiaApiKeyInput.value.trim();
                 if (!apiKey) { showMessage('NVIDIA API Key is missing.', 'error'); throw new Error('NVIDIA API Key missing'); }
@@ -2062,7 +2075,22 @@
                 if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
                 if (typeof promptOrMessages === 'string') { messages.push({ role: 'user', content: promptOrMessages }); }
                 else if (Array.isArray(promptOrMessages)) { promptOrMessages.filter(m => m.role !== 'system').forEach(msg => { messages.push({ role: msg.role === 'model' ? 'assistant' : msg.role, content: msg.content }); }); }
-                const payload = { model, messages, temperature: 0.2, top_p: 0.7, max_tokens: 1024, stream };
+                const isThinkingModel = NVIDIA_THINKING_MODELS.includes(model);
+                const params = NVIDIA_MODEL_PARAMS[model] || { temperature: 0.2, top_p: 0.7, max_tokens: 1024 };
+                const payload = {
+                    model,
+                    messages,
+                    temperature: params.temperature,
+                    top_p: params.top_p,
+                    max_tokens: params.max_tokens,
+                    stream,
+                };
+                if (isThinkingModel && model === 'nvidia/nemotron-3-super-120b-a12b') {
+                    payload.extra_body = {
+                        chat_template_kwargs: { enable_thinking: true },
+                        reasoning_budget: 16384,
+                    };
+                }
                 if (onDebug) onDebug(payload);
                 // Prefer Puter.js's CORS-free fetch; NVIDIA's API doesn't send CORS headers for browser origins
                 const fetchFn = (window.puter && window.puter.net && typeof window.puter.net.fetch === 'function')
@@ -2078,10 +2106,39 @@
                 if (!response.ok) { const errorText = await response.text(); throw new Error(`NVIDIA API Error ${response.status}: ${errorText}`); }
                 if (stream) {
                     const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
-                    return { reader, processChunk: (chunkValue) => { buffer += decoder.decode(chunkValue, { stream: true }); const lines = buffer.split('\n'); buffer = lines.pop(); const chunks = []; for (const line of lines) { const trimmed = line.trim(); if (!trimmed || trimmed === 'data: [DONE]' || trimmed.startsWith(':')) continue; if (trimmed.startsWith('data: ')) { try { const json = JSON.parse(trimmed.substring(6)); if (json.choices && json.choices.length > 0) { const delta = json.choices[0].delta; if (delta && delta.content) chunks.push(delta.content); } } catch (e) { console.warn('NVIDIA stream parse error', e); } } } return chunks; } };
+                    return { reader, processChunk: (chunkValue) => {
+                        buffer += decoder.decode(chunkValue, { stream: true });
+                        const lines = buffer.split('\n'); buffer = lines.pop();
+                        const chunks = [];
+                        for (const line of lines) {
+                            const trimmed = line.trim();
+                            if (!trimmed || trimmed === 'data: [DONE]' || trimmed.startsWith(':')) continue;
+                            if (trimmed.startsWith('data: ')) {
+                                try {
+                                    const json = JSON.parse(trimmed.substring(6));
+                                    if (json.choices && json.choices.length > 0) {
+                                        const delta = json.choices[0].delta;
+                                        // reasoning_content comes as a separate field for thinking models
+                                        if (delta && delta.reasoning_content) {
+                                            chunks.push(delta.reasoning_content);
+                                        }
+                                        if (delta && delta.content) {
+                                            chunks.push(delta.content);
+                                        }
+                                    }
+                                } catch (e) { console.warn('NVIDIA stream parse error', e); }
+                            }
+                        }
+                        return chunks;
+                    } };
                 }
                 const data = await response.json();
-                if (data.choices && data.choices.length > 0 && data.choices[0].message) return data.choices[0].message.content;
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                    let result = '';
+                    if (data.choices[0].message.reasoning_content) result += data.choices[0].message.reasoning_content;
+                    if (data.choices[0].message.content) result += data.choices[0].message.content;
+                    return result || '';
+                }
                 throw new Error('Invalid NVIDIA response format');
             }
 
