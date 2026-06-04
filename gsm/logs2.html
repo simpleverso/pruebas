@@ -6381,7 +6381,9 @@
     var receivedChunks = {}, totalExpected = 0;
 
     // Populate camera list
+    var camerasPopulated = false;
     async function populateCameras() {
+        if (camerasPopulated) return;
         try {
             // Need a temp stream to trigger permission prompt (required to get labels)
             var tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -6396,11 +6398,12 @@
                 recvCamSelect.appendChild(opt);
             });
             if (!cams.length) recvCamSelect.innerHTML = '<option value="">No cameras found</option>';
+            camerasPopulated = true;
         } catch(e) {
             recvCamSelect.innerHTML = '<option value="">Camera access denied</option>';
         }
     }
-    populateCameras();
+    // Do NOT call populateCameras() on page load — only when user opens Receive tab or clicks Start.
 
     recvStopBtn.onclick = function() { stopRecv(); };
     function stopRecv() {
@@ -6411,6 +6414,9 @@
     }
 
     recvStartBtn.addEventListener('click', async function() {
+        // Populate cameras on first use (this is where permission is requested)
+        await populateCameras();
+
         // Load jsQR + pako
         if (!window.jsQR) {
             recvStatus.textContent = 'Loading QR scanner...';
