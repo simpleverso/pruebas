@@ -6104,11 +6104,20 @@
             <span id="qrSendStatus" style="font-size:0.78rem;color:#8b949e;"></span>
         </div>
         <div id="qrSendOutput" style="margin-top:1rem;text-align:center;"></div>
-        <div id="qrSendNav" style="display:none;margin-top:0.5rem;display:flex;text-align:center;gap:8px;justify-content:center;align-items:center;">
+        <div id="qrSendNav" style="display:none;margin-top:0.5rem;text-align:center;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
             <button id="qrPrev" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;cursor:pointer;">&#8592; Prev</button>
             <span id="qrPage" style="font-size:0.8rem;color:#8b949e;min-width:80px;display:inline-block;text-align:center;"></span>
             <button id="qrNext" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;cursor:pointer;">Next &#8594;</button>
-            <button id="qrAutoPlay" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;">&#9654; Auto</button>
+            <button id="qrAutoPlay" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;">&#9208; Stop</button>
+            <label style="font-size:0.78rem;color:#8b949e;display:flex;align-items:center;gap:4px;">
+                Speed:
+                <select id="qrAutoSpeed" style="padding:3px 6px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#c9d1d9;font-size:0.78rem;">
+                    <option value="600">Fast (0.6s)</option>
+                    <option value="1200" selected>Normal (1.2s)</option>
+                    <option value="2000">Slow (2s)</option>
+                    <option value="3000">Very slow (3s)</option>
+                </select>
+            </label>
         </div>
     </div>
 
@@ -6297,10 +6306,25 @@
             qrImages.push(container);
         }
 
-        sendStatus.textContent = totalChunks+' QR code(s) ready. Use arrows or Auto to cycle.';
+        sendStatus.textContent = totalChunks+' QR code(s) ready. Auto-cycling...';
         showQR(0);
         sendNav.style.display = 'flex';
+        // Auto-start cycling
+        startAutoPlay();
     });
+
+    function getAutoSpeed() { return parseInt(document.getElementById('qrAutoSpeed').value) || 1200; }
+    function startAutoPlay() {
+        if (autoInterval) clearInterval(autoInterval);
+        var btn = document.getElementById('qrAutoPlay');
+        btn.innerHTML = '&#9208; Stop';
+        autoInterval = setInterval(function(){ if(qrIdx>=qrImages.length-1) qrIdx=-1; showQR(qrIdx+1); }, getAutoSpeed());
+    }
+    function stopAutoPlay() {
+        if (autoInterval) { clearInterval(autoInterval); autoInterval=null; }
+        var btn = document.getElementById('qrAutoPlay');
+        btn.innerHTML = '&#9654; Auto';
+    }
 
     function showQR(idx) {
         qrIdx = Math.max(0, Math.min(idx, qrImages.length-1));
@@ -6308,13 +6332,13 @@
         sendOutput.appendChild(qrImages[qrIdx]);
         document.getElementById('qrPage').textContent = (qrIdx+1)+' / '+qrImages.length;
     }
-    document.getElementById('qrPrev').onclick = function(){ showQR(qrIdx-1); };
-    document.getElementById('qrNext').onclick = function(){ showQR(qrIdx+1); };
+    document.getElementById('qrPrev').onclick = function(){ stopAutoPlay(); showQR(qrIdx-1); };
+    document.getElementById('qrNext').onclick = function(){ stopAutoPlay(); showQR(qrIdx+1); };
     document.getElementById('qrAutoPlay').onclick = function(){
-        var btn = this;
-        if (autoInterval) { clearInterval(autoInterval); autoInterval=null; btn.innerHTML='&#9654; Auto'; return; }
-        btn.innerHTML='&#9208; Stop';
-        autoInterval = setInterval(function(){ if(qrIdx>=qrImages.length-1) qrIdx=-1; showQR(qrIdx+1); }, 1200);
+        if (autoInterval) { stopAutoPlay(); } else { startAutoPlay(); }
+    };
+    document.getElementById('qrAutoSpeed').onchange = function() {
+        if (autoInterval) { stopAutoPlay(); startAutoPlay(); }
     };
 
     // ============================
