@@ -6457,14 +6457,27 @@
         recvVideo.srcObject = recvStream;
         recvVideo.style.display = 'block';
         recvStopBtn.style.display = '';
-        recvStatus.textContent = 'Scanning... Show QR codes one by one.';
+        recvStatus.textContent = 'Starting camera...';
         receivedChunks = {}; totalExpected = 0; recvMetadata = null;
         recvResult.innerHTML = '';
 
+        // Ensure video is actually playing before scanning
+        try { await recvVideo.play(); } catch(e) { /* autoplay may handle it */ }
+        // Wait for video to have actual frame data
+        await new Promise(function(resolve) {
+            if (recvVideo.readyState >= recvVideo.HAVE_ENOUGH_DATA) { resolve(); return; }
+            recvVideo.addEventListener('loadeddata', resolve, { once: true });
+            // Fallback timeout in case event doesn't fire
+            setTimeout(resolve, 2000);
+        });
+        recvStatus.textContent = 'Scanning... Point camera at QR codes.';
+
         var ctx = recvCanvas.getContext('2d', { willReadFrequently: true });
+        var frameCount = 0;
         function scanFrame() {
             if (!recvStream) return;
             if (recvVideo.readyState === recvVideo.HAVE_ENOUGH_DATA) {
+                frameCount++;
                 var vw = recvVideo.videoWidth, vh = recvVideo.videoHeight;
                 var mirror = recvMirror.checked;
                 var rot = parseInt(recvRotate.value) || 0;
@@ -6489,8 +6502,15 @@
                     if (d.indexOf('QRFT|') === 0) {
                         processChunk(d);
                     } else {
-                        // Show what was read (for debugging scan issues)
-                        recvStatus.textContent = 'Scanning... (read non-QRFT code: ' + d.slice(0,50) + '...)';
+                        recvStatus.textContent = 'Frame '+frameCount+': read non-QRFT QR (' + d.slice(0,30) + '...)';
+                    }
+                } else if (frameCount % 60 === 0) {
+                    // Every ~1 second (at 60fps), update status to show scan is active
+                    var got = Object.keys(receivedChunks).length;
+                    if (got > 0) {
+                        recvStatus.textContent = 'Scanning (frame '+frameCount+')... '+got+'/'+(totalExpected||'?')+' chunks received.';
+                    } else {
+                        recvStatus.textContent = 'Scanning (frame '+frameCount+')... Point camera at QR code.';
                     }
                 }
             }
