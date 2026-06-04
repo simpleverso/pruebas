@@ -6312,19 +6312,29 @@
             });
         }
 
-        // Generate larger QR images (500x500)
-        for (var q=0; q<qrCodes.length; q++) {
-            var container = document.createElement('div');
-            container.style.display = 'inline-block';
-            new QRCode(container, { text: qrCodes[q], width:600, height:600, correctLevel: QRCode.CorrectLevel.L });
-            qrImages.push(container);
+        // Generate QR images in batches to avoid freezing the browser.
+        // Each batch renders a few codes then yields to the event loop.
+        var BATCH_SIZE = 5;
+        var q = 0;
+        function renderBatch() {
+            var end = Math.min(q + BATCH_SIZE, qrCodes.length);
+            for (; q < end; q++) {
+                var container = document.createElement('div');
+                container.style.display = 'inline-block';
+                new QRCode(container, { text: qrCodes[q], width:600, height:600, correctLevel: QRCode.CorrectLevel.L });
+                qrImages.push(container);
+            }
+            sendStatus.textContent = 'Rendering QR codes: ' + q + '/' + qrCodes.length + '...';
+            if (q < qrCodes.length) {
+                requestAnimationFrame(renderBatch);
+            } else {
+                sendStatus.textContent = qrCodes.length + ' QR code(s) ready. Auto-cycling...';
+                showQR(0);
+                sendNav.style.display = 'flex';
+                startAutoPlay();
+            }
         }
-
-        sendStatus.textContent = totalChunks+' QR code(s) ready. Auto-cycling...';
-        showQR(0);
-        sendNav.style.display = 'flex';
-        // Auto-start cycling
-        startAutoPlay();
+        renderBatch();
     });
 
     function getAutoSpeed() { return parseInt(document.getElementById('qrAutoSpeed').value) || 1200; }
