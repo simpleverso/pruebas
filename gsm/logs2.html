@@ -6246,9 +6246,10 @@
         sendFileList.querySelectorAll('button').forEach(function(btn){ btn.onclick=function(){sendFiles.splice(parseInt(btn.dataset.i),1);renderSendFiles();}; });
     }
 
-    // Chunk size: QR version 40 Low ECC can hold ~2953 bytes binary. Using base64
-    // (which inflates 33%) and JSON framing, 2200 chars per chunk is safe.
-    var QR_CHUNK_SIZE = 2200;
+    // Chunk size: reduced to ~1750 chars per QR code for more reliable scanning.
+    // QR version 40 Low ECC holds ~2953 bytes, but real-world camera reads are
+    // much more reliable with less density. 1750 is ~80% of the previous 2200.
+    var QR_CHUNK_SIZE = 1750;
 
     sendGenBtn.addEventListener('click', async function() {
         sendStatus.textContent = 'Compressing...';
@@ -6259,34 +6260,47 @@
 
         await ensurePako();
 
-        var payload;
+        var payload, metadata;
         if (currentSendMode === 'text') {
             var text = sendTextEl.value;
             if (!text.trim()) { sendStatus.textContent='Nothing to send.'; return; }
-            // Compress text
             var textBytes = new TextEncoder().encode(text);
             var compressed = compressToB64(textBytes);
             payload = JSON.stringify({ type:'text', z: compressed });
+            metadata = { type:'text', chars: text.length, compressedSize: compressed.length };
         } else {
             if (!sendFiles.length) { sendStatus.textContent='No files to send.'; return; }
             var filesArr = [];
+            var metaFiles = [];
             for (var i=0; i<sendFiles.length; i++) {
                 var f = sendFiles[i];
                 var buf = await f.arrayBuffer();
                 var compressed = compressToB64(new Uint8Array(buf));
                 filesArr.push({ name: f.name, z: compressed });
+                metaFiles.push({ name: f.name, size: f.size, type: f.type || 'unknown', compressedSize: compressed.length });
             }
             payload = JSON.stringify({ type:'files', files: filesArr });
+            metadata = { type:'files', count: sendFiles.length, files: metaFiles, totalSize: metaFiles.reduce(function(s,m){return s+m.size;},0) };
         }
 
-        // Split into chunks
-        var totalChunks = Math.ceil(payload.length / QR_CHUNK_SIZE);
-        for (var c=0; c<totalChunks; c++) {
-            var chunk = payload.slice(c*QR_CHUNK_SIZE, (c+1)*QR_CHUNK_SIZE);
-            qrCodes.push('QRFT|'+c+'|'+totalChunks+'|'+chunk);
+        // Split data payload into chunks (indices 1..N)
+        var dataChunks = [];
+        for (var c=0; c<payload.length; c+=QR_CHUNK_SIZE) {
+            dataChunks.push(payload.slice(c, c+QR_CHUNK_SIZE));
+        }
+        // Total QR codes = 1 (metadata) + dataChunks.length
+        var totalQR = 1 + dataChunks.length;
+        metadata.totalChunks = totalQR;
+        metadata.dataChunks = dataChunks.length;
+
+        // Chunk 0 = metadata
+        qrCodes.push('QRFT|0|'+totalQR+'|META|'+JSON.stringify(metadata));
+        // Chunks 1..N = data
+        for (var d=0; d<dataChunks.length; d++) {
+            qrCodes.push('QRFT|'+(d+1)+'|'+totalQR+'|DATA|'+dataChunks[d]);
         }
 
-        sendStatus.textContent = 'Generated '+totalChunks+' QR code(s). Loading QR library...';
+        sendStatus.textContent = 'Generated '+totalQR+' QR code(s) (1 metadata + '+dataChunks.length+' data). Loading QR library...';
 
         // Load qrcode.js
         if (!window.QRCode) {
@@ -6302,7 +6316,7 @@
         for (var q=0; q<qrCodes.length; q++) {
             var container = document.createElement('div');
             container.style.display = 'inline-block';
-            new QRCode(container, { text: qrCodes[q], width:500, height:500, correctLevel: QRCode.CorrectLevel.L });
+            new QRCode(container, { text: qrCodes[q], width:600, height:600, correctLevel: QRCode.CorrectLevel.L });
             qrImages.push(container);
         }
 
@@ -6415,7 +6429,7 @@
         recvVideo.style.display = 'block';
         recvStopBtn.style.display = '';
         recvStatus.textContent = 'Scanning... Show QR codes one by one.';
-        receivedChunks = {}; totalExpected = 0;
+        receivedChunks = {}; totalExpected = 0; recvMetadata = null;
         recvResult.innerHTML = '';
 
         var ctx = recvCanvas.getContext('2d', { willReadFrequently: true });
@@ -6450,18 +6464,33 @@
         scanFrame();
     });
 
+    var recvMetadata = null; // stores parsed metadata from chunk 0
+
     function processChunk(data) {
         var parts = data.split('|');
-        if (parts.length < 4 || parts[0] !== 'QRFT') return;
+        if (parts.length < 5 || parts[0] !== 'QRFT') return;
         var idx = parseInt(parts[1],10);
         var total = parseInt(parts[2],10);
-        var chunk = parts.slice(3).join('|');
+        var chunkType = parts[3]; // META or DATA
+        var chunk = parts.slice(4).join('|');
         if (!isFinite(idx) || !isFinite(total)) return;
         totalExpected = total;
         if (receivedChunks[idx]) return;
-        receivedChunks[idx] = chunk;
+        receivedChunks[idx] = { type: chunkType, data: chunk };
         var got = Object.keys(receivedChunks).length;
-        recvStatus.textContent = 'Received chunk '+got+'/'+total+'...';
+
+        // Display metadata as soon as we get it (chunk 0)
+        if (chunkType === 'META' && !recvMetadata) {
+            try {
+                recvMetadata = JSON.parse(chunk);
+                showRecvMetadata(recvMetadata);
+            } catch(e) {}
+        }
+
+        var dataGot = Object.keys(receivedChunks).filter(function(k){ return receivedChunks[k].type === 'DATA'; }).length;
+        var dataTotal = total - 1; // exclude metadata chunk
+        recvStatus.textContent = 'Received '+got+'/'+total+' (data: '+dataGot+'/'+dataTotal+')...';
+
         if (got >= total) {
             stopRecv();
             recvStatus.textContent = 'All chunks received! Decompressing...';
@@ -6469,12 +6498,32 @@
         }
     }
 
+    function showRecvMetadata(meta) {
+        var html = '<div style="text-align:left;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:0.75rem;margin-bottom:0.5rem;font-size:0.8rem;color:#c9d1d9;">';
+        html += '<p style="margin:0 0 0.3rem;color:#58a6ff;font-weight:600;">Transfer details:</p>';
+        if (meta.type === 'text') {
+            html += '<p style="margin:0;">Type: Text · Characters: '+meta.chars.toLocaleString()+'</p>';
+        } else if (meta.type === 'files') {
+            html += '<p style="margin:0 0 0.3rem;">Type: File(s) · Count: '+meta.count+' · Total size: '+(meta.totalSize/1024).toFixed(1)+' KB</p>';
+            if (meta.files) {
+                meta.files.forEach(function(f) {
+                    html += '<p style="margin:0;padding-left:0.5rem;color:#8b949e;">📄 '+escHtml(f.name)+' — '+(f.size/1024).toFixed(1)+' KB ('+f.type+')</p>';
+                });
+            }
+        }
+        html += '<p style="margin:0.3rem 0 0;color:#8b949e;">Total QR codes: '+meta.totalChunks+' (1 metadata + '+meta.dataChunks+' data)</p>';
+        html += '</div>';
+        recvResult.innerHTML = html;
+    }
+
     function reassemble() {
         try {
+            // Collect only DATA chunks in order (indices 1..N)
             var ordered = [];
-            for (var i=0; i<totalExpected; i++) {
+            for (var i=1; i<totalExpected; i++) {
                 if (!receivedChunks[i]) throw new Error('Missing chunk '+i);
-                ordered.push(receivedChunks[i]);
+                if (receivedChunks[i].type !== 'DATA') throw new Error('Expected DATA at chunk '+i);
+                ordered.push(receivedChunks[i].data);
             }
             var json = ordered.join('');
             var payload = JSON.parse(json);
@@ -6482,7 +6531,7 @@
             if (payload.type === 'text') {
                 var inflated = decompressFromB64(payload.z);
                 var text = new TextDecoder().decode(inflated);
-                recvResult.innerHTML = '<p style="color:#3fb950;font-weight:600;">Text received:</p>' +
+                recvResult.innerHTML += '<p style="color:#3fb950;font-weight:600;">Text received:</p>' +
                     '<textarea readonly style="width:100%;min-height:100px;padding:10px;font-size:0.85rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:8px;resize:vertical;">'+escHtml(text)+'</textarea>' +
                     '<button id="qrRecvCopyBtn" style="margin-top:6px;padding:6px 14px;border-radius:6px;border:none;background:#1f6feb;color:#fff;cursor:pointer;font-size:0.8rem;">Copy</button>';
                 document.getElementById('qrRecvCopyBtn').onclick = function() {
@@ -6490,7 +6539,7 @@
                 };
                 recvStatus.textContent = 'Text received (' + text.length + ' chars).';
             } else if (payload.type === 'files' && Array.isArray(payload.files)) {
-                recvResult.innerHTML = '<p style="color:#3fb950;font-weight:600;">Files recovered:</p>';
+                recvResult.innerHTML += '<p style="color:#3fb950;font-weight:600;">Files recovered:</p>';
                 for (var i=0; i<payload.files.length; i++) {
                     var f = payload.files[i];
                     var inflated = decompressFromB64(f.z);
