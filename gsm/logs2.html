@@ -6246,9 +6246,9 @@
         sendFileList.querySelectorAll('button').forEach(function(btn){ btn.onclick=function(){sendFiles.splice(parseInt(btn.dataset.i),1);renderSendFiles();}; });
     }
 
-    // Chunk size: reduced to ~900 chars per QR code for reliable scanning.
-    // Less data per code = larger modules = much easier for cameras to read.
-    var QR_CHUNK_SIZE = 900;
+    // Chunk size: 450 chars per QR code for very easy scanning.
+    // Lower density = bigger QR modules = much more reliable camera reads.
+    var QR_CHUNK_SIZE = 450;
 
     sendGenBtn.addEventListener('click', async function() {
         sendStatus.textContent = 'Compressing...';
@@ -6266,7 +6266,7 @@
             var textBytes = new TextEncoder().encode(text);
             var compressed = compressToB64(textBytes);
             payload = JSON.stringify({ type:'text', z: compressed });
-            metadata = { type:'text', chars: text.length, compressedSize: compressed.length };
+            metadata = { type:'text', chars: text.length };
         } else {
             if (!sendFiles.length) { sendStatus.textContent='No files to send.'; return; }
             var filesArr = [];
@@ -6276,7 +6276,7 @@
                 var buf = await f.arrayBuffer();
                 var compressed = compressToB64(new Uint8Array(buf));
                 filesArr.push({ name: f.name, z: compressed });
-                metaFiles.push({ name: f.name.length > 40 ? f.name.slice(0,37)+'...' : f.name, size: f.size, type: f.type || '?' });
+                metaFiles.push({ name: f.name.length > 20 ? f.name.slice(0,17)+'...' : f.name, size: f.size });
             }
             payload = JSON.stringify({ type:'files', files: filesArr });
             metadata = { type:'files', count: sendFiles.length, files: metaFiles, totalSize: metaFiles.reduce(function(s,m){return s+m.size;},0) };
@@ -6292,12 +6292,19 @@
         metadata.totalChunks = totalQR;
         metadata.dataChunks = dataChunks.length;
 
-        // Chunk 0 = metadata (capped to QR_CHUNK_SIZE to ensure it's scannable)
+        // Chunk 0 = metadata (must be small enough to scan reliably)
+        // Cap: total QR payload is "QRFT|0|NNN|META|..." so ~25 chars overhead.
+        // Keep metaStr under 400 chars for the 450-char QR budget.
         var metaStr = JSON.stringify(metadata);
-        if (metaStr.length > QR_CHUNK_SIZE) {
-            // Too much metadata — trim file list to just count + total size
-            metadata.files = metadata.files ? metadata.files.slice(0, 3) : [];
-            if (metadata.count > 3) metadata.note = '(showing first 3 of ' + metadata.count + ')';
+        while (metaStr.length > 400 && metadata.files && metadata.files.length > 1) {
+            metadata.files.pop();
+            metadata.note = metadata.count + ' file(s) total';
+            metaStr = JSON.stringify(metadata);
+        }
+        if (metaStr.length > 400) {
+            // Last resort: strip file list entirely
+            delete metadata.files;
+            metadata.note = metadata.count + ' file(s), ' + (metadata.totalSize/1024).toFixed(0) + ' KB total';
             metaStr = JSON.stringify(metadata);
         }
         qrCodes.push('QRFT|0|'+totalQR+'|META|'+metaStr);
@@ -6477,8 +6484,14 @@
 
                 var imgData = ctx.getImageData(0, 0, cw, ch);
                 var code = jsQR(imgData.data, cw, ch, { inversionAttempts:'attemptBoth' });
-                if (code && code.data && code.data.indexOf('QRFT|') === 0) {
-                    processChunk(code.data);
+                if (code && code.data) {
+                    var d = code.data.trim();
+                    if (d.indexOf('QRFT|') === 0) {
+                        processChunk(d);
+                    } else {
+                        // Show what was read (for debugging scan issues)
+                        recvStatus.textContent = 'Scanning... (read non-QRFT code: ' + d.slice(0,50) + '...)';
+                    }
                 }
             }
             recvAnimId = requestAnimationFrame(scanFrame);
@@ -6522,18 +6535,19 @@
 
     function showRecvMetadata(meta) {
         var html = '<div style="text-align:left;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:0.75rem;margin-bottom:0.5rem;font-size:0.8rem;color:#c9d1d9;">';
-        html += '<p style="margin:0 0 0.3rem;color:#58a6ff;font-weight:600;">Transfer details:</p>';
+        html += '<p style="margin:0 0 0.3rem;color:#58a6ff;font-weight:600;">&#128229; Incoming transfer:</p>';
         if (meta.type === 'text') {
-            html += '<p style="margin:0;">Type: Text · Characters: '+meta.chars.toLocaleString()+'</p>';
+            html += '<p style="margin:0;">Type: Text · Characters: '+(meta.chars||0).toLocaleString()+'</p>';
         } else if (meta.type === 'files') {
-            html += '<p style="margin:0 0 0.3rem;">Type: File(s) · Count: '+meta.count+' · Total size: '+(meta.totalSize/1024).toFixed(1)+' KB</p>';
-            if (meta.files) {
+            html += '<p style="margin:0 0 0.3rem;">Type: File(s) · Count: '+(meta.count||0)+' · Total: '+((meta.totalSize||0)/1024).toFixed(1)+' KB</p>';
+            if (meta.files && meta.files.length) {
                 meta.files.forEach(function(f) {
-                    html += '<p style="margin:0;padding-left:0.5rem;color:#8b949e;">📄 '+escHtml(f.name)+' — '+(f.size/1024).toFixed(1)+' KB ('+f.type+')</p>';
+                    html += '<p style="margin:0;padding-left:0.5rem;color:#8b949e;">&#128196; '+escHtml(f.name)+' — '+(f.size/1024).toFixed(1)+' KB</p>';
                 });
             }
+            if (meta.note) html += '<p style="margin:0;padding-left:0.5rem;color:#8b949e;font-style:italic;">'+escHtml(meta.note)+'</p>';
         }
-        html += '<p style="margin:0.3rem 0 0;color:#8b949e;">Total QR codes: '+meta.totalChunks+' (1 metadata + '+meta.dataChunks+' data)</p>';
+        html += '<p style="margin:0.3rem 0 0;color:#8b949e;">QR codes to scan: '+(meta.totalChunks||'?')+' (1 info + '+(meta.dataChunks||'?')+' data)</p>';
         html += '</div>';
         recvResult.innerHTML = html;
     }
