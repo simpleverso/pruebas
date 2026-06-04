@@ -6246,10 +6246,9 @@
         sendFileList.querySelectorAll('button').forEach(function(btn){ btn.onclick=function(){sendFiles.splice(parseInt(btn.dataset.i),1);renderSendFiles();}; });
     }
 
-    // Chunk size: reduced to ~1750 chars per QR code for more reliable scanning.
-    // QR version 40 Low ECC holds ~2953 bytes, but real-world camera reads are
-    // much more reliable with less density. 1750 is ~80% of the previous 2200.
-    var QR_CHUNK_SIZE = 1750;
+    // Chunk size: reduced to ~900 chars per QR code for reliable scanning.
+    // Less data per code = larger modules = much easier for cameras to read.
+    var QR_CHUNK_SIZE = 900;
 
     sendGenBtn.addEventListener('click', async function() {
         sendStatus.textContent = 'Compressing...';
@@ -6277,7 +6276,7 @@
                 var buf = await f.arrayBuffer();
                 var compressed = compressToB64(new Uint8Array(buf));
                 filesArr.push({ name: f.name, z: compressed });
-                metaFiles.push({ name: f.name, size: f.size, type: f.type || 'unknown', compressedSize: compressed.length });
+                metaFiles.push({ name: f.name.length > 40 ? f.name.slice(0,37)+'...' : f.name, size: f.size, type: f.type || '?' });
             }
             payload = JSON.stringify({ type:'files', files: filesArr });
             metadata = { type:'files', count: sendFiles.length, files: metaFiles, totalSize: metaFiles.reduce(function(s,m){return s+m.size;},0) };
@@ -6293,8 +6292,15 @@
         metadata.totalChunks = totalQR;
         metadata.dataChunks = dataChunks.length;
 
-        // Chunk 0 = metadata
-        qrCodes.push('QRFT|0|'+totalQR+'|META|'+JSON.stringify(metadata));
+        // Chunk 0 = metadata (capped to QR_CHUNK_SIZE to ensure it's scannable)
+        var metaStr = JSON.stringify(metadata);
+        if (metaStr.length > QR_CHUNK_SIZE) {
+            // Too much metadata — trim file list to just count + total size
+            metadata.files = metadata.files ? metadata.files.slice(0, 3) : [];
+            if (metadata.count > 3) metadata.note = '(showing first 3 of ' + metadata.count + ')';
+            metaStr = JSON.stringify(metadata);
+        }
+        qrCodes.push('QRFT|0|'+totalQR+'|META|'+metaStr);
         // Chunks 1..N = data
         for (var d=0; d<dataChunks.length; d++) {
             qrCodes.push('QRFT|'+(d+1)+'|'+totalQR+'|DATA|'+dataChunks[d]);
@@ -6470,7 +6476,7 @@
                 ctx.restore();
 
                 var imgData = ctx.getImageData(0, 0, cw, ch);
-                var code = jsQR(imgData.data, cw, ch, { inversionAttempts:'dontInvert' });
+                var code = jsQR(imgData.data, cw, ch, { inversionAttempts:'attemptBoth' });
                 if (code && code.data && code.data.indexOf('QRFT|') === 0) {
                     processChunk(code.data);
                 }
