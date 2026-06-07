@@ -6104,20 +6104,11 @@
             <span id="qrSendStatus" style="font-size:0.78rem;color:#8b949e;"></span>
         </div>
         <div id="qrSendOutput" style="margin-top:1rem;text-align:center;"></div>
-        <div id="qrSendNav" style="display:none;margin-top:0.5rem;text-align:center;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+        <div id="qrSendNav" style="display:none;margin-top:0.5rem;display:flex;text-align:center;gap:8px;justify-content:center;align-items:center;">
             <button id="qrPrev" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;cursor:pointer;">&#8592; Prev</button>
             <span id="qrPage" style="font-size:0.8rem;color:#8b949e;min-width:80px;display:inline-block;text-align:center;"></span>
             <button id="qrNext" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;cursor:pointer;">Next &#8594;</button>
-            <button id="qrAutoPlay" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;">&#9208; Stop</button>
-            <label style="font-size:0.78rem;color:#8b949e;display:flex;align-items:center;gap:4px;">
-                Speed:
-                <select id="qrAutoSpeed" style="padding:3px 6px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:#c9d1d9;font-size:0.78rem;">
-                    <option value="600">Fast (0.6s)</option>
-                    <option value="1200" selected>Normal (1.2s)</option>
-                    <option value="2000">Slow (2s)</option>
-                    <option value="3000">Very slow (3s)</option>
-                </select>
-            </label>
+            <button id="qrAutoPlay" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;">&#9654; Auto</button>
         </div>
     </div>
 
@@ -6246,9 +6237,9 @@
         sendFileList.querySelectorAll('button').forEach(function(btn){ btn.onclick=function(){sendFiles.splice(parseInt(btn.dataset.i),1);renderSendFiles();}; });
     }
 
-    // Chunk size: 450 chars per QR code for very easy scanning.
-    // Lower density = bigger QR modules = much more reliable camera reads.
-    var QR_CHUNK_SIZE = 450;
+    // Chunk size: QR version 40 Low ECC can hold ~2953 bytes binary. Using base64
+    // (which inflates 33%) and JSON framing, 2200 chars per chunk is safe.
+    var QR_CHUNK_SIZE = 2200;
 
     sendGenBtn.addEventListener('click', async function() {
         sendStatus.textContent = 'Compressing...';
@@ -6259,61 +6250,34 @@
 
         await ensurePako();
 
-        var payload, metadata;
+        var payload;
         if (currentSendMode === 'text') {
             var text = sendTextEl.value;
             if (!text.trim()) { sendStatus.textContent='Nothing to send.'; return; }
+            // Compress text
             var textBytes = new TextEncoder().encode(text);
             var compressed = compressToB64(textBytes);
             payload = JSON.stringify({ type:'text', z: compressed });
-            metadata = { type:'text', chars: text.length };
         } else {
             if (!sendFiles.length) { sendStatus.textContent='No files to send.'; return; }
             var filesArr = [];
-            var metaFiles = [];
             for (var i=0; i<sendFiles.length; i++) {
                 var f = sendFiles[i];
                 var buf = await f.arrayBuffer();
                 var compressed = compressToB64(new Uint8Array(buf));
                 filesArr.push({ name: f.name, z: compressed });
-                metaFiles.push({ name: f.name.length > 20 ? f.name.slice(0,17)+'...' : f.name, size: f.size });
             }
             payload = JSON.stringify({ type:'files', files: filesArr });
-            metadata = { type:'files', count: sendFiles.length, files: metaFiles, totalSize: metaFiles.reduce(function(s,m){return s+m.size;},0) };
         }
 
-        // Split data payload into chunks (indices 1..N)
-        var dataChunks = [];
-        for (var c=0; c<payload.length; c+=QR_CHUNK_SIZE) {
-            dataChunks.push(payload.slice(c, c+QR_CHUNK_SIZE));
-        }
-        // Total QR codes = 1 (metadata) + dataChunks.length
-        var totalQR = 1 + dataChunks.length;
-        metadata.totalChunks = totalQR;
-        metadata.dataChunks = dataChunks.length;
-
-        // Chunk 0 = metadata (must be small enough to scan reliably)
-        // Cap: total QR payload is "QRFT|0|NNN|META|..." so ~25 chars overhead.
-        // Keep metaStr under 400 chars for the 450-char QR budget.
-        var metaStr = JSON.stringify(metadata);
-        while (metaStr.length > 400 && metadata.files && metadata.files.length > 1) {
-            metadata.files.pop();
-            metadata.note = metadata.count + ' file(s) total';
-            metaStr = JSON.stringify(metadata);
-        }
-        if (metaStr.length > 400) {
-            // Last resort: strip file list entirely
-            delete metadata.files;
-            metadata.note = metadata.count + ' file(s), ' + (metadata.totalSize/1024).toFixed(0) + ' KB total';
-            metaStr = JSON.stringify(metadata);
-        }
-        qrCodes.push('QRFT|0|'+totalQR+'|META|'+metaStr);
-        // Chunks 1..N = data
-        for (var d=0; d<dataChunks.length; d++) {
-            qrCodes.push('QRFT|'+(d+1)+'|'+totalQR+'|DATA|'+dataChunks[d]);
+        // Split into chunks
+        var totalChunks = Math.ceil(payload.length / QR_CHUNK_SIZE);
+        for (var c=0; c<totalChunks; c++) {
+            var chunk = payload.slice(c*QR_CHUNK_SIZE, (c+1)*QR_CHUNK_SIZE);
+            qrCodes.push('QRFT|'+c+'|'+totalChunks+'|'+chunk);
         }
 
-        sendStatus.textContent = 'Generated '+totalQR+' QR code(s) (1 metadata + '+dataChunks.length+' data). Loading QR library...';
+        sendStatus.textContent = 'Generated '+totalChunks+' QR code(s). Loading QR library...';
 
         // Load qrcode.js
         if (!window.QRCode) {
@@ -6325,43 +6289,18 @@
             });
         }
 
-        // Generate QR images in batches to avoid freezing the browser.
-        // Each batch renders a few codes then yields to the event loop.
-        var BATCH_SIZE = 5;
-        var q = 0;
-        function renderBatch() {
-            var end = Math.min(q + BATCH_SIZE, qrCodes.length);
-            for (; q < end; q++) {
-                var container = document.createElement('div');
-                container.style.display = 'inline-block';
-                new QRCode(container, { text: qrCodes[q], width:600, height:600, correctLevel: QRCode.CorrectLevel.L });
-                qrImages.push(container);
-            }
-            sendStatus.textContent = 'Rendering QR codes: ' + q + '/' + qrCodes.length + '...';
-            if (q < qrCodes.length) {
-                requestAnimationFrame(renderBatch);
-            } else {
-                sendStatus.textContent = qrCodes.length + ' QR code(s) ready. Auto-cycling...';
-                showQR(0);
-                sendNav.style.display = 'flex';
-                startAutoPlay();
-            }
+        // Generate larger QR images (500x500)
+        for (var q=0; q<qrCodes.length; q++) {
+            var container = document.createElement('div');
+            container.style.display = 'inline-block';
+            new QRCode(container, { text: qrCodes[q], width:500, height:500, correctLevel: QRCode.CorrectLevel.L });
+            qrImages.push(container);
         }
-        renderBatch();
-    });
 
-    function getAutoSpeed() { return parseInt(document.getElementById('qrAutoSpeed').value) || 1200; }
-    function startAutoPlay() {
-        if (autoInterval) clearInterval(autoInterval);
-        var btn = document.getElementById('qrAutoPlay');
-        btn.innerHTML = '&#9208; Stop';
-        autoInterval = setInterval(function(){ if(qrIdx>=qrImages.length-1) qrIdx=-1; showQR(qrIdx+1); }, getAutoSpeed());
-    }
-    function stopAutoPlay() {
-        if (autoInterval) { clearInterval(autoInterval); autoInterval=null; }
-        var btn = document.getElementById('qrAutoPlay');
-        btn.innerHTML = '&#9654; Auto';
-    }
+        sendStatus.textContent = totalChunks+' QR code(s) ready. Use arrows or Auto to cycle.';
+        showQR(0);
+        sendNav.style.display = 'flex';
+    });
 
     function showQR(idx) {
         qrIdx = Math.max(0, Math.min(idx, qrImages.length-1));
@@ -6369,13 +6308,13 @@
         sendOutput.appendChild(qrImages[qrIdx]);
         document.getElementById('qrPage').textContent = (qrIdx+1)+' / '+qrImages.length;
     }
-    document.getElementById('qrPrev').onclick = function(){ stopAutoPlay(); showQR(qrIdx-1); };
-    document.getElementById('qrNext').onclick = function(){ stopAutoPlay(); showQR(qrIdx+1); };
+    document.getElementById('qrPrev').onclick = function(){ showQR(qrIdx-1); };
+    document.getElementById('qrNext').onclick = function(){ showQR(qrIdx+1); };
     document.getElementById('qrAutoPlay').onclick = function(){
-        if (autoInterval) { stopAutoPlay(); } else { startAutoPlay(); }
-    };
-    document.getElementById('qrAutoSpeed').onchange = function() {
-        if (autoInterval) { stopAutoPlay(); startAutoPlay(); }
+        var btn = this;
+        if (autoInterval) { clearInterval(autoInterval); autoInterval=null; btn.innerHTML='&#9654; Auto'; return; }
+        btn.innerHTML='&#9208; Stop';
+        autoInterval = setInterval(function(){ if(qrIdx>=qrImages.length-1) qrIdx=-1; showQR(qrIdx+1); }, 1200);
     };
 
     // ============================
@@ -6394,9 +6333,7 @@
     var receivedChunks = {}, totalExpected = 0;
 
     // Populate camera list
-    var camerasPopulated = false;
     async function populateCameras() {
-        if (camerasPopulated) return;
         try {
             // Need a temp stream to trigger permission prompt (required to get labels)
             var tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -6411,12 +6348,11 @@
                 recvCamSelect.appendChild(opt);
             });
             if (!cams.length) recvCamSelect.innerHTML = '<option value="">No cameras found</option>';
-            camerasPopulated = true;
         } catch(e) {
             recvCamSelect.innerHTML = '<option value="">Camera access denied</option>';
         }
     }
-    // Do NOT call populateCameras() on page load — only when user opens Receive tab or clicks Start.
+    populateCameras();
 
     recvStopBtn.onclick = function() { stopRecv(); };
     function stopRecv() {
@@ -6427,9 +6363,6 @@
     }
 
     recvStartBtn.addEventListener('click', async function() {
-        // Populate cameras on first use (this is where permission is requested)
-        await populateCameras();
-
         // Load jsQR + pako
         if (!window.jsQR) {
             recvStatus.textContent = 'Loading QR scanner...';
@@ -6457,27 +6390,14 @@
         recvVideo.srcObject = recvStream;
         recvVideo.style.display = 'block';
         recvStopBtn.style.display = '';
-        recvStatus.textContent = 'Starting camera...';
-        receivedChunks = {}; totalExpected = 0; recvMetadata = null;
+        recvStatus.textContent = 'Scanning... Show QR codes one by one.';
+        receivedChunks = {}; totalExpected = 0;
         recvResult.innerHTML = '';
 
-        // Ensure video is actually playing before scanning
-        try { await recvVideo.play(); } catch(e) { /* autoplay may handle it */ }
-        // Wait for video to have actual frame data
-        await new Promise(function(resolve) {
-            if (recvVideo.readyState >= recvVideo.HAVE_ENOUGH_DATA) { resolve(); return; }
-            recvVideo.addEventListener('loadeddata', resolve, { once: true });
-            // Fallback timeout in case event doesn't fire
-            setTimeout(resolve, 2000);
-        });
-        recvStatus.textContent = 'Scanning... Point camera at QR codes.';
-
         var ctx = recvCanvas.getContext('2d', { willReadFrequently: true });
-        var frameCount = 0;
         function scanFrame() {
             if (!recvStream) return;
             if (recvVideo.readyState === recvVideo.HAVE_ENOUGH_DATA) {
-                frameCount++;
                 var vw = recvVideo.videoWidth, vh = recvVideo.videoHeight;
                 var mirror = recvMirror.checked;
                 var rot = parseInt(recvRotate.value) || 0;
@@ -6496,22 +6416,9 @@
                 ctx.restore();
 
                 var imgData = ctx.getImageData(0, 0, cw, ch);
-                var code = jsQR(imgData.data, cw, ch, { inversionAttempts:'attemptBoth' });
-                if (code && code.data) {
-                    var d = code.data.trim();
-                    if (d.indexOf('QRFT|') === 0) {
-                        processChunk(d);
-                    } else {
-                        recvStatus.textContent = 'Frame '+frameCount+': read non-QRFT QR (' + d.slice(0,30) + '...)';
-                    }
-                } else if (frameCount % 60 === 0) {
-                    // Every ~1 second (at 60fps), update status to show scan is active
-                    var got = Object.keys(receivedChunks).length;
-                    if (got > 0) {
-                        recvStatus.textContent = 'Scanning (frame '+frameCount+')... '+got+'/'+(totalExpected||'?')+' chunks received.';
-                    } else {
-                        recvStatus.textContent = 'Scanning (frame '+frameCount+')... Point camera at QR code.';
-                    }
+                var code = jsQR(imgData.data, cw, ch, { inversionAttempts:'dontInvert' });
+                if (code && code.data && code.data.indexOf('QRFT|') === 0) {
+                    processChunk(code.data);
                 }
             }
             recvAnimId = requestAnimationFrame(scanFrame);
@@ -6519,33 +6426,18 @@
         scanFrame();
     });
 
-    var recvMetadata = null; // stores parsed metadata from chunk 0
-
     function processChunk(data) {
         var parts = data.split('|');
-        if (parts.length < 5 || parts[0] !== 'QRFT') return;
+        if (parts.length < 4 || parts[0] !== 'QRFT') return;
         var idx = parseInt(parts[1],10);
         var total = parseInt(parts[2],10);
-        var chunkType = parts[3]; // META or DATA
-        var chunk = parts.slice(4).join('|');
+        var chunk = parts.slice(3).join('|');
         if (!isFinite(idx) || !isFinite(total)) return;
         totalExpected = total;
         if (receivedChunks[idx]) return;
-        receivedChunks[idx] = { type: chunkType, data: chunk };
+        receivedChunks[idx] = chunk;
         var got = Object.keys(receivedChunks).length;
-
-        // Display metadata as soon as we get it (chunk 0)
-        if (chunkType === 'META' && !recvMetadata) {
-            try {
-                recvMetadata = JSON.parse(chunk);
-                showRecvMetadata(recvMetadata);
-            } catch(e) {}
-        }
-
-        var dataGot = Object.keys(receivedChunks).filter(function(k){ return receivedChunks[k].type === 'DATA'; }).length;
-        var dataTotal = total - 1; // exclude metadata chunk
-        recvStatus.textContent = 'Received '+got+'/'+total+' (data: '+dataGot+'/'+dataTotal+')...';
-
+        recvStatus.textContent = 'Received chunk '+got+'/'+total+'...';
         if (got >= total) {
             stopRecv();
             recvStatus.textContent = 'All chunks received! Decompressing...';
@@ -6553,33 +6445,12 @@
         }
     }
 
-    function showRecvMetadata(meta) {
-        var html = '<div style="text-align:left;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:0.75rem;margin-bottom:0.5rem;font-size:0.8rem;color:#c9d1d9;">';
-        html += '<p style="margin:0 0 0.3rem;color:#58a6ff;font-weight:600;">&#128229; Incoming transfer:</p>';
-        if (meta.type === 'text') {
-            html += '<p style="margin:0;">Type: Text · Characters: '+(meta.chars||0).toLocaleString()+'</p>';
-        } else if (meta.type === 'files') {
-            html += '<p style="margin:0 0 0.3rem;">Type: File(s) · Count: '+(meta.count||0)+' · Total: '+((meta.totalSize||0)/1024).toFixed(1)+' KB</p>';
-            if (meta.files && meta.files.length) {
-                meta.files.forEach(function(f) {
-                    html += '<p style="margin:0;padding-left:0.5rem;color:#8b949e;">&#128196; '+escHtml(f.name)+' — '+(f.size/1024).toFixed(1)+' KB</p>';
-                });
-            }
-            if (meta.note) html += '<p style="margin:0;padding-left:0.5rem;color:#8b949e;font-style:italic;">'+escHtml(meta.note)+'</p>';
-        }
-        html += '<p style="margin:0.3rem 0 0;color:#8b949e;">QR codes to scan: '+(meta.totalChunks||'?')+' (1 info + '+(meta.dataChunks||'?')+' data)</p>';
-        html += '</div>';
-        recvResult.innerHTML = html;
-    }
-
     function reassemble() {
         try {
-            // Collect only DATA chunks in order (indices 1..N)
             var ordered = [];
-            for (var i=1; i<totalExpected; i++) {
+            for (var i=0; i<totalExpected; i++) {
                 if (!receivedChunks[i]) throw new Error('Missing chunk '+i);
-                if (receivedChunks[i].type !== 'DATA') throw new Error('Expected DATA at chunk '+i);
-                ordered.push(receivedChunks[i].data);
+                ordered.push(receivedChunks[i]);
             }
             var json = ordered.join('');
             var payload = JSON.parse(json);
@@ -6587,7 +6458,7 @@
             if (payload.type === 'text') {
                 var inflated = decompressFromB64(payload.z);
                 var text = new TextDecoder().decode(inflated);
-                recvResult.innerHTML += '<p style="color:#3fb950;font-weight:600;">Text received:</p>' +
+                recvResult.innerHTML = '<p style="color:#3fb950;font-weight:600;">Text received:</p>' +
                     '<textarea readonly style="width:100%;min-height:100px;padding:10px;font-size:0.85rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:8px;resize:vertical;">'+escHtml(text)+'</textarea>' +
                     '<button id="qrRecvCopyBtn" style="margin-top:6px;padding:6px 14px;border-radius:6px;border:none;background:#1f6feb;color:#fff;cursor:pointer;font-size:0.8rem;">Copy</button>';
                 document.getElementById('qrRecvCopyBtn').onclick = function() {
@@ -6595,7 +6466,7 @@
                 };
                 recvStatus.textContent = 'Text received (' + text.length + ' chars).';
             } else if (payload.type === 'files' && Array.isArray(payload.files)) {
-                recvResult.innerHTML += '<p style="color:#3fb950;font-weight:600;">Files recovered:</p>';
+                recvResult.innerHTML = '<p style="color:#3fb950;font-weight:600;">Files recovered:</p>';
                 for (var i=0; i<payload.files.length; i++) {
                     var f = payload.files[i];
                     var inflated = decompressFromB64(f.z);
