@@ -6654,8 +6654,14 @@ if __name__=="__main__":
         });
     }
 
-    // Save state before page unload
-    window.addEventListener('beforeunload', function() { saveTermState(); });
+    // Save state before page unload and ask for confirmation if terminals are open
+    window.addEventListener('beforeunload', function(e) {
+        saveTermState();
+        if (terminals.length > 0) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 })();
 </script>
 
