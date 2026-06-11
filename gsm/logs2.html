@@ -942,6 +942,7 @@
         <button id="toggleChat" onclick="toggleSection('chat-panel','toggleChat')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">💬 Chat</button>
         <button id="toggleSnippets" onclick="toggleSection('snippets-panel','toggleSnippets')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📋 Snippets</button>
         <button id="toggleNotebook" onclick="toggleSection('notebook-panel','toggleNotebook')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">📓 Notebook</button>
+        <button id="toggleTerminal" onclick="toggleSection('terminal-panel','toggleTerminal')" style="padding:6px 14px;font-size:0.8rem;border-radius:6px;border:1px solid #30363d;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;">🖥 Terminal</button>
     </div>
 
     <script>
@@ -962,7 +963,8 @@
             { cls: 'container', btn: 'toggleTools', defaultHidden: true },
             { cls: 'chat-panel', btn: 'toggleChat', defaultHidden: false },
             { cls: 'snippets-panel', btn: 'toggleSnippets', defaultHidden: true },
-            { cls: 'notebook-panel', btn: 'toggleNotebook', defaultHidden: true }
+            { cls: 'notebook-panel', btn: 'toggleNotebook', defaultHidden: true },
+            { cls: 'terminal-panel', btn: 'toggleTerminal', defaultHidden: true }
         ];
         sections.forEach(s => {
             const saved = localStorage.getItem('section_vis_' + s.cls);
@@ -978,6 +980,42 @@
         });
     })();
     </script>
+
+    <!-- Terminal Panel (full-width, between toggle bar and column panels) -->
+    <div class="terminal-panel" style="display:none;max-width:2200px;margin:0.5rem auto 0;padding:0 1.5rem;">
+        <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #30363d;">
+                <h2 style="margin:0 0 0.5rem;font-size:1.1rem;color:#e6edf3;">🖥 Terminal</h2>
+                <details style="margin-bottom:0.75rem;">
+                    <summary style="cursor:pointer;font-size:0.8rem;color:#58a6ff;user-select:none;">📋 Python server setup (click to expand)</summary>
+                    <div style="margin-top:0.5rem;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:0.75rem;font-size:0.78rem;color:#c9d1d9;font-family:monospace;white-space:pre-wrap;max-height:300px;overflow-y:auto;">1. Save terminal_server.py (in the same folder as this HTML or download below)
+
+2. Install dependency:
+   pip install websockets
+
+3. Run the server:
+   python terminal_server.py
+
+4. (Optional) Custom port:
+   python terminal_server.py --port 9000
+
+The server listens on ws://127.0.0.1:8765 by default.
+Each terminal tab below opens a new shell session.
+
+⚠️ Security: This gives full shell access. Only run on trusted networks.</div>
+                    <a id="termDownloadPy" download="terminal_server.py" style="display:inline-block;margin-top:0.5rem;padding:6px 12px;background:#238636;color:#fff;border-radius:6px;font-size:0.78rem;text-decoration:none;cursor:pointer;font-weight:600;">⬇ Download terminal_server.py</a>
+                </details>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <label style="font-size:0.78rem;color:#8b949e;">Server:</label>
+                    <input type="text" id="termWsUrl" value="ws://127.0.0.1:8765" style="flex:1;min-width:200px;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;">
+                    <button id="termNewTabBtn" style="padding:6px 14px;border-radius:6px;border:none;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;font-size:0.8rem;">+ New Terminal</button>
+                    <span id="termConnStatus" style="font-size:0.75rem;color:#484f58;"></span>
+                </div>
+            </div>
+            <div id="termTabBar" style="display:flex;gap:2px;padding:4px 1rem 0;background:#0d1117;overflow-x:auto;min-height:32px;align-items:flex-end;"></div>
+            <div id="termContainer" style="height:420px;background:#000;position:relative;"></div>
+        </div>
+    </div>
 
     <div class="page-layout">
     <div class="container">
@@ -6067,5 +6105,400 @@
         })();
     })();
     </script>
+
+<!-- Terminal Section Scripts (xterm.js + WebSocket handler) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+<script>
+(function() {
+    var terminals = []; // { id, ws, term, fitAddon, el }
+    var activeTermIdx = -1;
+    var termIdCounter = 0;
+    var tabBar = document.getElementById('termTabBar');
+    var container = document.getElementById('termContainer');
+    var connStatus = document.getElementById('termConnStatus');
+    var newTabBtn = document.getElementById('termNewTabBtn');
+    var wsUrlInput = document.getElementById('termWsUrl');
+
+    // Make the Python file downloadable as a blob link
+    var pyCode = `#!/usr/bin/env python3
+"""
+Terminal WebSocket Server for logs2.html
+Cross-platform: auto-detects OS and uses the best terminal backend.
+  macOS/Linux: PTY (full terminal, resize, TUI apps)
+  Windows + pywinpty: ConPTY (full terminal, resize, TUI apps)
+  Windows fallback: subprocess (basic, no resize)
+
+Usage:
+  pip install websockets
+  pip install pywinpty   # Windows only, optional but recommended
+  python terminal_server.py [--port 8765] [--host 0.0.0.0] [--shell /bin/zsh]
+"""
+import asyncio,json,os,sys,argparse,subprocess,platform,threading
+try:
+    import websockets
+except ImportError:
+    print("pip install websockets"); sys.exit(1)
+
+IS_WIN = platform.system()=="Windows"
+if not IS_WIN:
+    import pty,fcntl,struct,termios,select
+HAS_WINPTY = False
+if IS_WIN:
+    try:
+        from winpty import PtyProcess; HAS_WINPTY=True
+    except: pass
+
+def detect_shell():
+    if IS_WIN:
+        for sh in ["pwsh.exe","powershell.exe","cmd.exe"]:
+            try:
+                subprocess.run([sh,"-Command","echo ok"] if "power" in sh.lower() or "pwsh" in sh.lower() else [sh,"/C","echo ok"],capture_output=True,timeout=3)
+                return sh
+            except: continue
+        return "cmd.exe"
+    return os.environ.get("SHELL","/bin/zsh" if platform.system()=="Darwin" else "/bin/bash")
+
+class UnixPty:
+    def __init__(s,shell=None): s.shell=shell or detect_shell(); s.fd=None; s.proc=None
+    def start(s):
+        s.fd,sl=pty.openpty()
+        env=os.environ.copy(); env["TERM"]="xterm-256color"; env["COLORTERM"]="truecolor"
+        s.proc=subprocess.Popen([s.shell,"-l"],stdin=sl,stdout=sl,stderr=sl,preexec_fn=os.setsid,env=env)
+        os.close(sl)
+        fl=fcntl.fcntl(s.fd,fcntl.F_GETFL); fcntl.fcntl(s.fd,fcntl.F_SETFL,fl|os.O_NONBLOCK)
+        return {"shell":s.shell,"pid":s.proc.pid,"backend":"pty","platform":platform.system()}
+    def resize(s,c,r):
+        try: fcntl.ioctl(s.fd,termios.TIOCSWINSZ,struct.pack("HHHH",r,c,0,0))
+        except: pass
+    def write(s,d):
+        try: os.write(s.fd,d.encode("utf-8"))
+        except: pass
+    def read(s):
+        try:
+            r,_,_=select.select([s.fd],[],[],0)
+            if r: d=os.read(s.fd,16384); return d.decode("utf-8",errors="replace") if d else ""
+        except: pass
+        return ""
+    def alive(s): return s.proc and s.proc.poll() is None
+    def close(s):
+        try: os.close(s.fd)
+        except: pass
+        if s.proc:
+            try: os.killpg(os.getpgid(s.proc.pid),9)
+            except: pass
+            try: s.proc.wait(2)
+            except: pass
+
+class WinConPty:
+    def __init__(s,shell=None): s.shell=shell or detect_shell(); s.p=None
+    def start(s):
+        s.p=PtyProcess.spawn(s.shell,dimensions=(24,80))
+        return {"shell":s.shell,"pid":s.p.pid,"backend":"conpty","platform":"Windows"}
+    def resize(s,c,r):
+        try: s.p.setwinsize(r,c)
+        except: pass
+    def write(s,d):
+        try: s.p.write(d)
+        except: pass
+    def read(s):
+        try: return s.p.read(16384,blocking=False) or ""
+        except: return ""
+    def alive(s): return s.p and s.p.isalive()
+    def close(s):
+        try: s.p.close(force=True)
+        except: pass
+
+class WinFallback:
+    def __init__(s,shell=None): s.shell=shell or detect_shell(); s.proc=None; s._buf=[]; s._lk=threading.Lock(); s._st=threading.Event()
+    def start(s):
+        s.proc=subprocess.Popen([s.shell],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,bufsize=0)
+        def rd():
+            try:
+                while not s._st.is_set():
+                    b=s.proc.stdout.read(1)
+                    if b:
+                        with s._lk: s._buf.append(b.decode("utf-8",errors="replace"))
+                    else: break
+            except: pass
+        threading.Thread(target=rd,daemon=True).start()
+        return {"shell":s.shell,"pid":s.proc.pid,"backend":"subprocess","platform":"Windows","note":"pip install pywinpty for better experience"}
+    def resize(s,c,r): pass
+    def write(s,d):
+        try: s.proc.stdin.write(d.encode("utf-8")); s.proc.stdin.flush()
+        except: pass
+    def read(s):
+        with s._lk:
+            if s._buf: o="".join(s._buf); s._buf.clear(); return o
+        return ""
+    def alive(s): return s.proc and s.proc.poll() is None
+    def close(s):
+        s._st.set()
+        try: s.proc.terminate(); s.proc.wait(3)
+        except:
+            try: s.proc.kill()
+            except: pass
+
+def create_session(shell=None):
+    if IS_WIN: return WinConPty(shell) if HAS_WINPTY else WinFallback(shell)
+    return UnixPty(shell)
+
+async def terminal_handler(websocket,shell=None):
+    sess=create_session(shell); info=sess.start()
+    async def rd():
+        try:
+            while True:
+                await asyncio.sleep(0.015)
+                if not sess.alive():
+                    await websocket.send(json.dumps({"type":"output","data":"\\r\\n[Process exited]\\r\\n"})); break
+                d=sess.read()
+                if d: await websocket.send(json.dumps({"type":"output","data":d}))
+        except: pass
+    async def wr():
+        try:
+            async for msg in websocket:
+                try:
+                    m=json.loads(msg)
+                    if m["type"]=="input": sess.write(m["data"])
+                    elif m["type"]=="resize": sess.resize(m.get("cols",80),m.get("rows",24))
+                except: pass
+        except: pass
+    r=asyncio.create_task(rd()); w=asyncio.create_task(wr())
+    await websocket.send(json.dumps({"type":"connected",**info}))
+    done,pend=await asyncio.wait([r,w],return_when=asyncio.FIRST_COMPLETED)
+    for t in pend: t.cancel()
+    sess.close()
+
+async def main(host="127.0.0.1",port=8765,shell=None):
+    backend="pty" if not IS_WIN else ("conpty" if HAS_WINPTY else "subprocess")
+    print(f"Terminal server: ws://{host}:{port} | {platform.system()} | {backend}")
+    handler=lambda ws: terminal_handler(ws,shell)
+    async with websockets.serve(handler,host,port,max_size=2**20,ping_interval=20,ping_timeout=60):
+        await asyncio.Future()
+
+if __name__=="__main__":
+    p=argparse.ArgumentParser()
+    p.add_argument("--host",default="127.0.0.1")
+    p.add_argument("--port",type=int,default=8765)
+    p.add_argument("--shell",default=None)
+    a=p.parse_args()
+    try: asyncio.run(main(a.host,a.port,a.shell))
+    except KeyboardInterrupt: print("Stopped.")
+`;
+
+    var downloadBtn = document.getElementById('termDownloadPy');
+    if (downloadBtn) {
+        var blob = new Blob([pyCode], { type: 'text/x-python' });
+        downloadBtn.href = URL.createObjectURL(blob);
+    }
+
+    if (!newTabBtn || !container) return;
+
+    newTabBtn.addEventListener('click', function() { createTerminal(); });
+
+    function createTerminal() {
+        var id = ++termIdCounter;
+        var wsUrl = wsUrlInput.value.trim() || 'ws://127.0.0.1:8765';
+        var termName = 'Term ' + id;
+
+        // Create tab (draggable for reorder, double-click to rename)
+        var tab = document.createElement('div');
+        tab.draggable = true;
+        tab.style.cssText = 'padding:4px 12px;border-radius:6px 6px 0 0;cursor:pointer;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:6px;user-select:none;';
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'term-name';
+        nameSpan.textContent = termName;
+        nameSpan.title = 'Double-click to rename';
+        var closeSpan = document.createElement('span');
+        closeSpan.className = 'term-close';
+        closeSpan.style.cssText = 'color:#f85149;cursor:pointer;font-size:0.9rem;line-height:1;';
+        closeSpan.innerHTML = '&times;';
+        tab.appendChild(nameSpan);
+        tab.appendChild(closeSpan);
+        tabBar.appendChild(tab);
+
+        // Create terminal div
+        var termEl = document.createElement('div');
+        termEl.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:none;';
+        container.appendChild(termEl);
+
+        // Init xterm.js
+        var term = new Terminal({
+            cursorBlink: true,
+            fontSize: 14,
+            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+            theme: {
+                background: '#0d1117',
+                foreground: '#c9d1d9',
+                cursor: '#58a6ff',
+                selectionBackground: '#264f78',
+            },
+            allowProposedApi: true,
+        });
+        var fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+        term.open(termEl);
+        fitAddon.fit();
+
+        // WebSocket connection
+        var ws = null;
+        var reconnecting = false;
+
+        function connect() {
+            ws = new WebSocket(wsUrl);
+            ws.onopen = function() {
+                connStatus.textContent = 'Connected';
+                connStatus.style.color = '#3fb950';
+                term.write('\\r\\n\\x1b[32mConnected to ' + wsUrl + '\\x1b[0m\\r\\n');
+                // Send initial size
+                ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+            };
+            ws.onmessage = function(event) {
+                try {
+                    var msg = JSON.parse(event.data);
+                    if (msg.type === 'output') {
+                        term.write(msg.data);
+                    } else if (msg.type === 'connected') {
+                        term.write('\\x1b[36mShell: ' + msg.shell + ' (PID: ' + msg.pid + ')\\x1b[0m\\r\\n');
+                    }
+                } catch(e) {}
+            };
+            ws.onclose = function() {
+                connStatus.textContent = 'Disconnected';
+                connStatus.style.color = '#f85149';
+                term.write('\\r\\n\\x1b[31mDisconnected.\\x1b[0m\\r\\n');
+            };
+            ws.onerror = function() {
+                connStatus.textContent = 'Connection failed';
+                connStatus.style.color = '#f85149';
+                term.write('\\r\\n\\x1b[31mConnection failed. Is terminal_server.py running?\\x1b[0m\\r\\n');
+            };
+        }
+
+        connect();
+
+        // Terminal input -> WebSocket
+        term.onData(function(data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'input', data: data }));
+            }
+        });
+
+        // Resize handling
+        term.onResize(function(size) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
+            }
+        });
+
+        var entry = { id: id, name: termName, ws: ws, term: term, fitAddon: fitAddon, el: termEl, tab: tab, nameSpan: nameSpan, connect: connect };
+        terminals.push(entry);
+
+        // Tab click -> activate
+        tab.addEventListener('click', function(e) {
+            if (e.target.classList.contains('term-close')) {
+                closeTerminal(entry);
+                return;
+            }
+            activateTerminal(entry);
+        });
+
+        // Double-click on name -> rename
+        nameSpan.addEventListener('dblclick', function(e) {
+            e.stopPropagation();
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = entry.name;
+            input.style.cssText = 'width:80px;padding:1px 4px;font-size:0.78rem;background:#0d1117;color:#c9d1d9;border:1px solid #58a6ff;border-radius:3px;outline:none;font-weight:600;';
+            nameSpan.style.display = 'none';
+            tab.insertBefore(input, closeSpan);
+            input.focus();
+            input.select();
+            function finish() {
+                var val = input.value.trim() || entry.name;
+                entry.name = val;
+                nameSpan.textContent = val;
+                nameSpan.style.display = '';
+                input.remove();
+            }
+            input.addEventListener('blur', finish);
+            input.addEventListener('keydown', function(ev) {
+                if (ev.key === 'Enter') { finish(); }
+                else if (ev.key === 'Escape') { nameSpan.style.display = ''; input.remove(); }
+            });
+        });
+
+        // Drag-to-reorder tabs
+        tab.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', String(entry.id));
+            tab.style.opacity = '0.5';
+        });
+        tab.addEventListener('dragend', function() { tab.style.opacity = '1'; });
+        tab.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            tab.style.borderLeft = '2px solid #58a6ff';
+        });
+        tab.addEventListener('dragleave', function() { tab.style.borderLeft = ''; });
+        tab.addEventListener('drop', function(e) {
+            e.preventDefault();
+            tab.style.borderLeft = '';
+            var draggedId = parseInt(e.dataTransfer.getData('text/plain'), 10);
+            var draggedEntry = terminals.find(function(t) { return t.id === draggedId; });
+            var targetEntry = entry;
+            if (!draggedEntry || draggedEntry === targetEntry) return;
+            // Reorder in the array
+            var fromIdx = terminals.indexOf(draggedEntry);
+            var toIdx = terminals.indexOf(targetEntry);
+            terminals.splice(fromIdx, 1);
+            terminals.splice(toIdx, 0, draggedEntry);
+            // Reorder DOM tabs
+            tabBar.insertBefore(draggedEntry.tab, targetEntry.tab);
+        });
+
+        activateTerminal(entry);
+
+        // Resize observer
+        var ro = new ResizeObserver(function() {
+            if (termEl.style.display !== 'none') fitAddon.fit();
+        });
+        ro.observe(container);
+        entry._ro = ro;
+    }
+
+    function activateTerminal(entry) {
+        terminals.forEach(function(t) {
+            t.el.style.display = 'none';
+            t.tab.style.background = '#21262d';
+            t.tab.style.color = '#8b949e';
+        });
+        entry.el.style.display = '';
+        entry.tab.style.background = '#161b22';
+        entry.tab.style.color = '#e6edf3';
+        entry.fitAddon.fit();
+        entry.term.focus();
+        activeTermIdx = terminals.indexOf(entry);
+    }
+
+    function closeTerminal(entry) {
+        if (entry.ws) { try { entry.ws.close(); } catch(e) {} }
+        entry.term.dispose();
+        entry.el.remove();
+        entry.tab.remove();
+        if (entry._ro) entry._ro.disconnect();
+        var idx = terminals.indexOf(entry);
+        terminals.splice(idx, 1);
+        if (terminals.length > 0) {
+            activateTerminal(terminals[Math.max(0, idx - 1)]);
+        }
+    }
+})();
+</script>
+
+<footer style="text-align:center;padding:1rem;color:#484f58;font-size:0.75rem;">
+    <span id="nacubiWord" style="cursor:default;user-select:none;"></span>
+    <script>document.getElementById('nacubiWord').textContent = 'Nacubi Research ' + new Date().getFullYear();</script>
+</footer>
 </body>
+</html>
 </html>
