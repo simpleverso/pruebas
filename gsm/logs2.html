@@ -1009,11 +1009,16 @@ Each terminal tab below opens a new shell session.
                     <label style="font-size:0.78rem;color:#8b949e;">Server:</label>
                     <input type="text" id="termWsUrl" value="ws://127.0.0.1:8765" style="flex:1;min-width:200px;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;">
                     <button id="termNewTabBtn" style="padding:6px 14px;border-radius:6px;border:none;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;font-size:0.8rem;">+ New Terminal</button>
+                    <button id="termSplitBtn" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;font-weight:600;font-size:0.8rem;" title="Toggle split view (two terminals side by side)">⬜⬜ Split</button>
                     <span id="termConnStatus" style="font-size:0.75rem;color:#484f58;"></span>
                 </div>
             </div>
-            <div id="termTabBar" style="display:flex;gap:2px;padding:4px 1rem 0;background:#0d1117;overflow-x:auto;min-height:32px;align-items:flex-end;"></div>
-            <div id="termContainer" style="height:420px;background:#000;position:relative;"></div>
+            <div id="termTabBar" style="display:flex;gap:2px;padding:6px 1rem 0;background:#0d1117;overflow-x:auto;min-height:36px;align-items:flex-end;"></div>
+            <div id="termSplitWrap" style="display:flex;height:420px;background:#000;">
+                <div id="termContainerLeft" style="flex:1;position:relative;min-width:0;"></div>
+                <div id="termSplitDivider" style="display:none;width:4px;background:#30363d;cursor:col-resize;flex-shrink:0;"></div>
+                <div id="termContainerRight" style="display:none;flex:1;position:relative;min-width:0;"></div>
+            </div>
         </div>
     </div>
 
@@ -6112,14 +6117,20 @@ Each terminal tab below opens a new shell session.
 <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
 <script>
 (function() {
-    var terminals = []; // { id, ws, term, fitAddon, el }
+    var terminals = []; // { id, ws, term, fitAddon, el, pane }
     var activeTermIdx = -1;
     var termIdCounter = 0;
     var tabBar = document.getElementById('termTabBar');
-    var container = document.getElementById('termContainer');
+    var containerLeft = document.getElementById('termContainerLeft');
+    var containerRight = document.getElementById('termContainerRight');
+    var splitDivider = document.getElementById('termSplitDivider');
+    var splitBtn = document.getElementById('termSplitBtn');
     var connStatus = document.getElementById('termConnStatus');
     var newTabBtn = document.getElementById('termNewTabBtn');
     var wsUrlInput = document.getElementById('termWsUrl');
+    var isSplit = false;
+    var activeLeftEntry = null;
+    var activeRightEntry = null;
 
     // Make the Python file downloadable as a blob link
     var pyCode = `#!/usr/bin/env python3
@@ -6293,19 +6304,69 @@ if __name__=="__main__":
         downloadBtn.href = URL.createObjectURL(blob);
     }
 
-    if (!newTabBtn || !container) return;
+    if (!newTabBtn || !containerLeft) return;
+
+    // --- Split view toggle ---
+    splitBtn.addEventListener('click', function() {
+        isSplit = !isSplit;
+        containerRight.style.display = isSplit ? '' : 'none';
+        splitDivider.style.display = isSplit ? '' : 'none';
+        splitBtn.style.background = isSplit ? '#1f6feb' : '#21262d';
+        splitBtn.style.color = isSplit ? '#fff' : '#8b949e';
+        // Refit all visible terminals
+        terminals.forEach(function(t) { if (t.el.style.display !== 'none') t.fitAddon.fit(); });
+        try { localStorage.setItem('terminal_split', isSplit ? '1' : '0'); } catch(e) {}
+    });
+    // Restore split state
+    try { if (localStorage.getItem('terminal_split') === '1') splitBtn.click(); } catch(e) {}
+
+    // --- Persistence: save/restore terminal sessions ---
+    var TERM_STORAGE_KEY = 'terminal_sessions_v1';
+
+    function saveTermState() {
+        try {
+            var state = terminals.map(function(t) {
+                // Serialize the terminal's scrollback buffer
+                var buffer = '';
+                if (t.term && t.term.buffer && t.term.buffer.active) {
+                    var buf = t.term.buffer.active;
+                    for (var i = 0; i < buf.length; i++) {
+                        var line = buf.getLine(i);
+                        if (line) buffer += line.translateToString(true) + '\n';
+                    }
+                }
+                return { id: t.id, name: t.name, content: buffer };
+            });
+            localStorage.setItem(TERM_STORAGE_KEY, JSON.stringify(state));
+        } catch(e) {}
+    }
+
+    // Throttled save (at most once per 2 seconds for output-driven saves)
+    var saveTimeout = null;
+    function saveTermStateThrottled() {
+        if (saveTimeout) return;
+        saveTimeout = setTimeout(function() { saveTimeout = null; saveTermState(); }, 2000);
+    }
+
+    function loadTermState() {
+        try {
+            var raw = localStorage.getItem(TERM_STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch(e) { return null; }
+    }
 
     newTabBtn.addEventListener('click', function() { createTerminal(); });
 
-    function createTerminal() {
+    function createTerminal(savedName, savedContent) {
         var id = ++termIdCounter;
         var wsUrl = wsUrlInput.value.trim() || 'ws://127.0.0.1:8765';
-        var termName = 'Term ' + id;
+        var termName = savedName || 'Term ' + id;
 
         // Create tab (draggable for reorder, double-click to rename)
         var tab = document.createElement('div');
         tab.draggable = true;
-        tab.style.cssText = 'padding:4px 12px;border-radius:6px 6px 0 0;cursor:pointer;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:6px;user-select:none;';
+        tab.style.cssText = 'padding:7px 16px;border-radius:6px 6px 0 0;cursor:pointer;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:8px;user-select:none;';
         var nameSpan = document.createElement('span');
         nameSpan.className = 'term-name';
         nameSpan.textContent = termName;
@@ -6321,7 +6382,7 @@ if __name__=="__main__":
         // Create terminal div
         var termEl = document.createElement('div');
         termEl.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:none;';
-        container.appendChild(termEl);
+        containerLeft.appendChild(termEl);
 
         // Init xterm.js
         var term = new Terminal({
@@ -6341,6 +6402,12 @@ if __name__=="__main__":
         term.open(termEl);
         fitAddon.fit();
 
+        // Restore saved content if this is a restored session
+        if (savedContent) {
+            term.write('\x1b[2m' + savedContent + '\x1b[0m');
+            term.write('\r\n\x1b[33m[Session restored from previous page load]\x1b[0m\r\n');
+        }
+
         // WebSocket connection
         var ws = null;
         var reconnecting = false;
@@ -6359,6 +6426,7 @@ if __name__=="__main__":
                     var msg = JSON.parse(event.data);
                     if (msg.type === 'output') {
                         term.write(msg.data);
+                        saveTermStateThrottled();
                     } else if (msg.type === 'connected') {
                         term.write('\\x1b[36mShell: ' + msg.shell + ' (PID: ' + msg.pid + ')\\x1b[0m\\r\\n');
                     }
@@ -6395,13 +6463,19 @@ if __name__=="__main__":
         var entry = { id: id, name: termName, ws: ws, term: term, fitAddon: fitAddon, el: termEl, tab: tab, nameSpan: nameSpan, connect: connect };
         terminals.push(entry);
 
-        // Tab click -> activate
+        // Tab click -> activate (left-click = left pane, right-click = right pane in split mode)
         tab.addEventListener('click', function(e) {
             if (e.target.classList.contains('term-close')) {
                 closeTerminal(entry);
                 return;
             }
-            activateTerminal(entry);
+            activateTerminal(entry, 'left');
+        });
+        tab.addEventListener('contextmenu', function(e) {
+            if (!isSplit) return; // no right-pane in single mode
+            e.preventDefault();
+            if (e.target.classList.contains('term-close')) return;
+            activateTerminal(entry, 'right');
         });
 
         // Double-click on name -> rename
@@ -6421,6 +6495,7 @@ if __name__=="__main__":
                 nameSpan.textContent = val;
                 nameSpan.style.display = '';
                 input.remove();
+                saveTermState();
             }
             input.addEventListener('blur', finish);
             input.addEventListener('keydown', function(ev) {
@@ -6454,6 +6529,7 @@ if __name__=="__main__":
             terminals.splice(toIdx, 0, draggedEntry);
             // Reorder DOM tabs
             tabBar.insertBefore(draggedEntry.tab, targetEntry.tab);
+            saveTermState();
         });
 
         activateTerminal(entry);
@@ -6462,21 +6538,65 @@ if __name__=="__main__":
         var ro = new ResizeObserver(function() {
             if (termEl.style.display !== 'none') fitAddon.fit();
         });
-        ro.observe(container);
+        ro.observe(containerLeft);
+        ro.observe(containerRight);
         entry._ro = ro;
     }
 
-    function activateTerminal(entry) {
-        terminals.forEach(function(t) {
-            t.el.style.display = 'none';
-            t.tab.style.background = '#21262d';
-            t.tab.style.color = '#8b949e';
-        });
-        entry.el.style.display = '';
-        entry.tab.style.background = '#161b22';
-        entry.tab.style.color = '#e6edf3';
-        entry.fitAddon.fit();
-        entry.term.focus();
+    function activateTerminal(entry, pane) {
+        // pane: 'left' (default) or 'right'
+        pane = pane || 'left';
+        if (!isSplit) {
+            // Single mode: only one visible at a time in left pane
+            terminals.forEach(function(t) {
+                t.el.style.display = 'none';
+                t.tab.style.background = '#21262d';
+                t.tab.style.color = '#8b949e';
+                t.tab.style.borderBottom = '';
+            });
+            // Move element to left container if needed
+            if (entry.el.parentNode !== containerLeft) containerLeft.appendChild(entry.el);
+            entry.el.style.display = '';
+            entry.tab.style.background = '#161b22';
+            entry.tab.style.color = '#e6edf3';
+            entry.fitAddon.fit();
+            entry.term.focus();
+            activeLeftEntry = entry;
+            activeRightEntry = null;
+        } else {
+            // Split mode: assign to left or right pane
+            var targetContainer = pane === 'right' ? containerRight : containerLeft;
+            var otherEntry = pane === 'right' ? activeLeftEntry : activeRightEntry;
+
+            // Hide all in the target pane
+            terminals.forEach(function(t) {
+                if (t.el.parentNode === targetContainer) t.el.style.display = 'none';
+            });
+            // Move element to the right container
+            if (entry.el.parentNode !== targetContainer) targetContainer.appendChild(entry.el);
+            entry.el.style.display = '';
+
+            // Update tab highlights: active left=blue bottom, active right=green bottom
+            terminals.forEach(function(t) {
+                t.tab.style.background = '#21262d';
+                t.tab.style.color = '#8b949e';
+                t.tab.style.borderBottom = '';
+            });
+            if (pane === 'left') activeLeftEntry = entry;
+            else activeRightEntry = entry;
+            if (activeLeftEntry) {
+                activeLeftEntry.tab.style.background = '#161b22';
+                activeLeftEntry.tab.style.color = '#e6edf3';
+                activeLeftEntry.tab.style.borderBottom = '2px solid #58a6ff';
+            }
+            if (activeRightEntry) {
+                activeRightEntry.tab.style.background = '#161b22';
+                activeRightEntry.tab.style.color = '#e6edf3';
+                activeRightEntry.tab.style.borderBottom = '2px solid #3fb950';
+            }
+            entry.fitAddon.fit();
+            entry.term.focus();
+        }
         activeTermIdx = terminals.indexOf(entry);
     }
 
@@ -6491,7 +6611,19 @@ if __name__=="__main__":
         if (terminals.length > 0) {
             activateTerminal(terminals[Math.max(0, idx - 1)]);
         }
+        saveTermState();
     }
+
+    // --- Restore saved sessions on page load ---
+    var savedState = loadTermState();
+    if (savedState && savedState.length > 0) {
+        savedState.forEach(function(s) {
+            createTerminal(s.name, s.content);
+        });
+    }
+
+    // Save state before page unload
+    window.addEventListener('beforeunload', function() { saveTermState(); });
 })();
 </script>
 
