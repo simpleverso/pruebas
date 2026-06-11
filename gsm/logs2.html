@@ -1009,6 +1009,7 @@ Each terminal tab below opens a new shell session.
                     <label style="font-size:0.78rem;color:#8b949e;">Server:</label>
                     <input type="text" id="termWsUrl" value="ws://127.0.0.1:8765" style="flex:1;min-width:200px;padding:6px 8px;font-size:0.8rem;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;">
                     <button id="termNewTabBtn" style="padding:6px 14px;border-radius:6px;border:none;background:#1f6feb;color:#fff;cursor:pointer;font-weight:600;font-size:0.8rem;">+ New Terminal</button>
+                    <button id="termNewRightBtn" style="display:none;padding:6px 14px;border-radius:6px;border:none;background:#3fb950;color:#fff;cursor:pointer;font-weight:600;font-size:0.8rem;">+ Right</button>
                     <button id="termSplitBtn" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;font-weight:600;font-size:0.8rem;" title="Toggle split view (two terminals side by side)">⬜⬜ Split</button>
                     <span id="termConnStatus" style="font-size:0.75rem;color:#484f58;"></span>
                 </div>
@@ -6307,14 +6308,29 @@ if __name__=="__main__":
     if (!newTabBtn || !containerLeft) return;
 
     // --- Split view toggle ---
+    var newRightBtn = document.getElementById('termNewRightBtn');
     splitBtn.addEventListener('click', function() {
         isSplit = !isSplit;
         containerRight.style.display = isSplit ? '' : 'none';
         splitDivider.style.display = isSplit ? '' : 'none';
+        newRightBtn.style.display = isSplit ? '' : 'none';
         splitBtn.style.background = isSplit ? '#1f6feb' : '#21262d';
         splitBtn.style.color = isSplit ? '#fff' : '#8b949e';
-        // Refit all visible terminals
-        terminals.forEach(function(t) { if (t.el.style.display !== 'none') t.fitAddon.fit(); });
+        // Show/hide move buttons on all tabs
+        terminals.forEach(function(t) {
+            if (t.moveSpan) t.moveSpan.style.display = isSplit ? '' : 'none';
+            if (t.el.style.display !== 'none') t.fitAddon.fit();
+        });
+        // If turning off split, move all right-pane terminals back to left
+        if (!isSplit) {
+            terminals.forEach(function(t) {
+                if (t.el.parentNode === containerRight) {
+                    containerLeft.appendChild(t.el);
+                    t.pane = 'left';
+                }
+            });
+            if (activeLeftEntry) activateTerminal(activeLeftEntry, 'left');
+        }
         try { localStorage.setItem('terminal_split', isSplit ? '1' : '0'); } catch(e) {}
     });
     // Restore split state
@@ -6356,12 +6372,14 @@ if __name__=="__main__":
         } catch(e) { return null; }
     }
 
-    newTabBtn.addEventListener('click', function() { createTerminal(); });
+    newTabBtn.addEventListener('click', function() { createTerminal(null, null, 'left'); });
+    newRightBtn.addEventListener('click', function() { createTerminal(null, null, 'right'); });
 
-    function createTerminal(savedName, savedContent) {
+    function createTerminal(savedName, savedContent, targetPane) {
         var id = ++termIdCounter;
         var wsUrl = wsUrlInput.value.trim() || 'ws://127.0.0.1:8765';
         var termName = savedName || 'Term ' + id;
+        var pane = targetPane || 'left';
 
         // Create tab (draggable for reorder, double-click to rename)
         var tab = document.createElement('div');
@@ -6371,18 +6389,29 @@ if __name__=="__main__":
         nameSpan.className = 'term-name';
         nameSpan.textContent = termName;
         nameSpan.title = 'Double-click to rename';
+        // Move button (toggles between left/right pane in split mode)
+        var moveSpan = document.createElement('span');
+        moveSpan.className = 'term-move';
+        moveSpan.style.cssText = 'color:#58a6ff;cursor:pointer;font-size:0.75rem;line-height:1;display:none;';
+        moveSpan.innerHTML = '&#8644;';
+        moveSpan.title = 'Move to other pane';
         var closeSpan = document.createElement('span');
         closeSpan.className = 'term-close';
         closeSpan.style.cssText = 'color:#f85149;cursor:pointer;font-size:0.9rem;line-height:1;';
         closeSpan.innerHTML = '&times;';
         tab.appendChild(nameSpan);
+        tab.appendChild(moveSpan);
         tab.appendChild(closeSpan);
         tabBar.appendChild(tab);
+
+        // Show move button when split is active
+        if (isSplit) moveSpan.style.display = '';
 
         // Create terminal div
         var termEl = document.createElement('div');
         termEl.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:none;';
-        containerLeft.appendChild(termEl);
+        var targetContainer = pane === 'right' ? containerRight : containerLeft;
+        targetContainer.appendChild(termEl);
 
         // Init xterm.js
         var term = new Terminal({
@@ -6460,22 +6489,25 @@ if __name__=="__main__":
             }
         });
 
-        var entry = { id: id, name: termName, ws: ws, term: term, fitAddon: fitAddon, el: termEl, tab: tab, nameSpan: nameSpan, connect: connect };
+        var entry = { id: id, name: termName, ws: ws, term: term, fitAddon: fitAddon, el: termEl, tab: tab, nameSpan: nameSpan, moveSpan: moveSpan, pane: pane, connect: connect };
         terminals.push(entry);
 
-        // Tab click -> activate (left-click = left pane, right-click = right pane in split mode)
+        // Tab click -> activate (left-click = assign to left or show current pane)
         tab.addEventListener('click', function(e) {
             if (e.target.classList.contains('term-close')) {
                 closeTerminal(entry);
                 return;
             }
-            activateTerminal(entry, 'left');
-        });
-        tab.addEventListener('contextmenu', function(e) {
-            if (!isSplit) return; // no right-pane in single mode
-            e.preventDefault();
-            if (e.target.classList.contains('term-close')) return;
-            activateTerminal(entry, 'right');
+            if (e.target.classList.contains('term-move')) {
+                // Move to other pane
+                var newPane = (entry.el.parentNode === containerLeft) ? 'right' : 'left';
+                entry.pane = newPane;
+                activateTerminal(entry, newPane);
+                return;
+            }
+            // Activate in current pane
+            var currentPane = (entry.el.parentNode === containerRight) ? 'right' : 'left';
+            activateTerminal(entry, currentPane);
         });
 
         // Double-click on name -> rename
@@ -6532,7 +6564,7 @@ if __name__=="__main__":
             saveTermState();
         });
 
-        activateTerminal(entry);
+        activateTerminal(entry, pane);
 
         // Resize observer
         var ro = new ResizeObserver(function() {
