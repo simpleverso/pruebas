@@ -6342,11 +6342,12 @@ if __name__=="__main__":
     function saveTermState() {
         try {
             var state = terminals.map(function(t) {
-                // Serialize the terminal's scrollback buffer
+                // Serialize the terminal's scrollback buffer (last 500 lines max)
                 var buffer = '';
                 if (t.term && t.term.buffer && t.term.buffer.active) {
                     var buf = t.term.buffer.active;
-                    for (var i = 0; i < buf.length; i++) {
+                    var startLine = Math.max(0, buf.length - 500);
+                    for (var i = startLine; i < buf.length; i++) {
                         var line = buf.getLine(i);
                         if (line) buffer += line.translateToString(true) + '\n';
                     }
@@ -6363,6 +6364,9 @@ if __name__=="__main__":
         if (saveTimeout) return;
         saveTimeout = setTimeout(function() { saveTimeout = null; saveTermState(); }, 2000);
     }
+
+    // Periodic background save every 30 seconds (light enough to not cause lag)
+    setInterval(function() { if (terminals.length > 0) saveTermState(); }, 30000);
 
     function loadTermState() {
         try {
@@ -6455,7 +6459,6 @@ if __name__=="__main__":
                     var msg = JSON.parse(event.data);
                     if (msg.type === 'output') {
                         term.write(msg.data);
-                        saveTermStateThrottled();
                     } else if (msg.type === 'connected') {
                         term.write('\\x1b[36mShell: ' + msg.shell + ' (PID: ' + msg.pid + ')\\x1b[0m\\r\\n');
                     }
