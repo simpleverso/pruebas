@@ -1752,7 +1752,7 @@ Each terminal tab below opens a new shell session.
                 HFLOCAL_MODELS.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = `hflocal:${m.id}`;
-                    const icon = m.family === 'bonsai' ? '🌳' : (m.audio ? '👁️🎙️' : '👁️');
+                    const icon = m.family === 'bonsai' ? '🌳' : (m.family === 'nemotron' ? '🧠' : (m.audio ? '👁️🎙️' : '👁️'));
                     opt.textContent = `${icon} ${m.label}`;
                     og.appendChild(opt);
                 });
@@ -1872,6 +1872,8 @@ Each terminal tab below opens a new shell session.
             if (/^Qwen3[\.\-_]?5?-/i.test(id) && !/-Thinking-2507-/i.test(id) && !/-Instruct-2507-/i.test(id)) {
                 return 'toggleable';
             }
+            // NVIDIA Nemotron-3-Nano supports toggleable thinking
+            if (/Nemotron.*Nano/i.test(id)) return 'toggleable';
             // Llama, Gemma, Phi, etc. — no reasoning
             return 'none';
         }
@@ -1971,9 +1973,10 @@ Each terminal tab below opens a new shell session.
             return modelId;
         }
 
-        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio + Bonsai 1-bit) ---
+        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio + Bonsai 1-bit + Nemotron) ---
         const HFLOCAL_MODELS = [
             { id: 'onnx-community/Bonsai-1.7B-ONNX', label: 'Bonsai 1.7B (1-bit)', family: 'bonsai' },
+            { id: 'onnx-community/NVIDIA-Nemotron-3-Nano-4B-BF16-ONNX', label: 'Nemotron-3 Nano 4B', family: 'nemotron' },
             { id: 'onnx-community/Qwen3.5-0.8B-ONNX-OPT', label: 'Qwen3.5 0.8B Vision', family: 'qwen3.5' },
             { id: 'onnx-community/Qwen3.5-2B-ONNX-OPT', label: 'Qwen3.5 2B Vision', family: 'qwen3.5' },
             { id: 'onnx-community/Qwen3.5-4B-ONNX-OPT', label: 'Qwen3.5 4B Vision', family: 'qwen3.5' },
@@ -2630,22 +2633,23 @@ Each terminal tab below opens a new shell session.
                     statusEl.textContent = 'Loading processor...';
                     progressBar.style.width = '30%';
 
-                    if (family === 'bonsai') {
-                        // Bonsai uses pipeline("text-generation") with q1 dtype
-                        statusEl.textContent = 'Loading Bonsai 1-bit pipeline (WebGPU)...';
+                    if (family === 'bonsai' || family === 'nemotron') {
+                        // Pipeline-based models (Bonsai q1, Nemotron q4)
+                        const pipelineDtype = family === 'bonsai' ? 'q1' : 'q4';
+                        statusEl.textContent = 'Loading ' + (family === 'bonsai' ? 'Bonsai 1-bit' : 'Nemotron') + ' pipeline (WebGPU)...';
                         progressBar.style.width = '40%';
                         hfLocalPipeline = await hfLocalModule.pipeline('text-generation', rawId, {
                             device: 'webgpu',
-                            dtype: 'q1',
+                            dtype: pipelineDtype,
                         });
                         hfLocalProcessor = null;
                         hfLocalModel = null;
                         // Warm up with a single token for WebGPU shader compilation
-                        statusEl.textContent = 'Optimizing model for 1-bit execution...';
+                        statusEl.textContent = 'Optimizing model for execution...';
                         progressBar.style.width = '80%';
                         const warmupInputs = hfLocalPipeline.tokenizer('a');
                         await hfLocalPipeline.model.generate({ ...warmupInputs, max_new_tokens: 1 });
-                        hfLocalPipelineCache = new hfLocalModule.DynamicCache();
+                        hfLocalPipelineCache = family === 'bonsai' ? new hfLocalModule.DynamicCache() : null;
                     } else {
                         hfLocalPipeline = null;
                         hfLocalPipelineCache = null;
@@ -2672,7 +2676,7 @@ Each terminal tab below opens a new shell session.
                     loadedModelId = modelId;
                     engineDead = false;
                     progressBar.style.width = '100%';
-                    const capStr = family === 'gemma4' ? 'vision + audio + text' : (family === 'bonsai' ? '1-bit text' : 'vision + text');
+                    const capStr = family === 'gemma4' ? 'vision + audio + text' : (family === 'bonsai' ? '1-bit text' : (family === 'nemotron' ? 'text + reasoning' : 'vision + text'));
                     statusEl.textContent = 'Ready — ' + rawId;
                     progressEl.style.display = 'none';
                     inputEl.disabled = false;
@@ -2680,6 +2684,8 @@ Each terminal tab below opens a new shell session.
                     messagesEl.innerHTML = '';
                     if (family === 'bonsai') {
                         addMessage('system', 'Model loaded (' + capStr + '). 1-bit Bonsai LLM running entirely in-browser. Start chatting.');
+                    } else if (family === 'nemotron') {
+                        addMessage('system', 'Model loaded (' + capStr + '). NVIDIA Nemotron-3 Nano with thinking support. Start chatting.');
                     } else {
                         addMessage('system', 'Model loaded (' + capStr + '). You can attach images with 📎' + (family === 'gemma4' ? ' and record audio with 🎙️' : '') + '. Start chatting.');
                     }
@@ -2836,8 +2842,9 @@ Each terminal tab below opens a new shell session.
                 const thinkingEnabled = resolveThinkingEnabled(activeModelId);
 
                 // Possibly append /no_think for hybrid models when disabling reasoning.
+                // (Not for Nemotron — it uses tokenizer_encode_kwargs instead.)
                 let finalMsgs = msgs;
-                if (thinkMode === 'toggleable' && !thinkingEnabled && finalMsgs.length > 0) {
+                if (thinkMode === 'toggleable' && !thinkingEnabled && hfLocalFamily !== 'nemotron' && finalMsgs.length > 0) {
                     finalMsgs = [...finalMsgs];
                     for (let i = finalMsgs.length - 1; i >= 0; i--) {
                         if (finalMsgs[i].role === 'user') {
@@ -2945,9 +2952,9 @@ Each terminal tab below opens a new shell session.
                     const hfModule = hfLocalModule;
                     const lastUserIdx = finalMsgs.map(m => m.role).lastIndexOf('user');
 
-                    if (hfLocalFamily === 'bonsai') {
-                        // Bonsai: pipeline-based text generation with DynamicCache
-                        if (!hfLocalPipeline) throw new Error('Bonsai pipeline not loaded.');
+                    if (hfLocalFamily === 'bonsai' || hfLocalFamily === 'nemotron') {
+                        // Pipeline-based text generation (Bonsai with DynamicCache, Nemotron without)
+                        if (!hfLocalPipeline) throw new Error('Pipeline not loaded.');
                         let hfResolve = null;
                         let hfDone = false;
                         const hfQueue = [];
@@ -2964,15 +2971,26 @@ Each terminal tab below opens a new shell session.
                             }
                         });
 
-                        // Run pipeline with messages array (like the reference worker)
-                        var hfGenPromise = hfLocalPipeline(finalMsgs, {
-                            max_new_tokens: 1024,
-                            do_sample: false,
+                        // Build pipeline options
+                        const pipeOpts = {
+                            max_new_tokens: hfLocalFamily === 'nemotron' ? 4096 : 1024,
+                            do_sample: hfLocalFamily === 'nemotron',
                             streamer: hfStreamer,
                             stopping_criteria: [hfStopCriteria],
-                            past_key_values: hfLocalPipelineCache,
-                        }).then(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } })
-                          .catch(function(e) { console.error('Bonsai gen error:', e); hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } });
+                        };
+                        // Bonsai uses DynamicCache for multi-turn KV persistence
+                        if (hfLocalFamily === 'bonsai' && hfLocalPipelineCache) {
+                            pipeOpts.past_key_values = hfLocalPipelineCache;
+                        }
+                        // Nemotron uses tokenizer_encode_kwargs to toggle thinking
+                        if (hfLocalFamily === 'nemotron') {
+                            pipeOpts.tokenizer_encode_kwargs = { enable_thinking: thinkingEnabled };
+                        }
+
+                        // Run pipeline with messages array
+                        var hfGenPromise = hfLocalPipeline(finalMsgs, pipeOpts)
+                          .then(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } })
+                          .catch(function(e) { console.error('Pipeline gen error:', e); hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } });
 
                         streamIter = {
                             [Symbol.asyncIterator]() { return this; },
