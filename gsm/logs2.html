@@ -1013,6 +1013,13 @@ Each terminal tab below opens a new shell session.
                     <button id="termSplitBtn" style="padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;font-weight:600;font-size:0.8rem;" title="Toggle split view (two terminals side by side)">⬜⬜ Split</button>
                     <span id="termConnStatus" style="font-size:0.75rem;color:#484f58;"></span>
                 </div>
+                <!-- Quick Commands Row -->
+                <div id="termQuickCmdsRow" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:0.5rem;">
+                    <label style="font-size:0.78rem;color:#8b949e;margin:0;">Quick:</label>
+                    <div id="termQuickCmdsBtns" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+                    <button id="termAddCmdBtn" style="padding:4px 10px;border-radius:6px;border:1px dashed #30363d;background:transparent;color:#58a6ff;cursor:pointer;font-size:0.75rem;" title="Add a new quick command">+ Add</button>
+                    <button id="termEditCmdsBtn" style="padding:4px 10px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#8b949e;cursor:pointer;font-size:0.75rem;" title="Edit/remove quick commands">✏️</button>
+                </div>
             </div>
             <div id="termTabBar" style="display:flex;gap:2px;padding:6px 1rem 0;background:#0d1117;overflow-x:auto;min-height:36px;align-items:flex-end;"></div>
             <div id="termSplitWrap" style="display:flex;height:420px;background:#000;">
@@ -6997,6 +7004,7 @@ if __name__=="__main__":
         ro.observe(containerLeft);
         ro.observe(containerRight);
         entry._ro = ro;
+        return entry;
     }
 
     function activateTerminal(entry, pane) {
@@ -7077,6 +7085,91 @@ if __name__=="__main__":
             createTerminal(s.name, s.content);
         });
     }
+
+    // --- Quick Commands (saved in localStorage) ---
+    var QUICK_CMDS_KEY = 'terminal_quick_commands_v1';
+    var defaultQuickCmds = [
+        { label: 'Caffeinate', cmd: 'caffeinate -d' },
+        { label: 'Download Case', cmd: '/Users/gsantmtz/Desktop/casos/download_case_new.sh' },
+        { label: 'Isengard', cmd: '/Users/gsantmtz/Desktop/casos/isengard.sh' },
+        { label: 'Kiro CLI', cmd: 'kiro-cli' },
+    ];
+
+    function loadQuickCmds() {
+        try {
+            var raw = localStorage.getItem(QUICK_CMDS_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        return null;
+    }
+    function saveQuickCmds(cmds) {
+        try { localStorage.setItem(QUICK_CMDS_KEY, JSON.stringify(cmds)); } catch(e) {}
+    }
+    function getQuickCmds() {
+        return loadQuickCmds() || defaultQuickCmds.slice();
+    }
+
+    function renderQuickCmds() {
+        var container = document.getElementById('termQuickCmdsBtns');
+        container.innerHTML = '';
+        var cmds = getQuickCmds();
+        cmds.forEach(function(c) {
+            var btn = document.createElement('button');
+            btn.textContent = c.label;
+            btn.title = c.cmd;
+            btn.style.cssText = 'padding:4px 10px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;cursor:pointer;font-size:0.75rem;font-weight:500;white-space:nowrap;';
+            btn.addEventListener('mouseenter', function() { btn.style.background = '#30363d'; });
+            btn.addEventListener('mouseleave', function() { btn.style.background = '#21262d'; });
+            btn.addEventListener('click', function() {
+                // Create a new terminal and send the command
+                var entry = createTerminal(c.label, null, 'left');
+                // Wait a bit for WebSocket to connect, then send the command
+                var attempts = 0;
+                var trySend = function() {
+                    if (entry && entry.ws && entry.ws.readyState === WebSocket.OPEN) {
+                        entry.ws.send(JSON.stringify({ type: 'input', data: c.cmd + '\n' }));
+                    } else if (attempts < 30) {
+                        attempts++;
+                        setTimeout(trySend, 200);
+                    }
+                };
+                setTimeout(trySend, 300);
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    document.getElementById('termAddCmdBtn').addEventListener('click', function() {
+        var label = prompt('Button label (short name):');
+        if (!label) return;
+        var cmd = prompt('Command to execute:');
+        if (!cmd) return;
+        var cmds = getQuickCmds();
+        cmds.push({ label: label.trim(), cmd: cmd.trim() });
+        saveQuickCmds(cmds);
+        renderQuickCmds();
+    });
+
+    document.getElementById('termEditCmdsBtn').addEventListener('click', function() {
+        var cmds = getQuickCmds();
+        if (cmds.length === 0) { alert('No quick commands configured.'); return; }
+        var list = cmds.map(function(c, i) { return (i + 1) + '. [' + c.label + '] → ' + c.cmd; }).join('\n');
+        var choice = prompt('Quick Commands:\n' + list + '\n\nEnter number to remove, or "reset" to restore defaults, or "cancel":');
+        if (!choice || choice.toLowerCase() === 'cancel') return;
+        if (choice.toLowerCase() === 'reset') {
+            localStorage.removeItem(QUICK_CMDS_KEY);
+            renderQuickCmds();
+            return;
+        }
+        var idx = parseInt(choice, 10) - 1;
+        if (idx >= 0 && idx < cmds.length) {
+            cmds.splice(idx, 1);
+            saveQuickCmds(cmds);
+            renderQuickCmds();
+        }
+    });
+
+    renderQuickCmds();
 
     // Save state before page unload and ask for confirmation if terminals are open
     window.addEventListener('beforeunload', function(e) {
