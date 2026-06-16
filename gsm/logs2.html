@@ -1260,9 +1260,14 @@ Each terminal tab below opens a new shell session.
         </div>
         <div class="chat-input-row">
             <button id="chatAttachImgBtn" onclick="triggerChatImageAttach()" style="width:auto;padding:10px 12px;font-size:1rem;background:#21262d;border:1px solid #30363d;border-radius:8px;cursor:pointer;color:#8b949e;line-height:1;" title="Attach image (for vision models)">📎</button>
+            <button id="chatRecordAudioBtn" onclick="toggleAudioRecord()" style="width:auto;padding:10px 12px;font-size:1rem;background:#21262d;border:1px solid #30363d;border-radius:8px;cursor:pointer;color:#8b949e;line-height:1;" title="Record audio (for Gemma 4 models)">🎙️</button>
             <div id="chatImagePreview" style="display:none;position:relative;">
                 <img id="chatImageThumb" style="height:40px;border-radius:6px;border:1px solid #30363d;">
                 <button onclick="removeChatImage()" style="position:absolute;top:-4px;right:-4px;background:#f85149;color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:0.6rem;cursor:pointer;line-height:1;">✕</button>
+            </div>
+            <div id="chatAudioPreview" style="display:none;position:relative;background:#21262d;border:1px solid #30363d;border-radius:6px;padding:4px 8px;font-size:0.75rem;color:#8b949e;">
+                <span id="chatAudioName"></span>
+                <button onclick="removeChatAudio()" style="position:absolute;top:-4px;right:-4px;background:#f85149;color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:0.6rem;cursor:pointer;line-height:1;">✕</button>
             </div>
             <input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="handleChatImageSelect(event)">
             <textarea id="chatInput" rows="3" placeholder="Type a message (will auto-load default model)..."></textarea>
@@ -1740,14 +1745,14 @@ Each terminal tab below opens a new shell session.
                 selectEl.appendChild(og);
             }
 
-            // HF Transformers.js (Qwen3.5 Vision, in-browser)
+            // HF Transformers.js (Qwen3.5 + Gemma 4 Vision/Audio, in-browser)
             {
                 const og = document.createElement('optgroup');
-                og.label = 'HF Local Vision (in-browser, Qwen3.5)';
+                og.label = 'HF Local Vision/Audio (in-browser)';
                 HFLOCAL_MODELS.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = `hflocal:${m.id}`;
-                    opt.textContent = `👁️ ${m.label}`;
+                    opt.textContent = m.audio ? `👁️🎙️ ${m.label}` : `👁️ ${m.label}`;
                     og.appendChild(opt);
                 });
                 selectEl.appendChild(og);
@@ -1965,17 +1970,22 @@ Each terminal tab below opens a new shell session.
             return modelId;
         }
 
-        // --- HF Transformers.js (Qwen3.5 Vision) ---
+        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio) ---
         const HFLOCAL_MODELS = [
-            { id: 'webml-community/Qwen3.5-0.6B-WebGPU', label: 'Qwen3.5 0.6B Vision' },
-            { id: 'webml-community/Qwen3.5-4B-WebGPU', label: 'Qwen3.5 4B Vision' },
+            { id: 'onnx-community/Qwen3.5-0.8B-ONNX-OPT', label: 'Qwen3.5 0.8B Vision', family: 'qwen3.5' },
+            { id: 'onnx-community/Qwen3.5-2B-ONNX-OPT', label: 'Qwen3.5 2B Vision', family: 'qwen3.5' },
+            { id: 'onnx-community/Qwen3.5-4B-ONNX-OPT', label: 'Qwen3.5 4B Vision', family: 'qwen3.5' },
+            { id: 'onnx-community/gemma-4-E2B-it-ONNX', label: 'Gemma 4 E2B Vision+Audio', family: 'gemma4', audio: true },
+            { id: 'onnx-community/gemma-4-E4B-it-ONNX', label: 'Gemma 4 E4B Vision+Audio', family: 'gemma4', audio: true },
         ];
         let hfLocalModule = null;
         let hfLocalProcessor = null;
         let hfLocalModel = null;
         let hfLocalLoadedId = null;
         let hfLocalLoading = false;
+        let hfLocalFamily = null; // 'qwen3.5' | 'gemma4'
         let chatAttachedImage = null; // { dataURL, blob }
+        let chatAttachedAudio = null; // { dataURL, blob }
 
         // Image attach helpers (global scope for onclick)
         window.triggerChatImageAttach = function() { document.getElementById('chatImageInput').click(); };
@@ -1992,6 +2002,54 @@ Each terminal tab below opens a new shell session.
             chatAttachedImage = null;
             document.getElementById('chatImagePreview').style.display = 'none';
             document.getElementById('chatImageThumb').src = '';
+        };
+
+        // Audio recording helpers (for Gemma 4 models with audio support)
+        let audioMediaRecorder = null;
+        let audioChunks = [];
+        let audioRecording = false;
+        window.toggleAudioRecord = function() {
+            if (audioRecording) {
+                // Stop recording
+                if (audioMediaRecorder && audioMediaRecorder.state !== 'inactive') {
+                    audioMediaRecorder.stop();
+                }
+                return;
+            }
+            // Start recording
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+                audioChunks = [];
+                audioMediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                audioMediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+                audioMediaRecorder.onstop = function() {
+                    stream.getTracks().forEach(function(t) { t.stop(); });
+                    var blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    var url = URL.createObjectURL(blob);
+                    chatAttachedAudio = { dataURL: url, blob: blob };
+                    document.getElementById('chatAudioPreview').style.display = '';
+                    document.getElementById('chatAudioName').textContent = 'Audio (' + (blob.size / 1024).toFixed(1) + ' KB)';
+                    audioRecording = false;
+                    var btn = document.getElementById('chatRecordAudioBtn');
+                    btn.textContent = '🎙️';
+                    btn.title = 'Record audio (for Gemma 4 models)';
+                    btn.style.background = '#21262d';
+                };
+                audioMediaRecorder.start();
+                audioRecording = true;
+                var btn = document.getElementById('chatRecordAudioBtn');
+                btn.textContent = '⏹️';
+                btn.title = 'Stop recording';
+                btn.style.background = '#da3633';
+            }).catch(function(err) {
+                alert('Microphone access denied: ' + (err.message || err));
+            });
+        };
+        window.removeChatAudio = function() {
+            chatAttachedAudio = null;
+            document.getElementById('chatAudioPreview').style.display = 'none';
+            document.getElementById('chatAudioName').textContent = '';
         };
 
         // --- LiteRT-LM (Gemma 4 on WebGPU) -----------------------------------
@@ -2542,10 +2600,12 @@ Each terminal tab below opens a new shell session.
                 return;
             }
 
-            // HF Transformers.js (Qwen3.5 Vision) local engine path
+            // HF Transformers.js (Qwen3.5 / Gemma 4 Vision) local engine path
             if (provider === 'hflocal') {
                 isLoading = true;
                 const rawId = stripProvider(modelId);
+                const modelMeta = HFLOCAL_MODELS.find(m => m.id === rawId);
+                const family = modelMeta ? modelMeta.family : 'qwen3.5';
                 statusEl.textContent = 'Loading ' + rawId + ' (HF Transformers.js)...';
                 progressEl.style.display = 'block';
                 progressBar.style.width = '0%';
@@ -2569,21 +2629,31 @@ Each terminal tab below opens a new shell session.
 
                     statusEl.textContent = 'Loading model weights (WebGPU)...';
                     progressBar.style.width = '50%';
-                    hfLocalModel = await hfLocalModule.Qwen3_5ForConditionalGeneration.from_pretrained(rawId, {
-                        dtype: { embed_tokens: 'q4', vision_encoder: 'fp16', decoder_model_merged: 'q4' },
-                        device: 'webgpu',
-                    });
 
+                    if (family === 'gemma4') {
+                        hfLocalModel = await hfLocalModule.Gemma4ForConditionalGeneration.from_pretrained(rawId, {
+                            dtype: 'q4f16',
+                            device: 'webgpu',
+                        });
+                    } else {
+                        hfLocalModel = await hfLocalModule.Qwen3_5ForConditionalGeneration.from_pretrained(rawId, {
+                            dtype: { embed_tokens: 'q4', vision_encoder: 'fp16', decoder_model_merged: 'q4' },
+                            device: 'webgpu',
+                        });
+                    }
+
+                    hfLocalFamily = family;
                     hfLocalLoadedId = modelId;
                     loadedModelId = modelId;
                     engineDead = false;
                     progressBar.style.width = '100%';
+                    const capStr = family === 'gemma4' ? 'vision + audio + text' : 'vision + text';
                     statusEl.textContent = 'Ready — ' + rawId;
                     progressEl.style.display = 'none';
                     inputEl.disabled = false;
                     sendBtn.disabled = false;
                     messagesEl.innerHTML = '';
-                    addMessage('system', 'Model loaded (vision + text). You can attach images with 📎. Start chatting.');
+                    addMessage('system', 'Model loaded (' + capStr + '). You can attach images with 📎' + (family === 'gemma4' ? ' and record audio with 🎙️' : '') + '. Start chatting.');
                     updateContextInfo(modelId, null);
                     inputEl.focus();
                 } catch (err) {
@@ -2840,38 +2910,80 @@ Each terminal tab below opens a new shell session.
                     };
                     cancelStream = () => { try { litertlmConvo && litertlmConvo.cancel && litertlmConvo.cancel(); } catch(e) {} };
                 } else if (provider === 'hflocal') {
-                    // HF Transformers.js Qwen3.5 Vision — uses TextStreamer callback
-                    // We build a custom async iterator that yields text tokens.
+                    // HF Transformers.js (Qwen3.5 / Gemma 4) — uses TextStreamer callback
                     if (!hfLocalModel || !hfLocalProcessor) throw new Error('HF model not loaded.');
                     const hfModule = hfLocalModule;
-
-                    // Build prompt in Qwen3.5 chat format
                     const lastUserIdx = finalMsgs.map(m => m.role).lastIndexOf('user');
-                    let userText = lastUserIdx >= 0 ? finalMsgs[lastUserIdx].content : '';
 
-                    let promptStr = '';
-                    finalMsgs.forEach(function(m) {
-                        if (m.role === 'system') promptStr += '<|im_start|>system\n' + m.content + '<|im_end|>\n';
-                        else if (m.role === 'user') {
-                            promptStr += '<|im_start|>user\n';
-                            if (chatAttachedImage && m === finalMsgs[lastUserIdx]) {
-                                promptStr += '<|vision_start|><|image_pad|><|vision_end|>';
-                            }
-                            promptStr += m.content + '<|im_end|>\n';
-                        } else if (m.role === 'assistant') {
-                            promptStr += '<|im_start|>assistant\n' + m.content + '<|im_end|>\n';
-                        }
-                    });
-                    promptStr += '<|im_start|>assistant\n<think>\n\n</think>\n\n';
-
-                    // Process inputs (with image if attached)
                     let hfInputs;
-                    if (chatAttachedImage) {
-                        const rawImage = await hfModule.RawImage.read(chatAttachedImage.dataURL);
-                        const resized = await rawImage.resize(448, 448);
-                        hfInputs = await hfLocalProcessor(promptStr, resized);
+
+                    if (hfLocalFamily === 'gemma4') {
+                        // Gemma 4: use apply_chat_template with multimodal content
+                        const messages = [];
+                        for (let mi = 0; mi < finalMsgs.length; mi++) {
+                            const m = finalMsgs[mi];
+                            if (m.role === 'system') {
+                                messages.push({ role: 'system', content: [{ type: 'text', text: m.content }] });
+                            } else if (m.role === 'user') {
+                                const parts = [];
+                                // Attach image/audio only on last user message
+                                if (mi === lastUserIdx) {
+                                    if (chatAttachedImage) parts.push({ type: 'image' });
+                                    if (chatAttachedAudio) parts.push({ type: 'audio' });
+                                }
+                                parts.push({ type: 'text', text: m.content });
+                                messages.push({ role: 'user', content: parts });
+                            } else if (m.role === 'assistant') {
+                                messages.push({ role: 'assistant', content: [{ type: 'text', text: m.content }] });
+                            }
+                        }
+
+                        const promptStr = hfLocalProcessor.apply_chat_template(messages, {
+                            enable_thinking: false,
+                            add_generation_prompt: true,
+                        });
+
+                        // Load image and/or audio if attached
+                        let imageArg = null;
+                        let audioArg = null;
+                        if (chatAttachedImage) {
+                            imageArg = await hfModule.load_image(chatAttachedImage.dataURL);
+                        }
+                        if (chatAttachedAudio && hfModule.read_audio) {
+                            audioArg = await hfModule.read_audio(chatAttachedAudio.dataURL, 16000);
+                        }
+
+                        // Processor signature is positional: (text, image, audio, options).
+                        // We must ALWAYS pass all 4 args; missing modalities use null.
+                        // Otherwise the options object ends up in the image/audio slot and
+                        // crashes with "l.rgb is not a function" or audio-extractor errors.
+                        hfInputs = await hfLocalProcessor(promptStr, imageArg, audioArg, {
+                            add_special_tokens: false,
+                        });
                     } else {
-                        hfInputs = await hfLocalProcessor(promptStr);
+                        // Qwen3.5: build prompt manually
+                        let promptStr = '';
+                        finalMsgs.forEach(function(m) {
+                            if (m.role === 'system') promptStr += '<|im_start|>system\n' + m.content + '<|im_end|>\n';
+                            else if (m.role === 'user') {
+                                promptStr += '<|im_start|>user\n';
+                                if (chatAttachedImage && m === finalMsgs[lastUserIdx]) {
+                                    promptStr += '<|vision_start|><|image_pad|><|vision_end|>';
+                                }
+                                promptStr += m.content + '<|im_end|>\n';
+                            } else if (m.role === 'assistant') {
+                                promptStr += '<|im_start|>assistant\n' + m.content + '<|im_end|>\n';
+                            }
+                        });
+                        promptStr += '<|im_start|>assistant\n<think>\n\n</think>\n\n';
+
+                        if (chatAttachedImage) {
+                            const rawImage = await hfModule.RawImage.read(chatAttachedImage.dataURL);
+                            const resized = await rawImage.resize(448, 448);
+                            hfInputs = await hfLocalProcessor(promptStr, resized);
+                        } else {
+                            hfInputs = await hfLocalProcessor(promptStr);
+                        }
                     }
 
                     // Create async iterator from TextStreamer callback
@@ -2884,7 +2996,10 @@ Each terminal tab below opens a new shell session.
                         skip_prompt: true,
                         skip_special_tokens: true,
                         callback_function: function(token) {
-                            var clean = token.replace(/<\|im_end\|>/g, '');
+                            // Qwen3.5 still emits <|im_end|> through the streamer in some builds
+                            var clean = hfLocalFamily === 'gemma4'
+                                ? token
+                                : token.replace(/<\|im_end\|>/g, '');
                             if (clean) {
                                 hfQueue.push(clean);
                                 if (hfResolve) { var r = hfResolve; hfResolve = null; r(); }
@@ -2896,11 +3011,11 @@ Each terminal tab below opens a new shell session.
                     var hfGenPromise = hfLocalModel.generate({
                         ...hfInputs,
                         max_new_tokens: 512,
-                        do_sample: true,
+                        do_sample: hfLocalFamily === 'gemma4' ? false : true,
                         streamer: hfStreamer,
-                        stopping_criteria: hfStopCriteria,
+                        stopping_criteria: [hfStopCriteria],
                     }).then(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } })
-                      .catch(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } });
+                      .catch(function(e) { console.error('HF gen error:', e); hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } });
 
                     // Async iterator
                     streamIter = {
@@ -2916,8 +3031,9 @@ Each terminal tab below opens a new shell session.
                     getChunkDelta = function(chunk) { return chunk || ''; };
                     cancelStream = function() { hfStopCriteria.interrupt(); };
 
-                    // Clear the attached image after use
+                    // Clear attached media after use
                     window.removeChatImage();
+                    window.removeChatAudio();
                 }
 
                 let full = '';
