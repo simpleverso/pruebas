@@ -1759,7 +1759,7 @@ Each terminal tab below opens a new shell session.
                 HFLOCAL_MODELS.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = `hflocal:${m.id}`;
-                    const icon = m.family === 'bonsai' ? '🌳' : (m.family === 'nemotron' ? '🧠' : (m.family === 'lfm' ? '💧' : (m.family === 'gptoss' ? '⚡' : (m.audio ? '👁️🎙️' : '👁️'))));
+                    const icon = m.family === 'bonsai' ? '🌳' : (m.family === 'nemotron' ? '🧠' : (m.family === 'lfm' ? '💧' : (m.family === 'gptoss' ? '⚡' : (m.family === 'qwencoder' ? '💻' : (m.family === 'qwen3' ? '🤖' : (m.audio ? '👁️🎙️' : '👁️'))))));
                     opt.textContent = `${icon} ${m.label}`;
                     og.appendChild(opt);
                 });
@@ -1876,7 +1876,7 @@ Each terminal tab below opens a new shell session.
             // DeepSeek R1 distills always chain-of-thought
             if (/DeepSeek-R1-Distill-/i.test(id)) return 'always-on';
             // Original Qwen3 (April 2025) hybrid models and Qwen3.5 hybrid
-            if (/^Qwen3[\.\-_]?5?-/i.test(id) && !/-Thinking-2507-/i.test(id) && !/-Instruct-2507-/i.test(id)) {
+            if (/Qwen3[\.\-_]?5?-/i.test(id) && !/-Thinking-2507-/i.test(id) && !/-Instruct-2507-/i.test(id)) {
                 return 'toggleable';
             }
             // NVIDIA Nemotron-3-Nano supports toggleable thinking
@@ -1984,12 +1984,15 @@ Each terminal tab below opens a new shell session.
             return modelId;
         }
 
-        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio + Bonsai 1-bit + Nemotron + LFM + GPT-OSS) ---
+        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio + Bonsai 1-bit + Nemotron + LFM + GPT-OSS + Qwen Coder + Qwen3) ---
         const HFLOCAL_MODELS = [
             { id: 'onnx-community/Bonsai-1.7B-ONNX', label: 'Bonsai 1.7B (1-bit)', family: 'bonsai' },
             { id: 'onnx-community/NVIDIA-Nemotron-3-Nano-4B-BF16-ONNX', label: 'Nemotron-3 Nano 4B', family: 'nemotron' },
             { id: 'LiquidAI/LFM2.5-1.2B-Thinking-ONNX', label: 'LFM 2.5 1.2B Thinking', family: 'lfm' },
             { id: 'onnx-community/gpt-oss-20b-ONNX', label: 'GPT-OSS 20B', family: 'gptoss' },
+            { id: 'webgpu/Qwen3-4B-ONNX', label: 'Qwen3 4B', family: 'qwen3' },
+            { id: 'onnx-community/Qwen2.5-Coder-0.5B-Instruct', label: 'Qwen2.5 Coder 0.5B', family: 'qwencoder' },
+            { id: 'onnx-community/Qwen2.5-Coder-1.5B-Instruct', label: 'Qwen2.5 Coder 1.5B', family: 'qwencoder' },
             { id: 'onnx-community/Qwen3.5-0.8B-ONNX-OPT', label: 'Qwen3.5 0.8B Vision', family: 'qwen3.5' },
             { id: 'onnx-community/Qwen3.5-2B-ONNX-OPT', label: 'Qwen3.5 2B Vision', family: 'qwen3.5' },
             { id: 'onnx-community/Qwen3.5-4B-ONNX-OPT', label: 'Qwen3.5 4B Vision', family: 'qwen3.5' },
@@ -2646,10 +2649,10 @@ Each terminal tab below opens a new shell session.
                     statusEl.textContent = 'Loading processor...';
                     progressBar.style.width = '30%';
 
-                    if (family === 'bonsai' || family === 'nemotron' || family === 'lfm' || family === 'gptoss') {
-                        // Pipeline-based models (Bonsai q1, Nemotron q4, LFM q4, GPT-OSS q4f16)
-                        const pipelineDtype = family === 'bonsai' ? 'q1' : (family === 'gptoss' ? 'q4f16' : 'q4');
-                        const familyLabel = family === 'bonsai' ? 'Bonsai 1-bit' : (family === 'lfm' ? 'LFM' : (family === 'gptoss' ? 'GPT-OSS' : 'Nemotron'));
+                    if (family === 'bonsai' || family === 'nemotron' || family === 'lfm' || family === 'gptoss' || family === 'qwencoder' || family === 'qwen3') {
+                        // Pipeline-based models (Bonsai q1, Nemotron q4, LFM q4, GPT-OSS q4f16, Qwen Coder q4, Qwen3 q4f16)
+                        const pipelineDtype = family === 'bonsai' ? 'q1' : (family === 'gptoss' || family === 'qwen3' ? 'q4f16' : 'q4');
+                        const familyLabel = family === 'bonsai' ? 'Bonsai 1-bit' : (family === 'lfm' ? 'LFM' : (family === 'gptoss' ? 'GPT-OSS' : (family === 'qwencoder' ? 'Qwen Coder' : (family === 'qwen3' ? 'Qwen3' : 'Nemotron'))));
                         statusEl.textContent = 'Loading ' + familyLabel + ' pipeline (WebGPU)...';
                         progressBar.style.width = '40%';
                         hfLocalPipeline = await hfLocalModule.pipeline('text-generation', rawId, {
@@ -2690,7 +2693,7 @@ Each terminal tab below opens a new shell session.
                     loadedModelId = modelId;
                     engineDead = false;
                     progressBar.style.width = '100%';
-                    const capStr = family === 'gemma4' ? 'vision + audio + text' : (family === 'bonsai' ? '1-bit text' : (family === 'nemotron' ? 'text + reasoning' : (family === 'lfm' ? 'text + reasoning' : (family === 'gptoss' ? 'text + reasoning' : 'vision + text'))));
+                    const capStr = family === 'gemma4' ? 'vision + audio + text' : (family === 'bonsai' ? '1-bit text' : (family === 'nemotron' ? 'text + reasoning' : (family === 'lfm' ? 'text + reasoning' : (family === 'gptoss' ? 'text + reasoning' : (family === 'qwencoder' ? 'code generation' : (family === 'qwen3' ? 'text + reasoning' : 'vision + text'))))));
                     statusEl.textContent = 'Ready — ' + rawId;
                     progressEl.style.display = 'none';
                     inputEl.disabled = false;
@@ -2704,6 +2707,10 @@ Each terminal tab below opens a new shell session.
                         addMessage('system', 'Model loaded (' + capStr + '). LiquidAI LFM 2.5 reasoning model. Start chatting.');
                     } else if (family === 'gptoss') {
                         addMessage('system', 'Model loaded (' + capStr + '). GPT-OSS 20B (~12 GB). Start chatting.');
+                    } else if (family === 'qwencoder') {
+                        addMessage('system', 'Model loaded (' + capStr + '). Qwen2.5 Coder — optimized for code tasks. Start chatting.');
+                    } else if (family === 'qwen3') {
+                        addMessage('system', 'Model loaded (' + capStr + '). Qwen3 4B with hybrid thinking. Use 🧠 to toggle reasoning. Start chatting.');
                     } else {
                         addMessage('system', 'Model loaded (' + capStr + '). You can attach images with 📎' + (family === 'gemma4' ? ' and record audio with 🎙️' : '') + '. Start chatting.');
                     }
@@ -2970,8 +2977,8 @@ Each terminal tab below opens a new shell session.
                     const hfModule = hfLocalModule;
                     const lastUserIdx = finalMsgs.map(m => m.role).lastIndexOf('user');
 
-                    if (hfLocalFamily === 'bonsai' || hfLocalFamily === 'nemotron' || hfLocalFamily === 'lfm' || hfLocalFamily === 'gptoss') {
-                        // Pipeline-based text generation (Bonsai with DynamicCache, Nemotron/LFM/GPT-OSS without)
+                    if (hfLocalFamily === 'bonsai' || hfLocalFamily === 'nemotron' || hfLocalFamily === 'lfm' || hfLocalFamily === 'gptoss' || hfLocalFamily === 'qwencoder' || hfLocalFamily === 'qwen3') {
+                        // Pipeline-based text generation (Bonsai with DynamicCache, Nemotron/LFM/GPT-OSS/Qwen Coder/Qwen3 without)
                         if (!hfLocalPipeline) throw new Error('Pipeline not loaded.');
                         let hfResolve = null;
                         let hfDone = false;
@@ -2991,8 +2998,8 @@ Each terminal tab below opens a new shell session.
 
                         // Build pipeline options
                         const pipeOpts = {
-                            max_new_tokens: hfLocalFamily === 'nemotron' ? 4096 : (hfLocalFamily === 'lfm' ? 65536 : (hfLocalFamily === 'gptoss' ? 2048 : 1024)),
-                            do_sample: hfLocalFamily === 'nemotron' || hfLocalFamily === 'gptoss',
+                            max_new_tokens: hfLocalFamily === 'nemotron' ? 4096 : (hfLocalFamily === 'lfm' ? 65536 : (hfLocalFamily === 'gptoss' ? 2048 : (hfLocalFamily === 'qwencoder' ? 2048 : (hfLocalFamily === 'qwen3' ? 4096 : 1024)))),
+                            do_sample: hfLocalFamily === 'nemotron' || hfLocalFamily === 'gptoss' || hfLocalFamily === 'qwen3',
                             streamer: hfStreamer,
                             stopping_criteria: [hfStopCriteria],
                         };
