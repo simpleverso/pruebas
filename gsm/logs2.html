@@ -1745,14 +1745,15 @@ Each terminal tab below opens a new shell session.
                 selectEl.appendChild(og);
             }
 
-            // HF Transformers.js (Qwen3.5 + Gemma 4 Vision/Audio, in-browser)
+            // HF Transformers.js (Bonsai + Qwen3.5 + Gemma 4 Vision/Audio, in-browser)
             {
                 const og = document.createElement('optgroup');
-                og.label = 'HF Local Vision/Audio (in-browser)';
+                og.label = 'HF Local (in-browser, WebGPU)';
                 HFLOCAL_MODELS.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = `hflocal:${m.id}`;
-                    opt.textContent = m.audio ? `👁️🎙️ ${m.label}` : `👁️ ${m.label}`;
+                    const icon = m.family === 'bonsai' ? '🌳' : (m.audio ? '👁️🎙️' : '👁️');
+                    opt.textContent = `${icon} ${m.label}`;
                     og.appendChild(opt);
                 });
                 selectEl.appendChild(og);
@@ -1970,8 +1971,9 @@ Each terminal tab below opens a new shell session.
             return modelId;
         }
 
-        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio) ---
+        // --- HF Transformers.js (Qwen3.5 Vision + Gemma 4 Vision/Audio + Bonsai 1-bit) ---
         const HFLOCAL_MODELS = [
+            { id: 'onnx-community/Bonsai-1.7B-ONNX', label: 'Bonsai 1.7B (1-bit)', family: 'bonsai' },
             { id: 'onnx-community/Qwen3.5-0.8B-ONNX-OPT', label: 'Qwen3.5 0.8B Vision', family: 'qwen3.5' },
             { id: 'onnx-community/Qwen3.5-2B-ONNX-OPT', label: 'Qwen3.5 2B Vision', family: 'qwen3.5' },
             { id: 'onnx-community/Qwen3.5-4B-ONNX-OPT', label: 'Qwen3.5 4B Vision', family: 'qwen3.5' },
@@ -1981,9 +1983,11 @@ Each terminal tab below opens a new shell session.
         let hfLocalModule = null;
         let hfLocalProcessor = null;
         let hfLocalModel = null;
+        let hfLocalPipeline = null; // For Bonsai (pipeline-based)
+        let hfLocalPipelineCache = null; // DynamicCache for Bonsai KV persistence
         let hfLocalLoadedId = null;
         let hfLocalLoading = false;
-        let hfLocalFamily = null; // 'qwen3.5' | 'gemma4'
+        let hfLocalFamily = null; // 'qwen3.5' | 'gemma4' | 'bonsai'
         let chatAttachedImage = null; // { dataURL, blob }
         let chatAttachedAudio = null; // { dataURL, blob }
 
@@ -2625,21 +2629,42 @@ Each terminal tab below opens a new shell session.
 
                     statusEl.textContent = 'Loading processor...';
                     progressBar.style.width = '30%';
-                    hfLocalProcessor = await hfLocalModule.AutoProcessor.from_pretrained(rawId);
 
-                    statusEl.textContent = 'Loading model weights (WebGPU)...';
-                    progressBar.style.width = '50%';
-
-                    if (family === 'gemma4') {
-                        hfLocalModel = await hfLocalModule.Gemma4ForConditionalGeneration.from_pretrained(rawId, {
-                            dtype: 'q4f16',
+                    if (family === 'bonsai') {
+                        // Bonsai uses pipeline("text-generation") with q1 dtype
+                        statusEl.textContent = 'Loading Bonsai 1-bit pipeline (WebGPU)...';
+                        progressBar.style.width = '40%';
+                        hfLocalPipeline = await hfLocalModule.pipeline('text-generation', rawId, {
                             device: 'webgpu',
+                            dtype: 'q1',
                         });
+                        hfLocalProcessor = null;
+                        hfLocalModel = null;
+                        // Warm up with a single token for WebGPU shader compilation
+                        statusEl.textContent = 'Optimizing model for 1-bit execution...';
+                        progressBar.style.width = '80%';
+                        const warmupInputs = hfLocalPipeline.tokenizer('a');
+                        await hfLocalPipeline.model.generate({ ...warmupInputs, max_new_tokens: 1 });
+                        hfLocalPipelineCache = new hfLocalModule.DynamicCache();
                     } else {
-                        hfLocalModel = await hfLocalModule.Qwen3_5ForConditionalGeneration.from_pretrained(rawId, {
-                            dtype: { embed_tokens: 'q4', vision_encoder: 'fp16', decoder_model_merged: 'q4' },
-                            device: 'webgpu',
-                        });
+                        hfLocalPipeline = null;
+                        hfLocalPipelineCache = null;
+                        hfLocalProcessor = await hfLocalModule.AutoProcessor.from_pretrained(rawId);
+
+                        statusEl.textContent = 'Loading model weights (WebGPU)...';
+                        progressBar.style.width = '50%';
+
+                        if (family === 'gemma4') {
+                            hfLocalModel = await hfLocalModule.Gemma4ForConditionalGeneration.from_pretrained(rawId, {
+                                dtype: 'q4f16',
+                                device: 'webgpu',
+                            });
+                        } else {
+                            hfLocalModel = await hfLocalModule.Qwen3_5ForConditionalGeneration.from_pretrained(rawId, {
+                                dtype: { embed_tokens: 'q4', vision_encoder: 'fp16', decoder_model_merged: 'q4' },
+                                device: 'webgpu',
+                            });
+                        }
                     }
 
                     hfLocalFamily = family;
@@ -2647,13 +2672,17 @@ Each terminal tab below opens a new shell session.
                     loadedModelId = modelId;
                     engineDead = false;
                     progressBar.style.width = '100%';
-                    const capStr = family === 'gemma4' ? 'vision + audio + text' : 'vision + text';
+                    const capStr = family === 'gemma4' ? 'vision + audio + text' : (family === 'bonsai' ? '1-bit text' : 'vision + text');
                     statusEl.textContent = 'Ready — ' + rawId;
                     progressEl.style.display = 'none';
                     inputEl.disabled = false;
                     sendBtn.disabled = false;
                     messagesEl.innerHTML = '';
-                    addMessage('system', 'Model loaded (' + capStr + '). You can attach images with 📎' + (family === 'gemma4' ? ' and record audio with 🎙️' : '') + '. Start chatting.');
+                    if (family === 'bonsai') {
+                        addMessage('system', 'Model loaded (' + capStr + '). 1-bit Bonsai LLM running entirely in-browser. Start chatting.');
+                    } else {
+                        addMessage('system', 'Model loaded (' + capStr + '). You can attach images with 📎' + (family === 'gemma4' ? ' and record audio with 🎙️' : '') + '. Start chatting.');
+                    }
                     updateContextInfo(modelId, null);
                     inputEl.focus();
                 } catch (err) {
@@ -2763,12 +2792,14 @@ Each terminal tab below opens a new shell session.
                 }
                 activeEngine = litertlmEngine;
             } else if (provider === 'hflocal') {
-                if (!hfLocalModel || !hfLocalProcessor || selectedModelId !== hfLocalLoadedId) {
-                    addMessage('system', 'Loading HF vision model...');
+                const hfReady = hfLocalPipeline || (hfLocalModel && hfLocalProcessor);
+                if (!hfReady || selectedModelId !== hfLocalLoadedId) {
+                    addMessage('system', 'Loading HF model...');
                     await window.loadLLMModel();
-                    if (!hfLocalModel || !hfLocalProcessor) return;
+                    const hfReadyNow = hfLocalPipeline || (hfLocalModel && hfLocalProcessor);
+                    if (!hfReadyNow) return;
                 }
-                activeEngine = hfLocalModel;
+                activeEngine = hfLocalPipeline || hfLocalModel;
             } else {
                 if (selectedModelId !== loadedModelId) {
                     await window.loadLLMModel();
@@ -2910,10 +2941,55 @@ Each terminal tab below opens a new shell session.
                     };
                     cancelStream = () => { try { litertlmConvo && litertlmConvo.cancel && litertlmConvo.cancel(); } catch(e) {} };
                 } else if (provider === 'hflocal') {
-                    // HF Transformers.js (Qwen3.5 / Gemma 4) — uses TextStreamer callback
-                    if (!hfLocalModel || !hfLocalProcessor) throw new Error('HF model not loaded.');
+                    // HF Transformers.js (Qwen3.5 / Gemma 4 / Bonsai) — uses TextStreamer callback
                     const hfModule = hfLocalModule;
                     const lastUserIdx = finalMsgs.map(m => m.role).lastIndexOf('user');
+
+                    if (hfLocalFamily === 'bonsai') {
+                        // Bonsai: pipeline-based text generation with DynamicCache
+                        if (!hfLocalPipeline) throw new Error('Bonsai pipeline not loaded.');
+                        let hfResolve = null;
+                        let hfDone = false;
+                        const hfQueue = [];
+                        const hfStopCriteria = new hfModule.InterruptableStoppingCriteria();
+
+                        const hfStreamer = new hfModule.TextStreamer(hfLocalPipeline.tokenizer, {
+                            skip_prompt: true,
+                            skip_special_tokens: true,
+                            callback_function: function(token) {
+                                if (token) {
+                                    hfQueue.push(token);
+                                    if (hfResolve) { var r = hfResolve; hfResolve = null; r(); }
+                                }
+                            }
+                        });
+
+                        // Run pipeline with messages array (like the reference worker)
+                        var hfGenPromise = hfLocalPipeline(finalMsgs, {
+                            max_new_tokens: 1024,
+                            do_sample: false,
+                            streamer: hfStreamer,
+                            stopping_criteria: [hfStopCriteria],
+                            past_key_values: hfLocalPipelineCache,
+                        }).then(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } })
+                          .catch(function(e) { console.error('Bonsai gen error:', e); hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } });
+
+                        streamIter = {
+                            [Symbol.asyncIterator]() { return this; },
+                            async next() {
+                                if (hfQueue.length > 0) return { done: false, value: hfQueue.splice(0, hfQueue.length).join('') };
+                                if (hfDone) return { done: true, value: undefined };
+                                await new Promise(function(r) { hfResolve = r; });
+                                if (hfQueue.length > 0) return { done: false, value: hfQueue.splice(0, hfQueue.length).join('') };
+                                return { done: true, value: undefined };
+                            }
+                        };
+                        getChunkDelta = function(chunk) { return chunk || ''; };
+                        cancelStream = function() { hfStopCriteria.interrupt(); };
+
+                    } else {
+                    // Gemma 4 / Qwen3.5 multimodal path
+                    if (!hfLocalModel || !hfLocalProcessor) throw new Error('HF model not loaded.');
 
                     let hfInputs;
 
@@ -3034,6 +3110,7 @@ Each terminal tab below opens a new shell session.
                     // Clear attached media after use
                     window.removeChatImage();
                     window.removeChatAudio();
+                    } // end else (gemma4/qwen3.5 path)
                 }
 
                 let full = '';
@@ -3147,6 +3224,11 @@ Each terminal tab below opens a new shell session.
         window.clearChat = function() {
             chatHistory = [];
             messagesEl.innerHTML = '';
+            // Reset Bonsai KV cache on clear
+            if (hfLocalFamily === 'bonsai' && hfLocalPipelineCache) {
+                try { hfLocalPipelineCache.dispose && hfLocalPipelineCache.dispose(); } catch(e) {}
+                hfLocalPipelineCache = hfLocalModule ? new hfLocalModule.DynamicCache() : null;
+            }
             const provider = getProvider(loadedModelId);
             const hasModel = provider === 'webllm'
                 ? !!(legacyModelIds.has(loadedModelId) ? legacyEngine : engine)
