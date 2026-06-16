@@ -1259,6 +1259,12 @@ Each terminal tab below opens a new shell session.
             <div class="chat-msg system-msg">No model loaded yet. Pick one above and hit Load.</div>
         </div>
         <div class="chat-input-row">
+            <button id="chatAttachImgBtn" onclick="triggerChatImageAttach()" style="width:auto;padding:10px 12px;font-size:1rem;background:#21262d;border:1px solid #30363d;border-radius:8px;cursor:pointer;color:#8b949e;line-height:1;" title="Attach image (for vision models)">📎</button>
+            <div id="chatImagePreview" style="display:none;position:relative;">
+                <img id="chatImageThumb" style="height:40px;border-radius:6px;border:1px solid #30363d;">
+                <button onclick="removeChatImage()" style="position:absolute;top:-4px;right:-4px;background:#f85149;color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:0.6rem;cursor:pointer;line-height:1;">✕</button>
+            </div>
+            <input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="handleChatImageSelect(event)">
             <textarea id="chatInput" rows="3" placeholder="Type a message (will auto-load default model)..."></textarea>
             <button id="chatSendBtn" onclick="sendChatMessage()" class="primary-button">Send</button>
             <button id="chatStopBtn" onclick="stopGeneration()" class="septenary-button" style="width:auto;padding:10px 14px;font-size:0.85rem;display:none;" title="Stop generation">Stop</button>
@@ -1734,6 +1740,19 @@ Each terminal tab below opens a new shell session.
                 selectEl.appendChild(og);
             }
 
+            // HF Transformers.js (Qwen3.5 Vision, in-browser)
+            {
+                const og = document.createElement('optgroup');
+                og.label = 'HF Local Vision (in-browser, Qwen3.5)';
+                HFLOCAL_MODELS.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = `hflocal:${m.id}`;
+                    opt.textContent = `👁️ ${m.label}`;
+                    og.appendChild(opt);
+                });
+                selectEl.appendChild(og);
+            }
+
             if (lmStudioAvailableModels.length > 0) {
                 const og = document.createElement('optgroup');
                 og.label = 'LM Studio (local)';
@@ -1934,6 +1953,7 @@ Each terminal tab below opens a new shell session.
             if (modelId.startsWith('lmstudio:')) return 'lmstudio';
             if (modelId.startsWith('puter:')) return 'puter';
             if (modelId.startsWith('litertlm:')) return 'litertlm';
+            if (modelId.startsWith('hflocal:')) return 'hflocal';
             return 'webllm';
         }
         function stripProvider(modelId) {
@@ -1941,8 +1961,38 @@ Each terminal tab below opens a new shell session.
             if (modelId.startsWith('lmstudio:')) return modelId.slice('lmstudio:'.length);
             if (modelId.startsWith('puter:')) return modelId.slice('puter:'.length);
             if (modelId.startsWith('litertlm:')) return modelId.slice('litertlm:'.length);
+            if (modelId.startsWith('hflocal:')) return modelId.slice('hflocal:'.length);
             return modelId;
         }
+
+        // --- HF Transformers.js (Qwen3.5 Vision) ---
+        const HFLOCAL_MODELS = [
+            { id: 'webml-community/Qwen3.5-0.6B-WebGPU', label: 'Qwen3.5 0.6B Vision' },
+            { id: 'webml-community/Qwen3.5-4B-WebGPU', label: 'Qwen3.5 4B Vision' },
+        ];
+        let hfLocalModule = null;
+        let hfLocalProcessor = null;
+        let hfLocalModel = null;
+        let hfLocalLoadedId = null;
+        let hfLocalLoading = false;
+        let chatAttachedImage = null; // { dataURL, blob }
+
+        // Image attach helpers (global scope for onclick)
+        window.triggerChatImageAttach = function() { document.getElementById('chatImageInput').click(); };
+        window.handleChatImageSelect = function(e) {
+            var file = e.target.files && e.target.files[0];
+            if (!file) return;
+            var url = URL.createObjectURL(file);
+            chatAttachedImage = { dataURL: url, blob: file };
+            document.getElementById('chatImageThumb').src = url;
+            document.getElementById('chatImagePreview').style.display = '';
+            e.target.value = '';
+        };
+        window.removeChatImage = function() {
+            chatAttachedImage = null;
+            document.getElementById('chatImagePreview').style.display = 'none';
+            document.getElementById('chatImageThumb').src = '';
+        };
 
         // --- LiteRT-LM (Gemma 4 on WebGPU) -----------------------------------
         // https://ai.google.dev/edge/litert-lm/js
@@ -2492,6 +2542,60 @@ Each terminal tab below opens a new shell session.
                 return;
             }
 
+            // HF Transformers.js (Qwen3.5 Vision) local engine path
+            if (provider === 'hflocal') {
+                isLoading = true;
+                const rawId = stripProvider(modelId);
+                statusEl.textContent = 'Loading ' + rawId + ' (HF Transformers.js)...';
+                progressEl.style.display = 'block';
+                progressBar.style.width = '0%';
+                inputEl.disabled = true;
+                sendBtn.disabled = true;
+                messagesEl.innerHTML = '';
+                chatHistory = [];
+                addMessage('system', 'Loading ' + rawId + '. This downloads several hundred MB on first use (cached after).');
+
+                try {
+                    // Lazy-load the HF transformers module
+                    if (!hfLocalModule) {
+                        statusEl.textContent = 'Loading HF Transformers.js library...';
+                        progressBar.style.width = '10%';
+                        hfLocalModule = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0');
+                    }
+
+                    statusEl.textContent = 'Loading processor...';
+                    progressBar.style.width = '30%';
+                    hfLocalProcessor = await hfLocalModule.AutoProcessor.from_pretrained(rawId);
+
+                    statusEl.textContent = 'Loading model weights (WebGPU)...';
+                    progressBar.style.width = '50%';
+                    hfLocalModel = await hfLocalModule.Qwen3_5ForConditionalGeneration.from_pretrained(rawId, {
+                        dtype: { embed_tokens: 'q4', vision_encoder: 'fp16', decoder_model_merged: 'q4' },
+                        device: 'webgpu',
+                    });
+
+                    hfLocalLoadedId = modelId;
+                    loadedModelId = modelId;
+                    engineDead = false;
+                    progressBar.style.width = '100%';
+                    statusEl.textContent = 'Ready — ' + rawId;
+                    progressEl.style.display = 'none';
+                    inputEl.disabled = false;
+                    sendBtn.disabled = false;
+                    messagesEl.innerHTML = '';
+                    addMessage('system', 'Model loaded (vision + text). You can attach images with 📎. Start chatting.');
+                    updateContextInfo(modelId, null);
+                    inputEl.focus();
+                } catch (err) {
+                    statusEl.textContent = 'Error: ' + (err?.message || err);
+                    progressEl.style.display = 'none';
+                    addMessage('system', 'Failed to load HF model: ' + (err?.message || err));
+                } finally {
+                    isLoading = false;
+                }
+                return;
+            }
+
             // WebLLM local engine path
             isLoading = true;
             const isLegacy = legacyModelIds.has(modelId);
@@ -2588,6 +2692,13 @@ Each terminal tab below opens a new shell session.
                     if (!litertlmEngine || !litertlmConvo) return; // load failed
                 }
                 activeEngine = litertlmEngine;
+            } else if (provider === 'hflocal') {
+                if (!hfLocalModel || !hfLocalProcessor || selectedModelId !== hfLocalLoadedId) {
+                    addMessage('system', 'Loading HF vision model...');
+                    await window.loadLLMModel();
+                    if (!hfLocalModel || !hfLocalProcessor) return;
+                }
+                activeEngine = hfLocalModel;
             } else {
                 if (selectedModelId !== loadedModelId) {
                     await window.loadLLMModel();
@@ -2728,6 +2839,85 @@ Each terminal tab below opens a new shell session.
                         return s;
                     };
                     cancelStream = () => { try { litertlmConvo && litertlmConvo.cancel && litertlmConvo.cancel(); } catch(e) {} };
+                } else if (provider === 'hflocal') {
+                    // HF Transformers.js Qwen3.5 Vision — uses TextStreamer callback
+                    // We build a custom async iterator that yields text tokens.
+                    if (!hfLocalModel || !hfLocalProcessor) throw new Error('HF model not loaded.');
+                    const hfModule = hfLocalModule;
+
+                    // Build prompt in Qwen3.5 chat format
+                    const lastUserIdx = finalMsgs.map(m => m.role).lastIndexOf('user');
+                    let userText = lastUserIdx >= 0 ? finalMsgs[lastUserIdx].content : '';
+
+                    let promptStr = '';
+                    finalMsgs.forEach(function(m) {
+                        if (m.role === 'system') promptStr += '<|im_start|>system\n' + m.content + '<|im_end|>\n';
+                        else if (m.role === 'user') {
+                            promptStr += '<|im_start|>user\n';
+                            if (chatAttachedImage && m === finalMsgs[lastUserIdx]) {
+                                promptStr += '<|vision_start|><|image_pad|><|vision_end|>';
+                            }
+                            promptStr += m.content + '<|im_end|>\n';
+                        } else if (m.role === 'assistant') {
+                            promptStr += '<|im_start|>assistant\n' + m.content + '<|im_end|>\n';
+                        }
+                    });
+                    promptStr += '<|im_start|>assistant\n<think>\n\n</think>\n\n';
+
+                    // Process inputs (with image if attached)
+                    let hfInputs;
+                    if (chatAttachedImage) {
+                        const rawImage = await hfModule.RawImage.read(chatAttachedImage.dataURL);
+                        const resized = await rawImage.resize(448, 448);
+                        hfInputs = await hfLocalProcessor(promptStr, resized);
+                    } else {
+                        hfInputs = await hfLocalProcessor(promptStr);
+                    }
+
+                    // Create async iterator from TextStreamer callback
+                    let hfResolve = null;
+                    let hfDone = false;
+                    const hfQueue = [];
+                    const hfStopCriteria = new hfModule.InterruptableStoppingCriteria();
+
+                    const hfStreamer = new hfModule.TextStreamer(hfLocalProcessor.tokenizer, {
+                        skip_prompt: true,
+                        skip_special_tokens: true,
+                        callback_function: function(token) {
+                            var clean = token.replace(/<\|im_end\|>/g, '');
+                            if (clean) {
+                                hfQueue.push(clean);
+                                if (hfResolve) { var r = hfResolve; hfResolve = null; r(); }
+                            }
+                        }
+                    });
+
+                    // Start generation in background
+                    var hfGenPromise = hfLocalModel.generate({
+                        ...hfInputs,
+                        max_new_tokens: 512,
+                        do_sample: true,
+                        streamer: hfStreamer,
+                        stopping_criteria: hfStopCriteria,
+                    }).then(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } })
+                      .catch(function() { hfDone = true; if (hfResolve) { var r = hfResolve; hfResolve = null; r(); } });
+
+                    // Async iterator
+                    streamIter = {
+                        [Symbol.asyncIterator]() { return this; },
+                        async next() {
+                            if (hfQueue.length > 0) return { done: false, value: hfQueue.splice(0, hfQueue.length).join('') };
+                            if (hfDone) return { done: true, value: undefined };
+                            await new Promise(function(r) { hfResolve = r; });
+                            if (hfQueue.length > 0) return { done: false, value: hfQueue.splice(0, hfQueue.length).join('') };
+                            return { done: true, value: undefined };
+                        }
+                    };
+                    getChunkDelta = function(chunk) { return chunk || ''; };
+                    cancelStream = function() { hfStopCriteria.interrupt(); };
+
+                    // Clear the attached image after use
+                    window.removeChatImage();
                 }
 
                 let full = '';
