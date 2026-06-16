@@ -1313,6 +1313,125 @@
                 return '';
             }
 
+            // --- HF Transformers.js (Pipeline-based WebGPU models) ---
+            const HFLOCAL_MODELS = [
+                { id: 'onnx-community/Bonsai-1.7B-ONNX', label: 'Bonsai 1.7B (1-bit)', dtype: 'q1' },
+                { id: 'onnx-community/NVIDIA-Nemotron-3-Nano-4B-BF16-ONNX', label: 'Nemotron-3 Nano 4B', dtype: 'q4' },
+                { id: 'LiquidAI/LFM2.5-1.2B-Thinking-ONNX', label: 'LFM 2.5 1.2B Thinking', dtype: 'q4' },
+                { id: 'onnx-community/gpt-oss-20b-ONNX', label: 'GPT-OSS 20B', dtype: 'q4f16' },
+                { id: 'webgpu/Qwen3-4B-ONNX', label: 'Qwen3 4B', dtype: 'q4f16' },
+                { id: 'onnx-community/Qwen2.5-Coder-0.5B-Instruct', label: 'Qwen2.5 Coder 0.5B', dtype: 'q4' },
+                { id: 'onnx-community/Qwen2.5-Coder-1.5B-Instruct', label: 'Qwen2.5 Coder 1.5B', dtype: 'q4' },
+            ];
+            const HFLOCAL_ENABLED = (() => {
+                try { const v = new URLSearchParams(window.location.search).get('enablehflocal'); return !(v === 'false' || v === '0'); }
+                catch(e) { return true; }
+            })();
+            let hfLocalModule = null;
+            let hfLocalPipeline = null;
+            let hfLocalLoadedId = null;
+            let hfLocalLoading = false;
+
+            async function ensureHFLocalModel(modelId) {
+                if (hfLocalLoadedId === modelId && hfLocalPipeline) return;
+                if (hfLocalLoading) throw new Error('HF Local model is already loading. Please wait.');
+                const meta = HFLOCAL_MODELS.find(m => m.id === modelId);
+                if (!meta) throw new Error('Unknown HF Local model: ' + modelId);
+                hfLocalLoading = true;
+                showMessage(`HF Local: Loading ${meta.label}... First load downloads several hundred MB (cached after).`, 'success');
+                try {
+                    if (!hfLocalModule) {
+                        hfLocalModule = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0');
+                    }
+                    hfLocalPipeline = await hfLocalModule.pipeline('text-generation', modelId, {
+                        device: 'webgpu',
+                        dtype: meta.dtype,
+                    });
+                    // Warmup
+                    const warmupInputs = hfLocalPipeline.tokenizer('a');
+                    await hfLocalPipeline.model.generate({ ...warmupInputs, max_new_tokens: 1 });
+                    hfLocalLoadedId = modelId;
+                    showMessage(`HF Local: ${meta.label} loaded and ready.`, 'success');
+                } catch (err) {
+                    showMessage(`HF Local error: ${err.message}`, 'error');
+                    throw err;
+                } finally {
+                    hfLocalLoading = false;
+                }
+            }
+
+            async function callHFLocal(modelId, promptOrMessages, systemInstruction = null, stream = false, onDebug = null) {
+                await ensureHFLocalModel(modelId);
+                // Build messages array
+                let messages = [];
+                if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+                if (typeof promptOrMessages === 'string') {
+                    messages.push({ role: 'user', content: promptOrMessages });
+                } else if (Array.isArray(promptOrMessages)) {
+                    messages = [...messages, ...promptOrMessages.map(m => ({ role: m.role, content: m.content }))];
+                }
+                if (onDebug) onDebug({ model: modelId, messages, stream });
+
+                const hfModule = hfLocalModule;
+                const stoppingCriteria = new hfModule.InterruptableStoppingCriteria();
+
+                if (stream) {
+                    const chunks = [];
+                    let done = false;
+                    let resolveNext = null;
+
+                    const streamer = new hfModule.TextStreamer(hfLocalPipeline.tokenizer, {
+                        skip_prompt: true,
+                        skip_special_tokens: true,
+                        callback_function: (token) => {
+                            if (token) {
+                                chunks.push(token);
+                                if (resolveNext) { const r = resolveNext; resolveNext = null; r(); }
+                            }
+                        }
+                    });
+
+                    (async () => {
+                        try {
+                            await hfLocalPipeline(messages, {
+                                max_new_tokens: 4096,
+                                do_sample: true,
+                                streamer,
+                                stopping_criteria: [stoppingCriteria],
+                            });
+                        } catch(e) { console.error('HF Local gen error:', e); }
+                        finally { done = true; if (resolveNext) { const r = resolveNext; resolveNext = null; r(); } }
+                    })();
+
+                    return {
+                        reader: {
+                            async read() {
+                                if (chunks.length > 0) return { done: false, value: chunks.splice(0, chunks.length).join('') };
+                                if (done) return { done: true, value: undefined };
+                                await new Promise(r => { resolveNext = r; });
+                                if (chunks.length > 0) return { done: false, value: chunks.splice(0, chunks.length).join('') };
+                                return { done: true, value: undefined };
+                            }
+                        },
+                        processChunk: (value) => [value],
+                        stop: () => stoppingCriteria.interrupt(),
+                    };
+                }
+
+                // Non-streaming
+                const output = await hfLocalPipeline(messages, {
+                    max_new_tokens: 4096,
+                    do_sample: true,
+                    stopping_criteria: [stoppingCriteria],
+                });
+                const generated = output[0]?.generated_text;
+                if (Array.isArray(generated)) {
+                    const last = generated[generated.length - 1];
+                    return last?.content || '';
+                }
+                return typeof generated === 'string' ? generated : '';
+            }
+
             // Strip <think>...</think> blocks from model output
             function stripThinking(text) {
                 if (showThinkingCheckbox.checked) return text;
@@ -2156,6 +2275,7 @@
                 const globalSP = systemPrompt.value.trim();
                 if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); const result = await callWebLLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('litertlm:')) { const rawModel = model.replace('litertlm:', ''); const result = await callLiteRTLM(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
+                else if (model.startsWith('hflocal:')) { const rawModel = model.replace('hflocal:', ''); const result = await callHFLocal(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); const result = await callPuter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); const result = await callOpenRouter(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
                 else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); const result = await callNvidia(rawModel, prompt, globalSP || null, false, onDebug); return stripThinking(result); }
@@ -3278,6 +3398,7 @@
                     let responseText = "";
                     if (model.startsWith('webllm:')) { const rawModel = model.replace('webllm:', ''); if (shouldStream) { const sh = await callWebLLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callWebLLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('litertlm:')) { const rawModel = model.replace('litertlm:', ''); if (shouldStream) { const sh = await callLiteRTLM(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callLiteRTLM(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
+                    else if (model.startsWith('hflocal:')) { const rawModel = model.replace('hflocal:', ''); if (shouldStream) { const sh = await callHFLocal(rawModel, finalPrompt, null, true, onDebugWrapped); analysisOutput.value = ''; baselineLength = 0; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { const filtered = tf.push(chunk); if (filtered) { analysisOutput.value += filtered; analysisOutput.scrollTop = analysisOutput.scrollHeight; } }); } } else { responseText = await callHFLocal(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('puter:')) { const rawModel = model.replace('puter:', ''); if (shouldStream) { const sh = await callPuter(rawModel, finalPrompt, null, true, onDebugWrapped); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callPuter(rawModel, finalPrompt, null, false, onDebugWrapped); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('openrouter:')) { const rawModel = model.replace('openrouter:', ''); if (shouldStream) { const sh = await callOpenRouter(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callOpenRouter(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
                     else if (model.startsWith('nvidia:')) { const rawModel = model.replace('nvidia:', ''); if (shouldStream) { const sh = await callNvidia(rawModel, finalPrompt, null, true, onDebugWrapped, signal); const reader = sh.reader; analysisOutput.value = ''; baselineLength = 0; while(true) { const { done, value } = await reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { analysisOutput.value += chunk; analysisOutput.scrollTop = analysisOutput.scrollHeight; }); } } else { responseText = await callNvidia(rawModel, finalPrompt, null, false, onDebugWrapped, signal); analysisOutput.value += stripThinking(responseText); } }
@@ -3320,6 +3441,11 @@
                 } else if (model.startsWith('litertlm:')) {
                     const rawModel = model.replace('litertlm:', '');
                     try { const sh = await callLiteRTLM(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; let displayResponse = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; const filtered = tf.push(chunk); if (filtered) { displayResponse += filtered; typingBubble.innerHTML = mdToHtml(displayResponse); historyEl.scrollTop = historyEl.scrollHeight; } }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`LiteRT-LM response received (${rawModel}).`, 'success'); }
+                    catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
+                    finally { sendBtnEl.disabled = false; }
+                } else if (model.startsWith('hflocal:')) {
+                    const rawModel = model.replace('hflocal:', '');
+                    try { const sh = await callHFLocal(rawModel, chat.messages, finalSP, true, onDebug); let fullResponse = ''; let displayResponse = ''; const tf = createThinkingFilter(); while(true) { const { done, value } = await sh.reader.read(); if (done) break; sh.processChunk(value).forEach(chunk => { fullResponse += chunk; const filtered = tf.push(chunk); if (filtered) { displayResponse += filtered; typingBubble.innerHTML = mdToHtml(displayResponse); historyEl.scrollTop = historyEl.scrollHeight; } }); } chat.messages.push({ role: 'assistant', content: fullResponse }); saveAndRenameChat(); showMessage(`HF Local response received (${rawModel}).`, 'success'); }
                     catch (err) { typingBubble.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`; showMessage(err.message, 'error'); }
                     finally { sendBtnEl.disabled = false; }
                 } else if (model.startsWith('puter:')) {
@@ -3464,6 +3590,10 @@
                 if (LITERTLM_ENABLED) {
                     const litHeader = document.createElement('option'); litHeader.disabled = true; litHeader.textContent = '--- LiteRT-LM (In-Browser, Gemma 4) ---'; selectElement.appendChild(litHeader);
                     LITERTLM_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `litertlm:${m.id}`; opt.textContent = `✨ [LiteRT-LM] ${m.label}`; selectElement.appendChild(opt); });
+                }
+                if (HFLOCAL_ENABLED) {
+                    const hfHeader = document.createElement('option'); hfHeader.disabled = true; hfHeader.textContent = '--- HF Local (In-Browser, WebGPU) ---'; selectElement.appendChild(hfHeader);
+                    HFLOCAL_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `hflocal:${m.id}`; opt.textContent = `🔥 [HF Local] ${m.label}`; selectElement.appendChild(opt); });
                 }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
                 else { const noOllama = document.createElement('option'); noOllama.disabled = true; noOllama.textContent = '(No Local Ollama Models Found)'; selectElement.appendChild(noOllama); }
