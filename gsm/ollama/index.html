@@ -1655,12 +1655,25 @@
             const NVIDIA_MODELS = [
                 'nvidia/nemotron-mini-4b-instruct',
                 'nvidia/nemotron-3-super-120b-a12b',
+                'nvidia/nemotron-3-ultra-550b-a55b',
+                'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning',
+                'nvidia/nemotron-3-nano-30b-a3b',
+                'nvidia/nemotron-nano-12b-v2-vl',
+                'nvidia/llama-3.3-nemotron-super-49b-v1',
+                'nvidia/llama-3.1-nemotron-nano-8b-v1',
+                'meta/llama-3.3-70b-instruct',
+                'minimaxai/minimax-m3',
+                'google/diffusiongemma-26b-a4b-it',
+                'stepfun-ai/step-3.7-flash',
+                'moonshotai/kimi-k2.6',
+                'z-ai/glm-5.1',
+                'deepseek-ai/deepseek-v4-pro',
+                'deepseek-ai/deepseek-v4-flash',
+                'google/gemma-4-31b-it',
                 'openai/gpt-oss-120b',
                 'openai/gpt-oss-20b',
                 'qwen/qwen3-next-80b-a3b-instruct',
-                'qwen/qwen3.5-397b-a17b',
                 'qwen/qwen3.5-122b-a10b',
-                'qwen/qwen3-coder-480b-a35b-instruct',
             ];
 
             // Puter cloud models are enabled by default. Disable via URL flag: ?enablePuter=false
@@ -2177,14 +2190,28 @@
             // NVIDIA integrate.api.nvidia.com caller (OpenAI-compatible)
             // Uses puter.net.fetch (CORS-free) when Puter.js is available, otherwise native fetch.
             // The nemotron-3-super-120b model supports reasoning (thinking) via extra_body.
-            const NVIDIA_THINKING_MODELS = ['nvidia/nemotron-3-super-120b-a12b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+            const NVIDIA_THINKING_MODELS = ['nvidia/nemotron-3-super-120b-a12b', 'nvidia/nemotron-3-ultra-550b-a55b', 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', 'nvidia/nemotron-nano-12b-v2-vl', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'google/diffusiongemma-26b-a4b-it', 'deepseek-ai/deepseek-v4-flash', 'google/gemma-4-31b-it'];
             // Per-model parameter overrides (temperature, top_p, max_tokens).
             const NVIDIA_MODEL_PARAMS = {
                 'nvidia/nemotron-3-super-120b-a12b': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'nvidia/nemotron-3-ultra-550b-a55b': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning': { temperature: 0.6, top_p: 0.95, max_tokens: 65536 },
+                'nvidia/nemotron-3-nano-30b-a3b': { temperature: 1, top_p: 1, max_tokens: 16384 },
+                'nvidia/llama-3.3-nemotron-super-49b-v1': { temperature: 0.6, top_p: 0.95, max_tokens: 4096, frequency_penalty: 0, presence_penalty: 0 },
+                'nvidia/llama-3.1-nemotron-nano-8b-v1': { temperature: 0.6, top_p: 0.95, max_tokens: 4096, frequency_penalty: 0, presence_penalty: 0 },
+                'meta/llama-3.3-70b-instruct': { temperature: 0.2, top_p: 0.7, max_tokens: 1024 },
+                'minimaxai/minimax-m3': { temperature: 1, top_p: 0.95, max_tokens: 8192 },
+                'google/diffusiongemma-26b-a4b-it': { temperature: 1, top_p: 0.95, max_tokens: 4096 },
+                'stepfun-ai/step-3.7-flash': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'moonshotai/kimi-k2.6': { temperature: 1, top_p: 1, max_tokens: 16384 },
+                'z-ai/glm-5.1': { temperature: 1, top_p: 1, max_tokens: 16384 },
+                'deepseek-ai/deepseek-v4-pro': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'deepseek-ai/deepseek-v4-flash': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'google/gemma-4-31b-it': { temperature: 1, top_p: 0.95, max_tokens: 16384 },
+                'nvidia/nemotron-nano-12b-v2-vl': { temperature: 1, top_p: 1, max_tokens: 4096, frequency_penalty: 0, presence_penalty: 0 },
                 'openai/gpt-oss-120b': { temperature: 1, top_p: 1, max_tokens: 4096 },
                 'openai/gpt-oss-20b': { temperature: 1, top_p: 1, max_tokens: 4096 },
                 'qwen/qwen3-next-80b-a3b-instruct': { temperature: 0.6, top_p: 0.7, max_tokens: 4096 },
-                'qwen/qwen3.5-397b-a17b': { temperature: 0.6, top_p: 0.95, max_tokens: 16384, top_k: 20, presence_penalty: 0, repetition_penalty: 1 },
                 'qwen/qwen3.5-122b-a10b': { temperature: 0.6, top_p: 0.95, max_tokens: 16384 },
             };
             async function callNvidia(model, promptOrMessages, systemInstruction = null, stream = false, onDebug = null, signal = null) {
@@ -2208,12 +2235,37 @@
                 // Pass through optional extra params if the model specifies them.
                 if (params.top_k !== undefined) payload.top_k = params.top_k;
                 if (params.presence_penalty !== undefined) payload.presence_penalty = params.presence_penalty;
+                if (params.frequency_penalty !== undefined) payload.frequency_penalty = params.frequency_penalty;
                 if (params.repetition_penalty !== undefined) payload.repetition_penalty = params.repetition_penalty;
-                if (isThinkingModel && model === 'nvidia/nemotron-3-super-120b-a12b') {
-                    payload.extra_body = {
-                        chat_template_kwargs: { enable_thinking: true },
-                        reasoning_budget: 16384,
-                    };
+                if (isThinkingModel && (model === 'nvidia/nemotron-3-super-120b-a12b' || model === 'nvidia/nemotron-3-ultra-550b-a55b' || model === 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning')) {
+                    payload.chat_template_kwargs = { enable_thinking: true };
+                    payload.reasoning_budget = 16384;
+                }
+                // DiffusionGemma and Gemma 4 31B use chat_template_kwargs without reasoning_budget
+                if (model === 'google/diffusiongemma-26b-a4b-it' || model === 'google/gemma-4-31b-it') {
+                    payload.chat_template_kwargs = { enable_thinking: true };
+                }
+                // DeepSeek V4 Pro uses chat_template_kwargs with thinking:false by default
+                if (model === 'deepseek-ai/deepseek-v4-pro') {
+                    payload.chat_template_kwargs = { thinking: false };
+                }
+                // DeepSeek V4 Flash uses thinking:true with reasoning_effort
+                if (model === 'deepseek-ai/deepseek-v4-flash') {
+                    payload.chat_template_kwargs = { thinking: true, reasoning_effort: 'high' };
+                }
+                // Nano 30B uses reasoning_budget without chat_template_kwargs
+                if (model === 'nvidia/nemotron-3-nano-30b-a3b') {
+                    payload.reasoning_budget = 16384;
+                }
+                // Nemotron Nano VL uses /think or /no_think prefix in system prompt
+                if (model === 'nvidia/nemotron-nano-12b-v2-vl') {
+                    if (messages.length > 0 && messages[0].role === 'system') {
+                        if (!messages[0].content.startsWith('/think') && !messages[0].content.startsWith('/no_think')) {
+                            messages[0].content = '/think\n' + messages[0].content;
+                        }
+                    } else {
+                        messages.unshift({ role: 'system', content: '/think' });
+                    }
                 }
                 if (onDebug) onDebug(payload);
                 // Prefer Puter.js's CORS-free fetch; NVIDIA's API doesn't send CORS headers for browser origins
