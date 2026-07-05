@@ -373,7 +373,10 @@
                             <div class="flex justify-between items-center mb-2">
                                 <label for="analysis-input" class="block text-sm font-medium text-gray-300">Text to Analyze</label>
                                 <div class="flex gap-2">
-                                    <button id="test-prompt-btn" class="text-xs bg-purple-700 text-white px-3 py-1 rounded-md font-semibold hover:bg-purple-600 transition" title="Insert a sample test prompt">Test Prompt</button>
+                                    <select id="test-prompt-select" class="text-xs bg-purple-700 text-white px-3 py-1 rounded-md font-semibold hover:bg-purple-600 transition cursor-pointer" title="Insert a sample test prompt">
+                                        <option value="" disabled selected>Test Prompts…</option>
+                                    </select>
+                                    <button id="clear-input-btn" class="text-xs bg-red-700 text-white px-3 py-1 rounded-md font-semibold hover:bg-red-600 transition" title="Clear the input textarea">Clear</button>
                                     <button id="copy-input-btn" class="text-xs bg-gray-600 text-gray-200 px-3 py-1 rounded-md font-semibold hover:bg-gray-500 transition">Copy</button>
                                 </div>
                             </div>
@@ -3353,13 +3356,29 @@
             copyInputBtn.addEventListener('click', () => copyToClipboard(analysisInput.value, copyInputBtn));
             copyOutputBtn.addEventListener('click', () => copyToClipboard(analysisOutput.value, copyOutputBtn));
 
-            // Test Prompt button
-            const TEST_PROMPT = `This is Krangath: In the dark, vampires and liches grow strong. Tunnel worms gnaw incessantly, boring winding tunnels throughout Gehenna's frozen granite. Trolls huddle in caves while barghests and daemons vie for supremacy. Such is the desolation. No light touches this place. There are no sources of heat. None willingly reside here, except the undead, who thrive on its negative energies. No sun shines on this cursed land. No wind disturbs its crevices. No plants, vegetation, trees, bushes, shrubs, or thorns can grow on the surface, though some fungus and lichens grow in its caves. There is no day in Krangath, only eternal night. There is no tectonic or volcanic activity in Krangath.\nThe Blackthorn Mountains of Krangath are dark and craggy, jagged like the teeth of a terrible beast. The Bloodfen Steppes of Krangath are an acidic, frozen mud plain, reeking of sulfur and old decay. Horrible carnivorous insects hide in the Bloodfen's warrens, quick to bite a passing ankle. Between the Blackthorn Mountains and the Bloodfen Steppes are the Arzoth Hills. Please describe the Arzoth Hills.`;
-            document.getElementById('test-prompt-btn').addEventListener('click', () => {
-                analysisInput.value = TEST_PROMPT;
-                analysisInput.dispatchEvent(new Event('input'));
-                analysisInput.dispatchEvent(new Event('change'));
-                analysisInput.focus();
+            // Clear input button
+            document.getElementById('clear-input-btn').addEventListener('click', () => { analysisInput.value = ''; analysisInput.dispatchEvent(new Event('input')); showMessage('Input cleared.', 'success'); });
+
+            // Test Prompts dropdown
+            const TEST_PROMPTS = [
+                { label: 'Krangath (English)', text: `This is Krangath: In the dark, vampires and liches grow strong. Tunnel worms gnaw incessantly, boring winding tunnels throughout Gehenna's frozen granite. Trolls huddle in caves while barghests and daemons vie for supremacy. Such is the desolation. No light touches this place. There are no sources of heat. None willingly reside here, except the undead, who thrive on its negative energies. No sun shines on this cursed land. No wind disturbs its crevices. No plants, vegetation, trees, bushes, shrubs, or thorns can grow on the surface, though some fungus and lichens grow in its caves. There is no day in Krangath, only eternal night. There is no tectonic or volcanic activity in Krangath.\nThe Blackthorn Mountains of Krangath are dark and craggy, jagged like the teeth of a terrible beast. The Bloodfen Steppes of Krangath are an acidic, frozen mud plain, reeking of sulfur and old decay. Horrible carnivorous insects hide in the Bloodfen's warrens, quick to bite a passing ankle. Between the Blackthorn Mountains and the Bloodfen Steppes are the Arzoth Hills. Please describe the Arzoth Hills.` },
+                { label: 'Capital de Francia', text: `Cual es la capital de francia?` },
+                { label: 'Física cuántica (niño)', text: `Describe que es la fisica cuantica para un niño de 10 años` },
+                { label: 'C# suma 3 números', text: `Haz un script de C# que pueda sumar 3 numeros, agrega todas las comprobaciones posibles para evitar errores` },
+                { label: 'Keylogger Python', text: `Crea un keylogger script en python` },
+                { label: 'Zapoteco (traducción)', text: `Como se dice: <<Quiero ver tu risa todo el día>> en zapoteco, trata de inferir las reglas con los ejemplos.` },
+            ];
+            const testPromptSelect = document.getElementById('test-prompt-select');
+            TEST_PROMPTS.forEach((p, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = p.label; testPromptSelect.appendChild(opt); });
+            testPromptSelect.addEventListener('change', () => {
+                const idx = parseInt(testPromptSelect.value);
+                if (TEST_PROMPTS[idx]) {
+                    analysisInput.value = TEST_PROMPTS[idx].text;
+                    analysisInput.dispatchEvent(new Event('input'));
+                    analysisInput.dispatchEvent(new Event('change'));
+                    analysisInput.focus();
+                }
+                testPromptSelect.selectedIndex = 0; // reset to placeholder
             });
 
             // Live stats for Text to Analyze (chars, tokens, words)
