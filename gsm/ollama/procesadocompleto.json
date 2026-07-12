@@ -1,0 +1,44 @@
+{
+  "projectName": "procesadocompleto",
+  "type": "mysql_batch",
+  "exportedAt": "2026-07-12T08:08:36.494Z",
+  "connection": {
+    "proxyUrl": "http://192.168.100.78:8080",
+    "host": "192.168.100.78",
+    "user": "root",
+    "db": "didxazapp"
+  },
+  "query": "SELECT idtraductor,espaniol,zapoteco FROM traductor order by cast(`traductor`.`contadorApariciones` as double) desc limit 10000",
+  "targetTable": "traductor",
+  "primaryKeyCol": "idtraductor",
+  "rules": [
+    {
+      "varCol": "espaniol",
+      "varName": "var_1783831250130",
+      "promptTemplate": "You are an expert historian and anthropological linguist specializing in Mesoamerican cultures, particularly the Zapotec civilization.\n\nI will provide a word in Spanish. You must determine if the concept or object described by the word existed in the ancient, pre-Hispanic, or early colonial Zapotec worldview (prior to the 16th century).\n\n\nif the concept is a product of the industrial revolution, modern technology, post-colonial institutions, or globalized modern society. It would not have a native, ancient Zapotec root word (e.g., internet, automóvil, radio, satélite, plástico, aeropuerto). if so, you response will be \"0\"\n\nIf the concept, animal, object, or idea existed naturally in the ancient Mesoamerican world (e.g., maíz, sol, agua, perro, casa, mercado, lluvia, piedra), then your response will be \"1\"\n\nFor edge cases: Focus on the timeline of the object. If it was brought by the Spanish (like caballo or vaca),  your response will be \"0\" since it did not exist in ancient Zapotec, even if modern Zapotec has an adapted word for it now.\n\nThis is the word:\n\"{{var_1783831250130}}\"",
+      "outputCol": "traducible",
+      "model": "litertlm:gemma-4-E4B-it"
+    },
+    {
+      "varCol": "espaniol",
+      "varName": "var_1783843245787",
+      "promptTemplate": "Please analyze the Spanish word: \"\"{{var_1783843245787}}\"\", if the word refers to an animal, then your response will be \"1\", else your response will be \"0\"",
+      "outputCol": "animal",
+      "model": "litertlm:gemma-4-E4B-it"
+    },
+    {
+      "varCol": "espaniol",
+      "varName": "var_1783843393594",
+      "promptTemplate": "Please analyze the Spanish word: \"\"{{var_1783843393594}}\"\", if the word refers to a fruit, then your response will be \"1\", else your response will be \"0\"",
+      "outputCol": "fruto",
+      "model": "litertlm:gemma-4-E4B-it"
+    },
+    {
+      "varCol": "espaniol",
+      "varName": "var_1783843490228",
+      "promptTemplate": "Please analyze the Spanish word: \"\"{{var_1783843490228}}\"\", if the word refers to a plant, tree or flower, then your response will be \"1\", else your response will be \"0\"",
+      "outputCol": "plantaoarbol",
+      "model": "litertlm:gemma-4-E4B-it"
+    }
+  ]
+}
