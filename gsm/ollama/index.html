@@ -2380,12 +2380,23 @@
                     mysqlRulesContainer.innerHTML = '';
                     if (window._pendingMysqlRules && window._pendingMysqlRules.length > 0) {
                         window._pendingMysqlRules.forEach(r => addMysqlRuleUI(r));
-                        if (window._pendingMysqlPkCol) { mysqlPkCol.value = window._pendingMysqlPkCol; }
-                        window._pendingMysqlRules = null; window._pendingMysqlPkCol = null;
+                        window._pendingMysqlRules = null;
                         showMessage('Imported project rules applied.', 'success');
                     } else if (existingRules.length > 0) {
                         existingRules.forEach(r => addMysqlRuleUI(r));
                     } else { addMysqlRuleUI(); }
+                    // Apply the imported primary key column independently of rules.
+                    // The dropdown was just repopulated by renderMysqlPreview(), so
+                    // only set it if the saved column still exists in the result set.
+                    if (window._pendingMysqlPkCol) {
+                        const pkExists = Array.from(mysqlPkCol.options).some(o => o.value === window._pendingMysqlPkCol);
+                        if (pkExists) {
+                            mysqlPkCol.value = window._pendingMysqlPkCol;
+                        } else {
+                            showMessage(`Imported primary key "${window._pendingMysqlPkCol}" not found in query results. Please select one manually.`, 'error');
+                        }
+                        window._pendingMysqlPkCol = null;
+                    }
                 } catch(e) {
                     if (e.name === 'AbortError') showMessage("MySQL Fetch Error: Connection timed out after " + (TIMEOUT_LOCAL/1000) + "s. Check if proxy is running.", "error");
                     else showMessage("MySQL Fetch Error: " + e.message, "error");
@@ -2907,6 +2918,12 @@
                 const tableToUpdate = mysqlTargetTable.value.trim(); const pkCol = mysqlPkCol.value;
                 const isDryRun = mysqlDryRunCheckbox.checked;
                 if (!tableToUpdate) { return showMessage("Table Name to Update is required.", "error"); }
+                if (!pkCol) { return showMessage("Primary Key Column is required for the WHERE clause.", "error"); }
+                // Warn if the selected primary key column doesn't look like an ID column.
+                if (!/id/i.test(pkCol)) {
+                    const proceed = confirm(`Warning: The selected primary key column "${pkCol}" does not contain "id" in its name.\n\nUsing a non-unique column as the primary key can update the wrong rows or multiple rows at once.\n\nClick OK to proceed anyway, or Cancel to choose a different column.`);
+                    if (!proceed) return;
+                }
                 localStorage.setItem(STORAGE_KEY_MYSQL_TABLE, tableToUpdate);
                 const ruleDivs = document.querySelectorAll('#mysql-rules-container > div');
                 const rules = [];
@@ -2918,10 +2935,12 @@
                 mysqlDebugLog.innerHTML = '<div class="text-cyan-500 mb-2">--- MySQL Batch Log ---</div>';
                 mysqlStopRequested = false; mysqlStatus.textContent = isDryRun ? 'Starting Dry Run (Simulation)...' : 'Starting...'; mysqlProgressBar.style.width = '0%';
                 let mysqlStartTime = Date.now(); let mysqlTimePer5Rows = 0; let mysqlEtaCalculated = false;
+                let mysqlFailedRows = 0;
                 const total = mysqlData.length;
                 for (let i = 0; i < total; i++) {
                     if (mysqlStopRequested) { mysqlStatus.textContent = 'Stopped by user.'; break; }
                     const row = mysqlData[i]; let dbUpdates = {}; let aiResultsForRow = {};
+                  try {
                     for (const rule of rules) {
                         const varValue = row[rule.varCol] || ''; let prompt = rule.promptTemplate;
                         prompt = prompt.replace(new RegExp(`{{${rule.varName}}}`, 'g'), varValue);
@@ -2941,12 +2960,22 @@
                             try {
                                 const updatePayload = { action: 'update', config: { host, user, pass, db }, table: tableToUpdate, updates: dbUpdates, where: { [pkCol]: row[pkCol] } };
                                 const proxyRes = await fetchWithTimeout(proxyUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatePayload) }, TIMEOUT_LOCAL);
-                                const proxyData = await proxyRes.json();
-                                if(proxyData.error) throw new Error(proxyData.error);
-                                if (mysqlDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-4 border-l-2 border-yellow-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-yellow-400 font-bold text-xs">DB Update</div><div class="text-gray-500 text-[10px]">Success: ${proxyData.affected_rows} rows affected</div>`; mysqlDebugLog.appendChild(el); mysqlDebugLog.scrollTop = mysqlDebugLog.scrollHeight; }
-                            } catch(err) { if (mysqlDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-4 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-red-400 font-bold text-xs">DB Update Failed</div><div class="text-gray-500 text-[10px]">${err.message}</div>`; mysqlDebugLog.appendChild(el); } }
+                                // Read body as text first so a non-JSON error page (e.g. HTTP 500) doesn't throw an uncaught parse error.
+                                const rawBody = await proxyRes.text();
+                                let proxyData = null;
+                                try { proxyData = rawBody ? JSON.parse(rawBody) : null; } catch(parseErr) { proxyData = null; }
+                                if (!proxyRes.ok) { const detail = (proxyData && proxyData.error) ? proxyData.error : (rawBody || '').slice(0, 200); throw new Error(`HTTP ${proxyRes.status}: ${detail}`); }
+                                if (proxyData && proxyData.error) throw new Error(proxyData.error);
+                                if (mysqlDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-4 border-l-2 border-yellow-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-yellow-400 font-bold text-xs">DB Update</div><div class="text-gray-500 text-[10px]">Success: ${proxyData ? proxyData.affected_rows : '?'} rows affected</div>`; mysqlDebugLog.appendChild(el); mysqlDebugLog.scrollTop = mysqlDebugLog.scrollHeight; }
+                            } catch(err) { mysqlFailedRows++; console.error(`Row ${i + 1} (PK ${row[pkCol]}) DB update failed:`, err); if (mysqlDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-4 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-red-400 font-bold text-xs">DB Update Failed (row skipped)</div><div class="text-gray-500 text-[10px]">PK: ${row[pkCol]} — ${err.message}</div>`; mysqlDebugLog.appendChild(el); mysqlDebugLog.scrollTop = mysqlDebugLog.scrollHeight; } }
                         }
                     }
+                  } catch(rowErr) {
+                        // Safety net: any unexpected error on this row is logged and skipped so the batch continues.
+                        mysqlFailedRows++;
+                        console.error(`Row ${i + 1} failed unexpectedly:`, rowErr);
+                        if (mysqlDebugCheckbox.checked) { const el = document.createElement('div'); el.className = 'mb-4 border-l-2 border-red-600 pl-2 pb-2 border-b border-gray-800'; el.innerHTML = `<div class="text-red-400 font-bold text-xs">Row Error (skipped)</div><div class="text-gray-500 text-[10px]">${rowErr.message}</div>`; mysqlDebugLog.appendChild(el); mysqlDebugLog.scrollTop = mysqlDebugLog.scrollHeight; }
+                  }
                     const percent = Math.round(((i + 1) / total) * 100); mysqlProgressBar.style.width = `${percent}%`;
                     let statusMsg = `Processing row ${i + 1} of ${total}...`; if (isDryRun) statusMsg = `[DRY RUN] ${statusMsg}`;
                     if (mysqlEtaCheckbox.checked) {
@@ -2958,7 +2987,9 @@
                     if (mysqlDelayCheckbox.checked && i < total - 1 && !mysqlStopRequested) { const delaySec = parseFloat(mysqlDelayInput.value) || 0; if (delaySec > 0) { mysqlStatus.textContent = `${statusMsg} [Waiting ${delaySec}s]`; await new Promise(r => setTimeout(r, delaySec * 1000)); } }
                 }
                 stopMysqlBtn.classList.add('hidden'); startMysqlBtn.classList.remove('hidden');
-                if (!mysqlStopRequested) { if (isDryRun) { mysqlStatus.textContent = `Dry Run Complete! ${mysqlDryRunResults.length} rows processed.`; if (mysqlDryRunResults.length > 0) downloadMysqlDryRunBtn.classList.remove('hidden'); } else { mysqlStatus.textContent = 'Processing Complete!'; } } else { mysqlStatus.textContent = 'Stopped by user.'; }
+                const failSuffix = mysqlFailedRows > 0 ? ` (${mysqlFailedRows} row${mysqlFailedRows !== 1 ? 's' : ''} failed/skipped)` : '';
+                if (!mysqlStopRequested) { if (isDryRun) { mysqlStatus.textContent = `Dry Run Complete! ${mysqlDryRunResults.length} rows processed.${failSuffix}`; if (mysqlDryRunResults.length > 0) downloadMysqlDryRunBtn.classList.remove('hidden'); } else { mysqlStatus.textContent = `Processing Complete!${failSuffix}`; } } else { mysqlStatus.textContent = `Stopped by user.${failSuffix}`; }
+                if (mysqlFailedRows > 0) showMessage(`Batch finished with ${mysqlFailedRows} failed row(s). Enable Debug to see details.`, 'error');
             });
             stopMysqlBtn.addEventListener('click', () => { mysqlStopRequested = true; });
 
