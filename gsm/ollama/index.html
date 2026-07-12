@@ -3757,5 +3757,9 @@
             debugModeCheckbox.addEventListener('change', () => localStorage.setItem(STORAGE_KEY_DEBUG_MODE, debugModeCheckbox.checked));
         });
     </script>
+    <footer class="text-center text-gray-500 text-xs py-4">
+        Gonzalo Santiago Martinez - Nacubi Research and Development - <span id="footer-year"></span>
+    </footer>
+    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
