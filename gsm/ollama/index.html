@@ -739,6 +739,10 @@
                                     <input type="checkbox" id="mysql-debug-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500">
                                     <label class="text-sm text-gray-300">Show logs</label>
                                 </div>
+                                <div class="flex items-center gap-2 border-l border-gray-600 pl-4">
+                                    <input type="checkbox" id="mysql-autoclear-checkbox" class="w-4 h-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500" checked>
+                                    <label for="mysql-autoclear-checkbox" class="text-sm text-gray-300" title="Clears the log every 25 rows to prevent the page from slowing down during long runs">Auto-clear logs (25 rows)</label>
+                                </div>
                             </div>
 
                             <div id="mysql-progress-container" class="hidden w-full bg-gray-700 rounded-full h-4">
@@ -979,6 +983,7 @@
             const mysqlStatus = document.getElementById('mysql-status');
             const mysqlDebugLog = document.getElementById('mysql-debug-log');
             const mysqlDebugCheckbox = document.getElementById('mysql-debug-checkbox');
+            const mysqlAutoclearCheckbox = document.getElementById('mysql-autoclear-checkbox');
             const mysqlDelayCheckbox = document.getElementById('mysql-delay-checkbox');
             const mysqlDelayInput = document.getElementById('mysql-delay-input');
             const mysqlDryRunCheckbox = document.getElementById('mysql-dry-run-checkbox');
@@ -3032,6 +3037,11 @@
                 const total = mysqlData.length;
                 for (let i = 0; i < total; i++) {
                     if (mysqlStopRequested) { mysqlStatus.textContent = 'Stopped by user.'; break; }
+                    // Auto-clear the debug log every 25 rows to prevent unbounded DOM growth
+                    // (which makes the page sluggish/unresponsive during long runs).
+                    if (mysqlAutoclearCheckbox.checked && i > 0 && i % 25 === 0) {
+                        mysqlDebugLog.innerHTML = `<div class="text-cyan-500 mb-2">--- MySQL Batch Log (auto-cleared at row ${i}) ---</div>`;
+                    }
                     const row = mysqlData[i]; let dbUpdates = {}; let aiResultsForRow = {};
                   try {
                     for (const rule of rules) {
