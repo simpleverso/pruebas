@@ -3794,8 +3794,8 @@
                     LITERTLM_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `litertlm:${m.id}`; opt.textContent = `✨ [LiteRT-LM] ${m.label}`; selectElement.appendChild(opt); });
                 }
                 if (HFLOCAL_ENABLED) {
-                    const hfHeader = document.createElement('option'); hfHeader.disabled = true; hfHeader.textContent = '--- HF Local (In-Browser, WebGPU) ---'; selectElement.appendChild(hfHeader);
-                    HFLOCAL_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `hflocal:${m.id}`; opt.textContent = `🔥 [HF Local] ${m.label}`; selectElement.appendChild(opt); });
+                    const hfHeader = document.createElement('option'); hfHeader.disabled = true; hfHeader.textContent = '--- HFTjs (In-Browser, WebGPU) ---'; selectElement.appendChild(hfHeader);
+                    HFLOCAL_MODELS.forEach(m => { const opt = document.createElement('option'); opt.value = `hflocal:${m.id}`; opt.textContent = `🔥 [HFTjs] ${m.label}`; selectElement.appendChild(opt); });
                 }
                 if (models && models.length > 0) { const separator = document.createElement('option'); separator.disabled = true; separator.textContent = '--- Local Ollama Models ---'; selectElement.appendChild(separator); models.forEach(model => { const option = document.createElement('option'); option.value = model.name; option.textContent = model.name; selectElement.appendChild(option); }); }
                 else { const noOllama = document.createElement('option'); noOllama.disabled = true; noOllama.textContent = '(No Local Ollama Models Found)'; selectElement.appendChild(noOllama); }
