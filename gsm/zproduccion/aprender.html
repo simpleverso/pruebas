@@ -1359,243 +1359,266 @@
                     ]
                 },
                 {
-                    title: "Leer cualquier verbo",
-                    sub: "El inicio dice el tiempo; el final, la persona",
+                    title: { es: "Leer cualquier verbo", en: "Read any verb" },
+                    sub: { es: "El inicio dice el tiempo; el final, la persona", en: "The start tells the tense; the end, the person" },
                     objectives: [
-                        "Descomponer un verbo en <strong>prefijo + raíz + sufijo</strong>.",
-                        "Ver la misma raíz cambiar de aspecto.",
-                        "Adquirir una estrategia para \"leer\" verbos nuevos."
+                        { es: "Descomponer un verbo en <strong>prefijo + raíz + sufijo</strong>.", en: "Break a verb into <strong>prefix + root + suffix</strong>." },
+                        { es: "Ver la misma raíz cambiar de aspecto.", en: "See the same root change aspect." },
+                        { es: "Adquirir una estrategia para \"leer\" verbos nuevos.", en: "Gain a strategy for \"reading\" new verbs." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>Ya tienes las piezas. La estrategia práctica para entender un verbo que no conoces es mirar sus <strong>extremos</strong>: el <strong>inicio</strong> te dice el aspecto (cuándo/cómo) y el <strong>final</strong> te dice la persona (quién). Mira una sola raíz, <em>-uuya-</em> "ver", a través de los aspectos:</p>` },
-                        { type: 'table', title: 'Una raíz, todos los aspectos: "ver"',
-                          head: ['Aspecto', 'Forma', 'Español'],
+                        { type: 'prose', html: {
+                            es: `<p>Ya tienes las piezas. La estrategia práctica para entender un verbo que no conoces es mirar sus <strong>extremos</strong>: el <strong>inicio</strong> te dice el aspecto (cuándo/cómo) y el <strong>final</strong> te dice la persona (quién). Mira una sola raíz, <em>-uuya-</em> "ver", a través de los aspectos:</p>`,
+                            en: `<p>You now have the pieces. The practical strategy for understanding an unfamiliar verb is to look at its <strong>ends</strong>: the <strong>start</strong> tells you the aspect (when/how) and the <strong>end</strong> tells you the person (who). Watch a single root, <em>-uuya-</em> "see", across the aspects:</p>` } },
+                        { type: 'table', title: { es: 'Una raíz, todos los aspectos: "ver"', en: 'One root, all aspects: "see"' },
+                          head: [ { es: 'Aspecto', en: 'Aspect' }, { es: 'Forma', en: 'Form' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['habitual', 'hruu\u2019yu', 'ves'],
-                            ['progresivo', 'cayuuya\u2019', 'te estoy viendo'],
-                            ['completivo', 'biya\u2019', 'vi'],
-                            ['potencial', 'guuya\u2019', 'que vea'],
-                            ['futuro', 'zuuyadxíe', 'miraré'],
-                            ['irrealis', 'ñuuyalu\u2019', 'si vieras']
+                            [ { es: 'habitual', en: 'habitual' }, 'hruu\u2019yu', { es: 'ves', en: 'you see' } ],
+                            [ { es: 'progresivo', en: 'progressive' }, 'cayuuya\u2019', { es: 'te estoy viendo', en: 'I am seeing you' } ],
+                            [ { es: 'completivo', en: 'completive' }, 'biya\u2019', { es: 'vi', en: 'I saw' } ],
+                            [ { es: 'potencial', en: 'potential' }, 'guuya\u2019', { es: 'que vea', en: 'that I see' } ],
+                            [ { es: 'futuro', en: 'future' }, 'zuuyadxíe', { es: 'miraré', en: 'I will look' } ],
+                            [ { es: 'irrealis', en: 'irrealis' }, 'ñuuyalu\u2019', { es: 'si vieras', en: 'if you saw' } ]
                           ] },
-                        { type: 'table', title: 'Descomposición: inicio + raíz + final',
-                          head: ['Palabra', 'Inicio (aspecto)', 'Raíz', 'Final (persona)'],
+                        { type: 'table', title: { es: 'Descomposición: inicio + raíz + final', en: 'Breakdown: start + root + end' },
+                          head: [ { es: 'Palabra', en: 'Word' }, { es: 'Inicio (aspecto)', en: 'Start (aspect)' }, { es: 'Raíz', en: 'Root' }, { es: 'Final (persona)', en: 'End (person)' } ],
                           rows: [
-                            ['zuuyadxícabe', 'z- (futuro)', 'uuyadxí (mirar)', '-cabe (ellos)'],
-                            ['biya\u2019', 'bi- (pasado)', 'ya (ver)', '-a\u2019 (yo)'],
-                            ['napabe\u2019', 'na- (estativo)', 'pa (tener)', '-be\u2019 (él)']
+                            ['zuuyadxícabe', { es: 'z- (futuro)', en: 'z- (future)' }, { es: 'uuyadxí (mirar)', en: 'uuyadxí (look)' }, { es: '-cabe (ellos)', en: '-cabe (they)' }],
+                            ['biya\u2019', { es: 'bi- (pasado)', en: 'bi- (past)' }, { es: 'ya (ver)', en: 'ya (see)' }, { es: '-a\u2019 (yo)', en: '-a\u2019 (I)' }],
+                            ['napabe\u2019', { es: 'na- (estativo)', en: 'na- (stative)' }, { es: 'pa (tener)', en: 'pa (have)' }, { es: '-be\u2019 (él)', en: '-be\u2019 (he)' }]
                           ] },
-                        { type: 'warn', html: `Es una <strong>guía</strong>, no una regla infalible: <code>gu-</code> y <code>bi-</code> se solapan en el pasado, y <code>gu-</code> también sirve de potencial. La negación puede cambiar la raíz (<em>napa- \u2192 gapa-</em>). Confírmalo con el contexto.` }
+                        { type: 'warn', html: {
+                            es: `Es una <strong>guía</strong>, no una regla infalible: <code>gu-</code> y <code>bi-</code> se solapan en el pasado, y <code>gu-</code> también sirve de potencial. La negación puede cambiar la raíz (<em>napa- \u2192 gapa-</em>). Confírmalo con el contexto.`,
+                            en: `It's a <strong>guide</strong>, not an infallible rule: <code>gu-</code> and <code>bi-</code> overlap in the past, and <code>gu-</code> also serves as potential. Negation can change the root (<em>napa- \u2192 gapa-</em>). Confirm with context.` } }
                     ],
                     words: [
-                        { zap: "guuya'", es: "que (yo) vea", gloss: "potencial" },
-                        { zap: "ñuuyalu'", es: "si (tú) vieras", gloss: "irrealis" },
-                        { zap: "hruu'yu", es: "(tú) ves", gloss: "habitual" }
+                        { zap: "guuya'", es: { es: "que (yo) vea", en: "that (I) see" }, gloss: { es: "potencial", en: "potential" } },
+                        { zap: "ñuuyalu'", es: { es: "si (tú) vieras", en: "if (you) saw" }, gloss: { es: "irrealis", en: "irrealis" } },
+                        { zap: "hruu'yu", es: { es: "(tú) ves", en: "(you) see" }, gloss: { es: "habitual", en: "habitual" } }
                     ],
                     phrases: [
-                        { zap: "Beda guuya' lii", es: "Vine a verte", gloss: "venir + potencial" },
-                        { zap: "Chiganna' stiaya'", es: "Voy a visitar a mi tía", gloss: "andativo chi-" }
+                        { zap: "Beda guuya' lii", es: { es: "Vine a verte", en: "I came to see you" }, gloss: { es: "venir + potencial", en: "come + potential" } },
+                        { zap: "Chiganna' stiaya'", es: { es: "Voy a visitar a mi tía", en: "I'm going to visit my aunt" }, gloss: { es: "andativo chi-", en: "andative chi-" } }
                     ]
                 }
             ]
         },
         {
-            id: "n4", tag: "Nivel 4", title: "Pronombres sufijados y posesión",
-            desc: "Cómo el sujeto vive dentro del verbo (sufijos de persona) y cómo se dice 'mío/tuyo': posesión inalienable y alienable.",
+            id: "n4", tag: { es: "Nivel 4", en: "Level 4" },
+            title: { es: "Pronombres sufijados y posesión", en: "Suffixed pronouns and possession" },
+            desc: { es: "Cómo el sujeto vive dentro del verbo (sufijos de persona) y cómo se dice 'mío/tuyo': posesión inalienable y alienable.",
+                    en: "How the subject lives inside the verb (person suffixes) and how to say 'my/your': inalienable and alienable possession." },
             lessons: [
                 {
-                    title: "Los sufijos de persona",
-                    sub: "El final del verbo dice QUIÉN",
+                    title: { es: "Los sufijos de persona", en: "The person suffixes" },
+                    sub: { es: "El final del verbo dice QUIÉN", en: "The end of the verb tells you WHO" },
                     objectives: [
-                        "Aprender el juego completo de sufijos de sujeto.",
-                        "Distinguir \"nosotros contigo\" (<code>-nu</code>) de \"nosotros sin ti\" (<code>-du</code>).",
-                        "Conjugar un verbo por persona."
+                        { es: "Aprender el juego completo de sufijos de sujeto.", en: "Learn the full set of subject suffixes." },
+                        { es: "Distinguir \"nosotros contigo\" (<code>-nu</code>) de \"nosotros sin ti\" (<code>-du</code>).", en: "Distinguish \"we with you\" (<code>-nu</code>) from \"we without you\" (<code>-du</code>)." },
+                        { es: "Conjugar un verbo por persona.", en: "Conjugate a verb by person." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>Este es el mecanismo central de la conjugación. La persona que hace la acción (el sujeto) se añade al verbo como <strong>sufijo</strong>. No hace falta pronombre suelto.</p>
-                            <p>Dos cosas que no existen en español: el zapoteco distingue un "nosotros" <strong>inclusivo</strong> (te incluye) de uno <strong>exclusivo</strong> (te deja fuera), y separa la 3.ª persona en tres clases según sea humano, animal o cosa.</p>` },
-                        { type: 'table', title: 'Sufijos de persona (sujeto)',
-                          head: ['Persona', 'Sufijo', 'Ejemplo', 'Significado'],
+                        { type: 'prose', html: {
+                            es: `<p>Este es el mecanismo central de la conjugación. La persona que hace la acción (el sujeto) se añade al verbo como <strong>sufijo</strong>. No hace falta pronombre suelto.</p>
+                                 <p>Dos cosas que no existen en español: el zapoteco distingue un "nosotros" <strong>inclusivo</strong> (te incluye) de uno <strong>exclusivo</strong> (te deja fuera), y separa la 3.ª persona en tres clases según sea humano, animal o cosa.</p>`,
+                            en: `<p>This is the core mechanism of conjugation. The person doing the action (the subject) is added to the verb as a <strong>suffix</strong>. No separate pronoun is needed.</p>
+                                 <p>Two things English lacks: Zapotec distinguishes an <strong>inclusive</strong> "we" (includes you) from an <strong>exclusive</strong> one (leaves you out), and splits the 3rd person into three classes depending on whether the referent is human, animal, or thing.</p>` } },
+                        { type: 'table', title: { es: 'Sufijos de persona (sujeto)', en: 'Person suffixes (subject)' },
+                          head: [ { es: 'Persona', en: 'Person' }, { es: 'Sufijo', en: 'Suffix' }, { es: 'Ejemplo', en: 'Example' }, { es: 'Significado', en: 'Meaning' } ],
                           rows: [
-                            ['1.ª sing. (yo)', '-a\u2019 / -e\u2019 / -ya\u2019', 'napa\u2019', 'tengo'],
-                            ['2.ª sing. (tú)', '-lu\u2019 / -u\u2019', 'napu\u2019', 'tienes'],
-                            ['3.ª sing. humano', '-be\u2019', 'napabe\u2019', 'él/ella tiene'],
-                            ['3.ª sing. animal', '-me', 'napa\u2019 láme', 'lo tengo (animal)'],
-                            ['3.ª sing. cosa', '-ni', 'za\u2019tini', 'eso morirá'],
-                            ['1.ª pl. incl. (tú y yo)', '-nu', 'nacanu\u2019', 'somos'],
-                            ['1.ª pl. excl. (sin ti)', '-du', 'gunidu\u2019', 'hablamos'],
-                            ['2.ª pl. (ustedes)', '-tu', 'zuuyadxítu', 'mirarán'],
-                            ['3.ª pl. humano', '-cabe', 'hroocabe', 'comen'],
-                            ['3.ª pl. animal', '-came', 'hradxi\u2019came', 'maman']
+                            [ { es: '1.ª sing. (yo)', en: '1st sing. (I)' }, '-a\u2019 / -e\u2019 / -ya\u2019', 'napa\u2019', { es: 'tengo', en: 'I have' } ],
+                            [ { es: '2.ª sing. (tú)', en: '2nd sing. (you)' }, '-lu\u2019 / -u\u2019', 'napu\u2019', { es: 'tienes', en: 'you have' } ],
+                            [ { es: '3.ª sing. humano', en: '3rd sing. human' }, '-be\u2019', 'napabe\u2019', { es: 'él/ella tiene', en: 's/he has' } ],
+                            [ { es: '3.ª sing. animal', en: '3rd sing. animal' }, '-me', 'napa\u2019 láme', { es: 'lo tengo (animal)', en: 'I have it (animal)' } ],
+                            [ { es: '3.ª sing. cosa', en: '3rd sing. thing' }, '-ni', 'za\u2019tini', { es: 'eso morirá', en: 'that will die' } ],
+                            [ { es: '1.ª pl. incl. (tú y yo)', en: '1st pl. incl. (you & I)' }, '-nu', 'nacanu\u2019', { es: 'somos', en: 'we are' } ],
+                            [ { es: '1.ª pl. excl. (sin ti)', en: '1st pl. excl. (without you)' }, '-du', 'gunidu\u2019', { es: 'hablamos', en: 'we speak' } ],
+                            [ { es: '2.ª pl. (ustedes)', en: '2nd pl. (you all)' }, '-tu', 'zuuyadxítu', { es: 'mirarán', en: 'you will look' } ],
+                            [ { es: '3.ª pl. humano', en: '3rd pl. human' }, '-cabe', 'hroocabe', { es: 'comen', en: 'they eat' } ],
+                            [ { es: '3.ª pl. animal', en: '3rd pl. animal' }, '-came', 'hradxi\u2019came', { es: 'maman', en: 'they suckle' } ]
                           ] },
-                        { type: 'table', title: 'Conjugar "tener" (raíz -pa-, estativo na-)',
-                          head: ['Zapoteco', 'Análisis', 'Español'],
+                        { type: 'table', title: { es: 'Conjugar "tener" (raíz -pa-, estativo na-)', en: 'Conjugating "to have" (root -pa-, stative na-)' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Análisis', en: 'Analysis' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['napa\u2019', 'na-pa-a\u2019', 'tengo'],
-                            ['napu\u2019', 'na-p-u\u2019', 'tienes'],
-                            ['napabe\u2019', 'na-pa-be\u2019', 'él/ella tiene'],
-                            ['napanu', 'na-pa-nu', 'tenemos (tú y yo)'],
-                            ['napatu\u2019', 'na-pa-tu\u2019', 'ustedes tienen']
+                            ['napa\u2019', 'na-pa-a\u2019', { es: 'tengo', en: 'I have' }],
+                            ['napu\u2019', 'na-p-u\u2019', { es: 'tienes', en: 'you have' }],
+                            ['napabe\u2019', 'na-pa-be\u2019', { es: 'él/ella tiene', en: 's/he has' }],
+                            ['napanu', 'na-pa-nu', { es: 'tenemos (tú y yo)', en: 'we have (you & I)' }],
+                            ['napatu\u2019', 'na-pa-tu\u2019', { es: 'ustedes tienen', en: 'you all have' }]
                           ] },
-                        { type: 'warn', html: `El verbo "tener" es defectivo: usa la raíz <em>-apa</em> en el estativo (<code>napa-</code>) pero <em>gapa-</em> en la negación/potencial: <code>Qui gapu\u2019 stipa</code> = "no tienes fuerza".` }
+                        { type: 'warn', html: {
+                            es: `El verbo "tener" es defectivo: usa la raíz <em>-apa</em> en el estativo (<code>napa-</code>) pero <em>gapa-</em> en la negación/potencial: <code>Qui gapu\u2019 stipa</code> = "no tienes fuerza".`,
+                            en: `The verb "to have" is defective: it uses the root <em>-apa</em> in the stative (<code>napa-</code>) but <em>gapa-</em> in the negative/potential: <code>Qui gapu\u2019 stipa</code> = "you don't have strength".` } }
                     ],
                     words: [
-                        { zap: "napa'", es: "(yo) tengo", gloss: "-a' = 1ª sing." },
-                        { zap: "napu'", es: "(tú) tienes", gloss: "-u' = 2ª sing." },
-                        { zap: "napabe'", es: "(él/ella) tiene", gloss: "-be' = 3ª humano" },
-                        { zap: "gunidu'", es: "(nosotros, sin ti) hablamos", gloss: "-du = excl." },
-                        { zap: "nacanu'", es: "(nosotros, tú y yo) somos", gloss: "-nu = incl." },
-                        { zap: "hroocabe", es: "(ellos) comen", gloss: "-cabe = 3ª pl. humano" }
+                        { zap: "napa'", es: { es: "(yo) tengo", en: "(I) have" }, gloss: { es: "-a' = 1ª sing.", en: "-a' = 1st sing." } },
+                        { zap: "napu'", es: { es: "(tú) tienes", en: "(you) have" }, gloss: { es: "-u' = 2ª sing.", en: "-u' = 2nd sing." } },
+                        { zap: "napabe'", es: { es: "(él/ella) tiene", en: "(s/he) has" }, gloss: { es: "-be' = 3ª humano", en: "-be' = 3rd human" } },
+                        { zap: "gunidu'", es: { es: "(nosotros, sin ti) hablamos", en: "(we, without you) speak" }, gloss: { es: "-du = excl.", en: "-du = excl." } },
+                        { zap: "nacanu'", es: { es: "(nosotros, tú y yo) somos", en: "(we, you & I) are" }, gloss: { es: "-nu = incl.", en: "-nu = incl." } },
+                        { zap: "hroocabe", es: { es: "(ellos) comen", en: "(they) eat" }, gloss: { es: "-cabe = 3ª pl. humano", en: "-cabe = 3rd pl. human" } }
                     ],
                     phrases: [
-                        { zap: "Napa' stipa", es: "Tengo fuerza" },
-                        { zap: "Nacanu' tobisi' na' ne lii", es: "Tú y yo somos una misma cosa" }
+                        { zap: "Napa' stipa", es: { es: "Tengo fuerza", en: "I have strength" } },
+                        { zap: "Nacanu' tobisi' na' ne lii", es: { es: "Tú y yo somos una misma cosa", en: "You and I are one and the same" } }
                     ]
                 },
                 {
-                    title: "Humano, animal o cosa",
-                    sub: "Las tres clases de 3.ª persona",
+                    title: { es: "Humano, animal o cosa", en: "Human, animal, or thing" },
+                    sub: { es: "Las tres clases de 3.ª persona", en: "The three 3rd-person classes" },
                     objectives: [
-                        "Elegir el pronombre correcto según sea persona, animal o cosa.",
-                        "Reconocer <code>-be\u2019</code>, <code>-me</code> y <code>-ni</code> en el verbo.",
-                        "Notar que esta distinción es más fina que \"él/ella/ello\"."
+                        { es: "Elegir el pronombre correcto según sea persona, animal o cosa.", en: "Choose the right pronoun for a person, animal, or thing." },
+                        { es: "Reconocer <code>-be\u2019</code>, <code>-me</code> y <code>-ni</code> en el verbo.", en: "Recognize <code>-be\u2019</code>, <code>-me</code>, and <code>-ni</code> on the verb." },
+                        { es: "Notar que esta distinción es más fina que \"él/ella/ello\".", en: "Notice this distinction is finer than \"he/she/it\"." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>El zapoteco gramaticaliza algo poco común: la 3.ª persona cambia según el referente sea <strong>humano</strong>, <strong>animal</strong> o <strong>cosa</strong>. Es una sensibilidad a la "animacidad" más detallada que el "it" del inglés.</p>` },
-                        { type: 'table', title: 'Las tres clases',
-                          head: ['Clase', 'Singular', 'Plural', 'Ejemplo'],
+                        { type: 'prose', html: {
+                            es: `<p>El zapoteco gramaticaliza algo poco común: la 3.ª persona cambia según el referente sea <strong>humano</strong>, <strong>animal</strong> o <strong>cosa</strong>. Es una sensibilidad a la "animacidad" más detallada que el "it" del inglés.</p>`,
+                            en: `<p>Zapotec grammaticalizes something unusual: the 3rd person changes depending on whether the referent is <strong>human</strong>, <strong>animal</strong>, or <strong>thing</strong>. It's a sensitivity to "animacy" finer than English "it".</p>` } },
+                        { type: 'table', title: { es: 'Las tres clases', en: 'The three classes' },
+                          head: [ { es: 'Clase', en: 'Class' }, { es: 'Singular', en: 'Singular' }, { es: 'Plural', en: 'Plural' }, { es: 'Ejemplo', en: 'Example' } ],
                           rows: [
-                            ['Humano', '-be\u2019', '-cabe', 'napabe\u2019 = él tiene'],
-                            ['Animal', '-me', '-came', 'cushuusheme = lo destroza (un animal)'],
-                            ['Cosa', '-ni', '-ni', 'za\u2019tini = eso morirá']
+                            [ { es: 'Humano', en: 'Human' }, '-be\u2019', '-cabe', { es: 'napabe\u2019 = él tiene', en: 'napabe\u2019 = he has' } ],
+                            [ { es: 'Animal', en: 'Animal' }, '-me', '-came', { es: 'cushuusheme = lo destroza (un animal)', en: 'cushuusheme = it (an animal) tears it up' } ],
+                            [ { es: 'Cosa', en: 'Thing' }, '-ni', '-ni', { es: 'za\u2019tini = eso morirá', en: 'za\u2019tini = that will die' } ]
                           ] },
-                        { type: 'note', html: `El pronombre libre para animal es <code>láme</code>: <code>Napa\u2019 láme</code> = "lo tengo (a un animal)". No lo confundas con el adjetivo <em>me\u2019cu</em> "pinto/manchado".` },
-                        { type: 'examples', title: 'Cada clase', items: [
-                            { zap: 'Qui zannabe\u2019', gloss: 'NEG · FUT-saber-3SG.H', es: 'Él no sabrá' },
-                            { zap: 'Napa\u2019 láme', gloss: 'tener-1SG · 3SG.A', es: 'Lo tengo (a un animal)' },
-                            { zap: 'Qui za\u2019tini', gloss: 'NEG · FUT-morir-3SG.I', es: 'Eso no morirá' }
+                        { type: 'note', html: {
+                            es: `El pronombre libre para animal es <code>láme</code>: <code>Napa\u2019 láme</code> = "lo tengo (a un animal)". No lo confundas con el adjetivo <em>me\u2019cu</em> "pinto/manchado".`,
+                            en: `The free pronoun for an animal is <code>láme</code>: <code>Napa\u2019 láme</code> = "I have it (an animal)". Don't confuse it with the adjective <em>me\u2019cu</em> "spotted".` } },
+                        { type: 'examples', title: { es: 'Cada clase', en: 'Each class' }, items: [
+                            { zap: 'Qui zannabe\u2019', gloss: { es: 'NEG · FUT-saber-3SG.H', en: 'NEG · FUT-know-3SG.H' }, es: { es: 'Él no sabrá', en: 'He will not know' } },
+                            { zap: 'Napa\u2019 láme', gloss: { es: 'tener-1SG · 3SG.A', en: 'have-1SG · 3SG.A' }, es: { es: 'Lo tengo (a un animal)', en: 'I have it (an animal)' } },
+                            { zap: 'Qui za\u2019tini', gloss: { es: 'NEG · FUT-morir-3SG.I', en: 'NEG · FUT-die-3SG.I' }, es: { es: 'Eso no morirá', en: 'That will not die' } }
                         ] }
                     ],
                     words: [
-                        { zap: "laabe", es: "él / ella (humano)", gloss: "clase humana" },
-                        { zap: "láme", es: "él / ella (animal)", gloss: "clase animal" },
-                        { zap: "-ni", es: "ello / eso (cosa)", gloss: "clase inanimada" },
-                        { zap: "mani'", es: "animal", gloss: "sustantivo genérico" }
+                        { zap: "laabe", es: { es: "él / ella (humano)", en: "he / she (human)" }, gloss: { es: "clase humana", en: "human class" } },
+                        { zap: "láme", es: { es: "él / ella (animal)", en: "it (animal)" }, gloss: { es: "clase animal", en: "animal class" } },
+                        { zap: "-ni", es: { es: "ello / eso (cosa)", en: "it / that (thing)" }, gloss: { es: "clase inanimada", en: "inanimate class" } },
+                        { zap: "mani'", es: { es: "animal", en: "animal" }, gloss: { es: "sustantivo genérico", en: "generic noun" } }
                     ],
                     phrases: [
-                        { zap: "Napa' láme", es: "Lo tengo (a un animal)", gloss: "clase animal -me" },
-                        { zap: "Qui za'tini", es: "Eso no morirá", gloss: "clase cosa -ni" },
-                        { zap: "Nganga lácame", es: "Esos son los animales" }
+                        { zap: "Napa' láme", es: { es: "Lo tengo (a un animal)", en: "I have it (an animal)" }, gloss: { es: "clase animal -me", en: "animal class -me" } },
+                        { zap: "Qui za'tini", es: { es: "Eso no morirá", en: "That will not die" }, gloss: { es: "clase cosa -ni", en: "thing class -ni" } },
+                        { zap: "Nganga lácame", es: { es: "Esos son los animales", en: "Those are the animals" } }
                     ]
                 },
                 {
-                    title: "La posesión",
-                    sub: "Inalienable (sufijo) vs. alienable (prefijo xti-)",
+                    title: { es: "La posesión", en: "Possession" },
+                    sub: { es: "Inalienable (sufijo) vs. alienable (prefijo xti-)", en: "Inalienable (suffix) vs. alienable (prefix xti-)" },
                     objectives: [
-                        "Marcar la posesión de partes del cuerpo y parentesco con un sufijo.",
-                        "Marcar la posesión de cosas adquiridas con el prefijo <code>xti-/sti-</code>.",
-                        "Decir \"tener\" con el verbo <code>napa-</code>."
+                        { es: "Marcar la posesión de partes del cuerpo y parentesco con un sufijo.", en: "Mark possession of body parts and kin with a suffix." },
+                        { es: "Marcar la posesión de cosas adquiridas con el prefijo <code>xti-/sti-</code>.", en: "Mark possession of acquired things with the prefix <code>xti-/sti-</code>." },
+                        { es: "Decir \"tener\" con el verbo <code>napa-</code>.", en: "Say \"to have\" with the verb <code>napa-</code>." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>El zapoteco separa dos tipos de posesión, como hacen varias lenguas del mundo:</p>
-                            <ul>
-                                <li><strong>Inalienable</strong> (lo que "no se elige": cuerpo, familia): el poseedor va como <strong>sufijo directo</strong> sobre el nombre. <code>na</code> "mano" \u2192 <code>nalu\u2019</code> "tu mano".</li>
-                                <li><strong>Alienable</strong> (cosas que se adquieren): usa el prefijo <code>xti-/sti-</code>. <code>xtiidxanu\u2019</code> "nuestro idioma".</li>
-                            </ul>` },
-                        { type: 'table', title: 'Posesión inalienable (sufijo directo)',
-                          head: ['Base', 'Poseído', 'Español'],
+                        { type: 'prose', html: {
+                            es: `<p>El zapoteco separa dos tipos de posesión, como hacen varias lenguas del mundo:</p>
+                                 <ul>
+                                     <li><strong>Inalienable</strong> (lo que "no se elige": cuerpo, familia): el poseedor va como <strong>sufijo directo</strong> sobre el nombre. <code>na</code> "mano" \u2192 <code>nalu\u2019</code> "tu mano".</li>
+                                     <li><strong>Alienable</strong> (cosas que se adquieren): usa el prefijo <code>xti-/sti-</code>. <code>xtiidxanu\u2019</code> "nuestro idioma".</li>
+                                 </ul>`,
+                            en: `<p>Zapotec separates two kinds of possession, as several languages do:</p>
+                                 <ul>
+                                     <li><strong>Inalienable</strong> (what you "don't choose": body, family): the possessor is a <strong>direct suffix</strong> on the noun. <code>na</code> "hand" \u2192 <code>nalu\u2019</code> "your hand".</li>
+                                     <li><strong>Alienable</strong> (acquired things): uses the prefix <code>xti-/sti-</code>. <code>xtiidxanu\u2019</code> "our language".</li>
+                                 </ul>` } },
+                        { type: 'table', title: { es: 'Posesión inalienable (sufijo directo)', en: 'Inalienable possession (direct suffix)' },
+                          head: [ { es: 'Base', en: 'Base' }, { es: 'Poseído', en: 'Possessed' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['na (mano)', 'nalu\u2019', 'tu mano'],
-                            ['ñee (pie)', 'ñeelu\u2019', 'tu pie'],
-                            ['íque (cabeza)', 'íquebe', 'su cabeza'],
-                            ['stia (tía)', 'stiaya\u2019', 'mi tía'],
-                            ['ladxido\u2019 (alma)', 'ladxido\u2019be', 'su alma']
+                            [ { es: 'na (mano)', en: 'na (hand)' }, 'nalu\u2019', { es: 'tu mano', en: 'your hand' } ],
+                            [ { es: 'ñee (pie)', en: 'ñee (foot)' }, 'ñeelu\u2019', { es: 'tu pie', en: 'your foot' } ],
+                            [ { es: 'íque (cabeza)', en: 'íque (head)' }, 'íquebe', { es: 'su cabeza', en: 'his/her head' } ],
+                            [ { es: 'stia (tía)', en: 'stia (aunt)' }, 'stiaya\u2019', { es: 'mi tía', en: 'my aunt' } ],
+                            [ { es: 'ladxido\u2019 (alma)', en: 'ladxido\u2019 (soul)' }, 'ladxido\u2019be', { es: 'su alma', en: 'his/her soul' } ]
                           ] },
-                        { type: 'table', title: 'Posesión alienable (prefijo xti-/sti-)',
-                          head: ['Zapoteco', 'Español'],
+                        { type: 'table', title: { es: 'Posesión alienable (prefijo xti-/sti-)', en: 'Alienable possession (prefix xti-/sti-)' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['xquidxe\u2019', 'mi ciudad'],
-                            ['xtipalu\u2019', 'tu fuerza'],
-                            ['xtiidxanu\u2019', 'nuestro idioma'],
-                            ['bidxichi\u2019 stilu', 'tu dinero'],
-                            ['stidu', 'lo nuestro (excl.)']
+                            ['xquidxe\u2019', { es: 'mi ciudad', en: 'my city' }],
+                            ['xtipalu\u2019', { es: 'tu fuerza', en: 'your strength' }],
+                            ['xtiidxanu\u2019', { es: 'nuestro idioma', en: 'our language' }],
+                            ['bidxichi\u2019 stilu', { es: 'tu dinero', en: 'your money' }],
+                            ['stidu', { es: 'lo nuestro (excl.)', en: 'ours (excl.)' }]
                           ] },
-                        { type: 'tip', html: `Para "tener algo" no se usa el posesivo sino el verbo estativo <code>napa-</code> (Lección 1): <code>Napa\u2019 ti bi\u2019cu</code> = "tengo un perro".` },
-                        { type: 'examples', title: 'En una frase', items: [
-                            { zap: 'Qui za\u2019ti xtiidxanu\u2019', gloss: 'NEG · FUT-morir · POSS-idioma-1PL.IN', es: 'No morirá nuestro idioma' },
-                            { zap: 'Stipa sti binnizá', gloss: 'fuerza · de · zapotecos', es: 'El poder de los zapotecos' }
+                        { type: 'tip', html: {
+                            es: `Para "tener algo" no se usa el posesivo sino el verbo estativo <code>napa-</code> (Lección 1): <code>Napa\u2019 ti bi\u2019cu</code> = "tengo un perro".`,
+                            en: `To "have something" you don't use the possessive but the stative verb <code>napa-</code> (Lesson 1): <code>Napa\u2019 ti bi\u2019cu</code> = "I have a dog".` } },
+                        { type: 'examples', title: { es: 'En una frase', en: 'In a sentence' }, items: [
+                            { zap: 'Qui za\u2019ti xtiidxanu\u2019', gloss: { es: 'NEG · FUT-morir · POSS-idioma-1PL.IN', en: 'NEG · FUT-die · POSS-language-1PL.IN' }, es: { es: 'No morirá nuestro idioma', en: 'Our language will not die' } },
+                            { zap: 'Stipa sti binnizá', gloss: { es: 'fuerza · de · zapotecos', en: 'strength · of · the Zapotecs' }, es: { es: 'El poder de los zapotecos', en: 'The power of the Zapotecs' } }
                         ] }
                     ],
                     words: [
-                        { zap: "nalu'", es: "tu mano", gloss: "na + -lu'" },
-                        { zap: "stiaya'", es: "mi tía" },
-                        { zap: "xtipalu'", es: "tu fuerza" },
-                        { zap: "bidxichi' stilu", es: "tu dinero" },
-                        { zap: "xtiidxanu'", es: "nuestro idioma" }
+                        { zap: "nalu'", es: { es: "tu mano", en: "your hand" }, gloss: { es: "na + -lu'", en: "na + -lu'" } },
+                        { zap: "stiaya'", es: { es: "mi tía", en: "my aunt" } },
+                        { zap: "xtipalu'", es: { es: "tu fuerza", en: "your strength" } },
+                        { zap: "bidxichi' stilu", es: { es: "tu dinero", en: "your money" } },
+                        { zap: "xtiidxanu'", es: { es: "nuestro idioma", en: "our language" } }
                     ],
                     phrases: [
-                        { zap: "Qui za'ti xtiidxanu'", es: "No morirá nuestro idioma" },
-                        { zap: "Stipa sti binnizá", es: "El poder de los zapotecos" }
+                        { zap: "Qui za'ti xtiidxanu'", es: { es: "No morirá nuestro idioma", en: "Our language will not die" } },
+                        { zap: "Stipa sti binnizá", es: { es: "El poder de los zapotecos", en: "The power of the Zapotecs" } }
                     ]
                 }
             ]
         },
         {
-            id: "n5", tag: "Nivel 5", title: "Preguntas y negación",
-            desc: "Cómo preguntar (palabra interrogativa al frente, y la partícula final 'la' para sí/no) y cómo negar con 'qui' y 'cadi'.",
+            id: "n5", tag: { es: "Nivel 5", en: "Level 5" },
+            title: { es: "Preguntas y negación", en: "Questions and negation" },
+            desc: { es: "Cómo preguntar (palabra interrogativa al frente, y la partícula final 'la' para sí/no) y cómo negar con 'qui' y 'cadi'.",
+                    en: "How to ask (question word up front, and the final particle 'la' for yes/no) and how to negate with 'qui' and 'cadi'." },
             lessons: [
                 {
-                    title: "Hacer preguntas",
-                    sub: "Interrogativo al frente; 'la'' al final para sí/no",
+                    title: { es: "Hacer preguntas", en: "Asking questions" },
+                    sub: { es: "Interrogativo al frente; 'la'' al final para sí/no", en: "Question word up front; 'la'' at the end for yes/no" },
                     objectives: [
-                        "Aprender las palabras interrogativas.",
-                        "Formar preguntas de <strong>sí/no</strong> añadiendo <code>la\u2019</code> al final.",
-                        "Notar que el orden de la oración no cambia al preguntar."
+                        { es: "Aprender las palabras interrogativas.", en: "Learn the question words." },
+                        { es: "Formar preguntas de <strong>sí/no</strong> añadiendo <code>la\u2019</code> al final.", en: "Form <strong>yes/no</strong> questions by adding <code>la\u2019</code> at the end." },
+                        { es: "Notar que el orden de la oración no cambia al preguntar.", en: "Notice the sentence order does not change when asking." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>Hay dos tipos de pregunta. Las de <strong>información</strong> empiezan con una palabra interrogativa (¿dónde?, ¿qué?…) puesta al frente, y el resto mantiene el orden VSO.</p>
-                            <p>Las de <strong>sí/no</strong> son muy fáciles: tomas la afirmación y le añades la partícula <code>la\u2019</code> al final. No cambias nada más. Es idéntico al 吗 (ma) del chino.</p>` },
-                        { type: 'table', title: 'Palabras interrogativas',
-                          head: ['Zapoteco', 'Español'],
+                        { type: 'prose', html: {
+                            es: `<p>Hay dos tipos de pregunta. Las de <strong>información</strong> empiezan con una palabra interrogativa (¿dónde?, ¿qué?…) puesta al frente, y el resto mantiene el orden VSO.</p>
+                                 <p>Las de <strong>sí/no</strong> son muy fáciles: tomas la afirmación y le añades la partícula <code>la\u2019</code> al final. No cambias nada más. Es idéntico al 吗 (ma) del chino.</p>`,
+                            en: `<p>There are two kinds of question. <strong>Information</strong> questions begin with a question word (where?, what?…) placed up front, and the rest keeps VSO order.</p>
+                                 <p><strong>Yes/no</strong> questions are very easy: take the statement and add the particle <code>la\u2019</code> at the end. Nothing else changes. It's just like Chinese 吗 (ma).</p>` } },
+                        { type: 'table', title: { es: 'Palabras interrogativas', en: 'Question words' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['Paraa', '¿dónde?'],
-                            ['Pa neza', '¿por dónde?'],
-                            ['Shi / Ana shi', '¿qué?'],
-                            ['Tu', '¿quién?'],
-                            ['Pabia\u2019 / Panda', '¿cuánto?'],
-                            ['Pora', '¿qué hora? / ¿a qué hora?'],
-                            ['Padé', '¿de dónde?']
+                            ['Paraa', { es: '¿dónde?', en: 'where?' }],
+                            ['Pa neza', { es: '¿por dónde?', en: 'which way?' }],
+                            ['Shi / Ana shi', { es: '¿qué?', en: 'what?' }],
+                            ['Tu', { es: '¿quién?', en: 'who?' }],
+                            ['Pabia\u2019 / Panda', { es: '¿cuánto?', en: 'how much/many?' }],
+                            ['Pora', { es: '¿qué hora? / ¿a qué hora?', en: 'what time? / at what time?' }],
+                            ['Padé', { es: '¿de dónde?', en: 'from where?' }]
                           ] },
-                        { type: 'table', title: 'Afirmación \u2192 pregunta de sí/no (+ la\u2019)',
-                          head: ['Afirmación', 'Pregunta'],
+                        { type: 'table', title: { es: 'Afirmación \u2192 pregunta de sí/no (+ la\u2019)', en: 'Statement \u2192 yes/no question (+ la\u2019)' },
+                          head: [ { es: 'Afirmación', en: 'Statement' }, { es: 'Pregunta', en: 'Question' } ],
                           rows: [
-                            ['Hrini\u2019lu\u2019 inglés (hablas inglés)', 'Hrini\u2019lu\u2019 inglés la\u2019'],
-                            ['Zoolo\u2019 (comerás)', 'Zoolo\u2019 la\u2019'],
-                            ['Zanda guuya\u2019 lii (puedo verte)', 'Zanda guuya\u2019 lii la\u2019']
+                            [ { es: 'Hrini\u2019lu\u2019 inglés (hablas inglés)', en: 'Hrini\u2019lu\u2019 inglés (you speak English)' }, 'Hrini\u2019lu\u2019 inglés la\u2019'],
+                            [ { es: 'Zoolo\u2019 (comerás)', en: 'Zoolo\u2019 (you will eat)' }, 'Zoolo\u2019 la\u2019'],
+                            [ { es: 'Zanda guuya\u2019 lii (puedo verte)', en: 'Zanda guuya\u2019 lii (I can see you)' }, 'Zanda guuya\u2019 lii la\u2019']
                           ] },
-                        { type: 'examples', title: 'Preguntas frecuentes', items: [
-                            { zap: 'Paraa nga nuulu\u2019', gloss: 'dónde · FOC · estar-2SG', es: '¿Dónde estás?' },
-                            { zap: 'Tu lálu\u2019', gloss: 'quién · nombre-tuyo', es: '¿Cómo te llamas?' },
-                            { zap: 'Panda iza nápu\u2019', gloss: 'cuántos · años · tienes-2SG', es: '¿Cuántos años tienes?' }
+                        { type: 'examples', title: { es: 'Preguntas frecuentes', en: 'Common questions' }, items: [
+                            { zap: 'Paraa nga nuulu\u2019', gloss: { es: 'dónde · FOC · estar-2SG', en: 'where · FOC · be-2SG' }, es: { es: '¿Dónde estás?', en: 'Where are you?' } },
+                            { zap: 'Tu lálu\u2019', gloss: { es: 'quién · nombre-tuyo', en: 'who · name-your' }, es: { es: '¿Cómo te llamas?', en: 'What is your name?' } },
+                            { zap: 'Panda iza nápu\u2019', gloss: { es: 'cuántos · años · tienes-2SG', en: 'how-many · years · have-2SG' }, es: { es: '¿Cuántos años tienes?', en: 'How old are you?' } }
                         ] }
                     ],
                     words: [
-                        { zap: "Paraa", es: "¿dónde?" },
-                        { zap: "Shi", es: "¿qué?" },
-                        { zap: "Pabia'", es: "¿cuánto? / qué tanto" },
-                        { zap: "Tu", es: "¿quién?" },
-                        { zap: "la'", es: "partícula de sí/no (al final)" }
+                        { zap: "Paraa", es: { es: "¿dónde?", en: "where?" } },
+                        { zap: "Shi", es: { es: "¿qué?", en: "what?" } },
+                        { zap: "Pabia'", es: { es: "¿cuánto? / qué tanto", en: "how much / how many?" } },
+                        { zap: "Tu", es: { es: "¿quién?", en: "who?" } },
+                        { zap: "la'", es: { es: "partícula de sí/no (al final)", en: "yes/no particle (at the end)" } }
                     ],
                     phrases: [
-                        { zap: "Paraa nga nuulu'", es: "¿Dónde estás?" },
-                        { zap: "Hrini'lu' inglés la'", es: "¿Hablas inglés?" },
-                        { zap: "Panda iza nápu'", es: "¿Cuántos años tienes?" },
-                        { zap: "Pa neza chunu'", es: "¿Por dónde vamos?" }
+                        { zap: "Paraa nga nuulu'", es: { es: "¿Dónde estás?", en: "Where are you?" } },
+                        { zap: "Hrini'lu' inglés la'", es: { es: "¿Hablas inglés?", en: "Do you speak English?" } },
+                        { zap: "Panda iza nápu'", es: { es: "¿Cuántos años tienes?", en: "How old are you?" } },
+                        { zap: "Pa neza chunu'", es: { es: "¿Por dónde vamos?", en: "Which way do we go?" } }
                     ]
                 },
                 {
