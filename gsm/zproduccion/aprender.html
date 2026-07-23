@@ -567,6 +567,61 @@
         }
         .source-note strong { color: var(--tx-label); }
 
+        /* Metadatos de publicación */
+        .page-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 4px 0 18px;
+        }
+        .page-meta .meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1 1 240px;
+            padding: 10px 14px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--tx-muted);
+        }
+        .page-meta .meta-item i { color: var(--tx-primary-2); font-size: 0.95rem; }
+        .page-meta .meta-label {
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            color: var(--tx-label);
+        }
+        .page-meta .meta-value { color: var(--tx-text-strong); margin-left: auto; font-weight: 500; }
+
+        /* Aviso / disclaimer destacado */
+        .disclaimer {
+            background: rgba(224, 169, 79, 0.08);
+            border: 1px solid rgba(224, 169, 79, 0.35);
+            border-left: 4px solid var(--tx-amber);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 0 0 22px;
+        }
+        .disclaimer-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--tx-amber);
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .disclaimer-head i { font-size: 1rem; }
+        .disclaimer-body { color: var(--tx-text); font-size: 0.88rem; line-height: 1.6; }
+        .disclaimer-body p { margin: 0 0 8px; }
+        .disclaimer-body p:last-child { margin-bottom: 0; }
+        .disclaimer-body strong { color: var(--tx-text-strong); }
+
         /* Toast simple */
         #toast {
             position: fixed;
@@ -641,6 +696,34 @@
                hasta el sistema verbal por aspecto y las oraciones complejas. Escucha cada palabra y frase, y
                graba tu propia pronunciación (o la de un hablante nativo) directamente desde el navegador.</p>
         </header>
+
+        <section class="page-meta" aria-label="Información de publicación">
+            <div class="meta-item">
+                <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                <span class="meta-label">Fecha de publicación</span>
+                <time class="meta-value" datetime="2026-07-23">23 de julio de 2026</time>
+            </div>
+            <div class="meta-item">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                <span class="meta-label">Última actualización</span>
+                <time class="meta-value" datetime="2026-07-23">23 de julio de 2026</time>
+            </div>
+        </section>
+
+        <section class="disclaimer" role="note" aria-label="Aviso importante">
+            <div class="disclaimer-head">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                <span>Aviso importante · Léelo antes de usar este material</span>
+            </div>
+            <div class="disclaimer-body">
+                <p>Toda la información de esta página fue creada por <strong>Gonzalo Santiago Martínez</strong>.
+                   <strong>No es material oficial</strong> y <strong>no ha sido validada</strong> por ninguna
+                   organización oficial zapoteca, lingüística ni de pueblos indígenas de México.</p>
+                <p>Este trabajo <strong>no está financiado ni respaldado</strong> por ninguna institución ni
+                   organización de terceros como las mencionadas; es un esfuerzo personal e independiente.</p>
+                <p>Si crees que algo aquí está equivocado, <strong>por favor contáctame</strong> para corregirlo.</p>
+            </div>
+        </section>
 
         <div class="learn-toolbar">
             <span class="mic-status" id="mic-status"><span class="dot"></span><span id="mic-text">Micrófono: sin activar</span></span>
