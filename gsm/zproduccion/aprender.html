@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Aprender a escribir Zapoteco · Didxazapp</title>
+    <meta name="description" content="Curso por niveles para aprender a leer y escribir Zapoteco del Istmo (Diidxazá): fonología, saludos, sustantivos, verbos y aspecto, posesión, preguntas y oraciones complejas, con audio y grabación de pronunciación.">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
+    <!-- Bootstrap 4.3.1 served from cdnjs (matches the bootstrap.bundle.min.js below) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        :root { --info: #3b99e0; }
+        body { font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+        .bg-info { background-color: #3b99e0 !important; }
+        .text-info { color: #3b99e0 !important; }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* ===== Aprender – tema oscuro gris/azul (alineado con translator.html / animales.html) ===== */
+        :root {
+            --tx-bg-1:        #0b1322;
+            --tx-bg-2:        #111c2f;
+            --tx-surface:     #1a2436;
+            --tx-surface-2:   #131c2c;
+            --tx-surface-3:   #243047;
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+            --tx-text:        #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+            --tx-primary:     #4f8fcf;
+            --tx-primary-2:   #6ba6e0;
+            --tx-accent:      #3b82f6;
+            --tx-green:       #37b979;
+            --tx-red:         #e0556b;
+            --tx-amber:       #e0a94f;
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Navbar */
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler { border-color: var(--tx-border) !important; }
+        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+
+        /* Layout */
+        .learn-shell {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 110px 24px 60px;
+        }
+        .learn-heading { text-align: center; margin-bottom: 22px; }
+        .learn-heading h1 {
+            color: var(--tx-text-strong);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 2rem;
+            margin: 0 0 8px;
+        }
+        .learn-heading p {
+            color: var(--tx-muted);
+            font-size: 0.95rem;
+            margin: 0 auto;
+            max-width: 740px;
+            line-height: 1.55;
+        }
+
+        /* Barra de herramientas (micrófono, export/import, ayuda) */
+        .learn-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin: 18px 0 8px;
+            padding: 12px 14px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            box-shadow: var(--tx-shadow);
+        }
+        .tool-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--tx-label);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+        }
+        .tool-btn:hover { background: var(--tx-primary); border-color: var(--tx-primary); color: #fff; }
+        .mic-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--tx-muted);
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--tx-border-2);
+            background: var(--tx-surface-2);
+        }
+        .mic-status .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--tx-border-2); flex-shrink: 0; }
+        .mic-status.ok .dot   { background: var(--tx-green); box-shadow: 0 0 0 3px rgba(55,185,121,0.18); }
+        .mic-status.warn .dot { background: var(--tx-amber); }
+        .mic-status.err .dot  { background: var(--tx-red); }
+
+        .learn-hint {
+            text-align: center;
+            color: var(--tx-muted);
+            font-size: 0.8rem;
+            margin: 0 auto 26px;
+            max-width: 760px;
+            line-height: 1.5;
+        }
+
+        /* Chips de niveles */
+        .level-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 0 0 34px;
+            padding: 12px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            box-shadow: var(--tx-shadow);
+        }
+        .level-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 15px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--tx-label);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            text-decoration: none;
+            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+        }
+        .level-nav a:hover { background: var(--tx-primary); border-color: var(--tx-primary); color: #fff; text-decoration: none; }
+        .level-nav a .lvl-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--tx-primary-2);
+            background: rgba(107,166,224,0.14);
+            border: 1px solid rgba(107,166,224,0.25);
+            padding: 1px 7px;
+            border-radius: 999px;
+        }
+        .level-nav a:hover .lvl-badge { color: #fff; background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); }
+
+        /* Sección de nivel */
+        .level-section { scroll-margin-top: 90px; margin-bottom: 42px; }
+        .level-title {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--tx-text-strong);
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            margin: 0 0 6px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--tx-border);
+        }
+        .level-title .lvl-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            background: rgba(107,166,224,0.14);
+            border: 1px solid rgba(107,166,224,0.25);
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+        .level-desc { color: var(--tx-muted); font-size: 0.9rem; margin: 0 0 18px; line-height: 1.55; }
+
+        /* Tarjeta de lección (acordeón) */
+        .lesson {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            box-shadow: var(--tx-shadow);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .lesson-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+            padding: 16px 18px;
+            background: transparent;
+            border: 0;
+            color: var(--tx-text-strong);
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .lesson-head:hover { background: var(--tx-surface-3); }
+        .lesson-head .lesson-num {
+            flex-shrink: 0;
+            width: 34px; height: 34px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--tx-primary-2);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+        }
+        .lesson-head .lesson-titles { flex: 1; min-width: 0; }
+        .lesson-head h3 { font-size: 1.02rem; font-weight: 600; margin: 0; letter-spacing: 0.005em; }
+        .lesson-head .lesson-sub { font-size: 0.8rem; color: var(--tx-muted); margin: 2px 0 0; }
+        .lesson-head .chevron { flex-shrink: 0; color: var(--tx-muted); transition: transform 0.2s ease; }
+        .lesson.open .lesson-head .chevron { transform: rotate(180deg); }
+
+        .lesson-body { display: none; padding: 4px 18px 20px; border-top: 1px solid var(--tx-border); }
+        .lesson.open .lesson-body { display: block; }
+
+        /* Nota de teoría */
+        .theory {
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-primary-2);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 16px 0 18px;
+            color: var(--tx-text);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .theory p { margin: 0 0 8px; }
+        .theory p:last-child { margin-bottom: 0; }
+        .theory strong { color: var(--tx-text-strong); }
+        .theory code {
+            background: var(--tx-surface-3);
+            color: var(--tx-primary-2);
+            padding: 1px 6px;
+            border-radius: 5px;
+            font-size: 0.86em;
+        }
+        .theory ul { margin: 6px 0 8px; padding-left: 20px; }
+        .theory li { margin-bottom: 4px; }
+
+        /* ===== Estilo "libro de idiomas" ===== */
+
+        /* Objetivos de la lección */
+        .objectives {
+            background: linear-gradient(180deg, rgba(79,143,207,0.10), rgba(79,143,207,0.03));
+            border: 1px solid var(--tx-border-2);
+            border-radius: 10px;
+            padding: 14px 16px 12px;
+            margin: 16px 0 18px;
+        }
+        .objectives h4 {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--tx-primary-2);
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .objectives ul { list-style: none; margin: 0; padding: 0; }
+        .objectives li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 6px;
+            color: var(--tx-text);
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+        .objectives li:last-child { margin-bottom: 0; }
+        .objectives li::before {
+            content: "\f00c"; /* fa-check */
+            font-family: FontAwesome;
+            position: absolute;
+            left: 0;
+            top: 1px;
+            color: var(--tx-green);
+            font-size: 0.8rem;
+        }
+
+        /* Prosa explicativa (texto de lección) */
+        .les-prose { color: var(--tx-text); font-size: 0.92rem; line-height: 1.65; margin: 0 0 16px; }
+        .les-prose p { margin: 0 0 10px; }
+        .les-prose p:last-child { margin-bottom: 0; }
+        .les-prose strong { color: var(--tx-text-strong); }
+        .les-prose em { color: var(--tx-primary-2); font-style: italic; }
+        .les-prose code {
+            background: var(--tx-surface-3);
+            color: var(--tx-primary-2);
+            padding: 1px 6px;
+            border-radius: 5px;
+            font-size: 0.86em;
+        }
+        .les-prose ul { margin: 6px 0 10px; padding-left: 20px; }
+        .les-prose li { margin-bottom: 5px; }
+
+        /* Encabezado interno de sección dentro de la lección */
+        .sec-title {
+            color: var(--tx-text-strong);
+            font-size: 0.98rem;
+            font-weight: 600;
+            margin: 20px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .sec-title::before {
+            content: "";
+            width: 16px; height: 2px;
+            background: var(--tx-primary-2);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Tablas de referencia */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 12px 0 18px;
+            border: 1px solid var(--tx-border);
+            border-radius: 10px;
+            background: var(--tx-surface-2);
+            -webkit-overflow-scrolling: touch;
+        }
+        table.z-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+            min-width: 380px;
+        }
+        table.z-table caption {
+            caption-side: top;
+            text-align: left;
+            padding: 11px 14px 4px;
+            color: var(--tx-muted);
+            font-size: 0.78rem;
+            font-style: italic;
+        }
+        table.z-table th, table.z-table td {
+            text-align: left;
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--tx-border);
+            vertical-align: top;
+        }
+        table.z-table thead th {
+            color: var(--tx-primary-2);
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: var(--tx-surface-3);
+            border-bottom: 1px solid var(--tx-border-2);
+            white-space: nowrap;
+        }
+        table.z-table tbody tr:last-child td { border-bottom: 0; }
+        table.z-table tbody tr:hover { background: rgba(79,143,207,0.06); }
+        table.z-table .zap { color: var(--tx-text-strong); font-weight: 600; white-space: nowrap; }
+        table.z-table code {
+            background: var(--tx-surface); color: var(--tx-primary-2);
+            padding: 1px 5px; border-radius: 4px; font-size: 0.85em;
+        }
+
+        /* Ejemplos con glosa interlineal */
+        .examples { margin: 10px 0 18px; display: grid; gap: 8px; }
+        .ex {
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-border-2);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .ex-zap { color: var(--tx-text-strong); font-size: 0.98rem; font-weight: 600; }
+        .ex-gloss {
+            color: var(--tx-primary-2);
+            font-size: 0.74rem;
+            font-style: italic;
+            letter-spacing: 0.01em;
+            margin-top: 2px;
+            opacity: 0.9;
+            word-break: break-word;
+        }
+        .ex-es { color: var(--tx-muted); font-size: 0.85rem; margin-top: 3px; }
+        .ex-es::before { content: "\201C"; }
+        .ex-es::after  { content: "\201D"; }
+
+        /* Cuadros de aviso (callouts) */
+        .callout {
+            display: flex;
+            gap: 11px;
+            padding: 12px 14px;
+            border-radius: 9px;
+            margin: 12px 0 18px;
+            font-size: 0.87rem;
+            line-height: 1.55;
+            border: 1px solid var(--tx-border);
+            background: var(--tx-surface-2);
+        }
+        .callout .callout-ico { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+        .callout .callout-body { flex: 1; min-width: 0; }
+        .callout .callout-body strong { color: var(--tx-text-strong); }
+        .callout code { background: var(--tx-surface-3); color: var(--tx-primary-2); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+        .callout--tip  { border-left: 3px solid var(--tx-green); }
+        .callout--tip  .callout-ico { color: var(--tx-green); }
+        .callout--note { border-left: 3px solid var(--tx-primary-2); }
+        .callout--note .callout-ico { color: var(--tx-primary-2); }
+        .callout--warn { border-left: 3px solid var(--tx-amber); background: rgba(224,169,79,0.06); }
+        .callout--warn .callout-ico { color: var(--tx-amber); }
+        .callout-label { font-weight: 700; letter-spacing: 0.02em; }
+
+        /* Sub-encabezado de bloque (Palabras / Frases) */
+        .block-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            margin: 18px 0 10px;
+        }
+        .block-label i { color: var(--tx-primary-2); }
+        .block-label .count { color: var(--tx-muted); font-weight: 500; letter-spacing: 0.02em; }
+
+        /* Fila de item (palabra o frase) */
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 12px;
+            border: 1px solid var(--tx-border);
+            border-radius: 10px;
+            background: var(--tx-surface-2);
+            margin-bottom: 8px;
+        }
+        .item.has-rec { border-color: rgba(55,185,121,0.4); }
+        .item-main { flex: 1; min-width: 0; }
+        .item-zap {
+            color: var(--tx-text-strong);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            word-break: break-word;
+        }
+        .item-es { color: var(--tx-muted); font-size: 0.84rem; margin: 2px 0 0; }
+        .item-gloss {
+            color: var(--tx-primary-2);
+            font-size: 0.74rem;
+            margin: 3px 0 0;
+            font-style: italic;
+            opacity: 0.85;
+            word-break: break-word;
+        }
+        .item-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+
+        .icon-btn {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--tx-border-2);
+            background: var(--tx-surface);
+            color: var(--tx-primary-2);
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.05s ease;
+            position: relative;
+        }
+        .icon-btn:hover { background: var(--tx-primary); border-color: var(--tx-primary); color: #fff; }
+        .icon-btn:active { transform: scale(0.94); }
+        .icon-btn:focus { outline: 2px solid var(--tx-accent); outline-offset: 2px; }
+        .icon-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+        .icon-btn.listen.is-playing {
+            background: var(--tx-primary); border-color: var(--tx-primary); color: #fff;
+            animation: tx-pulse 1s ease-in-out infinite;
+        }
+        .icon-btn.rec { color: var(--tx-red); border-color: var(--tx-border-2); }
+        .icon-btn.rec:hover { background: var(--tx-red); border-color: var(--tx-red); color: #fff; }
+        .icon-btn.rec.is-recording {
+            background: var(--tx-red); border-color: var(--tx-red); color: #fff;
+            animation: tx-rec-pulse 1s ease-in-out infinite;
+        }
+        .icon-btn.del { color: var(--tx-muted); }
+        .icon-btn.del:hover { background: var(--tx-red); border-color: var(--tx-red); color: #fff; }
+
+        /* Marca de "tiene grabación" */
+        .rec-badge {
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--tx-green);
+            background: rgba(55,185,121,0.12);
+            border: 1px solid rgba(55,185,121,0.3);
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-left: 2px;
+            white-space: nowrap;
+        }
+        .rec-badge.hidden { display: none; }
+
+        @keyframes tx-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(79, 143, 207, 0.5); }
+            50%      { box-shadow: 0 0 0 6px rgba(79, 143, 207, 0); }
+        }
+        @keyframes tx-rec-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(224, 85, 107, 0.55); }
+            50%      { box-shadow: 0 0 0 7px rgba(224, 85, 107, 0); }
+        }
+
+        /* Aviso al pie / fuente */
+        .source-note {
+            margin-top: 30px;
+            padding: 14px 18px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-left: 3px solid var(--tx-primary-2);
+            border-radius: 8px;
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+        .source-note strong { color: var(--tx-label); }
+
+        /* Toast simple */
+        #toast {
+            position: fixed;
+            left: 50%;
+            bottom: 26px;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--tx-surface-3);
+            color: var(--tx-text-strong);
+            border: 1px solid var(--tx-border-2);
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            box-shadow: var(--tx-shadow);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1080;
+            max-width: 90vw;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Footer */
+        .footer-basic {
+            background: transparent;
+            border-top: 1px solid var(--tx-border);
+            margin-top: 40px;
+            padding: 18px 0;
+        }
+        .footer-basic .copyright { color: var(--tx-muted); font-size: 0.82rem; margin: 0; text-align: center; }
+
+        ::selection { background: rgba(59, 130, 246, 0.45); color: var(--tx-text-strong); }
+
+        @media (max-width: 575.98px) {
+            .learn-shell { padding: 100px 14px 40px; }
+            .learn-heading h1 { font-size: 1.5rem; }
+            .level-title { font-size: 1.15rem; }
+            .item { flex-wrap: wrap; }
+            .item-actions { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html">IMAGEN</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="aprender.html">APRENDER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numeros.html">NÚMEROS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html">ANIMALES</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html">MEMORAMA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="learn-shell">
+        <header class="learn-heading">
+            <h1>Aprende a escribir Zapoteco</h1>
+            <p>Curso por niveles del Zapoteco del Istmo (<em>Diidxazá</em>): desde la escritura y los saludos
+               hasta el sistema verbal por aspecto y las oraciones complejas. Escucha cada palabra y frase, y
+               graba tu propia pronunciación (o la de un hablante nativo) directamente desde el navegador.</p>
+        </header>
+
+        <div class="learn-toolbar">
+            <span class="mic-status" id="mic-status"><span class="dot"></span><span id="mic-text">Micrófono: sin activar</span></span>
+            <button type="button" class="tool-btn" id="btn-enable-mic"><i class="fa fa-microphone" aria-hidden="true"></i> Activar micrófono</button>
+            <button type="button" class="tool-btn" id="btn-export"><i class="fa fa-download" aria-hidden="true"></i> Exportar grabaciones</button>
+            <button type="button" class="tool-btn" id="btn-import"><i class="fa fa-upload" aria-hidden="true"></i> Importar</button>
+            <input type="file" id="import-file" accept="application/json" hidden>
+        </div>
+        <p class="learn-hint">
+            El botón <i class="fa fa-volume-up" aria-hidden="true"></i> reproduce tu grabación si existe; si aún no hay,
+            usa una voz sintética en español como aproximación (no es pronunciación nativa). El botón
+            <i class="fa fa-microphone" aria-hidden="true"></i> graba; <i class="fa fa-stop" aria-hidden="true"></i> detiene y guarda.
+            Las grabaciones se guardan en este navegador (IndexedDB); usa <strong>Exportar</strong> para respaldarlas o llevarlas a otra página o dispositivo.
+        </p>
+
+        <nav class="level-nav" id="level-nav" aria-label="Niveles del curso"><!-- generado --></nav>
+
+        <div id="content-root"><!-- generado --></div>
+
+        <div class="source-note">
+            <strong>Fuente y variante.</strong> Los contenidos se derivan de la gramática del proyecto
+            (<em>Gramática del Zapoteco del Istmo · Diidxazá</em>), basada en el corpus de Nacubi research.
+            La lengua es tonal y usa cierre glotal (<code>'</code>); el tono y la glotalización cambian el
+            significado y no siempre se marcan en la escritura. Valida la pronunciación con un hablante nativo.
+        </div>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <div class="footer-basic">
+        <footer>
+            <p class="copyright">Nacubi research · <span id="anio"></span></p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // ============================================================================
+    //  CONTENIDO DEL CURSO (estilo "libro de idiomas")
+    //  Derivado de "Gramática del Zapoteco del Istmo (Diidxazá)" y del corpus del
+    //  proyecto (zapotec_corpus.csv, context_v2.csv).
+    //  Estructura: LEVELS -> lessons -> {
+    //     title, sub,
+    //     objectives: [ "html", ... ],          // "En esta lección aprenderás"
+    //     sections:  [ {type:'prose'|'table'|'examples'|'tip'|'note'|'warn', ...} ],
+    //        prose:    { title?, html }
+    //        table:    { title?, caption?, head:[...], rows:[[...],...] }
+    //        examples: { title?, items:[ {zap, gloss?, es?} ] }   // glosa interlineal
+    //        tip/note/warn: { html, label? }                       // cuadros de aviso
+    //     words:   [ {zap, es, gloss?} ],        // vocabulario (escuchar + grabar)
+    //     phrases: [ {zap, es, gloss?} ]         // frases completas (escuchar + grabar)
+    //  }
+    // ============================================================================
+    const LEVELS = [
+        {
+            id: "n1", tag: "Nivel 1", title: "Fundamentos: escritura y primeras palabras",
+            desc: "Cómo se escribe y se lee el diidxazá, saludos esenciales y los pronombres básicos. Empieza aquí.",
+            lessons: [
+                {
+                    title: "El sistema de escritura",
+                    sub: "El apóstrofo, los dígrafos y las vocales dobles",
+                    objectives: [
+                        "Reconocer el <strong>cierre glotal</strong> escrito con apóstrofo <code>'</code> y por qué cambia el significado.",
+                        "Leer los dígrafos <code>dx</code>, <code>xh</code> y <code>x</code>.",
+                        "Entender qué indican las <strong>vocales dobles</strong> y el tono.",
+                        "Leer tus primeras palabras en diidxazá."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El <strong>zapoteco del Istmo</strong> (autónimo <em>Diidxazá</em>) es una lengua <strong>tonal</strong>: la altura de la voz distingue palabras. La escritura del corpus no marca el tono de forma sistemática, así que al principio te apoyarás en el contexto.</p>
+                            <p>Lo que sí se escribe siempre es el <strong>cierre glotal</strong> (una pequeña interrupción de la voz, como el corte en el "¡oh-oh!" del español). Se representa con un apóstrofo <code>'</code> y es <em>fonémico</em>: cambia el significado.</p>` },
+                        { type: 'table', title: 'Los dígrafos', caption: 'Un dígrafo son dos letras que representan un solo sonido.',
+                          head: ['Grafía', 'Sonido aproximado', 'Ejemplo', 'Significado'],
+                          rows: [
+                            ['dx', 'africada sonora, como "ds"', 'diidxazá', 'el zapoteco'],
+                            ['xh', 'fricativa suave, como "sh"', 'Xhamigu\u2019', 'amigo'],
+                            ['x', 'fricativa "sh"', 'shianga ~ xianga', 'granizo'],
+                            ['ll / y', 'semivocal, como "y"', 'yaga', 'árbol / palo']
+                          ] },
+                        { type: 'table', title: 'El apóstrofo y las vocales dobles',
+                          head: ['Rasgo', 'Qué indica', 'Ejemplo'],
+                          rows: [
+                            ['<code>\u2019</code> (apóstrofo)', 'cierre glotal (fonémico)', 'bi\u2019cu\u2019 = perro'],
+                            ['aa, ee, oo, uu', 'vocal larga o modulación de tono', 'guuya\u2019 = que yo vea'],
+                            ['<code>\u2019</code> final', 'a veces marca la 1ª persona (yo)', 'hrushiidxe\u2019 = me río']
+                          ] },
+                        { type: 'tip', html: `El apóstrofo no es decorativo: <code>na</code> puede ser "mano" o "dice", mientras <code>na\u2019</code> es "yo". Cuando copies una palabra, copia también sus apóstrofos.` },
+                        { type: 'note', html: `Muchas palabras tienen <strong>variantes ortográficas</strong> válidas (p. ej. <em>yaase ~ yaaze</em>, <em>shianga ~ xianga</em>). Es normal; no hay una única forma "correcta".` },
+                        { type: 'examples', title: 'Lee en voz alta', items: [
+                            { zap: 'diidxazá', gloss: 'dx = "ds" · vocal doble ii', es: 'el zapoteco (la lengua)' },
+                            { zap: 'bi\u2019cu\u2019', gloss: 'dos cierres glotales', es: 'perro' },
+                            { zap: 'nisado\u2019', gloss: 'nisa (agua) + do\u2019 (grande)', es: 'mar' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "diidxazá", es: "el zapoteco (la lengua)", gloss: "autónimo de la lengua" },
+                        { zap: "bi'cu'", es: "perro", gloss: "note el cierre glotal '" },
+                        { zap: "guuya'", es: "que yo vea", gloss: "vocal larga uu + ' de 1ª persona" },
+                        { zap: "nisado'", es: "mar", gloss: "nisa (agua) + do' (grande)" },
+                        { zap: "Xhamigu'", es: "amigo", gloss: "dígrafo xh = 'sh' suave" },
+                        { zap: "bidxichi", es: "dinero", gloss: "dígrafo dx = 'ds'" },
+                        { zap: "yaga", es: "árbol / palo", gloss: "semivocal y" },
+                        { zap: "guie'", es: "flor", gloss: "cierre glotal final" }
+                    ],
+                    phrases: [
+                        { zap: "Napa' ti bi'cu yaase", es: "Tengo un perro negro" },
+                        { zap: "Guriaa nisado'", es: "A la orilla del mar" }
+                    ]
+                },
+                {
+                    title: "Saludos y cortesía",
+                    sub: "Tus primeras conversaciones",
+                    objectives: [
+                        "Saludar, despedirte y agradecer.",
+                        "Presentarte y preguntar el nombre de alguien.",
+                        "Reconocer que muchas fórmulas son fijas (se aprenden de memoria)."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Como en cualquier idioma, los saludos y las fórmulas de cortesía son <strong>expresiones fijas</strong>: no las traduzcas palabra por palabra, apréndelas como bloques. Varias son en realidad frases con estructura interna (por ejemplo <em>Diushi lii</em> = "Dios a ti").</p>` },
+                        { type: 'table', title: 'Fórmulas esenciales',
+                          head: ['Situación', 'Zapoteco', 'Español'],
+                          rows: [
+                            ['Saludar', 'Shitalsha', 'Hola, ¿cómo estás?'],
+                            ['Saludar / bendecir', 'Diushi lii', 'Saludos para ti'],
+                            ['Agradecer', 'Xquixhe pe lii', 'Muchas gracias'],
+                            ['Disculparse', 'Bi\u2019ni perdoná na\u2019', 'Perdóname'],
+                            ['Despedirse', 'Sicarú cheetu\u2019', 'Que les vaya bien']
+                          ] },
+                        { type: 'table', title: 'Presentarte',
+                          head: ['Zapoteco', 'Español', 'Literalmente'],
+                          rows: [
+                            ['Tu lálu\u2019', '¿Cómo te llamas?', 'quién nombre-tu'],
+                            ['La\u2019ya\u2019 Oscar', 'Me llamo Oscar', 'nombre-mío Oscar'],
+                            ['Panda iza nápu\u2019', '¿Cuántos años tienes?', 'cuántos años tienes-tú']
+                          ] },
+                        { type: 'tip', html: `<code>lii</code> = "tú/ti" aparece en muchas fórmulas (<em>Diushi lii</em>, <em>Xquixhe pe lii</em>). Reconocerla te ayuda a memorizar frases enteras.` },
+                        { type: 'examples', title: 'En contexto', items: [
+                            { zap: 'Xquixhe pe lii ti bedu\u2019', gloss: 'gracias · muy · a-ti · porque · llegaste', es: 'Gracias por venir' },
+                            { zap: 'Ma que\u2019 gannu nga tú láya', gloss: 'ya · no · sabes · cómo · me llamo', es: 'Ya no sabes cómo me llamo' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "Shitalsha", es: "Hola, ¿cómo estás?" },
+                        { zap: "Diushi lii", es: "Saludos para ti", gloss: "lit. 'Dios (a) ti'" },
+                        { zap: "Xquixhe pe lii", es: "Muchas gracias" },
+                        { zap: "yanna", es: "ahora" },
+                        { zap: "naguenda", es: "pronto / rápido" },
+                        { zap: "Guendanasaaca", es: "¡Salud! (bienestar)" }
+                    ],
+                    phrases: [
+                        { zap: "Tu lálu'", es: "¿Cómo te llamas?" },
+                        { zap: "La'ya' Oscar", es: "Me llamo Oscar" },
+                        { zap: "Bi'ni perdoná na'", es: "Perdóname", gloss: "lit. 'haz perdón a mí'" },
+                        { zap: "Sicarú cheetu'", es: "Que les vaya bien" },
+                        { zap: "Guyuu'nu xneza", es: "La pasamos bien" }
+                    ]
+                },
+                {
+                    title: "Pronombres personales",
+                    sub: "yo, tú, él/ella, nosotros, ustedes",
+                    objectives: [
+                        "Aprender los pronombres independientes.",
+                        "Entender que se usan sobre todo para <strong>énfasis</strong> (el sujeto normal va dentro del verbo).",
+                        "Notar que no hay género en la 3ª persona ni cambio entre sujeto y objeto."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El zapoteco tiene pronombres "libres" (palabras sueltas), pero <strong>no son el sujeto obligatorio</strong>: normalmente el sujeto se pega al final del verbo como un sufijo (lo verás en el Nivel 4). Los pronombres libres se usan para <strong>dar énfasis</strong> o marcar el tema, algo parecido a "yo, lo que es yo…" o al japonés <em>watashi wa</em>.</p>
+                            <p>Dos rasgos cómodos para quien viene del español o el inglés:</p>
+                            <ul>
+                                <li><strong>No hay caso:</strong> <code>na\u2019</code> vale "yo" y "mí" por igual.</li>
+                                <li><strong>No hay género</strong> en la 3ª persona: <code>laabe</code> es "él" y "ella".</li>
+                            </ul>` },
+                        { type: 'table', title: 'Pronombres independientes',
+                          head: ['Persona', 'Zapoteco', 'Español'],
+                          rows: [
+                            ['1.ª sing.', 'na\u2019', 'yo / mí'],
+                            ['2.ª sing.', 'lii', 'tú / ti'],
+                            ['3.ª sing. (humano)', 'laabe / lábe', 'él / ella'],
+                            ['3.ª sing. (animal)', 'láme', 'él / ella (animal)'],
+                            ['1.ª pl. (contigo)', 'lánu', 'nosotros (tú y yo)'],
+                            ['2.ª pl.', 'látu\u2019', 'ustedes'],
+                            ['reflexivo/enfático', 'laca\u2019', 'uno mismo (laca\u2019 na\u2019 = yo mismo)']
+                          ] },
+                        { type: 'note', html: `El zapoteco distingue "nosotros contigo" (<code>lánu</code>, inclusivo) de "nosotros sin ti" (exclusivo). Esa distinción se ve mejor en los sufijos del verbo (Nivel 4).` },
+                        { type: 'examples', title: 'En uso', items: [
+                            { zap: 'Na\u2019 hribie\u2019', gloss: 'yo · elijo', es: 'Yo elijo' },
+                            { zap: 'na\u2019 ne lii', gloss: 'yo · y · tú', es: 'tú y yo' },
+                            { zap: 'Laca laabe bi\u2019nibe ni', gloss: 'mismo · él · lo-hizo-él · eso', es: 'Él mismo lo hizo' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "na'", es: "yo / mí" },
+                        { zap: "lii", es: "tú / ti" },
+                        { zap: "laabe", es: "él / ella" },
+                        { zap: "lánu", es: "nosotros (tú y yo)" },
+                        { zap: "látu'", es: "ustedes" },
+                        { zap: "laca'", es: "uno mismo", gloss: "laca' na' = yo mismo" }
+                    ],
+                    phrases: [
+                        { zap: "Na' hribie'", es: "Yo elijo" },
+                        { zap: "na' ne lii", es: "yo y tú" },
+                        { zap: "Laca laabe bi'nibe ni", es: "Él mismo lo hizo" }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "n2", tag: "Nivel 2", title: "El sustantivo: artículos, número y descripción",
+            desc: "Cómo nombrar y describir cosas: el artículo 'ti', el plural 'ca', los números y los adjetivos y colores.",
+            lessons: [
+                {
+                    title: "El artículo y la definitud",
+                    sub: "ti = un/una; no existe 'el/la'",
+                    objectives: [
+                        "Usar <code>ti</code> para decir \"un/una\".",
+                        "Entender que el zapoteco <strong>no tiene artículo definido</strong> (\"el/la\").",
+                        "Marcar \"ese/este\" con demostrativos que van <em>después</em> del nombre."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Para decir "un" o "una" se antepone <code>ti</code> al nombre. Es la misma palabra que el número "uno", igual que "a/an" y "one" comparten historia en inglés.</p>
+                            <p>Lo llamativo para un hispanohablante: <strong>no hay artículo definido</strong>. No existe una palabra fija para "el/la". La idea de "definido" se deduce del contexto o se marca con un <strong>demostrativo pospuesto</strong> (<code>hri\u2019</code> "este", <code>que\u2019</code> "ese").</p>` },
+                        { type: 'table', title: 'El indefinido "ti"',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['ti yoo\u2019', 'una casa'],
+                            ['ti bi\u2019cu', 'un perro'],
+                            ['ti bere', 'una gallina'],
+                            ['ti gunaa\u2019', 'una mujer'],
+                            ['ti guie\u2019chi', 'un periódico']
+                          ] },
+                        { type: 'note', html: `Donde el español pone "el/la", el zapoteco no pone nada, o usa un demostrativo detrás del nombre. Compara: <em>"El café estaba caliente"</em> \u2192 <code>Café que nanda\u2019ni</code> (café · ese · caliente-lo).` },
+                        { type: 'examples', title: 'Definido por contexto', items: [
+                            { zap: 'Café que nanda\u2019ni', gloss: 'café · ese · está-caliente-ello', es: 'Ese/el café está caliente' },
+                            { zap: 'guisu hri\u2019', gloss: 'olla · esta', es: 'esta olla' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "ti yoo'", es: "una casa" },
+                        { zap: "ti bi'cu", es: "un perro" },
+                        { zap: "ti bere", es: "una gallina" },
+                        { zap: "ti gunaa'", es: "una mujer" },
+                        { zap: "hri'", es: "este / esta (pospuesto)" },
+                        { zap: "que'", es: "ese / aquel (pospuesto)" }
+                    ],
+                    phrases: [
+                        { zap: "Café que nanda'ni", es: "Ese/el café está caliente" },
+                        { zap: "guisu hri'", es: "esta olla" }
+                    ]
+                },
+                {
+                    title: "El número (plural)",
+                    sub: "El nombre no cambia; se antepone 'ca'",
+                    objectives: [
+                        "Formar el plural con el proclítico <code>ca</code>.",
+                        "Entender que el sustantivo <strong>nunca cambia de forma</strong>.",
+                        "Reconocer que \"ca\" se orienta a lo humano/animado."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El sustantivo zapoteco es <strong>invariable</strong>: no añade "-s" como el español o el inglés. El plural se marca con una palabrita, <code>ca</code>, <strong>antepuesta</strong> al nombre.</p>` },
+                        { type: 'table', title: 'Singular \u2192 plural',
+                          head: ['Singular', 'Plural', 'Español'],
+                          rows: [
+                            ['gunaa\u2019', 'ca gunaa\u2019', 'la(s) mujer(es)'],
+                            ['binni', 'ca binni', 'la persona / la gente'],
+                            ['xhamigu\u2019', 'ca xhamigu\u2019', 'los amigos'],
+                            ['bere', 'ca bere', 'las gallinas'],
+                            ['guiiba', 'ca guiiba', 'los instrumentos']
+                          ] },
+                        { type: 'tip', html: `El plural también se refuerza en el verbo con sufijos como <code>-cabe</code> "ellos" (Nivel 4). Así, "ca" en el nombre y "-cabe" en el verbo trabajan juntos.` },
+                        { type: 'examples', title: 'En una frase', items: [
+                            { zap: 'Ca gunaa\u2019 sti xquidxe\u2019', gloss: 'PL · mujer · de · mi-ciudad', es: 'Las mujeres de mi ciudad' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "ca gunaa'", es: "las mujeres" },
+                        { zap: "ca binni", es: "las personas / la gente" },
+                        { zap: "ca xhamigu'", es: "los amigos" },
+                        { zap: "ca bere", es: "las gallinas" }
+                    ],
+                    phrases: [
+                        { zap: "Ca gunaa' sti xquidxe'", es: "Las mujeres de mi ciudad" }
+                    ]
+                },
+                {
+                    title: "Los números",
+                    sub: "El número va antes del nombre; base 20",
+                    objectives: [
+                        "Contar del 1 al 10.",
+                        "Colocar el número <strong>antes</strong> del sustantivo, sin clasificador.",
+                        "Saber que el sistema es <strong>vigesimal</strong> (base 20)."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El numeral va <strong>delante</strong> del nombre y este no cambia: <code>ti bi\u2019cu</code> (un perro), <code>chuppa nguiiu</code> (dos hombres). A diferencia del chino o el japonés, <strong>no se usa clasificador</strong> entre número y nombre.</p>
+                            <p>El sistema es de <strong>base 20</strong> (vigesimal), como en otras lenguas mesoamericanas: los números altos se agrupan de veinte en veinte.</p>` },
+                        { type: 'table', title: 'Del 1 al 10 (y el 20)',
+                          head: ['Número', 'Zapoteco'],
+                          rows: [
+                            ['1', 'tobi / ti'],
+                            ['2', 'chuppa'],
+                            ['3', 'chonna'],
+                            ['4', 'tapa'],
+                            ['5', 'gaayu\u2019'],
+                            ['6', 'xho\u2019pa\u2019'],
+                            ['7', 'gadxe'],
+                            ['8', 'xhono'],
+                            ['9', 'ga\u2019'],
+                            ['10', 'chii'],
+                            ['20', 'gande']
+                          ] },
+                        { type: 'note', html: `El corpus documenta con claridad la serie baja (hasta ~10) más algunas decenas. Para cifras altas conviene validar con una gramática de referencia o un hablante nativo.` },
+                        { type: 'examples', title: 'Contar cosas', items: [
+                            { zap: 'ti bi\u2019cu', gloss: 'uno · perro', es: 'un perro' },
+                            { zap: 'chuppa nguiiu', gloss: 'dos · hombre', es: 'dos hombres' },
+                            { zap: 'chonna biaje', gloss: 'tres · vez', es: 'tres veces' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "tobi", es: "uno" },
+                        { zap: "chuppa", es: "dos" },
+                        { zap: "chonna", es: "tres" },
+                        { zap: "tapa", es: "cuatro" },
+                        { zap: "gaayu'", es: "cinco" },
+                        { zap: "chii", es: "diez" }
+                    ],
+                    phrases: [
+                        { zap: "chuppa nguiiu", es: "dos hombres" },
+                        { zap: "chonna biaje", es: "tres veces" }
+                    ]
+                },
+                {
+                    title: "Adjetivos y colores",
+                    sub: "El adjetivo va después del nombre",
+                    objectives: [
+                        "Colocar el adjetivo <strong>después</strong> del sustantivo.",
+                        "Aprender adjetivos frecuentes.",
+                        "Distinguir el color <em>atributivo</em> (\"flor roja\") del <em>predicativo</em> (\"es roja\") con <code>na-</code>."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Igual que en español, el adjetivo va <strong>detrás</strong> del nombre: <code>guie\u2019 sicarú</code> (flor hermosa), <code>bi\u2019cu yaase</code> (perro negro). El único que va delante es el numeral (Lección anterior).</p>
+                            <p>Los colores tienen <strong>dos formas</strong>. Cuando describen a un nombre, van desnudos y detrás (atributivo). Cuando son el predicado ("X es rojo"), se comportan como <strong>verbos de estado</strong> y toman el prefijo <code>na-</code> más el sufijo de persona.</p>` },
+                        { type: 'table', title: 'Adjetivos frecuentes',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['sicarú / sicarí\u2019', 'hermoso, bonito'],
+                            ['nadípa', 'fuerte'],
+                            ['ngola / hro\u2019', 'grande'],
+                            ['huiini', 'pequeño'],
+                            ['naguenda', 'rápido / pronto'],
+                            ['galan', 'bueno']
+                          ] },
+                        { type: 'table', title: 'Colores: atributivo vs. predicativo',
+                          caption: 'Atributivo = tras el nombre, sin prefijo · Predicativo = "es (color)", con na-.',
+                          head: ['Color', 'Atributivo', 'Predicativo (na- + …)'],
+                          rows: [
+                            ['rojo', 'xhiñaa\u2019', 'naxhiñaa\u2019'],
+                            ['blanco', 'qui\u2019chi', 'naquichi-'],
+                            ['negro', 'yaase', 'nayaase-'],
+                            ['verde', 'yaa\u2019', 'naya\u2019'],
+                            ['amarillo', 'guchi\u2019', 'naguchi']
+                          ] },
+                        { type: 'tip', html: `Recuerda el orden: <strong>numeral + nombre + adjetivo(s)</strong>. Ej. <code>ti bi\u2019cu yaase</code> = "un perro negro"; <code>bi\u2019cu yaase ngola</code> = "perro negro grande".` },
+                        { type: 'examples', title: 'Describir', items: [
+                            { zap: 'Guie\u2019 sicarú', gloss: 'flor · hermosa', es: 'Flor hermosa' },
+                            { zap: 'Bi\u2019cu yaase ngola', gloss: 'perro · negro · grande', es: 'Perro negro grande' },
+                            { zap: 'Nayaase ca guielúlu\u2019', gloss: 'STAT-negro · PL · ojo-tuyo', es: 'Son negros tus ojos' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "sicarú", es: "hermoso, bonito" },
+                        { zap: "nadípa", es: "fuerte" },
+                        { zap: "ngola", es: "grande" },
+                        { zap: "xhiñaa'", es: "rojo" },
+                        { zap: "qui'chi", es: "blanco" },
+                        { zap: "yaase", es: "negro" }
+                    ],
+                    phrases: [
+                        { zap: "Guie' sicarú", es: "Flor hermosa" },
+                        { zap: "Bi'cu yaase ngola", es: "Perro negro grande" },
+                        { zap: "Nayaase ca guielúlu'", es: "Son negros tus ojos" }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "n3", tag: "Nivel 3", title: "El verbo y el orden de la oración",
+            desc: "El corazón de la lengua: el verbo va primero (VSO) y se conjuga por ASPECTO (cómo transcurre la acción), no por tiempo.",
+            lessons: [
+                {
+                    title: "El orden VSO",
+                    sub: "Verbo – Sujeto – Objeto",
+                    objectives: [
+                        "Poner el <strong>verbo al inicio</strong> de la oración.",
+                        "Colocar el sujeto y el objeto <em>después</em> del verbo.",
+                        "Reconocer que el sujeto pronominal se pega al verbo."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Mientras el español y el inglés ordenan Sujeto–Verbo–Objeto, el zapoteco pone el <strong>Verbo primero</strong> (orden VSO). El sujeto pronominal no es una palabra aparte: va <strong>sufijado</strong> al verbo. Si el sujeto es un sustantivo pleno, va justo después del verbo.</p>` },
+                        { type: 'table', title: 'La oración pieza por pieza',
+                          head: ['Verbo (+ sujeto)', 'Sujeto/Objeto', 'Traducción'],
+                          rows: [
+                            ['Napabe\u2019', 'stipa', 'Él tiene fuerza'],
+                            ['Bii\u2019ticabe\u2019', 'ti yuuse', 'Ellos mataron una res'],
+                            ['Bidiibe\u2019', 'stipa na\u2019', 'Él me dio fuerza'],
+                            ['Cayaba', 'nisaguie', 'Está lloviendo (cae lluvia)']
+                          ] },
+                        { type: 'note', html: `Casi todos los <strong>modificadores van después</strong> del núcleo: adjetivo (<em>bi\u2019cu yaase</em>), demostrativo (<em>guisu hri\u2019</em>), poseedor (<em>stipa sti binnizá</em>). La excepción es el <strong>numeral</strong>, que va antes (<em>ti bi\u2019cu</em>).` },
+                        { type: 'examples', title: 'Glosa interlineal', items: [
+                            { zap: 'Napabe\u2019 stipa', gloss: 'tener-3SG.H · fuerza', es: 'Él tiene fuerza' },
+                            { zap: 'Bii\u2019ticabe\u2019 ti yuuse', gloss: 'matar-3PL.H · una · res', es: 'Ellos mataron una res' },
+                            { zap: 'Cayaba nisaguie', gloss: 'PROG-caer · lluvia', es: 'Está lloviendo' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "stipa", es: "fuerza" },
+                        { zap: "yuuse", es: "res" },
+                        { zap: "gunaa'", es: "mujer" },
+                        { zap: "nisaguie", es: "lluvia" }
+                    ],
+                    phrases: [
+                        { zap: "Napabe' stipa", es: "Él tiene fuerza", gloss: "tener-él fuerza" },
+                        { zap: "Bii'ticabe' ti yuuse", es: "Ellos mataron una res" },
+                        { zap: "Cayaba nisaguie", es: "Está lloviendo", gloss: "cae lluvia (V + S)" }
+                    ]
+                },
+                {
+                    title: "Aspecto, no tiempo",
+                    sub: "El presente / habitual (hr-)",
+                    objectives: [
+                        "Entender la idea de <strong>aspecto</strong> (cómo transcurre la acción) frente a tiempo.",
+                        "Conocer de un vistazo los prefijos de aspecto.",
+                        "Formar el <strong>habitual/presente</strong> con <code>hr-</code>."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Aquí está la gran diferencia con el español: el verbo zapoteco <strong>no se conjuga por tiempo</strong> (pasado/presente/futuro) sino por <strong>aspecto</strong>, es decir, por <em>cómo</em> ocurre la acción (habitual, en curso, terminada, deseada…). El aspecto se marca con un <strong>prefijo</strong> y la persona con un <strong>sufijo</strong>:</p>
+                            <ul><li><strong>Prefijo de aspecto + raíz + sufijo de persona</strong></li></ul>` },
+                        { type: 'table', title: 'Los prefijos de aspecto (panorama)',
+                          caption: 'Tabla de referencia: la usarás en las siguientes lecciones.',
+                          head: ['Prefijo', 'Aspecto', 'Ejemplo', 'Significado'],
+                          rows: [
+                            ['hr- / r-', 'habitual / presente', 'hroocabe', '(ellos) comen'],
+                            ['ca- / cay-', 'progresivo (en curso)', 'cayuuya\u2019', 'estoy viendo'],
+                            ['bi- / gu-', 'completivo (pasado)', 'biya\u2019', '(yo) vi'],
+                            ['gu- / g-', 'potencial (subjuntivo)', 'guuya\u2019', 'que (yo) vea'],
+                            ['z- / zi-', 'futuro', 'zuuyadxíe', 'miraré'],
+                            ['ñ-', 'irrealis / condicional', 'ñuuyalu\u2019', 'si vieras'],
+                            ['na- / nu-', 'estativo (ser/estar/haber)', 'napa\u2019 · nuu', 'tengo · hay'],
+                            ['chi-', 'andativo (ir a)', 'chaa\u2019', '(yo) voy'],
+                            ['beda', 'venitivo (venir a)', 'beda guuya\u2019', 'vine a ver']
+                          ] },
+                        { type: 'prose', title: 'El habitual / presente', html: `
+                            <p>El aspecto <strong>habitual</strong> (acciones generales o presentes) usa el prefijo <code>ri-/hr-</code>. Es el "presente simple" del zapoteco: <code>hroocabe</code> "(ellos) comen", <code>hriuladxe\u2019</code> "me gusta".</p>` },
+                        { type: 'examples', title: 'Habitual', items: [
+                            { zap: 'Hroocabe', gloss: 'HAB-comer-3PL.H', es: '(Ellos) comen' },
+                            { zap: 'Hrui\u2019 diidxa', gloss: 'HAB-decir · palabra', es: '(Él) habla / cuenta' },
+                            { zap: 'Hriula\u2019dxe\u2019', gloss: 'HAB-gustar-1SG', es: 'Me gusta' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "hriuladxe'", es: "me gusta" },
+                        { zap: "hrudiee'", es: "(yo) doy" },
+                        { zap: "hruunda", es: "(él) lee" },
+                        { zap: "hroocabe", es: "(ellos) comen" }
+                    ],
+                    phrases: [
+                        { zap: "Hroocabe", es: "(Ellos) comen" },
+                        { zap: "Hrui' diidxa", es: "(Él) habla / cuenta", gloss: "dice palabra" }
+                    ]
+                },
+                {
+                    title: "El pasado (completivo)",
+                    sub: "Acción terminada · bi- / gu-",
+                    objectives: [
+                        "Formar el pasado con <code>bi-</code> o <code>gu-</code>.",
+                        "Reconocer el pasado en distintas personas.",
+                        "Saber que hay un solo pasado (cubre \"vi\" y \"he visto\")."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El <strong>completivo</strong> expresa una acción terminada (el "pretérito"). Usa los prefijos <code>bi-/b-</code> o <code>gu-/gud-</code>; cuál de los dos depende de la clase del verbo. Como el zapoteco tiene un solo pasado, <code>biya\u2019</code> cubre tanto "te vi" como "te he visto".</p>` },
+                        { type: 'table', title: 'El completivo con distintas personas',
+                          head: ['Zapoteco', 'Análisis', 'Español'],
+                          rows: [
+                            ['biya\u2019', 'bi-ya-a\u2019 (COMP-ver-1SG)', '(yo) vi'],
+                            ['guyaa\u2019', 'gu-yaa-a\u2019 (COMP-ir-1SG)', '(yo) fui'],
+                            ['bi\u2019nibe', 'bi-\u2019ni-be\u2019 (COMP-hacer-3SG.H)', '(él) hizo'],
+                            ['bii\u2019ticabe\u2019', 'bi-i\u2019ti-cabe\u2019 (COMP-matar-3PL.H)', '(ellos) mataron'],
+                            ['biasatu\u2019', 'bi-asa-tu\u2019 (COMP-levantarse-2PL)', '(ustedes) se levantaron']
+                          ] },
+                        { type: 'examples', title: 'En contexto', items: [
+                            { zap: 'Dxi biya\u2019 lii', gloss: 'día · COMP-ver-1SG · 2SG', es: 'El día que te vi' },
+                            { zap: 'Bidiibe\u2019 stipa na\u2019', gloss: 'COMP-dar-3SG.H · fuerza · 1SG', es: 'Él me dio fuerza' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "biya'", es: "(yo) vi" },
+                        { zap: "guyaa'", es: "(yo) fui" },
+                        { zap: "guzulua'", es: "(yo) comencé" },
+                        { zap: "biganna'", es: "(yo) visité" }
+                    ],
+                    phrases: [
+                        { zap: "Dxi biya' lii", es: "El día que te vi" },
+                        { zap: "Bidiibe' stipa na'", es: "Él me dio fuerza" }
+                    ]
+                },
+                {
+                    title: "Futuro y progresivo",
+                    sub: "Lo que ocurrirá (z-) y lo que está en curso (ca-)",
+                    objectives: [
+                        "Formar el futuro con <code>z-/zi-</code> y conjugarlo por persona.",
+                        "Formar el progresivo con <code>ca-/cay-</code>.",
+                        "Combinar <code>ma</code> \"ya\" con el futuro para el futuro inminente."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El <strong>futuro</strong> definido usa <code>z-/zi-</code>. Aquí ves con claridad la fórmula del zapoteco: el <strong>inicio</strong> marca el aspecto y el <strong>final</strong> marca la persona. Observa el mismo verbo "mirar" (raíz <em>-uuyadxí</em>) recorriendo todas las personas:</p>` },
+                        { type: 'table', title: 'Paradigma del futuro: "mirar"',
+                          head: ['Persona', 'Zapoteco', 'Español'],
+                          rows: [
+                            ['yo', 'Zuuyadxíe', 'miraré'],
+                            ['tú', 'Zuuyadxílu / Zuuyadxíu', 'mirarás'],
+                            ['él/ella', 'Zuuyadxíbe', 'mirará'],
+                            ['nosotros', 'Zuuyadxinu', 'miraremos'],
+                            ['ustedes', 'Zuuyadxítu', 'ustedes mirarán'],
+                            ['ellos', 'Zuuyadxícabe', 'ellos mirarán']
+                          ] },
+                        { type: 'prose', title: 'El progresivo', html: `
+                            <p>El <strong>progresivo</strong> (acción en curso, "estoy -ndo") usa <code>ca-/cay-</code>: <code>cayuuya\u2019 lii</code> "te estoy viendo".</p>` },
+                        { type: 'table', title: 'Progresivo (en curso)',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['cayuuya\u2019 lii', 'te estoy viendo'],
+                            ['cayoocabe\u2019', 'están comiendo'],
+                            ['cayaca dxiña\u2019', 'está trabajando'],
+                            ['cayuuna', 'está llorando']
+                          ] },
+                        { type: 'tip', html: `<code>ma</code> significa "ya". Con el futuro da el matiz "ya voy a…": <code>Ma ziguuya\u2019 lii</code> = "ya voy a verte".` }
+                    ],
+                    words: [
+                        { zap: "zuuyadxíe", es: "miraré" },
+                        { zap: "ziunu'", es: "(nosotros) iremos" },
+                        { zap: "za'tibe'", es: "(él) morirá" },
+                        { zap: "cayuuna", es: "está llorando" },
+                        { zap: "cayaca dxiña'", es: "está trabajando" }
+                    ],
+                    phrases: [
+                        { zap: "Za'tibe'", es: "(Él) morirá" },
+                        { zap: "Cayuuya' lii", es: "Te estoy viendo" },
+                        { zap: "Ma ziguuya' lii", es: "Ya voy a verte" }
+                    ]
+                },
+                {
+                    title: "Leer cualquier verbo",
+                    sub: "El inicio dice el tiempo; el final, la persona",
+                    objectives: [
+                        "Descomponer un verbo en <strong>prefijo + raíz + sufijo</strong>.",
+                        "Ver la misma raíz cambiar de aspecto.",
+                        "Adquirir una estrategia para \"leer\" verbos nuevos."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Ya tienes las piezas. La estrategia práctica para entender un verbo que no conoces es mirar sus <strong>extremos</strong>: el <strong>inicio</strong> te dice el aspecto (cuándo/cómo) y el <strong>final</strong> te dice la persona (quién). Mira una sola raíz, <em>-uuya-</em> "ver", a través de los aspectos:</p>` },
+                        { type: 'table', title: 'Una raíz, todos los aspectos: "ver"',
+                          head: ['Aspecto', 'Forma', 'Español'],
+                          rows: [
+                            ['habitual', 'hruu\u2019yu', 'ves'],
+                            ['progresivo', 'cayuuya\u2019', 'te estoy viendo'],
+                            ['completivo', 'biya\u2019', 'vi'],
+                            ['potencial', 'guuya\u2019', 'que vea'],
+                            ['futuro', 'zuuyadxíe', 'miraré'],
+                            ['irrealis', 'ñuuyalu\u2019', 'si vieras']
+                          ] },
+                        { type: 'table', title: 'Descomposición: inicio + raíz + final',
+                          head: ['Palabra', 'Inicio (aspecto)', 'Raíz', 'Final (persona)'],
+                          rows: [
+                            ['zuuyadxícabe', 'z- (futuro)', 'uuyadxí (mirar)', '-cabe (ellos)'],
+                            ['biya\u2019', 'bi- (pasado)', 'ya (ver)', '-a\u2019 (yo)'],
+                            ['napabe\u2019', 'na- (estativo)', 'pa (tener)', '-be\u2019 (él)']
+                          ] },
+                        { type: 'warn', html: `Es una <strong>guía</strong>, no una regla infalible: <code>gu-</code> y <code>bi-</code> se solapan en el pasado, y <code>gu-</code> también sirve de potencial. La negación puede cambiar la raíz (<em>napa- \u2192 gapa-</em>). Confírmalo con el contexto.` }
+                    ],
+                    words: [
+                        { zap: "guuya'", es: "que (yo) vea", gloss: "potencial" },
+                        { zap: "ñuuyalu'", es: "si (tú) vieras", gloss: "irrealis" },
+                        { zap: "hruu'yu", es: "(tú) ves", gloss: "habitual" }
+                    ],
+                    phrases: [
+                        { zap: "Beda guuya' lii", es: "Vine a verte", gloss: "venir + potencial" },
+                        { zap: "Chiganna' stiaya'", es: "Voy a visitar a mi tía", gloss: "andativo chi-" }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "n4", tag: "Nivel 4", title: "Pronombres sufijados y posesión",
+            desc: "Cómo el sujeto vive dentro del verbo (sufijos de persona) y cómo se dice 'mío/tuyo': posesión inalienable y alienable.",
+            lessons: [
+                {
+                    title: "Los sufijos de persona",
+                    sub: "El final del verbo dice QUIÉN",
+                    objectives: [
+                        "Aprender el juego completo de sufijos de sujeto.",
+                        "Distinguir \"nosotros contigo\" (<code>-nu</code>) de \"nosotros sin ti\" (<code>-du</code>).",
+                        "Conjugar un verbo por persona."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Este es el mecanismo central de la conjugación. La persona que hace la acción (el sujeto) se añade al verbo como <strong>sufijo</strong>. No hace falta pronombre suelto.</p>
+                            <p>Dos cosas que no existen en español: el zapoteco distingue un "nosotros" <strong>inclusivo</strong> (te incluye) de uno <strong>exclusivo</strong> (te deja fuera), y separa la 3.ª persona en tres clases según sea humano, animal o cosa.</p>` },
+                        { type: 'table', title: 'Sufijos de persona (sujeto)',
+                          head: ['Persona', 'Sufijo', 'Ejemplo', 'Significado'],
+                          rows: [
+                            ['1.ª sing. (yo)', '-a\u2019 / -e\u2019 / -ya\u2019', 'napa\u2019', 'tengo'],
+                            ['2.ª sing. (tú)', '-lu\u2019 / -u\u2019', 'napu\u2019', 'tienes'],
+                            ['3.ª sing. humano', '-be\u2019', 'napabe\u2019', 'él/ella tiene'],
+                            ['3.ª sing. animal', '-me', 'napa\u2019 láme', 'lo tengo (animal)'],
+                            ['3.ª sing. cosa', '-ni', 'za\u2019tini', 'eso morirá'],
+                            ['1.ª pl. incl. (tú y yo)', '-nu', 'nacanu\u2019', 'somos'],
+                            ['1.ª pl. excl. (sin ti)', '-du', 'gunidu\u2019', 'hablamos'],
+                            ['2.ª pl. (ustedes)', '-tu', 'zuuyadxítu', 'mirarán'],
+                            ['3.ª pl. humano', '-cabe', 'hroocabe', 'comen'],
+                            ['3.ª pl. animal', '-came', 'hradxi\u2019came', 'maman']
+                          ] },
+                        { type: 'table', title: 'Conjugar "tener" (raíz -pa-, estativo na-)',
+                          head: ['Zapoteco', 'Análisis', 'Español'],
+                          rows: [
+                            ['napa\u2019', 'na-pa-a\u2019', 'tengo'],
+                            ['napu\u2019', 'na-p-u\u2019', 'tienes'],
+                            ['napabe\u2019', 'na-pa-be\u2019', 'él/ella tiene'],
+                            ['napanu', 'na-pa-nu', 'tenemos (tú y yo)'],
+                            ['napatu\u2019', 'na-pa-tu\u2019', 'ustedes tienen']
+                          ] },
+                        { type: 'warn', html: `El verbo "tener" es defectivo: usa la raíz <em>-apa</em> en el estativo (<code>napa-</code>) pero <em>gapa-</em> en la negación/potencial: <code>Qui gapu\u2019 stipa</code> = "no tienes fuerza".` }
+                    ],
+                    words: [
+                        { zap: "napa'", es: "(yo) tengo", gloss: "-a' = 1ª sing." },
+                        { zap: "napu'", es: "(tú) tienes", gloss: "-u' = 2ª sing." },
+                        { zap: "napabe'", es: "(él/ella) tiene", gloss: "-be' = 3ª humano" },
+                        { zap: "gunidu'", es: "(nosotros, sin ti) hablamos", gloss: "-du = excl." },
+                        { zap: "nacanu'", es: "(nosotros, tú y yo) somos", gloss: "-nu = incl." },
+                        { zap: "hroocabe", es: "(ellos) comen", gloss: "-cabe = 3ª pl. humano" }
+                    ],
+                    phrases: [
+                        { zap: "Napa' stipa", es: "Tengo fuerza" },
+                        { zap: "Nacanu' tobisi' na' ne lii", es: "Tú y yo somos una misma cosa" }
+                    ]
+                },
+                {
+                    title: "Humano, animal o cosa",
+                    sub: "Las tres clases de 3.ª persona",
+                    objectives: [
+                        "Elegir el pronombre correcto según sea persona, animal o cosa.",
+                        "Reconocer <code>-be\u2019</code>, <code>-me</code> y <code>-ni</code> en el verbo.",
+                        "Notar que esta distinción es más fina que \"él/ella/ello\"."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El zapoteco gramaticaliza algo poco común: la 3.ª persona cambia según el referente sea <strong>humano</strong>, <strong>animal</strong> o <strong>cosa</strong>. Es una sensibilidad a la "animacidad" más detallada que el "it" del inglés.</p>` },
+                        { type: 'table', title: 'Las tres clases',
+                          head: ['Clase', 'Singular', 'Plural', 'Ejemplo'],
+                          rows: [
+                            ['Humano', '-be\u2019', '-cabe', 'napabe\u2019 = él tiene'],
+                            ['Animal', '-me', '-came', 'cushuusheme = lo destroza (un animal)'],
+                            ['Cosa', '-ni', '-ni', 'za\u2019tini = eso morirá']
+                          ] },
+                        { type: 'note', html: `El pronombre libre para animal es <code>láme</code>: <code>Napa\u2019 láme</code> = "lo tengo (a un animal)". No lo confundas con el adjetivo <em>me\u2019cu</em> "pinto/manchado".` },
+                        { type: 'examples', title: 'Cada clase', items: [
+                            { zap: 'Qui zannabe\u2019', gloss: 'NEG · FUT-saber-3SG.H', es: 'Él no sabrá' },
+                            { zap: 'Napa\u2019 láme', gloss: 'tener-1SG · 3SG.A', es: 'Lo tengo (a un animal)' },
+                            { zap: 'Qui za\u2019tini', gloss: 'NEG · FUT-morir-3SG.I', es: 'Eso no morirá' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "laabe", es: "él / ella (humano)", gloss: "clase humana" },
+                        { zap: "láme", es: "él / ella (animal)", gloss: "clase animal" },
+                        { zap: "-ni", es: "ello / eso (cosa)", gloss: "clase inanimada" },
+                        { zap: "mani'", es: "animal", gloss: "sustantivo genérico" }
+                    ],
+                    phrases: [
+                        { zap: "Napa' láme", es: "Lo tengo (a un animal)", gloss: "clase animal -me" },
+                        { zap: "Qui za'tini", es: "Eso no morirá", gloss: "clase cosa -ni" },
+                        { zap: "Nganga lácame", es: "Esos son los animales" }
+                    ]
+                },
+                {
+                    title: "La posesión",
+                    sub: "Inalienable (sufijo) vs. alienable (prefijo xti-)",
+                    objectives: [
+                        "Marcar la posesión de partes del cuerpo y parentesco con un sufijo.",
+                        "Marcar la posesión de cosas adquiridas con el prefijo <code>xti-/sti-</code>.",
+                        "Decir \"tener\" con el verbo <code>napa-</code>."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El zapoteco separa dos tipos de posesión, como hacen varias lenguas del mundo:</p>
+                            <ul>
+                                <li><strong>Inalienable</strong> (lo que "no se elige": cuerpo, familia): el poseedor va como <strong>sufijo directo</strong> sobre el nombre. <code>na</code> "mano" \u2192 <code>nalu\u2019</code> "tu mano".</li>
+                                <li><strong>Alienable</strong> (cosas que se adquieren): usa el prefijo <code>xti-/sti-</code>. <code>xtiidxanu\u2019</code> "nuestro idioma".</li>
+                            </ul>` },
+                        { type: 'table', title: 'Posesión inalienable (sufijo directo)',
+                          head: ['Base', 'Poseído', 'Español'],
+                          rows: [
+                            ['na (mano)', 'nalu\u2019', 'tu mano'],
+                            ['ñee (pie)', 'ñeelu\u2019', 'tu pie'],
+                            ['íque (cabeza)', 'íquebe', 'su cabeza'],
+                            ['stia (tía)', 'stiaya\u2019', 'mi tía'],
+                            ['ladxido\u2019 (alma)', 'ladxido\u2019be', 'su alma']
+                          ] },
+                        { type: 'table', title: 'Posesión alienable (prefijo xti-/sti-)',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['xquidxe\u2019', 'mi ciudad'],
+                            ['xtipalu\u2019', 'tu fuerza'],
+                            ['xtiidxanu\u2019', 'nuestro idioma'],
+                            ['bidxichi\u2019 stilu', 'tu dinero'],
+                            ['stidu', 'lo nuestro (excl.)']
+                          ] },
+                        { type: 'tip', html: `Para "tener algo" no se usa el posesivo sino el verbo estativo <code>napa-</code> (Lección 1): <code>Napa\u2019 ti bi\u2019cu</code> = "tengo un perro".` },
+                        { type: 'examples', title: 'En una frase', items: [
+                            { zap: 'Qui za\u2019ti xtiidxanu\u2019', gloss: 'NEG · FUT-morir · POSS-idioma-1PL.IN', es: 'No morirá nuestro idioma' },
+                            { zap: 'Stipa sti binnizá', gloss: 'fuerza · de · zapotecos', es: 'El poder de los zapotecos' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "nalu'", es: "tu mano", gloss: "na + -lu'" },
+                        { zap: "stiaya'", es: "mi tía" },
+                        { zap: "xtipalu'", es: "tu fuerza" },
+                        { zap: "bidxichi' stilu", es: "tu dinero" },
+                        { zap: "xtiidxanu'", es: "nuestro idioma" }
+                    ],
+                    phrases: [
+                        { zap: "Qui za'ti xtiidxanu'", es: "No morirá nuestro idioma" },
+                        { zap: "Stipa sti binnizá", es: "El poder de los zapotecos" }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "n5", tag: "Nivel 5", title: "Preguntas y negación",
+            desc: "Cómo preguntar (palabra interrogativa al frente, y la partícula final 'la' para sí/no) y cómo negar con 'qui' y 'cadi'.",
+            lessons: [
+                {
+                    title: "Hacer preguntas",
+                    sub: "Interrogativo al frente; 'la'' al final para sí/no",
+                    objectives: [
+                        "Aprender las palabras interrogativas.",
+                        "Formar preguntas de <strong>sí/no</strong> añadiendo <code>la\u2019</code> al final.",
+                        "Notar que el orden de la oración no cambia al preguntar."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Hay dos tipos de pregunta. Las de <strong>información</strong> empiezan con una palabra interrogativa (¿dónde?, ¿qué?…) puesta al frente, y el resto mantiene el orden VSO.</p>
+                            <p>Las de <strong>sí/no</strong> son muy fáciles: tomas la afirmación y le añades la partícula <code>la\u2019</code> al final. No cambias nada más. Es idéntico al 吗 (ma) del chino.</p>` },
+                        { type: 'table', title: 'Palabras interrogativas',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['Paraa', '¿dónde?'],
+                            ['Pa neza', '¿por dónde?'],
+                            ['Shi / Ana shi', '¿qué?'],
+                            ['Tu', '¿quién?'],
+                            ['Pabia\u2019 / Panda', '¿cuánto?'],
+                            ['Pora', '¿qué hora? / ¿a qué hora?'],
+                            ['Padé', '¿de dónde?']
+                          ] },
+                        { type: 'table', title: 'Afirmación \u2192 pregunta de sí/no (+ la\u2019)',
+                          head: ['Afirmación', 'Pregunta'],
+                          rows: [
+                            ['Hrini\u2019lu\u2019 inglés (hablas inglés)', 'Hrini\u2019lu\u2019 inglés la\u2019'],
+                            ['Zoolo\u2019 (comerás)', 'Zoolo\u2019 la\u2019'],
+                            ['Zanda guuya\u2019 lii (puedo verte)', 'Zanda guuya\u2019 lii la\u2019']
+                          ] },
+                        { type: 'examples', title: 'Preguntas frecuentes', items: [
+                            { zap: 'Paraa nga nuulu\u2019', gloss: 'dónde · FOC · estar-2SG', es: '¿Dónde estás?' },
+                            { zap: 'Tu lálu\u2019', gloss: 'quién · nombre-tuyo', es: '¿Cómo te llamas?' },
+                            { zap: 'Panda iza nápu\u2019', gloss: 'cuántos · años · tienes-2SG', es: '¿Cuántos años tienes?' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "Paraa", es: "¿dónde?" },
+                        { zap: "Shi", es: "¿qué?" },
+                        { zap: "Pabia'", es: "¿cuánto? / qué tanto" },
+                        { zap: "Tu", es: "¿quién?" },
+                        { zap: "la'", es: "partícula de sí/no (al final)" }
+                    ],
+                    phrases: [
+                        { zap: "Paraa nga nuulu'", es: "¿Dónde estás?" },
+                        { zap: "Hrini'lu' inglés la'", es: "¿Hablas inglés?" },
+                        { zap: "Panda iza nápu'", es: "¿Cuántos años tienes?" },
+                        { zap: "Pa neza chunu'", es: "¿Por dónde vamos?" }
+                    ]
+                },
+                {
+                    title: "La negación",
+                    sub: "qui (no) y cadi (no es / prohibición)",
+                    objectives: [
+                        "Negar una acción con <code>qui</code>.",
+                        "Negar identidad y dar prohibiciones con <code>cadi</code>.",
+                        "Conocer los negativos léxicos (nada, nadie)."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El zapoteco tiene dos negaciones principales, según qué niegues:</p>
+                            <ul>
+                                <li><code>qui</code> + verbo: niega la acción. <code>Qui hriuladxe\u2019</code> = "no me gusta". A menudo empuja el verbo al irrealis.</li>
+                                <li><code>cadi</code>: niega identidad ("no es") y forma prohibiciones ("no + mandato"). <code>Cadi gu\u2019nalu\u2019</code> = "no llores".</li>
+                            </ul>` },
+                        { type: 'table', title: 'Las dos negaciones y los negativos',
+                          head: ['Palabra', 'Uso', 'Ejemplo'],
+                          rows: [
+                            ['qui / que', 'negar el verbo', 'Qui za\u2019ti = no morirá'],
+                            ['cadi', 'no es / prohibición', 'Cadi stipa = no es la fuerza'],
+                            ['gasti\u2019', 'nada / no hay', 'Gasti\u2019 náca = no importa'],
+                            ['garuti\u2019', 'nadie', 'Garuti\u2019 hrulabi = nadie se compadece'],
+                            ['gabati\u2019', 'a ningún lado', 'Gabati\u2019 ziunu\u2019 = no iremos a ningún lado']
+                          ] },
+                        { type: 'warn', html: `La negación puede <strong>cambiar la forma del verbo</strong>. Por ejemplo "tener" pasa de <code>napu\u2019</code> (afirmativo) a <code>gapu\u2019</code> con <code>qui</code>: <code>Qui gapu\u2019 stipa</code> = "no tienes fuerza".` },
+                        { type: 'examples', title: 'Negar y prohibir', items: [
+                            { zap: 'Qui gapu\u2019 stipa', gloss: 'NEG · POT.tener-2SG · fuerza', es: 'No tienes fuerza' },
+                            { zap: 'Cadi gu\u2019nalu\u2019', gloss: 'NEG · llorar-2SG', es: '¡No llores!' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "qui", es: "no", gloss: "niega el verbo" },
+                        { zap: "cadi", es: "no / no es", gloss: "identidad / prohibición" },
+                        { zap: "gasti'", es: "nada / no hay" },
+                        { zap: "garuti'", es: "nadie" }
+                    ],
+                    phrases: [
+                        { zap: "Qui gapu' stipa", es: "No tienes fuerza" },
+                        { zap: "Cadi gu'nalu'", es: "No llores" }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "n6", tag: "Nivel 6", title: "Oraciones complejas y frases útiles",
+            desc: "Une cláusulas con conectores (cuando, si, aunque, porque) y practica frases completas de la vida diaria.",
+            lessons: [
+                {
+                    title: "Unir oraciones",
+                    sub: "cuando, si, aunque, porque, y",
+                    objectives: [
+                        "Enlazar dos ideas con conectores.",
+                        "Recordar que la cláusula subordinada suele ir <strong>primero</strong>.",
+                        "Tener un \"kit\" de conectores a mano."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>Hasta ahora has hecho oraciones de una sola idea. Para unir dos (\"cuando sepas, empezarás\"), el zapoteco usa conectores, y por lo general pone la <strong>cláusula subordinada primero</strong> y la principal después.</p>
+                            <p>Dato útil: la cláusula completiva (\"que…\") a menudo <strong>no lleva conector</strong>: simplemente se yuxtaponen los verbos (<em>Cayabeca\u2019 zedu\u2019</em> = "sabía [que] vendrías").</p>` },
+                        { type: 'table', title: 'Kit de conectores',
+                          head: ['Significado', 'Conector', 'Ejemplo'],
+                          rows: [
+                            ['cuando', 'ora / dxi', 'Ora gannalu\u2019 = cuando sepas'],
+                            ['si', 'pa (+ irrealis ñ-)', 'Pa guunalu\u2019 za\u2019te = si lloras, muero'],
+                            ['aunque', 'neca / necape\u2019', 'Neca laabe qui naabe\u2019 = aunque él no quiera'],
+                            ['porque', 'ti / pur ti', 'Pur ti nadxieelii = porque te quiero'],
+                            ['para que', 'ti + potencial', 'Bidii lugar gune\u2019 dxi\u2019ña = deja que yo trabaje'],
+                            ['y / con', 'ne', 'na\u2019 ne lii = tú y yo'],
+                            ['ni… ni', 'nin… nin', 'Nin tobi nin stobi = ni uno ni otro'],
+                            ['como', 'casi / sica', 'Sica caa = así como está'],
+                            ['el/la/lo que', 'ni', 'Ni hrui\u2019 diidxa = el que habla'],
+                            ['(el lugar) donde', 'hra', 'Hra gule\u2019 = donde nací']
+                          ] },
+                        { type: 'examples', title: 'Oraciones complejas', items: [
+                            { zap: 'Ora gannalu\u2019, hruzuluu\u2019...', gloss: 'cuando · sepas · empezarás', es: 'Cuando sepas, empezarás…' },
+                            { zap: 'Pur ti pa guunalu\u2019 za\u2019te', gloss: 'porque · si · lloras · muero', es: 'Porque si lloras, (yo) muero' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "ora", es: "cuando" },
+                        { zap: "pa", es: "si" },
+                        { zap: "neca", es: "aunque" },
+                        { zap: "pur ti", es: "porque" },
+                        { zap: "ne", es: "y / con" }
+                    ],
+                    phrases: [
+                        { zap: "Ora gannalu'", es: "Cuando sepas" },
+                        { zap: "Pa guunalu' za'te", es: "Si lloras, (yo) muero" },
+                        { zap: "Neca laabe qui naabe'", es: "Aunque él no quiera" }
+                    ]
+                },
+                {
+                    title: "Sentimientos y el corazón",
+                    sub: "Amor, ánimo y el patrón con ladxido'",
+                    objectives: [
+                        "Expresar amor y afecto.",
+                        "Entender el patrón \"algo le pasa a mi corazón\" (<code>ladxido\u2019</code>).",
+                        "Decir estados del cuerpo (hambre, sed)."
+                    ],
+                    sections: [
+                        { type: 'prose', html: `
+                            <p>El zapoteco no tiene muchos verbos "sentir X". En su lugar, los estados internos se expresan como algo que le ocurre al <strong>corazón</strong> (<code>ladxido\u2019</code>). Es un patrón sistemático, una "psico-colocación": el sujeto es tu corazón poseído.</p>` },
+                        { type: 'table', title: 'El corazón como sede de la emoción',
+                          head: ['Zapoteco', 'Literalmente', 'Español'],
+                          rows: [
+                            ['Naye\u2019che\u2019 nuu ladxidua\u2019', 'está contento mi corazón', 'estoy feliz'],
+                            ['Napa\u2019 ti yuuba ladxidua\u2019', 'tengo un dolor en mi corazón', 'tengo pena'],
+                            ['Hruninálu\u2019 ladxidua\u2019', 'lastimas mi corazón', 'me hieres'],
+                            ['Bibapa ladxidua\u2019', 'se me revoloteó el corazón', 'me emocioné']
+                          ] },
+                        { type: 'table', title: 'Estados del cuerpo',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['Candaana\u2019', 'tengo hambre'],
+                            ['Cayate\u2019 nisa', 'tengo sed'],
+                            ['Ma bidxaga\u2019', 'ya estoy cansado'],
+                            ['Cadxibe\u2019 nguiiu ca', 'tengo miedo de ese hombre']
+                          ] },
+                        { type: 'examples', title: 'Decir "te amo"', items: [
+                            { zap: 'Nadxieelii', gloss: 'amar-1SG · 2SG', es: 'Te amo' },
+                            { zap: 'Nadxieelii ne guidubi ladxidua\u2019ya\u2019', gloss: 'te amo · con · todo · mi-corazón', es: 'Te amo con todo mi corazón' },
+                            { zap: 'Dxi ne dxi nadxieelii', gloss: 'día · y · día · te amo', es: 'Te amo cada día más' }
+                        ] }
+                    ],
+                    words: [
+                        { zap: "ladxido'", es: "corazón / alma" },
+                        { zap: "candaana'", es: "tengo hambre" },
+                        { zap: "cayate' nisa", es: "tengo sed" },
+                        { zap: "naye'che'", es: "estoy feliz / contento" }
+                    ],
+                    phrases: [
+                        { zap: "Nadxieelii", es: "Te amo" },
+                        { zap: "Nadxieelii ne guidubi ladxidua'ya'", es: "Te amo con todo mi corazón" },
+                        { zap: "Caye'che' ti nuulu' hrari'", es: "Estoy feliz porque estás aquí" }
+                    ]
+                },
+                {
+                    title: "Frases de emergencia",
+                    sub: "Para pedir ayuda",
+                    objectives: [
+                        "Pedir ayuda y describir una urgencia básica.",
+                        "Reconocer palabras clave (ayuda, sangre, casa, pueblo).",
+                        "Saber cuándo pedir un intérprete profesional."
+                    ],
+                    sections: [
+                        { type: 'warn', label: 'Aviso de seguridad', html: `
+                            Estas frases vienen de un corpus <strong>limitado</strong> y no sustituyen a un intérprete. En una emergencia real, llama al <strong>911</strong> y pide un intérprete de zapoteco/diidxazá. Valida siempre con un hablante nativo: el tono y la glotalización cambian el significado.` },
+                        { type: 'table', title: 'Pedir ayuda',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['Bidii na\u2019 racanee', '¡Ayúdenme! (dame ayuda)'],
+                            ['Guda\u2019 naguenda', '¡Ven rápido!'],
+                            ['Naná hriabani na\u2019', 'Me duele'],
+                            ['Paraa nga nuulu\u2019', '¿Dónde estás?'],
+                            ['Za\u2019ti\u2019', 'Se va a morir (urgencia)']
+                          ] },
+                        { type: 'table', title: 'Palabras clave',
+                          head: ['Zapoteco', 'Español'],
+                          rows: [
+                            ['racanee', 'ayuda / apoyo'],
+                            ['hrini', 'sangre'],
+                            ['yoo\u2019', 'casa'],
+                            ['guidxi', 'pueblo / ciudad'],
+                            ['binni', 'persona / gente']
+                          ] }
+                    ],
+                    words: [
+                        { zap: "racanee", es: "ayuda / apoyo" },
+                        { zap: "hrini", es: "sangre" },
+                        { zap: "yoo'", es: "casa" },
+                        { zap: "guidxi", es: "pueblo / ciudad" }
+                    ],
+                    phrases: [
+                        { zap: "Bidii na' racanee", es: "¡Ayúdenme!", gloss: "da(me) ayuda" },
+                        { zap: "Guda' naguenda", es: "¡Ven rápido!" },
+                        { zap: "Naná hriabani na'", es: "Me duele" }
+                    ]
+                }
+            ]
+        }
+    ];
+
+    // ============================================================================
+    //  IndexedDB: almacén de grabaciones (blobs de audio) por id de item.
+    // ============================================================================
+    const DB_NAME = 'didxazapp-aprender';
+    const STORE = 'recordings';
+    let _dbPromise = null;
+
+    function openDB() {
+        if (_dbPromise) return _dbPromise;
+        _dbPromise = new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+        return _dbPromise;
+    }
+    async function idbPut(key, blob) {
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction(STORE, 'readwrite');
+            tx.objectStore(STORE).put(blob, key);
+            tx.oncomplete = res;
+            tx.onerror = () => rej(tx.error);
+        });
+    }
+    async function idbGet(key) {
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction(STORE, 'readonly');
+            const r = tx.objectStore(STORE).get(key);
+            r.onsuccess = () => res(r.result || null);
+            r.onerror = () => rej(r.error);
+        });
+    }
+    async function idbDel(key) {
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction(STORE, 'readwrite');
+            tx.objectStore(STORE).delete(key);
+            tx.oncomplete = res;
+            tx.onerror = () => rej(tx.error);
+        });
+    }
+    async function idbAllKeys() {
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction(STORE, 'readonly');
+            const r = tx.objectStore(STORE).getAllKeys();
+            r.onsuccess = () => res(r.result || []);
+            r.onerror = () => rej(r.error);
+        });
+    }
+    async function idbEntries() {
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction(STORE, 'readonly');
+            const store = tx.objectStore(STORE);
+            const keysReq = store.getAllKeys();
+            const valsReq = store.getAll();
+            const out = {};
+            tx.oncomplete = () => {
+                const keys = keysReq.result || [];
+                const vals = valsReq.result || [];
+                keys.forEach((k, i) => out[k] = vals[i]);
+                res(out);
+            };
+            tx.onerror = () => rej(tx.error);
+        });
+    }
+
+    // ============================================================================
+    //  Utilidades
+    // ============================================================================
+    const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const slug = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+
+    let toastTimer = null;
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    // ============================================================================
+    //  Estado de micrófono / grabación
+    // ============================================================================
+    const supportsRecording = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    let micStream = null;
+    let activeRecorder = null;   // { recorder, id, btn, chunks }
+    let recSet = new Set();      // ids con grabación
+
+    function setMicStatus(kind, text) {
+        const el = document.getElementById('mic-status');
+        el.className = 'mic-status' + (kind ? ' ' + kind : '');
+        document.getElementById('mic-text').textContent = text;
+    }
+
+    async function ensureMic() {
+        if (!supportsRecording) {
+            setMicStatus('err', 'Grabación no soportada en este navegador');
+            toast('Tu navegador no permite grabar audio.');
+            return null;
+        }
+        if (micStream && micStream.active) return micStream;
+        try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            setMicStatus('ok', 'Micrófono listo');
+            return micStream;
+        } catch (err) {
+            setMicStatus('err', 'Micrófono bloqueado');
+            toast('No se pudo acceder al micrófono. Revisa los permisos del sitio.');
+            return null;
+        }
+    }
+
+    function pickMime() {
+        const cands = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+        for (const c of cands) { if (window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c; }
+        return '';
+    }
+
+    // ============================================================================
+    //  Reproducción
+    // ============================================================================
+    let currentAudio = null;
+    let currentListenBtn = null;
+
+    function stopPlayback() {
+        if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+        if (currentListenBtn) currentListenBtn.classList.remove('is-playing');
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        currentAudio = null;
+        currentListenBtn = null;
+    }
+
+    async function listen(id, text, btn) {
+        // Si ya sonaba este botón, detener.
+        if (currentListenBtn === btn) { stopPlayback(); return; }
+        stopPlayback();
+
+        const blob = await idbGet(id);
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            currentAudio = audio;
+            currentListenBtn = btn;
+            btn.classList.add('is-playing');
+            const cleanup = () => { btn.classList.remove('is-playing'); URL.revokeObjectURL(url); if (currentListenBtn === btn) { currentAudio = null; currentListenBtn = null; } };
+            audio.addEventListener('ended', cleanup, { once: true });
+            audio.addEventListener('error', cleanup, { once: true });
+            audio.play().catch(cleanup);
+            return;
+        }
+
+        // Sin grabación: voz sintética como aproximación (no nativa).
+        if (window.speechSynthesis) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'es-MX';
+            u.rate = 0.85;
+            currentListenBtn = btn;
+            btn.classList.add('is-playing');
+            u.onend = () => { btn.classList.remove('is-playing'); if (currentListenBtn === btn) currentListenBtn = null; };
+            u.onerror = u.onend;
+            window.speechSynthesis.speak(u);
+            toast('Sin grabación aún: voz sintética aproximada. Graba para la pronunciación real.');
+        } else {
+            toast('No hay grabación para este elemento todavía.');
+        }
+    }
+
+    // ============================================================================
+    //  Grabación
+    // ============================================================================
+    async function toggleRecord(id, btn, itemEl) {
+        // Si este botón ya está grabando -> detener y guardar.
+        if (activeRecorder && activeRecorder.id === id) {
+            activeRecorder.recorder.stop();
+            return;
+        }
+        // Si otro estaba grabando, deténlo primero.
+        if (activeRecorder) { activeRecorder.recorder.stop(); }
+
+        const stream = await ensureMic();
+        if (!stream) return;
+        stopPlayback();
+
+        const mime = pickMime();
+        let recorder;
+        try {
+            recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        } catch (e) {
+            toast('No se pudo iniciar la grabación.');
+            return;
+        }
+        const chunks = [];
+        activeRecorder = { recorder, id, btn, chunks };
+
+        recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+        recorder.onstart = () => {
+            btn.classList.add('is-recording');
+            btn.innerHTML = '<i class="fa fa-stop" aria-hidden="true"></i>';
+            btn.setAttribute('aria-label', 'Detener y guardar grabación');
+            setMicStatus('warn', 'Grabando…');
+        };
+        recorder.onstop = async () => {
+            btn.classList.remove('is-recording');
+            btn.innerHTML = '<i class="fa fa-microphone" aria-hidden="true"></i>';
+            btn.setAttribute('aria-label', 'Grabar pronunciación');
+            setMicStatus('ok', 'Micrófono listo');
+            activeRecorder = null;
+            if (!chunks.length) { toast('No se capturó audio.'); return; }
+            const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+            try {
+                await idbPut(id, blob);
+                recSet.add(id);
+                markRecorded(itemEl, true);
+                toast('Grabación guardada.');
+            } catch (e) {
+                toast('No se pudo guardar la grabación.');
+            }
+        };
+        recorder.start();
+    }
+
+    async function deleteRecording(id, itemEl) {
+        if (!recSet.has(id)) { toast('No hay grabación para borrar.'); return; }
+        await idbDel(id);
+        recSet.delete(id);
+        markRecorded(itemEl, false);
+        toast('Grabación borrada.');
+    }
+
+    function markRecorded(itemEl, has) {
+        itemEl.classList.toggle('has-rec', has);
+        const badge = itemEl.querySelector('.rec-badge');
+        const del = itemEl.querySelector('.icon-btn.del');
+        if (badge) badge.classList.toggle('hidden', !has);
+        if (del) del.disabled = !has;
+    }
+
+    // ============================================================================
+    //  Render
+    // ============================================================================
+    function itemHtml(it, id) {
+        const gloss = it.gloss ? `<p class="item-gloss">${escapeHtml(it.gloss)}</p>` : '';
+        const has = recSet.has(id);
+        return `<div class="item${has ? ' has-rec' : ''}" data-id="${id}" data-text="${escapeHtml(it.zap)}">
+            <div class="item-main">
+                <p class="item-zap">${escapeHtml(it.zap)}</p>
+                <p class="item-es">${escapeHtml(it.es)}</p>
+                ${gloss}
+            </div>
+            <div class="item-actions">
+                <span class="rec-badge${has ? '' : ' hidden'}" title="Tiene tu grabación">✓ grabado</span>
+                <button type="button" class="icon-btn listen" data-act="listen" aria-label="Escuchar ${escapeHtml(it.zap)}" title="Escuchar">
+                    <i class="fa fa-volume-up" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="icon-btn rec" data-act="record" aria-label="Grabar pronunciación" title="Grabar">
+                    <i class="fa fa-microphone" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="icon-btn del" data-act="delete" aria-label="Borrar grabación" title="Borrar grabación" ${has ? '' : 'disabled'}>
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>`;
+    }
+
+    // --- Sub-render para el contenido "de libro" -------------------------------
+    function objectivesHtml(list) {
+        if (!list || !list.length) return '';
+        return `<div class="objectives">
+            <h4><i class="fa fa-graduation-cap" aria-hidden="true"></i> En esta lección aprenderás</h4>
+            <ul>${list.map(o => `<li>${o}</li>`).join('')}</ul>
+        </div>`;
+    }
+
+    function tableHtml(sec) {
+        const cap = sec.caption ? `<caption>${sec.caption}</caption>` : '';
+        const head = sec.head ? `<thead><tr>${sec.head.map(h => `<th>${h}</th>`).join('')}</tr></thead>` : '';
+        const body = `<tbody>${(sec.rows || []).map(r =>
+            `<tr>${r.map((c, i) => i === 0 ? `<td class="zap">${c}</td>` : `<td>${c}</td>`).join('')}</tr>`
+        ).join('')}</tbody>`;
+        return `<div class="table-wrap"><table class="z-table">${cap}${head}${body}</table></div>`;
+    }
+
+    function examplesHtml(sec) {
+        const items = (sec.items || []).map(e => `<div class="ex">
+            <div class="ex-zap">${e.zap}</div>
+            ${e.gloss ? `<div class="ex-gloss">${e.gloss}</div>` : ''}
+            ${e.es ? `<div class="ex-es">${e.es}</div>` : ''}
+        </div>`).join('');
+        return `<div class="examples">${items}</div>`;
+    }
+
+    function calloutHtml(sec) {
+        const map = {
+            tip:  { cls: 'tip',  ico: 'fa-lightbulb-o', label: 'Consejo' },
+            note: { cls: 'note', ico: 'fa-info-circle', label: 'Nota' },
+            warn: { cls: 'warn', ico: 'fa-exclamation-triangle', label: 'Ojo' }
+        };
+        const m = map[sec.type] || map.note;
+        const label = sec.label || m.label;
+        return `<div class="callout callout--${m.cls}">
+            <i class="fa ${m.ico} callout-ico" aria-hidden="true"></i>
+            <div class="callout-body"><span class="callout-label">${label}.</span> ${sec.html}</div>
+        </div>`;
+    }
+
+    function sectionHtml(sec) {
+        if (!sec || !sec.type) return '';
+        const title = sec.title ? `<div class="sec-title">${escapeHtml(sec.title)}</div>` : '';
+        switch (sec.type) {
+            case 'prose':    return title + `<div class="les-prose">${sec.html}</div>`;
+            case 'table':    return title + tableHtml(sec);
+            case 'examples': return title + examplesHtml(sec);
+            case 'tip':
+            case 'note':
+            case 'warn':     return calloutHtml(sec);
+            default:         return '';
+        }
+    }
+
+    function lessonHtml(lesson, levelId, li) {
+        const lid = `${levelId}-l${li}`;
+        const sections = (lesson.sections || []).map(sectionHtml).join('');
+        const words = (lesson.words || []).map((w, i) => itemHtml(w, `${lid}-w${i}`)).join('');
+        const phrases = (lesson.phrases || []).map((p, i) => itemHtml(p, `${lid}-p${i}`)).join('');
+        const wordsBlock = words ? `
+            <div class="block-label"><i class="fa fa-font" aria-hidden="true"></i> Vocabulario · escucha y graba <span class="count">(${lesson.words.length})</span></div>
+            ${words}` : '';
+        const phrasesBlock = phrases ? `
+            <div class="block-label"><i class="fa fa-comment-o" aria-hidden="true"></i> Frases completas · escucha y graba <span class="count">(${lesson.phrases.length})</span></div>
+            ${phrases}` : '';
+        return `<div class="lesson" data-lesson="${lid}">
+            <button type="button" class="lesson-head" aria-expanded="false">
+                <span class="lesson-num">${li + 1}</span>
+                <span class="lesson-titles">
+                    <h3>${escapeHtml(lesson.title)}</h3>
+                    ${lesson.sub ? `<p class="lesson-sub">${escapeHtml(lesson.sub)}</p>` : ''}
+                </span>
+                <i class="fa fa-chevron-down chevron" aria-hidden="true"></i>
+            </button>
+            <div class="lesson-body">
+                ${objectivesHtml(lesson.objectives)}
+                ${lesson.theory ? `<div class="theory">${lesson.theory}</div>` : ''}
+                ${sections}
+                ${wordsBlock}
+                ${phrasesBlock}
+            </div>
+        </div>`;
+    }
+
+    function levelHtml(level) {
+        const lessons = level.lessons.map((l, i) => lessonHtml(l, level.id, i)).join('');
+        return `<section class="level-section" id="${level.id}">
+            <h2 class="level-title"><span class="lvl-tag">${escapeHtml(level.tag)}</span> ${escapeHtml(level.title)}</h2>
+            <p class="level-desc">${escapeHtml(level.desc)}</p>
+            ${lessons}
+        </section>`;
+    }
+
+    function navHtml() {
+        return LEVELS.map((lv, i) => `<a href="#${lv.id}"><span class="lvl-badge">${i + 1}</span> ${escapeHtml(lv.title.split(':')[0])}</a>`).join('');
+    }
+
+    async function render() {
+        // Carga qué ids ya tienen grabación.
+        try { recSet = new Set(await idbAllKeys()); } catch (e) { recSet = new Set(); }
+        document.getElementById('level-nav').innerHTML = navHtml();
+        document.getElementById('content-root').innerHTML = LEVELS.map(levelHtml).join('');
+        // Abre la primera lección del primer nivel por defecto.
+        const first = document.querySelector('.lesson');
+        if (first) { first.classList.add('open'); first.querySelector('.lesson-head').setAttribute('aria-expanded', 'true'); }
+    }
+
+    // ============================================================================
+    //  Eventos (delegación)
+    // ============================================================================
+    document.getElementById('content-root').addEventListener('click', (ev) => {
+        const head = ev.target.closest('.lesson-head');
+        if (head) {
+            const lesson = head.closest('.lesson');
+            const open = lesson.classList.toggle('open');
+            head.setAttribute('aria-expanded', String(open));
+            return;
+        }
+        const btn = ev.target.closest('.icon-btn');
+        if (!btn) return;
+        const itemEl = btn.closest('.item');
+        const id = itemEl.dataset.id;
+        const text = itemEl.dataset.text;
+        const act = btn.dataset.act;
+        if (act === 'listen') listen(id, text, btn);
+        else if (act === 'record') toggleRecord(id, btn, itemEl);
+        else if (act === 'delete') deleteRecording(id, itemEl);
+    });
+
+    document.getElementById('btn-enable-mic').addEventListener('click', ensureMic);
+
+    // Exportar: descarga un JSON con las grabaciones en base64.
+    function blobToDataURL(blob) {
+        return new Promise((res, rej) => {
+            const fr = new FileReader();
+            fr.onload = () => res(fr.result);
+            fr.onerror = () => rej(fr.error);
+            fr.readAsDataURL(blob);
+        });
+    }
+    async function dataURLtoBlob(dataURL) {
+        const r = await fetch(dataURL);
+        return await r.blob();
+    }
+
+    document.getElementById('btn-export').addEventListener('click', async () => {
+        try {
+            const entries = await idbEntries();
+            const keys = Object.keys(entries);
+            if (!keys.length) { toast('No hay grabaciones para exportar.'); return; }
+            const out = { app: DB_NAME, version: 1, exported: new Date().toISOString(), recordings: {} };
+            for (const k of keys) { out.recordings[k] = await blobToDataURL(entries[k]); }
+            const blob = new Blob([JSON.stringify(out)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pronunciaciones-zapoteco-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            toast(`Exportadas ${keys.length} grabación(es).`);
+        } catch (e) {
+            toast('No se pudo exportar.');
+        }
+    });
+
+    document.getElementById('btn-import').addEventListener('click', () => document.getElementById('import-file').click());
+    document.getElementById('import-file').addEventListener('change', async (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        ev.target.value = '';
+        if (!file) return;
+        try {
+            const data = JSON.parse(await file.text());
+            const recs = data && data.recordings;
+            if (!recs || typeof recs !== 'object') { toast('Archivo no válido.'); return; }
+            let n = 0;
+            for (const k of Object.keys(recs)) {
+                const blob = await dataURLtoBlob(recs[k]);
+                await idbPut(k, blob);
+                recSet.add(k);
+                n++;
+            }
+            // Refresca marcas visibles.
+            document.querySelectorAll('.item').forEach(el => markRecorded(el, recSet.has(el.dataset.id)));
+            toast(`Importadas ${n} grabación(es).`);
+        } catch (e) {
+            toast('No se pudo importar el archivo.');
+        }
+    });
+
+    // Navegación suave y detener audio al salir.
+    window.addEventListener('beforeunload', () => { if (activeRecorder) activeRecorder.recorder.stop(); });
+
+    // ============================================================================
+    //  Init
+    // ============================================================================
+    (async function init() {
+        if (!supportsRecording) setMicStatus('warn', 'Grabación no disponible aquí');
+        else setMicStatus('', 'Micrófono: sin activar');
+        await render();
+        document.getElementById('anio').textContent = new Date().getFullYear();
+    })();
+    </script>
+    <script src="assets/js/page-config.js" data-page="aprender"></script>
+</body>
+
+</html>
