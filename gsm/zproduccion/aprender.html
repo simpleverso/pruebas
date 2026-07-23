@@ -1622,181 +1622,194 @@
                     ]
                 },
                 {
-                    title: "La negación",
-                    sub: "qui (no) y cadi (no es / prohibición)",
+                    title: { es: "La negación", en: "Negation" },
+                    sub: { es: "qui (no) y cadi (no es / prohibición)", en: "qui (not) and cadi (is not / prohibition)" },
                     objectives: [
-                        "Negar una acción con <code>qui</code>.",
-                        "Negar identidad y dar prohibiciones con <code>cadi</code>.",
-                        "Conocer los negativos léxicos (nada, nadie)."
+                        { es: "Negar una acción con <code>qui</code>.", en: "Negate an action with <code>qui</code>." },
+                        { es: "Negar identidad y dar prohibiciones con <code>cadi</code>.", en: "Negate identity and give prohibitions with <code>cadi</code>." },
+                        { es: "Conocer los negativos léxicos (nada, nadie).", en: "Learn the lexical negatives (nothing, nobody)." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>El zapoteco tiene dos negaciones principales, según qué niegues:</p>
-                            <ul>
-                                <li><code>qui</code> + verbo: niega la acción. <code>Qui hriuladxe\u2019</code> = "no me gusta". A menudo empuja el verbo al irrealis.</li>
-                                <li><code>cadi</code>: niega identidad ("no es") y forma prohibiciones ("no + mandato"). <code>Cadi gu\u2019nalu\u2019</code> = "no llores".</li>
-                            </ul>` },
-                        { type: 'table', title: 'Las dos negaciones y los negativos',
-                          head: ['Palabra', 'Uso', 'Ejemplo'],
+                        { type: 'prose', html: {
+                            es: `<p>El zapoteco tiene dos negaciones principales, según qué niegues:</p>
+                                 <ul>
+                                     <li><code>qui</code> + verbo: niega la acción. <code>Qui hriuladxe\u2019</code> = "no me gusta". A menudo empuja el verbo al irrealis.</li>
+                                     <li><code>cadi</code>: niega identidad ("no es") y forma prohibiciones ("no + mandato"). <code>Cadi gu\u2019nalu\u2019</code> = "no llores".</li>
+                                 </ul>`,
+                            en: `<p>Zapotec has two main negations, depending on what you negate:</p>
+                                 <ul>
+                                     <li><code>qui</code> + verb: negates the action. <code>Qui hriuladxe\u2019</code> = "I don't like it". It often pushes the verb into the irrealis.</li>
+                                     <li><code>cadi</code>: negates identity ("is not") and forms prohibitions ("don't + command"). <code>Cadi gu\u2019nalu\u2019</code> = "don't cry".</li>
+                                 </ul>` } },
+                        { type: 'table', title: { es: 'Las dos negaciones y los negativos', en: 'The two negations and the negatives' },
+                          head: [ { es: 'Palabra', en: 'Word' }, { es: 'Uso', en: 'Use' }, { es: 'Ejemplo', en: 'Example' } ],
                           rows: [
-                            ['qui / que', 'negar el verbo', 'Qui za\u2019ti = no morirá'],
-                            ['cadi', 'no es / prohibición', 'Cadi stipa = no es la fuerza'],
-                            ['gasti\u2019', 'nada / no hay', 'Gasti\u2019 náca = no importa'],
-                            ['garuti\u2019', 'nadie', 'Garuti\u2019 hrulabi = nadie se compadece'],
-                            ['gabati\u2019', 'a ningún lado', 'Gabati\u2019 ziunu\u2019 = no iremos a ningún lado']
+                            ['qui / que', { es: 'negar el verbo', en: 'negate the verb' }, { es: 'Qui za\u2019ti = no morirá', en: 'Qui za\u2019ti = will not die' }],
+                            ['cadi', { es: 'no es / prohibición', en: 'is not / prohibition' }, { es: 'Cadi stipa = no es la fuerza', en: 'Cadi stipa = it is not the strength' }],
+                            ['gasti\u2019', { es: 'nada / no hay', en: 'nothing / there is none' }, { es: 'Gasti\u2019 náca = no importa', en: 'Gasti\u2019 náca = it doesn\u2019t matter' }],
+                            ['garuti\u2019', { es: 'nadie', en: 'nobody' }, { es: 'Garuti\u2019 hrulabi = nadie se compadece', en: 'Garuti\u2019 hrulabi = nobody has pity' }],
+                            ['gabati\u2019', { es: 'a ningún lado', en: 'nowhere' }, { es: 'Gabati\u2019 ziunu\u2019 = no iremos a ningún lado', en: 'Gabati\u2019 ziunu\u2019 = we won\u2019t go anywhere' }]
                           ] },
-                        { type: 'warn', html: `La negación puede <strong>cambiar la forma del verbo</strong>. Por ejemplo "tener" pasa de <code>napu\u2019</code> (afirmativo) a <code>gapu\u2019</code> con <code>qui</code>: <code>Qui gapu\u2019 stipa</code> = "no tienes fuerza".` },
-                        { type: 'examples', title: 'Negar y prohibir', items: [
-                            { zap: 'Qui gapu\u2019 stipa', gloss: 'NEG · POT.tener-2SG · fuerza', es: 'No tienes fuerza' },
-                            { zap: 'Cadi gu\u2019nalu\u2019', gloss: 'NEG · llorar-2SG', es: '¡No llores!' }
+                        { type: 'warn', html: {
+                            es: `La negación puede <strong>cambiar la forma del verbo</strong>. Por ejemplo "tener" pasa de <code>napu\u2019</code> (afirmativo) a <code>gapu\u2019</code> con <code>qui</code>: <code>Qui gapu\u2019 stipa</code> = "no tienes fuerza".`,
+                            en: `Negation can <strong>change the verb's form</strong>. For example "to have" goes from <code>napu\u2019</code> (affirmative) to <code>gapu\u2019</code> with <code>qui</code>: <code>Qui gapu\u2019 stipa</code> = "you don't have strength".` } },
+                        { type: 'examples', title: { es: 'Negar y prohibir', en: 'Negating and forbidding' }, items: [
+                            { zap: 'Qui gapu\u2019 stipa', gloss: { es: 'NEG · POT.tener-2SG · fuerza', en: 'NEG · POT.have-2SG · strength' }, es: { es: 'No tienes fuerza', en: 'You don\u2019t have strength' } },
+                            { zap: 'Cadi gu\u2019nalu\u2019', gloss: { es: 'NEG · llorar-2SG', en: 'NEG · cry-2SG' }, es: { es: '¡No llores!', en: 'Don\u2019t cry!' } }
                         ] }
                     ],
                     words: [
-                        { zap: "qui", es: "no", gloss: "niega el verbo" },
-                        { zap: "cadi", es: "no / no es", gloss: "identidad / prohibición" },
-                        { zap: "gasti'", es: "nada / no hay" },
-                        { zap: "garuti'", es: "nadie" }
+                        { zap: "qui", es: { es: "no", en: "not" }, gloss: { es: "niega el verbo", en: "negates the verb" } },
+                        { zap: "cadi", es: { es: "no / no es", en: "not / is not" }, gloss: { es: "identidad / prohibición", en: "identity / prohibition" } },
+                        { zap: "gasti'", es: { es: "nada / no hay", en: "nothing / there is none" } },
+                        { zap: "garuti'", es: { es: "nadie", en: "nobody" } }
                     ],
                     phrases: [
-                        { zap: "Qui gapu' stipa", es: "No tienes fuerza" },
-                        { zap: "Cadi gu'nalu'", es: "No llores" }
+                        { zap: "Qui gapu' stipa", es: { es: "No tienes fuerza", en: "You don't have strength" } },
+                        { zap: "Cadi gu'nalu'", es: { es: "No llores", en: "Don't cry" } }
                     ]
                 }
             ]
         },
         {
-            id: "n6", tag: "Nivel 6", title: "Oraciones complejas y frases útiles",
-            desc: "Une cláusulas con conectores (cuando, si, aunque, porque) y practica frases completas de la vida diaria.",
+            id: "n6", tag: { es: "Nivel 6", en: "Level 6" },
+            title: { es: "Oraciones complejas y frases útiles", en: "Complex sentences and useful phrases" },
+            desc: { es: "Une cláusulas con conectores (cuando, si, aunque, porque) y practica frases completas de la vida diaria.",
+                    en: "Join clauses with connectors (when, if, although, because) and practice full everyday sentences." },
             lessons: [
                 {
-                    title: "Unir oraciones",
-                    sub: "cuando, si, aunque, porque, y",
+                    title: { es: "Unir oraciones", en: "Joining sentences" },
+                    sub: { es: "cuando, si, aunque, porque, y", en: "when, if, although, because, and" },
                     objectives: [
-                        "Enlazar dos ideas con conectores.",
-                        "Recordar que la cláusula subordinada suele ir <strong>primero</strong>.",
-                        "Tener un \"kit\" de conectores a mano."
+                        { es: "Enlazar dos ideas con conectores.", en: "Link two ideas with connectors." },
+                        { es: "Recordar que la cláusula subordinada suele ir <strong>primero</strong>.", en: "Remember the subordinate clause usually comes <strong>first</strong>." },
+                        { es: "Tener un \"kit\" de conectores a mano.", en: "Keep a \"kit\" of connectors handy." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>Hasta ahora has hecho oraciones de una sola idea. Para unir dos (\"cuando sepas, empezarás\"), el zapoteco usa conectores, y por lo general pone la <strong>cláusula subordinada primero</strong> y la principal después.</p>
-                            <p>Dato útil: la cláusula completiva (\"que…\") a menudo <strong>no lleva conector</strong>: simplemente se yuxtaponen los verbos (<em>Cayabeca\u2019 zedu\u2019</em> = "sabía [que] vendrías").</p>` },
-                        { type: 'table', title: 'Kit de conectores',
-                          head: ['Significado', 'Conector', 'Ejemplo'],
+                        { type: 'prose', html: {
+                            es: `<p>Hasta ahora has hecho oraciones de una sola idea. Para unir dos (\"cuando sepas, empezarás\"), el zapoteco usa conectores, y por lo general pone la <strong>cláusula subordinada primero</strong> y la principal después.</p>
+                                 <p>Dato útil: la cláusula completiva (\"que…\") a menudo <strong>no lleva conector</strong>: simplemente se yuxtaponen los verbos (<em>Cayabeca\u2019 zedu\u2019</em> = "sabía [que] vendrías").</p>`,
+                            en: `<p>So far you've made single-idea sentences. To join two ("when you know, you'll start"), Zapotec uses connectors, and usually puts the <strong>subordinate clause first</strong> and the main one after.</p>
+                                 <p>Useful fact: the complement clause ("that…") often <strong>has no connector</strong>: the verbs are simply placed side by side (<em>Cayabeca\u2019 zedu\u2019</em> = "I knew [that] you would come").</p>` } },
+                        { type: 'table', title: { es: 'Kit de conectores', en: 'Connector kit' },
+                          head: [ { es: 'Significado', en: 'Meaning' }, { es: 'Conector', en: 'Connector' }, { es: 'Ejemplo', en: 'Example' } ],
                           rows: [
-                            ['cuando', 'ora / dxi', 'Ora gannalu\u2019 = cuando sepas'],
-                            ['si', 'pa (+ irrealis ñ-)', 'Pa guunalu\u2019 za\u2019te = si lloras, muero'],
-                            ['aunque', 'neca / necape\u2019', 'Neca laabe qui naabe\u2019 = aunque él no quiera'],
-                            ['porque', 'ti / pur ti', 'Pur ti nadxieelii = porque te quiero'],
-                            ['para que', 'ti + potencial', 'Bidii lugar gune\u2019 dxi\u2019ña = deja que yo trabaje'],
-                            ['y / con', 'ne', 'na\u2019 ne lii = tú y yo'],
-                            ['ni… ni', 'nin… nin', 'Nin tobi nin stobi = ni uno ni otro'],
-                            ['como', 'casi / sica', 'Sica caa = así como está'],
-                            ['el/la/lo que', 'ni', 'Ni hrui\u2019 diidxa = el que habla'],
-                            ['(el lugar) donde', 'hra', 'Hra gule\u2019 = donde nací']
+                            [ { es: 'cuando', en: 'when' }, 'ora / dxi', { es: 'Ora gannalu\u2019 = cuando sepas', en: 'Ora gannalu\u2019 = when you know' } ],
+                            [ { es: 'si', en: 'if' }, 'pa (+ irrealis ñ-)', { es: 'Pa guunalu\u2019 za\u2019te = si lloras, muero', en: 'Pa guunalu\u2019 za\u2019te = if you cry, I die' } ],
+                            [ { es: 'aunque', en: 'although' }, 'neca / necape\u2019', { es: 'Neca laabe qui naabe\u2019 = aunque él no quiera', en: 'Neca laabe qui naabe\u2019 = although he doesn\u2019t want to' } ],
+                            [ { es: 'porque', en: 'because' }, 'ti / pur ti', { es: 'Pur ti nadxieelii = porque te quiero', en: 'Pur ti nadxieelii = because I love you' } ],
+                            [ { es: 'para que', en: 'so that' }, 'ti + potencial', { es: 'Bidii lugar gune\u2019 dxi\u2019ña = deja que yo trabaje', en: 'Bidii lugar gune\u2019 dxi\u2019ña = let me work' } ],
+                            [ { es: 'y / con', en: 'and / with' }, 'ne', { es: 'na\u2019 ne lii = tú y yo', en: 'na\u2019 ne lii = you and I' } ],
+                            [ { es: 'ni… ni', en: 'neither… nor' }, 'nin… nin', { es: 'Nin tobi nin stobi = ni uno ni otro', en: 'Nin tobi nin stobi = neither one nor the other' } ],
+                            [ { es: 'como', en: 'like / as' }, 'casi / sica', { es: 'Sica caa = así como está', en: 'Sica caa = just as it is' } ],
+                            [ { es: 'el/la/lo que', en: 'the one that / what' }, 'ni', { es: 'Ni hrui\u2019 diidxa = el que habla', en: 'Ni hrui\u2019 diidxa = the one who speaks' } ],
+                            [ { es: '(el lugar) donde', en: '(the place) where' }, 'hra', { es: 'Hra gule\u2019 = donde nací', en: 'Hra gule\u2019 = where I was born' } ]
                           ] },
-                        { type: 'examples', title: 'Oraciones complejas', items: [
-                            { zap: 'Ora gannalu\u2019, hruzuluu\u2019...', gloss: 'cuando · sepas · empezarás', es: 'Cuando sepas, empezarás…' },
-                            { zap: 'Pur ti pa guunalu\u2019 za\u2019te', gloss: 'porque · si · lloras · muero', es: 'Porque si lloras, (yo) muero' }
+                        { type: 'examples', title: { es: 'Oraciones complejas', en: 'Complex sentences' }, items: [
+                            { zap: 'Ora gannalu\u2019, hruzuluu\u2019...', gloss: { es: 'cuando · sepas · empezarás', en: 'when · you-know · you-will-start' }, es: { es: 'Cuando sepas, empezarás…', en: 'When you know, you\u2019ll start…' } },
+                            { zap: 'Pur ti pa guunalu\u2019 za\u2019te', gloss: { es: 'porque · si · lloras · muero', en: 'because · if · you-cry · I-die' }, es: { es: 'Porque si lloras, (yo) muero', en: 'Because if you cry, I die' } }
                         ] }
                     ],
                     words: [
-                        { zap: "ora", es: "cuando" },
-                        { zap: "pa", es: "si" },
-                        { zap: "neca", es: "aunque" },
-                        { zap: "pur ti", es: "porque" },
-                        { zap: "ne", es: "y / con" }
+                        { zap: "ora", es: { es: "cuando", en: "when" } },
+                        { zap: "pa", es: { es: "si", en: "if" } },
+                        { zap: "neca", es: { es: "aunque", en: "although" } },
+                        { zap: "pur ti", es: { es: "porque", en: "because" } },
+                        { zap: "ne", es: { es: "y / con", en: "and / with" } }
                     ],
                     phrases: [
-                        { zap: "Ora gannalu'", es: "Cuando sepas" },
-                        { zap: "Pa guunalu' za'te", es: "Si lloras, (yo) muero" },
-                        { zap: "Neca laabe qui naabe'", es: "Aunque él no quiera" }
+                        { zap: "Ora gannalu'", es: { es: "Cuando sepas", en: "When you know" } },
+                        { zap: "Pa guunalu' za'te", es: { es: "Si lloras, (yo) muero", en: "If you cry, I die" } },
+                        { zap: "Neca laabe qui naabe'", es: { es: "Aunque él no quiera", en: "Although he doesn't want to" } }
                     ]
                 },
                 {
-                    title: "Sentimientos y el corazón",
-                    sub: "Amor, ánimo y el patrón con ladxido'",
+                    title: { es: "Sentimientos y el corazón", en: "Feelings and the heart" },
+                    sub: { es: "Amor, ánimo y el patrón con ladxido'", en: "Love, mood, and the ladxido' pattern" },
                     objectives: [
-                        "Expresar amor y afecto.",
-                        "Entender el patrón \"algo le pasa a mi corazón\" (<code>ladxido\u2019</code>).",
-                        "Decir estados del cuerpo (hambre, sed)."
+                        { es: "Expresar amor y afecto.", en: "Express love and affection." },
+                        { es: "Entender el patrón \"algo le pasa a mi corazón\" (<code>ladxido\u2019</code>).", en: "Understand the \"something happens to my heart\" pattern (<code>ladxido\u2019</code>)." },
+                        { es: "Decir estados del cuerpo (hambre, sed).", en: "Say bodily states (hunger, thirst)." }
                     ],
                     sections: [
-                        { type: 'prose', html: `
-                            <p>El zapoteco no tiene muchos verbos "sentir X". En su lugar, los estados internos se expresan como algo que le ocurre al <strong>corazón</strong> (<code>ladxido\u2019</code>). Es un patrón sistemático, una "psico-colocación": el sujeto es tu corazón poseído.</p>` },
-                        { type: 'table', title: 'El corazón como sede de la emoción',
-                          head: ['Zapoteco', 'Literalmente', 'Español'],
+                        { type: 'prose', html: {
+                            es: `<p>El zapoteco no tiene muchos verbos "sentir X". En su lugar, los estados internos se expresan como algo que le ocurre al <strong>corazón</strong> (<code>ladxido\u2019</code>). Es un patrón sistemático, una "psico-colocación": el sujeto es tu corazón poseído.</p>`,
+                            en: `<p>Zapotec doesn't have many "feel X" verbs. Instead, inner states are expressed as something that happens to the <strong>heart</strong> (<code>ladxido\u2019</code>). It's a systematic pattern, a "psycho-collocation": the subject is your possessed heart.</p>` } },
+                        { type: 'table', title: { es: 'El corazón como sede de la emoción', en: 'The heart as the seat of emotion' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Literalmente', en: 'Literally' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['Naye\u2019che\u2019 nuu ladxidua\u2019', 'está contento mi corazón', 'estoy feliz'],
-                            ['Napa\u2019 ti yuuba ladxidua\u2019', 'tengo un dolor en mi corazón', 'tengo pena'],
-                            ['Hruninálu\u2019 ladxidua\u2019', 'lastimas mi corazón', 'me hieres'],
-                            ['Bibapa ladxidua\u2019', 'se me revoloteó el corazón', 'me emocioné']
+                            ['Naye\u2019che\u2019 nuu ladxidua\u2019', { es: 'está contento mi corazón', en: 'my heart is content' }, { es: 'estoy feliz', en: 'I am happy' }],
+                            ['Napa\u2019 ti yuuba ladxidua\u2019', { es: 'tengo un dolor en mi corazón', en: 'I have a pain in my heart' }, { es: 'tengo pena', en: 'I am sad' }],
+                            ['Hruninálu\u2019 ladxidua\u2019', { es: 'lastimas mi corazón', en: 'you hurt my heart' }, { es: 'me hieres', en: 'you hurt me' }],
+                            ['Bibapa ladxidua\u2019', { es: 'se me revoloteó el corazón', en: 'my heart fluttered' }, { es: 'me emocioné', en: 'I got excited' }]
                           ] },
-                        { type: 'table', title: 'Estados del cuerpo',
-                          head: ['Zapoteco', 'Español'],
+                        { type: 'table', title: { es: 'Estados del cuerpo', en: 'Bodily states' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['Candaana\u2019', 'tengo hambre'],
-                            ['Cayate\u2019 nisa', 'tengo sed'],
-                            ['Ma bidxaga\u2019', 'ya estoy cansado'],
-                            ['Cadxibe\u2019 nguiiu ca', 'tengo miedo de ese hombre']
+                            ['Candaana\u2019', { es: 'tengo hambre', en: 'I am hungry' }],
+                            ['Cayate\u2019 nisa', { es: 'tengo sed', en: 'I am thirsty' }],
+                            ['Ma bidxaga\u2019', { es: 'ya estoy cansado', en: 'I am tired now' }],
+                            ['Cadxibe\u2019 nguiiu ca', { es: 'tengo miedo de ese hombre', en: 'I am afraid of that man' }]
                           ] },
-                        { type: 'examples', title: 'Decir "te amo"', items: [
-                            { zap: 'Nadxieelii', gloss: 'amar-1SG · 2SG', es: 'Te amo' },
-                            { zap: 'Nadxieelii ne guidubi ladxidua\u2019ya\u2019', gloss: 'te amo · con · todo · mi-corazón', es: 'Te amo con todo mi corazón' },
-                            { zap: 'Dxi ne dxi nadxieelii', gloss: 'día · y · día · te amo', es: 'Te amo cada día más' }
+                        { type: 'examples', title: { es: 'Decir "te amo"', en: 'Saying "I love you"' }, items: [
+                            { zap: 'Nadxieelii', gloss: { es: 'amar-1SG · 2SG', en: 'love-1SG · 2SG' }, es: { es: 'Te amo', en: 'I love you' } },
+                            { zap: 'Nadxieelii ne guidubi ladxidua\u2019ya\u2019', gloss: { es: 'te amo · con · todo · mi-corazón', en: 'I-love-you · with · all · my-heart' }, es: { es: 'Te amo con todo mi corazón', en: 'I love you with all my heart' } },
+                            { zap: 'Dxi ne dxi nadxieelii', gloss: { es: 'día · y · día · te amo', en: 'day · and · day · I-love-you' }, es: { es: 'Te amo cada día más', en: 'I love you more each day' } }
                         ] }
                     ],
                     words: [
-                        { zap: "ladxido'", es: "corazón / alma" },
-                        { zap: "candaana'", es: "tengo hambre" },
-                        { zap: "cayate' nisa", es: "tengo sed" },
-                        { zap: "naye'che'", es: "estoy feliz / contento" }
+                        { zap: "ladxido'", es: { es: "corazón / alma", en: "heart / soul" } },
+                        { zap: "candaana'", es: { es: "tengo hambre", en: "I am hungry" } },
+                        { zap: "cayate' nisa", es: { es: "tengo sed", en: "I am thirsty" } },
+                        { zap: "naye'che'", es: { es: "estoy feliz / contento", en: "I am happy / content" } }
                     ],
                     phrases: [
-                        { zap: "Nadxieelii", es: "Te amo" },
-                        { zap: "Nadxieelii ne guidubi ladxidua'ya'", es: "Te amo con todo mi corazón" },
-                        { zap: "Caye'che' ti nuulu' hrari'", es: "Estoy feliz porque estás aquí" }
+                        { zap: "Nadxieelii", es: { es: "Te amo", en: "I love you" } },
+                        { zap: "Nadxieelii ne guidubi ladxidua'ya'", es: { es: "Te amo con todo mi corazón", en: "I love you with all my heart" } },
+                        { zap: "Caye'che' ti nuulu' hrari'", es: { es: "Estoy feliz porque estás aquí", en: "I'm happy because you're here" } }
                     ]
                 },
                 {
-                    title: "Frases de emergencia",
-                    sub: "Para pedir ayuda",
+                    title: { es: "Frases de emergencia", en: "Emergency phrases" },
+                    sub: { es: "Para pedir ayuda", en: "For asking for help" },
                     objectives: [
-                        "Pedir ayuda y describir una urgencia básica.",
-                        "Reconocer palabras clave (ayuda, sangre, casa, pueblo).",
-                        "Saber cuándo pedir un intérprete profesional."
+                        { es: "Pedir ayuda y describir una urgencia básica.", en: "Ask for help and describe a basic emergency." },
+                        { es: "Reconocer palabras clave (ayuda, sangre, casa, pueblo).", en: "Recognize key words (help, blood, house, town)." },
+                        { es: "Saber cuándo pedir un intérprete profesional.", en: "Know when to request a professional interpreter." }
                     ],
                     sections: [
-                        { type: 'warn', label: 'Aviso de seguridad', html: `
-                            Estas frases vienen de un corpus <strong>limitado</strong> y no sustituyen a un intérprete. En una emergencia real, llama al <strong>911</strong> y pide un intérprete de zapoteco/diidxazá. Valida siempre con un hablante nativo: el tono y la glotalización cambian el significado.` },
-                        { type: 'table', title: 'Pedir ayuda',
-                          head: ['Zapoteco', 'Español'],
+                        { type: 'warn', label: { es: 'Aviso de seguridad', en: 'Safety notice' }, html: {
+                            es: `Estas frases vienen de un corpus <strong>limitado</strong> y no sustituyen a un intérprete. En una emergencia real, llama al <strong>911</strong> y pide un intérprete de zapoteco/diidxazá. Valida siempre con un hablante nativo: el tono y la glotalización cambian el significado.`,
+                            en: `These phrases come from a <strong>limited</strong> corpus and do not replace an interpreter. In a real emergency, call <strong>911</strong> and ask for a Zapotec/Diidxazá interpreter. Always validate with a native speaker: tone and glottalization change meaning.` } },
+                        { type: 'table', title: { es: 'Pedir ayuda', en: 'Asking for help' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['Bidii na\u2019 racanee', '¡Ayúdenme! (dame ayuda)'],
-                            ['Guda\u2019 naguenda', '¡Ven rápido!'],
-                            ['Naná hriabani na\u2019', 'Me duele'],
-                            ['Paraa nga nuulu\u2019', '¿Dónde estás?'],
-                            ['Za\u2019ti\u2019', 'Se va a morir (urgencia)']
+                            ['Bidii na\u2019 racanee', { es: '¡Ayúdenme! (dame ayuda)', en: 'Help me! (give me help)' }],
+                            ['Guda\u2019 naguenda', { es: '¡Ven rápido!', en: 'Come quickly!' }],
+                            ['Naná hriabani na\u2019', { es: 'Me duele', en: 'It hurts' }],
+                            ['Paraa nga nuulu\u2019', { es: '¿Dónde estás?', en: 'Where are you?' }],
+                            ['Za\u2019ti\u2019', { es: 'Se va a morir (urgencia)', en: 'He/she is dying (urgent)' }]
                           ] },
-                        { type: 'table', title: 'Palabras clave',
-                          head: ['Zapoteco', 'Español'],
+                        { type: 'table', title: { es: 'Palabras clave', en: 'Key words' },
+                          head: [ { es: 'Zapoteco', en: 'Zapotec' }, { es: 'Español', en: 'English' } ],
                           rows: [
-                            ['racanee', 'ayuda / apoyo'],
-                            ['hrini', 'sangre'],
-                            ['yoo\u2019', 'casa'],
-                            ['guidxi', 'pueblo / ciudad'],
-                            ['binni', 'persona / gente']
+                            ['racanee', { es: 'ayuda / apoyo', en: 'help / support' }],
+                            ['hrini', { es: 'sangre', en: 'blood' }],
+                            ['yoo\u2019', { es: 'casa', en: 'house' }],
+                            ['guidxi', { es: 'pueblo / ciudad', en: 'town / city' }],
+                            ['binni', { es: 'persona / gente', en: 'person / people' }]
                           ] }
                     ],
                     words: [
-                        { zap: "racanee", es: "ayuda / apoyo" },
-                        { zap: "hrini", es: "sangre" },
-                        { zap: "yoo'", es: "casa" },
-                        { zap: "guidxi", es: "pueblo / ciudad" }
+                        { zap: "racanee", es: { es: "ayuda / apoyo", en: "help / support" } },
+                        { zap: "hrini", es: { es: "sangre", en: "blood" } },
+                        { zap: "yoo'", es: { es: "casa", en: "house" } },
+                        { zap: "guidxi", es: { es: "pueblo / ciudad", en: "town / city" } }
                     ],
                     phrases: [
-                        { zap: "Bidii na' racanee", es: "¡Ayúdenme!", gloss: "da(me) ayuda" },
-                        { zap: "Guda' naguenda", es: "¡Ven rápido!" },
-                        { zap: "Naná hriabani na'", es: "Me duele" }
+                        { zap: "Bidii na' racanee", es: { es: "¡Ayúdenme!", en: "Help me!" }, gloss: { es: "da(me) ayuda", en: "give (me) help" } },
+                        { zap: "Guda' naguenda", es: { es: "¡Ven rápido!", en: "Come quickly!" } },
+                        { zap: "Naná hriabani na'", es: { es: "Me duele", en: "It hurts" } }
                     ]
                 }
             ]
