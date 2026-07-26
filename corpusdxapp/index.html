@@ -1,0 +1,1089 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor de Palabras – didxazapp</title>
+<style>
+  :root {
+    --bg: #0f1117; --panel: #1a1d27; --border: #2e3147;
+    --accent: #5b7cfa; --accent2: #3ecf8e; --danger: #f04e4e;
+    --warn: #f5a623; --text: #e2e4f0; --muted: #7a7f9a;
+    --input-bg: #13161f; --row-hover: #222638;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { color: var(--muted); font-size: 12px; }
+  .layout { display: flex; height: calc(100vh - 54px); }
+  .sidebar { width: 220px; min-width: 180px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 12px 0; }
+  .sidebar button { background: none; border: none; color: var(--text); padding: 10px 20px; text-align: left; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: background .15s; }
+  .sidebar button:hover, .sidebar button.active { background: var(--row-hover); color: var(--accent); }
+  .sidebar button .icon { font-size: 16px; }
+  .sidebar .sep { border-top: 1px solid var(--border); margin: 8px 12px; }
+  .main { flex: 1; overflow: auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; align-items: flex-end; }
+  .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  input, select, textarea { background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 7px 10px; font-size: 13px; outline: none; transition: border .15s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input[type=search] { width: 220px; }
+  select { min-width: 120px; }
+  textarea { resize: vertical; min-height: 60px; width: 100%; }
+  .btn { border: none; border-radius: 6px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-weight: 500; transition: opacity .15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-success { background: var(--accent2); color: #0f1117; }
+  .btn-danger  { background: var(--danger); color: #fff; }
+  .btn-warn    { background: var(--warn); color: #0f1117; }
+  .btn-ghost   { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--input-bg); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr:hover td { background: var(--row-hover); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green  { background: #1a3d2e; color: var(--accent2); }
+  .badge-red    { background: #3d1a1a; color: var(--danger); }
+  .badge-yellow { background: #3d2f10; color: var(--warn); }
+  .badge-blue   { background: #1a2a4a; color: var(--accent); }
+  .pagination { display: flex; gap: 8px; align-items: center; justify-content: flex-end; padding-top: 10px; }
+  .pagination button { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; width: 32px; height: 32px; cursor: pointer; font-size: 13px; }
+  .pagination button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pagination button:disabled { opacity: .4; cursor: default; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; font-size: 13px; z-index: 999; display: none; gap: 10px; align-items: center; max-width: 340px; }
+  .toast.show { display: flex; }
+  .toast.success { border-color: var(--accent2); }
+  .toast.error   { border-color: var(--danger); }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; display: none; align-items: center; justify-content: center; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; width: 92vw; max-width: 1200px; max-height: 96vh; overflow: auto; padding: 24px; }
+  .modal h2 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 12px; color: var(--muted); }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab-bar button { background: none; border: none; color: var(--muted); padding: 8px 16px; cursor: pointer; font-size: 13px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab-bar button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; }
+  .stat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; flex: 1; min-width: 120px; }
+  .stat-box .val { font-size: 26px; font-weight: 700; color: var(--accent); }
+  .stat-box .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .confirm-text { color: var(--muted); font-size: 13px; margin-bottom: 18px; line-height: 1.6; }
+  .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .detail-item { background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+  .detail-item .key { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .detail-item .val { font-size: 13px; margin-top: 3px; word-break: break-word; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { background: var(--input-bg); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--muted); }
+  .chip.on { background: #1a3d2e; border-color: var(--accent2); color: var(--accent2); }
+  #loading { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
+  #loading.show { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .row-actions { display: flex; gap: 6px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .count-label { color: var(--muted); font-size: 12px; }
+  .ia-msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; line-height: 1.6; max-width: 88%; white-space: pre-wrap; word-break: break-word; }
+  .ia-msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
+  .ia-msg.assistant { background: var(--panel); border: 1px solid var(--border); align-self: flex-start; }
+  .ia-msg.system { color: var(--muted); font-size: 11px; align-self: center; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: Create / Edit -->
+<div class="modal-backdrop" id="editModal">
+<div class="modal">
+  <h2 id="modalTitle">Nuevo registro</h2>
+  <div id="modalTableTag" style="margin-bottom:10px"></div>
+  <div id="modalBody"></div>
+  <div class="form-actions">
+    <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" id="btnSaveModal" onclick="saveModal()">Guardar</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: Confirm clean -->
+<div class="modal-backdrop" id="cleanModal">
+<div class="modal" style="width:420px">
+  <h2>⚠️ Limpiar tabla</h2>
+  <p class="confirm-text" id="cleanText"></p>
+  <div class="form-group" style="margin-bottom:16px">
+    <label style="font-size:12px;color:var(--muted);margin-bottom:5px;display:block">🔒 Contraseña requerida para continuar</label>
+    <input type="password" id="cleanPassword" placeholder="Ingresa la contraseña…" style="width:100%" onkeydown="if(event.key==='Enter') doClean()">
+    <span id="cleanPasswordError" style="color:var(--danger);font-size:12px;margin-top:4px;display:none">Contraseña incorrecta.</span>
+  </div>
+  <div class="form-actions">
+    <button class="btn btn-ghost" onclick="closeCleanModal()">Cancelar</button>
+    <button class="btn btn-danger" onclick="doClean()">Sí, eliminar todo</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: Row detail -->
+<div class="modal-backdrop" id="detailModal">
+<div class="modal" style="width:700px">
+  <h2 id="detailTitle">Detalle</h2>
+  <div id="detailBody"></div>
+  <div class="form-actions">
+    <button class="btn btn-ghost" onclick="document.getElementById('detailModal').classList.remove('show')">Cerrar</button>
+  </div>
+</div>
+</div>
+
+<header>
+  <h1>📚 Gestor de Palabras</h1>
+  <span id="connLabel">didxazapp · localhost</span>
+  <div style="margin-left:auto">
+    <a id="btnDownloadProxy" class="btn btn-ghost" download="mysql_proxy.py" title="Descargar mysql_proxy.py">⬇️ mysql_proxy.py</a>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="sidebar">
+  <button class="active" onclick="showSection('overview')" id="nav-overview"><span class="icon">🏠</span> Inicio</button>
+  <button onclick="showSection('traductor')" id="nav-traductor"><span class="icon">📖</span> Traductor</button>
+  <button onclick="showSection('frases')" id="nav-frases"><span class="icon">💬</span> Frases</button>
+  <div class="sep"></div>
+  <button onclick="showSection('create')" id="nav-create"><span class="icon">➕</span> Nuevo registro</button>
+  <button onclick="showSection('clean')" id="nav-clean"><span class="icon">🗑️</span> Limpiar tablas</button>
+  <div class="sep"></div>
+  <button onclick="showSection('ia')" id="nav-ia"><span class="icon">🤖</span> Chat IA</button>
+</nav>
+
+<main class="main">
+
+<!-- OVERVIEW -->
+<div class="section active" id="section-overview">
+  <div class="card">
+    <div class="card-title">🏠 Resumen de la base de datos</div>
+    <div class="stats" id="statsArea">
+      <div class="stat-box"><div class="val" id="stat-trad-total">–</div><div class="lbl">Registros en Traductor</div></div>
+      <div class="stat-box"><div class="val" id="stat-trad-valid">–</div><div class="lbl">Traductor válidos</div></div>
+      <div class="stat-box"><div class="val" id="stat-frases-total">–</div><div class="lbl">Registros en Frases</div></div>
+      <div class="stat-box"><div class="val" id="stat-frases-valid">–</div><div class="lbl">Frases válidas</div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">🔍 Búsqueda global</div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+      <input type="search" id="globalSearch" placeholder="Buscar palabra o frase…" style="width:300px" oninput="globalSearchFn()">
+      <select id="globalLang" onchange="globalSearchFn()">
+        <option value="espaniol">Español</option>
+        <option value="zapoteco">Zapoteco</option>
+      </select>
+      <span id="globalAiHint" style="font-size:11px;color:var(--muted)">💡 Carga el modelo en <strong>Chat IA</strong> para activar búsqueda por conjugaciones</span>
+    </div>
+    <div id="globalResults"></div>
+  </div>
+</div>
+
+<!-- TRADUCTOR -->
+<div class="section" id="section-traductor">
+  <div class="card">
+    <div class="card-title">📖 Tabla: traductor <span class="count-label" id="tradCount"></span></div>
+    <div class="filters">
+      <label>Buscar<input type="search" id="tradSearch" placeholder="espaniol / zapoteco…" oninput="loadTraductor(1)"></label>
+      <label>Válido<select id="tradValid" onchange="loadTraductor(1)">
+        <option value="">Todos</option>
+        <option value="1">Sí</option>
+        <option value="0">No</option>
+      </select></label>
+      <label>Variante<input id="tradVariante" placeholder="ZAI…" style="width:90px" oninput="loadTraductor(1)"></label>
+      <label>Por página<select id="tradPerPage" onchange="loadTraductor(1)">
+        <option>20</option><option>50</option><option>100</option>
+      </select></label>
+      <button class="btn btn-primary btn-sm" onclick="openCreateModal('traductor')">➕ Nuevo</button>
+    </div>
+    <div style="overflow-x:auto">
+    <table id="tradTable">
+      <thead><tr>
+        <th>ID</th><th>Español</th><th>Zapoteco</th><th>Significado</th>
+        <th>Válido</th><th>Variante</th><th>Fuente</th><th>Apariciones</th><th style="min-width:110px">Acciones</th>
+      </tr></thead>
+      <tbody id="tradBody"></tbody>
+    </table>
+    </div>
+    <div class="pagination" id="tradPager"></div>
+  </div>
+</div>
+
+<!-- FRASES -->
+<div class="section" id="section-frases">
+  <div class="card">
+    <div class="card-title">💬 Tabla: frases <span class="count-label" id="frasesCount"></span></div>
+    <div class="filters">
+      <label>Buscar<input type="search" id="frasesSearch" placeholder="espaniol / zapoteco…" oninput="loadFrases(1)"></label>
+      <label>Válido<select id="frasesValid" onchange="loadFrases(1)">
+        <option value="">Todos</option>
+        <option value="1">Sí</option>
+        <option value="0">No</option>
+      </select></label>
+      <label>Por página<select id="frasesPerPage" onchange="loadFrases(1)">
+        <option>20</option><option>50</option><option>100</option>
+      </select></label>
+      <button class="btn btn-primary btn-sm" onclick="openCreateModal('frases')">➕ Nueva</button>
+    </div>
+    <div style="overflow-x:auto">
+    <table id="frasesTable">
+      <thead><tr>
+        <th>ID</th><th>Español</th><th>Zapoteco</th><th>Descripción</th>
+        <th>Válido</th><th>Fecha</th><th style="min-width:110px">Acciones</th>
+      </tr></thead>
+      <tbody id="frasesBody"></tbody>
+    </table>
+    </div>
+    <div class="pagination" id="frasesPager"></div>
+  </div>
+</div>
+
+<!-- CREATE -->
+<div class="section" id="section-create">
+  <div class="card">
+    <div class="card-title">➕ Nuevo registro</div>
+    <div class="tab-bar">
+      <button class="active" id="createTabTrad" onclick="switchCreateTab('traductor')">📖 Traductor</button>
+      <button id="createTabFrases" onclick="switchCreateTab('frases')">💬 Frases</button>
+    </div>
+    <div id="createFormArea"></div>
+  </div>
+</div>
+
+<!-- CLEAN -->
+<div class="section" id="section-clean">
+  <div class="card">
+    <div class="card-title">🗑️ Limpiar tablas</div>
+    <p style="color:var(--muted);margin-bottom:18px;font-size:13px">Elimina TODOS los registros de la tabla seleccionada. Esta acción no se puede deshacer.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <div class="stat-box" style="flex:0 0 260px">
+        <div class="lbl">Tabla <strong>traductor</strong></div>
+        <div class="val" id="cleanTradCount" style="font-size:20px;margin:8px 0">–</div>
+        <button class="btn btn-danger" onclick="askClean('traductor')">🗑️ Limpiar traductor</button>
+      </div>
+      <div class="stat-box" style="flex:0 0 260px">
+        <div class="lbl">Tabla <strong>frases</strong></div>
+        <div class="val" id="cleanFrasesCount" style="font-size:20px;margin:8px 0">–</div>
+        <button class="btn btn-danger" onclick="askClean('frases')">🗑️ Limpiar frases</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- IA CHAT -->
+<div class="section" id="section-ia">
+  <div class="card">
+    <div class="card-title">🤖 Chat con Gemma 4 E2B <span id="iaModelStatus" style="font-size:11px;color:var(--muted);margin-left:8px">no cargado</span></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnLoadModel" onclick="loadLiteRTModel()">⚡ Cargar modelo</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearIaChat()">🗑️ Limpiar chat</button>
+      <span style="font-size:11px;color:var(--muted)">Gemma 4 E2B · in-browser · WebGPU · primera carga ~500MB</span>
+    </div>
+    <div id="iaHistory" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:16px;min-height:260px;max-height:480px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:14px"></div>
+    <div style="display:flex;gap:10px">
+      <textarea id="iaInput" placeholder="Escribe tu pregunta…" rows="2" style="flex:1;resize:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendIaMessage()}"></textarea>
+      <button class="btn btn-primary" onclick="sendIaMessage()" id="btnIaSend" style="align-self:flex-end">Enviar</button>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────────
+const PROXY = 'http://127.0.0.1:8080/';
+const DB    = { host:'localhost', user:'root', pass:'318dac5', db:'didxazapp' };
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let tradPage = 1, frasesPage = 1;
+let tradTotal = 0, frasesTotal = 0;
+let modalState = {}; // { table, mode:'create'|'edit', row }
+let cleanTarget = '';
+let globalTimer = null;
+
+// ─── Core fetch ───────────────────────────────────────────────────────────────
+async function api(payload) {
+  payload.config = DB;
+  let r;
+  try {
+    r = await fetch(PROXY, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(netErr) {
+    setProxyStatus(false);
+    throw new Error('No se puede conectar al proxy en ' + PROXY + ' — ¿está corriendo mysql_proxy.py?');
+  }
+  const json = await r.json();
+  if (json.error) throw new Error(json.error);
+  setProxyStatus(true);
+  return json;
+}
+
+function loading(on) {
+  document.getElementById('loading').classList.toggle('show', on);
+}
+
+// ─── Proxy connection banner ──────────────────────────────────────────────────
+let _proxyOk = null; // null = unknown, true = ok, false = down
+function setProxyStatus(ok) {
+  if (_proxyOk === ok) return; // no change, don't flicker
+  _proxyOk = ok;
+  let banner = document.getElementById('proxyBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'proxyBanner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:300;padding:10px 20px;font-size:13px;font-weight:600;text-align:center;transition:opacity .3s';
+    document.body.prepend(banner);
+  }
+  if (ok) {
+    banner.style.cssText += ';background:#1a3d2e;color:#3ecf8e;opacity:1';
+    banner.textContent = '✅ Proxy conectado · ' + PROXY;
+    setTimeout(() => { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 400); _proxyOk = null; }, 2500);
+  } else {
+    banner.style.cssText += ';background:#3d1a1a;color:#f04e4e;opacity:1';
+    banner.innerHTML = `⚠️ Proxy no disponible en <code style="background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px">${PROXY}</code> — ejecuta: <code style="background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px">python mysql_proxy.py</code>`;
+  }
+}
+
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'traductor') loadTraductor(tradPage);
+  if (name === 'frases')    loadFrases(frasesPage);
+  if (name === 'overview')  loadOverview();
+  if (name === 'clean')     loadCleanCounts();
+  if (name === 'create')    { switchCreateTab('traductor'); }
+}
+
+// ─── Overview ─────────────────────────────────────────────────────────────────
+async function loadOverview() {
+  try {
+    loading(true);
+    const [tAll, tVal, fAll, fVal] = await Promise.all([
+      api({ action:'fetch', query:'SELECT COUNT(*) AS n FROM traductor' }),
+      api({ action:'fetch', query:"SELECT COUNT(*) AS n FROM traductor WHERE valido='1'" }),
+      api({ action:'fetch', query:'SELECT COUNT(*) AS n FROM frases' }),
+      api({ action:'fetch', query:"SELECT COUNT(*) AS n FROM frases WHERE valid='1'" }),
+    ]);
+    document.getElementById('stat-trad-total').textContent   = tAll.data[0].n;
+    document.getElementById('stat-trad-valid').textContent   = tVal.data[0].n;
+    document.getElementById('stat-frases-total').textContent = fAll.data[0].n;
+    document.getElementById('stat-frases-valid').textContent = fVal.data[0].n;
+  } catch(e) {
+    // Banner already shown by setProxyStatus — keep stats as '–' silently
+  } finally { loading(false); }
+}
+
+// ─── Global search ────────────────────────────────────────────────────────────
+function globalSearchFn() {
+  clearTimeout(globalTimer);
+  globalTimer = setTimeout(_doGlobalSearch, 400);
+}
+
+async function _doGlobalSearch() {
+  const q   = document.getElementById('globalSearch').value.trim();
+  const col = document.getElementById('globalLang').value;
+  const box = document.getElementById('globalResults');
+  if (!q) { box.innerHTML = ''; return; }
+
+  // Show immediate placeholder while we fetch
+  box.innerHTML = '<p style="color:var(--muted);font-size:12px">🔍 Buscando…</p>';
+
+  try {
+    loading(true);
+    const qEsc = q.replace(/'/g, "\\'");
+
+    // ── 1. Direct DB search (runs immediately) ────────────────────────────────
+    const [tr, fr] = await Promise.all([
+      api({ action:'fetch', query:`SELECT idtraductor AS id, espaniol, zapoteco, significado, valido AS valid, variante FROM traductor WHERE ${col} LIKE '%${qEsc}%' ORDER BY id LIMIT 30` }),
+      api({ action:'fetch', query:`SELECT id, espaniol, zapoteco, descripcion, valid FROM frases WHERE ${col} LIKE '%${qEsc}%' ORDER BY id LIMIT 30` }),
+    ]);
+
+    // Collect already-found IDs to deduplicate AI results
+    const seenTrad  = new Set(tr.data.map(r => r.id));
+    const seenFrases = new Set(fr.data.map(r => r.id));
+
+    // Render direct results right away
+    let html = renderGlobalSection('📖 Traductor', tr.data, 'traductor', tr.data.length);
+    html    += renderGlobalSection('💬 Frases',   fr.data, 'frases',    fr.data.length, !!html);
+
+    if (!tr.data.length && !fr.data.length) {
+      html = '<p style="color:var(--muted)">Sin resultados directos.</p>';
+    }
+
+    // ── 2. AI conjugation enrichment (only if model is loaded) ───────────────
+    if (litertLoaded) {
+      html += `<div id="aiSearchStatus" style="margin-top:14px;font-size:12px;color:var(--warn)">🤖 Buscando variantes con IA…</div>`;
+      box.innerHTML = html;
+      loading(false);
+
+      const forms = await aiEnrichSearch(q, col);
+
+      const statusEl = document.getElementById('aiSearchStatus');
+      if (!forms || forms.length === 0) {
+        if (statusEl) statusEl.textContent = '🤖 IA no encontró variantes adicionales.';
+      } else {
+        if (statusEl) statusEl.textContent = `🤖 Variantes encontradas: ${forms.join(', ')} — buscando en BD…`;
+
+        // Build LIKE clauses for all forms at once
+        const likeParts = forms.map(f => `${col} LIKE '%${f.replace(/'/g,"\\'")}%'`).join(' OR ');
+
+        const [trAI, frAI] = await Promise.all([
+          api({ action:'fetch', query:`SELECT idtraductor AS id, espaniol, zapoteco, significado, valido AS valid, variante FROM traductor WHERE (${likeParts}) ORDER BY id LIMIT 40` }),
+          api({ action:'fetch', query:`SELECT id, espaniol, zapoteco, descripcion, valid FROM frases WHERE (${likeParts}) ORDER BY id LIMIT 40` }),
+        ]);
+
+        // Deduplicate against direct results
+        const trNew  = trAI.data.filter(r => !seenTrad.has(r.id));
+        const frNew  = frAI.data.filter(r => !seenFrases.has(r.id));
+
+        let aiHtml = '';
+        if (trNew.length || frNew.length) {
+          aiHtml += `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">`;
+          aiHtml += `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">🤖 Resultados adicionales por variantes de IA <span style="color:var(--warn)">(${forms.join(', ')})</span></div>`;
+          aiHtml += renderGlobalSection('📖 Traductor', trNew, 'traductor', trNew.length);
+          aiHtml += renderGlobalSection('💬 Frases',    frNew, 'frases',    frNew.length, !!trNew.length);
+          aiHtml += `</div>`;
+        }
+
+        if (statusEl) statusEl.outerHTML = aiHtml || `<div style="margin-top:10px;font-size:12px;color:var(--muted)">🤖 Variantes buscadas (${forms.join(', ')}) — sin resultados adicionales.</div>`;
+        else box.innerHTML += aiHtml;
+      }
+      return; // box already updated inline above
+    }
+
+    // No AI: show a hint
+    html += `<div style="margin-top:10px;font-size:11px;color:var(--muted)">💡 Carga el modelo en <strong>Chat IA</strong> para buscar también conjugaciones y variantes automáticamente.</div>`;
+    box.innerHTML = html;
+
+  } catch(e) { toast(e.message,'error'); box.innerHTML = `<p style="color:var(--danger)">${esc(e.message)}</p>`; }
+  finally { loading(false); }
+}
+
+function renderGlobalSection(label, rows, tbl, total, addTopMargin) {
+  if (!rows.length) return '';
+  let h = `<div style="${addTopMargin?'margin-top:14px;':''}margin-bottom:6px;font-size:12px;color:var(--muted)">${label} (${total})</div>`;
+  h += buildGlobalTable(rows, tbl);
+  return h;
+}
+
+function buildGlobalTable(rows, tbl) {
+  const cols = Object.keys(rows[0]);
+  let h = '<div style="overflow-x:auto"><table><thead><tr>';
+  cols.forEach(c => h += `<th>${c}</th>`);
+  h += '<th>Acciones</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    h += '<tr>';
+    cols.forEach(c => h += `<td title="${esc(r[c])}">${esc(r[c]??'')}</td>`);
+    const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+    h += `<td><div class="row-actions">
+      <button class="btn btn-ghost btn-sm" onclick='openEditFromGlobal(${JSON.stringify(tbl)},${r[pk]})'>✏️</button>
+      <button class="btn btn-danger btn-sm" onclick='deleteRow(${JSON.stringify(tbl)},${r[pk]})'>🗑️</button>
+    </div></td></tr>`;
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+async function openEditFromGlobal(tbl, id) {
+  try {
+    loading(true);
+    const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+    const res = await api({ action:'fetch', query:`SELECT * FROM ${tbl} WHERE ${pk}=${id} LIMIT 1` });
+    if (res.data.length) openEditModal(tbl, res.data[0]);
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Traductor ────────────────────────────────────────────────────────────────
+async function loadTraductor(page) {
+  tradPage = page;
+  const q      = document.getElementById('tradSearch').value.trim();
+  const valid  = document.getElementById('tradValid').value;
+  const vari   = document.getElementById('tradVariante').value.trim();
+  const limit  = +document.getElementById('tradPerPage').value;
+  const offset = (page-1)*limit;
+
+  let where = [];
+  if (q)     { const e=q.replace(/'/g,"\\'"); where.push(`(espaniol LIKE '%${e}%' OR zapoteco LIKE '%${e}%')`); }
+  if (valid) where.push(`valido='${valid}'`);
+  if (vari)  where.push(`variante='${vari.replace(/'/g,"\\'")}' `);
+  const wClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+
+  try {
+    loading(true);
+    const [cnt, rows] = await Promise.all([
+      api({ action:'fetch', query:`SELECT COUNT(*) AS n FROM traductor ${wClause}` }),
+      api({ action:'fetch', query:`SELECT idtraductor, espaniol, zapoteco, significado, valido, variante, fuente, contadorApariciones, fecha_ultimaActualizacion FROM traductor ${wClause} ORDER BY idtraductor DESC LIMIT ${limit} OFFSET ${offset}` }),
+    ]);
+    tradTotal = cnt.data[0].n;
+    document.getElementById('tradCount').textContent = `(${tradTotal} registros)`;
+    renderTradBody(rows.data);
+    renderPager('tradPager', page, Math.ceil(tradTotal/limit), loadTraductor);
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+function renderTradBody(rows) {
+  const tb = document.getElementById('tradBody');
+  if (!rows.length) { tb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Sin registros</td></tr>'; return; }
+  tb.innerHTML = rows.map(r => `<tr style="cursor:pointer${r.valido==='1'?';background:rgba(62,207,142,0.07)':''}" ondblclick="editTraductor(${r.idtraductor})">
+    <td>${r.idtraductor}</td>
+    <td title="${esc(r.espaniol)}">${esc(r.espaniol)}</td>
+    <td title="${esc(r.zapoteco)}">${esc(r.zapoteco??'')}</td>
+    <td title="${esc(r.significado)}" style="max-width:200px">${esc(r.significado??'')}</td>
+    <td>${validBadge(r.valido)}</td>
+    <td>${esc(r.variante??'')}</td>
+    <td>${esc(r.fuente??'')}</td>
+    <td>${r.contadorApariciones??0}</td>
+    <td><div class="row-actions">
+      <button class="btn btn-ghost btn-sm" title="Ver" onclick="viewRowTraductor(${r.idtraductor})">👁️</button>
+      <button class="btn btn-primary btn-sm" title="Editar" onclick="editTraductor(${r.idtraductor})">✏️</button>
+      <button class="btn btn-sm" title="Cambiar válido" style="background:${r.valido==='1'?'#1a3d2e;color:#3ecf8e':'#3d2f10;color:#f5a623'}" onclick="toggleValid('traductor',${r.idtraductor},'valido','${r.valido}')">${r.valido==='1'?'✓ Válido':'✗ Inválido'}</button>
+      <button class="btn btn-danger btn-sm" title="Eliminar" onclick="deleteRow('traductor',${r.idtraductor})">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+</script>
+
+<script>
+// ─── Frases ───────────────────────────────────────────────────────────────────
+async function loadFrases(page) {
+  frasesPage = page;
+  const q     = document.getElementById('frasesSearch').value.trim();
+  const valid = document.getElementById('frasesValid').value;
+  const limit = +document.getElementById('frasesPerPage').value;
+  const offset= (page-1)*limit;
+
+  let where = [];
+  if (q)     { const e=q.replace(/'/g,"\\'"); where.push(`(espaniol LIKE '%${e}%' OR zapoteco LIKE '%${e}%')`); }
+  if (valid) where.push(`valid='${valid}'`);
+  const wClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+
+  try {
+    loading(true);
+    const [cnt, rows] = await Promise.all([
+      api({ action:'fetch', query:`SELECT COUNT(*) AS n FROM frases ${wClause}` }),
+      api({ action:'fetch', query:`SELECT id, espaniol, zapoteco, descripcion, valid, fecha FROM frases ${wClause} ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}` }),
+    ]);
+    frasesTotal = cnt.data[0].n;
+    document.getElementById('frasesCount').textContent = `(${frasesTotal} registros)`;
+    renderFrasesBody(rows.data);
+    renderPager('frasesPager', page, Math.ceil(frasesTotal/limit), loadFrases);
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+function renderFrasesBody(rows) {
+  const tb = document.getElementById('frasesBody');
+  if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Sin registros</td></tr>'; return; }
+  tb.innerHTML = rows.map(r => `<tr style="cursor:pointer${r.valid==='1'?';background:rgba(62,207,142,0.07)':''}" ondblclick="editFrase(${r.id})">
+    <td>${r.id}</td>
+    <td title="${esc(r.espaniol)}">${esc(r.espaniol)}</td>
+    <td title="${esc(r.zapoteco)}">${esc(r.zapoteco??'')}</td>
+    <td title="${esc(r.descripcion)}">${esc(r.descripcion??'')}</td>
+    <td>${validBadge(r.valid)}</td>
+    <td>${esc(r.fecha??'')}</td>
+    <td><div class="row-actions">
+      <button class="btn btn-primary btn-sm" title="Editar" onclick="editFrase(${r.id})">✏️</button>
+      <button class="btn btn-sm" title="Cambiar válido" style="background:${r.valid==='1'?'#1a3d2e;color:#3ecf8e':'#3d2f10;color:#f5a623'}" onclick="toggleValid('frases',${r.id},'valid','${r.valid}')">${r.valid==='1'?'✓ Válido':'✗ Inválido'}</button>
+      <button class="btn btn-danger btn-sm" title="Eliminar" onclick="deleteRow('frases',${r.id})">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+function renderPager(containerId, current, totalPages, cb) {
+  const c = document.getElementById(containerId);
+  if (totalPages <= 1) { c.innerHTML=''; return; }
+  let html = `<button ${current===1?'disabled':''} onclick="${cb.name}(${current-1})">‹</button>`;
+  let start = Math.max(1, current-2), end = Math.min(totalPages, current+2);
+  if (start>1) html += `<button onclick="${cb.name}(1)">1</button>${start>2?'<span style="color:var(--muted)">…</span>':''}`;
+  for (let i=start;i<=end;i++) html += `<button class="${i===current?'active':''}" onclick="${cb.name}(${i})">${i}</button>`;
+  if (end<totalPages) html += `${end<totalPages-1?'<span style="color:var(--muted)">…</span>':''}<button onclick="${cb.name}(${totalPages})">${totalPages}</button>`;
+  html += `<button ${current===totalPages?'disabled':''} onclick="${cb.name}(${current+1})">›</button>`;
+  html += `<span style="color:var(--muted);font-size:12px">Página ${current}/${totalPages}</span>`;
+  c.innerHTML = html;
+}
+
+// ─── View detail (traductor) ──────────────────────────────────────────────────
+async function viewRowTraductor(id) {
+  try {
+    loading(true);
+    const res = await api({ action:'fetch', query:`SELECT * FROM traductor WHERE idtraductor=${id} LIMIT 1` });
+    const r = res.data[0];
+    const boolCols = ['adjetivo','adverbio','animal','antonimo','fruto','masDeUnSignificado','nombrep','numero','objeto','plantaoarbol','sinonimo','sustantivo','traducible','verbo','signum'];
+    const mainCols = ['idtraductor','espaniol','zapoteco','significado','formasimple','pronunciacion','variante','fuente','valido','validador','statusProcesado','contadorApariciones','aniozapoteco','sinonimos','antonimos','parecidasZapoteco','imagenid','sonidoid','fecha_ultimaActualizacion'];
+
+    let html = '<div class="detail-grid">';
+    mainCols.forEach(k => {
+      if (r[k]!==undefined) html += `<div class="detail-item"><div class="key">${k}</div><div class="val">${esc(r[k]??'—')}</div></div>`;
+    });
+    html += '</div>';
+    html += '<div style="margin-top:14px;font-size:12px;color:var(--muted);margin-bottom:6px">Categorías</div><div class="chip-row">';
+    boolCols.forEach(k => html += `<span class="chip ${r[k]==='1'?'on':''}">${k}</span>`);
+    html += '</div>';
+
+    document.getElementById('detailTitle').textContent = `📖 ${r.espaniol} — ${r.zapoteco??''}`;
+    document.getElementById('detailBody').innerHTML = html;
+    document.getElementById('detailModal').classList.add('show');
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Edit helpers ─────────────────────────────────────────────────────────────
+async function editTraductor(id) {
+  try {
+    loading(true);
+    const res = await api({ action:'fetch', query:`SELECT * FROM traductor WHERE idtraductor=${id} LIMIT 1` });
+    openEditModal('traductor', res.data[0]);
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+async function editFrase(id) {
+  try {
+    loading(true);
+    const res = await api({ action:'fetch', query:`SELECT * FROM frases WHERE id=${id} LIMIT 1` });
+    openEditModal('frases', res.data[0]);
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Modal: open ─────────────────────────────────────────────────────────────
+function openCreateModal(tbl) {
+  modalState = { table: tbl, mode:'create', row: null };
+  document.getElementById('modalTitle').textContent = tbl === 'traductor' ? '➕ Nuevo en Traductor' : '➕ Nueva Frase';
+  document.getElementById('modalTableTag').innerHTML = `<span class="badge badge-blue">${tbl}</span>`;
+  document.getElementById('modalBody').innerHTML = tbl === 'traductor' ? buildTradForm(null) : buildFrasesForm(null);
+  document.getElementById('editModal').classList.add('show');
+}
+
+function openEditModal(tbl, row) {
+  modalState = { table: tbl, mode:'edit', row };
+  const pk = tbl === 'traductor' ? row.idtraductor : row.id;
+  document.getElementById('modalTitle').textContent = tbl === 'traductor' ? `✏️ Editar Traductor #${pk}` : `✏️ Editar Frase #${pk}`;
+  document.getElementById('modalTableTag').innerHTML = `<span class="badge badge-blue">${tbl}</span>`;
+  document.getElementById('modalBody').innerHTML = tbl === 'traductor' ? buildTradForm(row) : buildFrasesForm(row);
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('editModal').classList.remove('show'); }
+
+// ─── Form builders ────────────────────────────────────────────────────────────
+function v(row, key, def='') { return row ? (row[key]??def) : def; }
+function fld(id, label, val, type='text', full=false) {
+  return `<div class="form-group${full?' full':''}"><label>${label}</label><input id="mf_${id}" type="${type}" value="${esc(val)}"></div>`;
+}
+function fldTA(id, label, val) {
+  return `<div class="form-group full"><label>${label}</label><textarea id="mf_${id}">${esc(val)}</textarea></div>`;
+}
+function fldTA2(id, label, val) {
+  return `<div class="form-group" style="grid-column:span 2"><label>${label}</label><textarea id="mf_${id}" style="min-height:52px">${esc(val)}</textarea></div>`;
+}
+function fldSel(id, label, val, opts) {
+  let s = `<div class="form-group"><label>${label}</label><select id="mf_${id}">`;
+  opts.forEach(([v,l]) => s += `<option value="${v}" ${val==v?'selected':''}>${l}</option>`);
+  return s + '</select></div>';
+}
+function chk(id, label, val) {
+  return `<div class="form-group" style="justify-content:flex-end"><label style="flex-direction:row;align-items:center;gap:6px;cursor:pointer"><input id="mf_${id}" type="checkbox" ${val=='1'?'checked':''}> ${label}</label></div>`;
+}
+
+function buildFrasesForm(r) {
+  return `<div class="form-grid">
+    ${fld('espaniol','Español *', v(r,'espaniol'),'text',false)}
+    ${fld('zapoteco','Zapoteco', v(r,'zapoteco'))}
+    ${fldTA('descripcion','Descripción', v(r,'descripcion'))}
+    ${fldSel('valid','Válido', v(r,'valid','0'), [['1','Sí'],['0','No']])}
+  </div>`;
+}
+
+function buildTradForm(r) {
+  return `<div class="form-grid">
+    ${fld('espaniol','Español *', v(r,'espaniol'))}
+    ${fld('zapoteco','Zapoteco', v(r,'zapoteco'))}
+    ${fld('pronunciacion','Pronunciación', v(r,'pronunciacion'))}
+    ${fld('variante','Variante', v(r,'variante'))}
+    ${fldTA2('significado','Significado', v(r,'significado'))}
+    ${fldTA2('formasimple','Forma simple', v(r,'formasimple'))}
+    ${fld('fuente','Fuente', v(r,'fuente'))}
+    ${fld('aniozapoteco','Año Zapoteco', v(r,'aniozapoteco'))}
+    ${fld('validador','Validador', v(r,'validador'))}
+    ${fldSel('valido','Válido', v(r,'valido','0'), [['1','Sí'],['0','No']])}
+    ${fldSel('traducible','Traducible', v(r,'traducible','1'), [['1','Sí'],['0','No']])}
+    ${fldSel('statusProcesado','Status Procesado', v(r,'statusProcesado','0'), [['0','Pendiente'],['1','Procesado']])}
+    ${fldTA2('sinonimos','Sinónimos', v(r,'sinonimos'))}
+    ${fldTA2('antonimos','Antónimos', v(r,'antonimos'))}
+    ${fldTA2('parecidasZapoteco','Parecidas Zapoteco', v(r,'parecidasZapoteco'))}
+    <div class="form-group full"><label>Categorías gramaticales</label><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px">
+      ${['sustantivo','verbo','adjetivo','adverbio','numero','nombrep','sinonimo','antonimo','animal','fruto','objeto','plantaoarbol','masDeUnSignificado','traducible','signum'].map(k => 
+        `<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" id="mf_${k}" ${v(r,k)=='1'?'checked':''}> ${k}</label>`
+      ).join('')}
+    </div></div>
+  </div>`;
+}
+
+// ─── Modal: save ─────────────────────────────────────────────────────────────
+async function saveModal() {
+  const { table, mode, row } = modalState;
+  const get = id => { const el = document.getElementById('mf_'+id); if (!el) return undefined; return el.type==='checkbox' ? (el.checked?'1':'0') : el.value.trim(); };
+
+  let values = {};
+  if (table === 'frases') {
+    const esp = get('espaniol');
+    if (!esp) { toast('El campo Español es obligatorio','error'); return; }
+    values = { espaniol: esp, zapoteco: get('zapoteco'), descripcion: get('descripcion'), valid: get('valid') };
+  } else {
+    const esp = get('espaniol');
+    if (!esp) { toast('El campo Español es obligatorio','error'); return; }
+    const boolFields = ['sustantivo','verbo','adjetivo','adverbio','numero','nombrep','sinonimo','antonimo','animal','fruto','objeto','plantaoarbol','masDeUnSignificado','signum'];
+    values = { espaniol: esp, zapoteco: get('zapoteco'), significado: get('significado'), formasimple: get('formasimple'), pronunciacion: get('pronunciacion'), variante: get('variante'), fuente: get('fuente'), sinonimos: get('sinonimos'), antonimos: get('antonimos'), parecidasZapoteco: get('parecidasZapoteco'), aniozapoteco: get('aniozapoteco'), valido: get('valido'), traducible: get('traducible'), validador: get('validador'), statusProcesado: get('statusProcesado') };
+    boolFields.forEach(k => values[k] = get(k));
+    // filter undefined
+    Object.keys(values).forEach(k => { if (values[k]===undefined) delete values[k]; });
+  }
+
+  try {
+    loading(true);
+    if (mode === 'create') {
+      const res = await api({ action:'insert', table, values });
+      toast(`✅ Creado con ID ${res.inserted_id}`);
+    } else {
+      const pk = table === 'traductor' ? 'idtraductor' : 'id';
+      const whereVal = table === 'traductor' ? row.idtraductor : row.id;
+      const res = await api({ action:'update', table, updates: values, where: { [pk]: whereVal } });
+      toast(`✅ Actualizado (${res.affected_rows} fila)`);
+    }
+    closeModal();
+    if (table === 'traductor') loadTraductor(tradPage);
+    else loadFrases(frasesPage);
+    loadOverview();
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Delete ───────────────────────────────────────────────────────────────────
+async function deleteRow(tbl, id) {
+  if (!confirm(`¿Eliminar el registro #${id} de "${tbl}"?`)) return;
+  try {
+    loading(true);
+    const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+    await api({ action:'delete', table: tbl, where: { [pk]: id } });
+    toast('🗑️ Eliminado');
+    if (tbl === 'traductor') loadTraductor(tradPage);
+    else loadFrases(frasesPage);
+    loadOverview();
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Toggle válido ────────────────────────────────────────────────────────────
+async function toggleValid(tbl, id, col, currentVal) {
+  const newVal = currentVal === '1' ? '0' : '1';
+  const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+  try {
+    loading(true);
+    await api({ action:'update', table: tbl, updates: { [col]: newVal }, where: { [pk]: id } });
+    toast(newVal === '1' ? '✓ Marcado como válido' : '✗ Marcado como inválido');
+    if (tbl === 'traductor') loadTraductor(tradPage);
+    else loadFrases(frasesPage);
+    loadOverview();
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Clean ────────────────────────────────────────────────────────────────────
+async function loadCleanCounts() {
+  try {
+    const [t,f] = await Promise.all([
+      api({ action:'fetch', query:'SELECT COUNT(*) AS n FROM traductor' }),
+      api({ action:'fetch', query:'SELECT COUNT(*) AS n FROM frases' }),
+    ]);
+    document.getElementById('cleanTradCount').textContent   = t.data[0].n + ' registros';
+    document.getElementById('cleanFrasesCount').textContent = f.data[0].n + ' registros';
+  } catch(e) { /* silent */ }
+}
+
+function askClean(tbl) {
+  cleanTarget = tbl;
+  document.getElementById('cleanText').innerHTML = `Vas a eliminar <strong>todos</strong> los registros de la tabla <code>${tbl}</code>. Esta acción no se puede deshacer.`;
+  document.getElementById('cleanPassword').value = '';
+  document.getElementById('cleanPasswordError').style.display = 'none';
+  document.getElementById('cleanModal').classList.add('show');
+  setTimeout(() => document.getElementById('cleanPassword').focus(), 100);
+}
+
+function closeCleanModal() {
+  document.getElementById('cleanModal').classList.remove('show');
+  document.getElementById('cleanPassword').value = '';
+  document.getElementById('cleanPasswordError').style.display = 'none';
+}
+
+async function doClean() {
+  const pwd = document.getElementById('cleanPassword').value;
+  const errEl = document.getElementById('cleanPasswordError');
+  if (pwd !== '318dac5') {
+    errEl.style.display = 'block';
+    document.getElementById('cleanPassword').focus();
+    return;
+  }
+  errEl.style.display = 'none';
+  closeCleanModal();
+  try {
+    loading(true);
+    const res = await api({ action:'truncate', table: cleanTarget });
+    toast(`🗑️ Tabla "${cleanTarget}" limpiada (${res.affected_rows} filas eliminadas)`);
+    loadCleanCounts();
+    loadOverview();
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Create section tabs ──────────────────────────────────────────────────────
+function switchCreateTab(tbl) {
+  document.getElementById('createTabTrad').classList.toggle('active', tbl==='traductor');
+  document.getElementById('createTabFrases').classList.toggle('active', tbl==='frases');
+  const html = tbl === 'traductor' ? buildTradForm(null) : buildFrasesForm(null);
+  document.getElementById('createFormArea').innerHTML = `
+    <div id="inlineCreateForm">${html}</div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn btn-success" onclick="saveInlineCreate(${JSON.stringify(tbl)})">💾 Guardar</button>
+    </div>`;
+}
+
+async function saveInlineCreate(tbl) {
+  modalState = { table: tbl, mode:'create', row: null };
+  // reuse modal save logic by pointing get() to same IDs
+  const get = id => { const el = document.getElementById('mf_'+id); if (!el) return undefined; return el.type==='checkbox' ? (el.checked?'1':'0') : el.value.trim(); };
+
+  let values = {};
+  if (tbl === 'frases') {
+    const esp = get('espaniol');
+    if (!esp) { toast('El campo Español es obligatorio','error'); return; }
+    values = { espaniol: esp, zapoteco: get('zapoteco'), descripcion: get('descripcion'), valid: get('valid') };
+  } else {
+    const esp = get('espaniol');
+    if (!esp) { toast('El campo Español es obligatorio','error'); return; }
+    const boolFields = ['sustantivo','verbo','adjetivo','adverbio','numero','nombrep','sinonimo','antonimo','animal','fruto','objeto','plantaoarbol','masDeUnSignificado','signum'];
+    values = { espaniol: esp, zapoteco: get('zapoteco'), significado: get('significado'), formasimple: get('formasimple'), pronunciacion: get('pronunciacion'), variante: get('variante'), fuente: get('fuente'), sinonimos: get('sinonimos'), antonimos: get('antonimos'), parecidasZapoteco: get('parecidasZapoteco'), aniozapoteco: get('aniozapoteco'), valido: get('valido'), traducible: get('traducible'), validador: get('validador'), statusProcesado: get('statusProcesado') };
+    boolFields.forEach(k => values[k] = get(k));
+    Object.keys(values).forEach(k => { if (values[k]===undefined) delete values[k]; });
+  }
+
+  try {
+    loading(true);
+    const res = await api({ action:'insert', table: tbl, values });
+    toast(`✅ Creado con ID ${res.inserted_id}`);
+    switchCreateTab(tbl); // reset form
+    loadOverview();
+  } catch(e) { toast(e.message,'error'); }
+  finally { loading(false); }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function validBadge(v) {
+  if (v === '1' || v === 1) return '<span class="badge badge-green">Sí</span>';
+  if (v === '0' || v === 0) return '<span class="badge badge-red">No</span>';
+  return '<span class="badge badge-yellow">–</span>';
+}
+
+
+// ─── LiteRT-LM (Gemma 4 E2B) ─────────────────────────────────────────────────
+const LITERTLM_MODEL = { id: 'gemma-4-E2B-it', label: 'Gemma 4 E2B (it)', url: 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.litertlm' };
+const LITERTLM_CACHE = 'litertlm-models-v1';
+let litertSdk = null, litertEngine = null, litertLoaded = false, litertLoading = false;
+
+function setModelStatus(msg, color) {
+  const el = document.getElementById('iaModelStatus');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--muted)'; }
+  // Update the search bar hint when model becomes ready
+  const hint = document.getElementById('globalAiHint');
+  if (hint) {
+    if (litertLoaded) {
+      hint.innerHTML = '🤖 <strong style="color:var(--accent2)">IA activa</strong> — búsqueda por conjugaciones habilitada';
+    }
+  }
+}
+
+async function ensureLitertSdk() {
+  if (!litertSdk) litertSdk = await import('https://cdn.jsdelivr.net/npm/@litert-lm/core/+esm');
+  return litertSdk;
+}
+
+async function loadLiteRTModel() {
+  if (litertLoaded) { setModelStatus('listo ✅', 'var(--accent2)'); return; }
+  if (litertLoading) { toast('El modelo ya se está cargando, espera…'); return; }
+  litertLoading = true;
+  document.getElementById('btnLoadModel').disabled = true;
+  setModelStatus('cargando…', 'var(--warn)');
+  try {
+    if (litertEngine && typeof litertEngine.delete === 'function') { try { await litertEngine.delete(); } catch(e) {} }
+    litertEngine = null;
+    const sdk = await ensureLitertSdk();
+    let fetchRes;
+    try {
+      const cache = await caches.open(LITERTLM_CACHE);
+      const cached = await cache.match(LITERTLM_MODEL.url);
+      if (cached) {
+        setModelStatus('cargando desde caché…', 'var(--warn)');
+        fetchRes = cached;
+      } else {
+        setModelStatus('descargando (~500MB)…', 'var(--warn)');
+        const net = await fetch(LITERTLM_MODEL.url);
+        if (!net.ok) throw new Error('HTTP ' + net.status);
+        const total = +net.headers.get('content-length') || 0;
+        let received = 0;
+        const upstream = net.body.getReader();
+        const stream = new ReadableStream({
+          async pull(ctrl) {
+            const { done, value } = await upstream.read();
+            if (done) { ctrl.close(); return; }
+            received += value.byteLength;
+            if (total) setModelStatus(`descargando ${(received/1e6).toFixed(0)}/${(total/1e6).toFixed(0)} MB`, 'var(--warn)');
+            ctrl.enqueue(value);
+          },
+          cancel(r) { try { upstream.cancel(r); } catch(e) {} }
+        });
+        const [forCache, forUse] = stream.tee();
+        cache.put(LITERTLM_MODEL.url, new Response(forCache, { headers: net.headers })).catch(()=>{});
+        fetchRes = new Response(forUse, { headers: net.headers });
+      }
+    } catch(e) {
+      setModelStatus('error al cargar: ' + e.message, 'var(--danger)');
+      throw e;
+    }
+    setModelStatus('inicializando en WebGPU…', 'var(--warn)');
+    litertEngine = await sdk.Engine.create({ model: fetchRes.body, mainExecutorSettings: { maxNumTokens: 4096 } });
+    litertLoaded = true;
+    setModelStatus('listo ✅', 'var(--accent2)');
+    toast('✅ Gemma 4 E2B cargado y listo');
+  } catch(e) {
+    setModelStatus('error ❌', 'var(--danger)');
+    toast('Error cargando modelo: ' + e.message, 'error');
+  } finally {
+    litertLoading = false;
+    document.getElementById('btnLoadModel').disabled = false;
+  }
+}
+
+async function callLiteRT(messages, systemPrompt) {
+  if (!litertLoaded || !litertEngine) throw new Error('Modelo no cargado. Pulsa "Cargar modelo" primero.');
+  const preface = [];
+  if (systemPrompt) preface.push({ role: 'system', content: systemPrompt });
+  const allMsgs = messages.map(m => ({ role: m.role === 'model' ? 'assistant' : m.role, content: m.content }));
+  const lastUserIdx = allMsgs.map(m => m.role).lastIndexOf('user');
+  const userText = lastUserIdx >= 0 ? allMsgs[lastUserIdx].content : '';
+  preface.push(...allMsgs.slice(0, lastUserIdx));
+  const conv = await litertEngine.createConversation(preface.length ? { preface: { messages: preface } } : undefined);
+  const resp = await conv.sendMessage(userText);
+  if (resp && Array.isArray(resp.content)) return resp.content.map(x => x && x.type === 'text' ? x.text : '').join('');
+  return String(resp || '');
+}
+
+// ─── IA chat state ────────────────────────────────────────────────────────────
+const iaHistory = []; // { role, content }
+const IA_SYSTEM = 'Eres un asistente experto en lingüística, especializado en la lengua zapoteca y en traducción español-zapoteco. Responde en español de forma concisa y útil.';
+
+function iaAddMsg(role, text) {
+  iaHistory.push({ role, content: text });
+  const box = document.getElementById('iaHistory');
+  const div = document.createElement('div');
+  div.className = 'ia-msg ' + role;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function iaAddSystem(text) {
+  const box = document.getElementById('iaHistory');
+  const div = document.createElement('div');
+  div.className = 'ia-msg system';
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearIaChat() {
+  iaHistory.length = 0;
+  document.getElementById('iaHistory').innerHTML = '';
+}
+
+async function sendIaMessage() {
+  const inp = document.getElementById('iaInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  if (!litertLoaded) { toast('Primero carga el modelo con "Cargar modelo"', 'error'); return; }
+  inp.value = '';
+  iaAddMsg('user', text);
+  document.getElementById('btnIaSend').disabled = true;
+  iaAddSystem('⏳ Generando respuesta…');
+  try {
+    const reply = await callLiteRT([...iaHistory], IA_SYSTEM);
+    // remove the "generating" placeholder
+    const box = document.getElementById('iaHistory');
+    const placeholder = box.querySelector('.ia-msg.system:last-child');
+    if (placeholder) placeholder.remove();
+    iaAddMsg('assistant', reply);
+  } catch(e) {
+    const box = document.getElementById('iaHistory');
+    const placeholder = box.querySelector('.ia-msg.system:last-child');
+    if (placeholder) placeholder.remove();
+    iaAddSystem('❌ Error: ' + e.message);
+    toast(e.message, 'error');
+  } finally {
+    document.getElementById('btnIaSend').disabled = false;
+  }
+}
+
+// ─── AI-assisted phrase search ────────────────────────────────────────────────
+// Called after global search has its DB results; enriches them with conjugation variants.
+async function aiEnrichSearch(word, lang) {
+  if (!litertLoaded || !litertEngine) return null; // model not loaded, skip silently
+  const prompt = lang === 'zapoteco'
+    ? `Dame una lista de variantes morfológicas y formas conjugadas de la palabra zapoteca "${word}". Solo devuelve las formas separadas por comas, sin explicaciones.`
+    : `Dame una lista de conjugaciones y variantes morfológicas del verbo o palabra en español "${word}" (presente, pasado, futuro, subjuntivo, participio, gerundio, etc.). Solo devuelve las palabras separadas por comas, sin explicaciones.`;
+  try {
+    const result = await callLiteRT([{ role: 'user', content: prompt }], 'Eres un experto en morfología del español y zapoteco. Responde solo con palabras separadas por comas.');
+    const forms = result.split(/[,\n]+/).map(s => s.trim().toLowerCase()).filter(s => s && s !== word.toLowerCase()).slice(0, 20);
+    return forms;
+  } catch(e) { return null; }
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+// ─── Proxy download link ──────────────────────────────────────────────────────
+document.getElementById('btnDownloadProxy').href = 'data:text/x-python;base64,IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoiIiIKTXlTUUwgUHJveHkgZm9yIFVuaXZlcnNhbCBBSSBDbGllbnQuCkRyb3AtaW4gUHl0aG9uIHJlcGxhY2VtZW50IGZvciBteXNxbF9wcm94eS5waHAuCgpVc2FnZToKICAgIHB5dGhvbiBteXNxbF9wcm94eS5weQoKTGlzdGVucyBvbiBodHRwOi8vMC4wLjAuMDo4MDgwIGJ5IGRlZmF1bHQuCkRlcGVuZGVuY2llcyBhcmUgYXV0by1pbnN0YWxsZWQgb24gZmlyc3QgcnVuLgoKV3JpdGVzIGEgREVUQUlMRUQgbG9nIHRvICJteXNxbF9wcm94eS5sb2ciIChpbiB0aGUgc2FtZSBmb2xkZXIpIGFuZCB0byB0aGUKY29uc29sZS4gRXZlcnkgcmVxdWVzdCwgU1FMIHN0YXRlbWVudCwgcGFyYW1ldGVyIHNldCwgcm93IGNvdW50LCBhbmQgZnVsbAp0cmFjZWJhY2sgZm9yIGFueSBlcnJvciBpcyByZWNvcmRlZCBzbyB5b3UgY2FuIGRpYWdub3NlIEhUVFAgNTAwIGlzc3Vlcy4KIiIiCgppbXBvcnQgc3VicHJvY2VzcwppbXBvcnQgc3lzCgpSRVFVSVJFRCA9IHsiZmxhc2siOiAiZmxhc2siLCAibXlzcWwtY29ubmVjdG9yLXB5dGhvbiI6ICJteXNxbC5jb25uZWN0b3IiLCAiZmxhc2stY29ycyI6ICJmbGFza19jb3JzIn0KCmRlZiBlbnN1cmVfZGVwcygpOgogICAgZm9yIHBrZywgaW1wb3J0X25hbWUgaW4gUkVRVUlSRUQuaXRlbXMoKToKICAgICAgICB0cnk6CiAgICAgICAgICAgIF9faW1wb3J0X18oaW1wb3J0X25hbWUpCiAgICAgICAgZXhjZXB0IEltcG9ydEVycm9yOgogICAgICAgICAgICBwcmludChmIkluc3RhbGxpbmcge3BrZ30uLi4iKQogICAgICAgICAgICBzdWJwcm9jZXNzLmNoZWNrX2NhbGwoW3N5cy5leGVjdXRhYmxlLCAiLW0iLCAicGlwIiwgImluc3RhbGwiLCBwa2ddKQoKZW5zdXJlX2RlcHMoKQoKaW1wb3J0IGpzb24KaW1wb3J0IGxvZ2dpbmcKaW1wb3J0IHRyYWNlYmFjawpmcm9tIGxvZ2dpbmcuaGFuZGxlcnMgaW1wb3J0IFJvdGF0aW5nRmlsZUhhbmRsZXIKZnJvbSBmbGFzayBpbXBvcnQgRmxhc2ssIHJlcXVlc3QsIGpzb25pZnkKZnJvbSBmbGFza19jb3JzIGltcG9ydCBDT1JTCmltcG9ydCBteXNxbC5jb25uZWN0b3IKCiMgLS0tIERldGFpbGVkIGxvZ2dpbmcgc2V0dXAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpMT0dfRklMRSA9ICJteXNxbF9wcm94eS5sb2ciCmxvZ2dlciA9IGxvZ2dpbmcuZ2V0TG9nZ2VyKCJteXNxbF9wcm94eSIpCmxvZ2dlci5zZXRMZXZlbChsb2dnaW5nLkRFQlVHKQpmbXQgPSBsb2dnaW5nLkZvcm1hdHRlcigiJShhc2N0aW1lKXMgWyUobGV2ZWxuYW1lKXNdICUobWVzc2FnZSlzIikKIyBSb3RhdGluZyBmaWxlIGhhbmRsZXI6IDUgTUIgcGVyIGZpbGUsIGtlZXAgNSBiYWNrdXBzLgpmaCA9IFJvdGF0aW5nRmlsZUhhbmRsZXIoTE9HX0ZJTEUsIG1heEJ5dGVzPTUgKiAxMDI0ICogMTAyNCwgYmFja3VwQ291bnQ9NSwgZW5jb2Rpbmc9InV0Zi04IikKZmguc2V0TGV2ZWwobG9nZ2luZy5ERUJVRykKZmguc2V0Rm9ybWF0dGVyKGZtdCkKbG9nZ2VyLmFkZEhhbmRsZXIoZmgpCmNoID0gbG9nZ2luZy5TdHJlYW1IYW5kbGVyKHN5cy5zdGRvdXQpCmNoLnNldExldmVsKGxvZ2dpbmcuSU5GTykKY2guc2V0Rm9ybWF0dGVyKGZtdCkKbG9nZ2VyLmFkZEhhbmRsZXIoY2gpCgpkZWYgX3JlZGFjdChjb25maWcpOgogICAgIiIiUmV0dXJuIGEgY29weSBvZiB0aGUgY29uZmlnIHdpdGggdGhlIHBhc3N3b3JkIG1hc2tlZCBmb3IgbG9nZ2luZy4iIiIKICAgIHNhZmUgPSBkaWN0KGNvbmZpZyBvciB7fSkKICAgIGlmICJwYXNzIiBpbiBzYWZlIGFuZCBzYWZlWyJwYXNzIl06CiAgICAgICAgc2FmZVsicGFzcyJdID0gIioqKlJFREFDVEVEKioqIChsZW49JWQpIiAlIGxlbihzdHIoc2FmZVsicGFzcyJdKSkKICAgIHJldHVybiBzYWZlCgphcHAgPSBGbGFzayhfX25hbWVfXykKIyBBbGxvdyBhbGwgb3JpZ2lucy9oZWFkZXJzL21ldGhvZHMgc28gdGhlIGJyb3dzZXIgY2xpZW50IGNhbiBjYWxsIHRoaXMgcHJveHkuCkNPUlMoYXBwLCByZXNvdXJjZXM9e3IiLyoiOiB7Im9yaWdpbnMiOiAiKiJ9fSwgc3VwcG9ydHNfY3JlZGVudGlhbHM9RmFsc2UpCgpAYXBwLmFmdGVyX3JlcXVlc3QKZGVmIGFkZF9jb3JzX2hlYWRlcnMocmVzcCk6CiAgICAjIEJlbHQtYW5kLXN1c3BlbmRlcnM6IGVuc3VyZSBDT1JTIGhlYWRlcnMgZXhpc3Qgb24gRVZFUlkgcmVzcG9uc2UsCiAgICAjIGluY2x1ZGluZyBlcnJvciByZXNwb25zZXMgKDUwMC80MDApIGFuZCBwcmVmbGlnaHQuCiAgICByZXNwLmhlYWRlcnNbIkFjY2Vzcy1Db250cm9sLUFsbG93LU9yaWdpbiJdID0gIioiCiAgICByZXNwLmhlYWRlcnNbIkFjY2Vzcy1Db250cm9sLUFsbG93LU1ldGhvZHMiXSA9ICJHRVQsIFBPU1QsIE9QVElPTlMiCiAgICByZXNwLmhlYWRlcnNbIkFjY2Vzcy1Db250cm9sLUFsbG93LUhlYWRlcnMiXSA9ICJDb250ZW50LVR5cGUsIEF1dGhvcml6YXRpb24iCiAgICByZXR1cm4gcmVzcAoKUk9VVEVTID0gWyIvIiwgIi9teXNxbF9wcm94eS5weSIsICIvcGhwbXlhZG1pbi9wcm94eS9teXNxbF9wcm94eS5waHAiXQoKQGFwcC5yb3V0ZShST1VURVNbMF0sIG1ldGhvZHM9WyJQT1NUIiwgIk9QVElPTlMiXSkKQGFwcC5yb3V0ZShST1VURVNbMV0sIG1ldGhvZHM9WyJQT1NUIiwgIk9QVElPTlMiXSkKQGFwcC5yb3V0ZShST1VURVNbMl0sIG1ldGhvZHM9WyJQT1NUIiwgIk9QVElPTlMiXSkKZGVmIHByb3h5KCk6CiAgICAjIEhhbmRsZSBDT1JTIHByZWZsaWdodCBxdWlja2x5LgogICAgaWYgcmVxdWVzdC5tZXRob2QgPT0gIk9QVElPTlMiOgogICAgICAgIHJldHVybiAoIiIsIDIwNCkKCiAgICByZXFfaWQgPSBpZChyZXF1ZXN0KQogICAgY29ubiA9IE5vbmUKICAgIGN1cnNvciA9IE5vbmUKICAgIHRyeToKICAgICAgICByYXcgPSByZXF1ZXN0LmdldF9kYXRhKGFzX3RleHQ9VHJ1ZSkKICAgICAgICBsb2dnZXIuZGVidWcoIltyZXEgJXNdIFJhdyBib2R5OiAlcyIsIHJlcV9pZCwgcmF3WzoyMDAwXSkKICAgICAgICB0cnk6CiAgICAgICAgICAgIGRhdGEgPSByZXF1ZXN0LmdldF9qc29uKGZvcmNlPVRydWUpCiAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBqZToKICAgICAgICAgICAgbG9nZ2VyLmVycm9yKCJbcmVxICVzXSBJbnZhbGlkIEpTT04gYm9keTogJXMiLCByZXFfaWQsIGplKQogICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogIkludmFsaWQgSlNPTiBib2R5OiAlcyIgJSBzdHIoamUpfSksIDQwMAoKICAgICAgICBhY3Rpb24gPSBkYXRhLmdldCgiYWN0aW9uIikKICAgICAgICBjb25maWcgPSBkYXRhLmdldCgiY29uZmlnIiwge30pCiAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIGFjdGlvbj0lcyBjb25maWc9JXMiLCByZXFfaWQsIGFjdGlvbiwgX3JlZGFjdChjb25maWcpKQoKICAgICAgICB0cnk6CiAgICAgICAgICAgIGNvbm4gPSBteXNxbC5jb25uZWN0b3IuY29ubmVjdCgKICAgICAgICAgICAgICAgIGhvc3Q9Y29uZmlnLmdldCgiaG9zdCIsICJsb2NhbGhvc3QiKSwKICAgICAgICAgICAgICAgIHVzZXI9Y29uZmlnLmdldCgidXNlciIsICJyb290IiksCiAgICAgICAgICAgICAgICBwYXNzd29yZD1jb25maWcuZ2V0KCJwYXNzIiwgIiIpLAogICAgICAgICAgICAgICAgZGF0YWJhc2U9Y29uZmlnLmdldCgiZGIiLCAiIiksCiAgICAgICAgICAgICAgICBjb25uZWN0aW9uX3RpbWVvdXQ9MTAsCiAgICAgICAgICAgICkKICAgICAgICBleGNlcHQgbXlzcWwuY29ubmVjdG9yLkVycm9yIGFzIGNlOgogICAgICAgICAgICBsb2dnZXIuZXJyb3IoIltyZXEgJXNdIERCIGNvbm5lY3Rpb24gZmFpbGVkOiAlcyIsIHJlcV9pZCwgY2UpCiAgICAgICAgICAgIHJldHVybiBqc29uaWZ5KHsiZXJyb3IiOiAiREIgY29ubmVjdGlvbiBmYWlsZWQ6ICVzIiAlIHN0cihjZSl9KSwgNTAwCgogICAgICAgIGN1cnNvciA9IGNvbm4uY3Vyc29yKGRpY3Rpb25hcnk9VHJ1ZSkKCiAgICAgICAgaWYgYWN0aW9uID09ICJmZXRjaCI6CiAgICAgICAgICAgIHF1ZXJ5ID0gZGF0YS5nZXQoInF1ZXJ5IiwgIiIpCiAgICAgICAgICAgIGxvZ2dlci5pbmZvKCJbcmVxICVzXSBGRVRDSCBxdWVyeTogJXMiLCByZXFfaWQsIHF1ZXJ5KQogICAgICAgICAgICBjdXJzb3IuZXhlY3V0ZShxdWVyeSkKICAgICAgICAgICAgcm93cyA9IGN1cnNvci5mZXRjaGFsbCgpCiAgICAgICAgICAgIGZvciByb3cgaW4gcm93czoKICAgICAgICAgICAgICAgIGZvciBrLCB2IGluIHJvdy5pdGVtcygpOgogICAgICAgICAgICAgICAgICAgIGlmIG5vdCBpc2luc3RhbmNlKHYsIChzdHIsIGludCwgZmxvYXQsIGJvb2wsIHR5cGUoTm9uZSkpKToKICAgICAgICAgICAgICAgICAgICAgICAgcm93W2tdID0gc3RyKHYpCiAgICAgICAgICAgIGxvZ2dlci5pbmZvKCJbcmVxICVzXSBGRVRDSCByZXR1cm5lZCAlZCByb3dzIiwgcmVxX2lkLCBsZW4ocm93cykpCiAgICAgICAgICAgIHJldHVybiBqc29uaWZ5KHsiZGF0YSI6IHJvd3N9KQoKICAgICAgICBlbGlmIGFjdGlvbiA9PSAidXBkYXRlIjoKICAgICAgICAgICAgdGFibGUgPSBkYXRhLmdldCgidGFibGUiLCAiIikKICAgICAgICAgICAgdXBkYXRlcyA9IGRhdGEuZ2V0KCJ1cGRhdGVzIiwge30pCiAgICAgICAgICAgIHdoZXJlID0gZGF0YS5nZXQoIndoZXJlIiwge30pCiAgICAgICAgICAgIGxvZ2dlci5pbmZvKCJbcmVxICVzXSBVUERBVEUgdGFibGU9JXMgdXBkYXRlcz0lcyB3aGVyZT0lcyIsIHJlcV9pZCwgdGFibGUsIHVwZGF0ZXMsIHdoZXJlKQoKICAgICAgICAgICAgaWYgbm90IHRhYmxlIG9yIG5vdCB1cGRhdGVzIG9yIG5vdCB3aGVyZToKICAgICAgICAgICAgICAgIGxvZ2dlci53YXJuaW5nKCJbcmVxICVzXSBNaXNzaW5nIHRhYmxlL3VwZGF0ZXMvd2hlcmUiLCByZXFfaWQpCiAgICAgICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogIk1pc3NpbmcgdGFibGUsIHVwZGF0ZXMsIG9yIHdoZXJlIGNsYXVzZSJ9KSwgNDAwCgogICAgICAgICAgICBzZXRfcGFydHMgPSBbXQogICAgICAgICAgICBwYXJhbXMgPSBbXQogICAgICAgICAgICBmb3IgY29sLCB2YWwgaW4gdXBkYXRlcy5pdGVtcygpOgogICAgICAgICAgICAgICAgc2V0X3BhcnRzLmFwcGVuZChmImB7Y29sfWAgPSAlcyIpCiAgICAgICAgICAgICAgICBwYXJhbXMuYXBwZW5kKHZhbCkKCiAgICAgICAgICAgIHdoZXJlX3BhcnRzID0gW10KICAgICAgICAgICAgZm9yIGNvbCwgdmFsIGluIHdoZXJlLml0ZW1zKCk6CiAgICAgICAgICAgICAgICB3aGVyZV9wYXJ0cy5hcHBlbmQoZiJge2NvbH1gID0gJXMiKQogICAgICAgICAgICAgICAgcGFyYW1zLmFwcGVuZCh2YWwpCgogICAgICAgICAgICBzcWwgPSBmIlVQREFURSBge3RhYmxlfWAgU0VUIHsnLCAnLmpvaW4oc2V0X3BhcnRzKX0gV0hFUkUgeycgQU5EICcuam9pbih3aGVyZV9wYXJ0cyl9IgogICAgICAgICAgICBsb2dnZXIuaW5mbygiW3JlcSAlc10gU1FMOiAlcyIsIHJlcV9pZCwgc3FsKQogICAgICAgICAgICBsb2dnZXIuaW5mbygiW3JlcSAlc10gUEFSQU1TOiAlcyIsIHJlcV9pZCwgcGFyYW1zKQogICAgICAgICAgICBjdXJzb3IuZXhlY3V0ZShzcWwsIHBhcmFtcykKICAgICAgICAgICAgY29ubi5jb21taXQoKQogICAgICAgICAgICBhZmZlY3RlZCA9IGN1cnNvci5yb3djb3VudAogICAgICAgICAgICBsb2dnZXIuaW5mbygiW3JlcSAlc10gVVBEQVRFIGFmZmVjdGVkICVkIHJvd3MiLCByZXFfaWQsIGFmZmVjdGVkKQogICAgICAgICAgICBpZiBhZmZlY3RlZCA9PSAwOgogICAgICAgICAgICAgICAgbG9nZ2VyLndhcm5pbmcoIltyZXEgJXNdIDAgcm93cyBhZmZlY3RlZCAtIGNoZWNrIHRoZSBwcmltYXJ5IGtleSB2YWx1ZS91bmlxdWVuZXNzIiwgcmVxX2lkKQogICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImFmZmVjdGVkX3Jvd3MiOiBhZmZlY3RlZH0pCgogICAgICAgIGVsaWYgYWN0aW9uID09ICJpbnNlcnQiOgogICAgICAgICAgICB0YWJsZSA9IGRhdGEuZ2V0KCJ0YWJsZSIsICIiKQogICAgICAgICAgICB2YWx1ZXMgPSBkYXRhLmdldCgidmFsdWVzIiwge30pCiAgICAgICAgICAgIGxvZ2dlci5pbmZvKCJbcmVxICVzXSBJTlNFUlQgdGFibGU9JXMgdmFsdWVzPSVzIiwgcmVxX2lkLCB0YWJsZSwgdmFsdWVzKQoKICAgICAgICAgICAgaWYgbm90IHRhYmxlIG9yIG5vdCB2YWx1ZXM6CiAgICAgICAgICAgICAgICBsb2dnZXIud2FybmluZygiW3JlcSAlc10gTWlzc2luZyB0YWJsZS92YWx1ZXMiLCByZXFfaWQpCiAgICAgICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogIk1pc3NpbmcgdGFibGUgb3IgdmFsdWVzIn0pLCA0MDAKCiAgICAgICAgICAgIGNvbHMgPSBsaXN0KHZhbHVlcy5rZXlzKCkpCiAgICAgICAgICAgIHBhcmFtcyA9IFt2YWx1ZXNbY10gZm9yIGMgaW4gY29sc10KICAgICAgICAgICAgcGxhY2Vob2xkZXJzID0gIiwgIi5qb2luKFsiJXMiXSAqIGxlbihjb2xzKSkKICAgICAgICAgICAgY29sX25hbWVzID0gIiwgIi5qb2luKFtmImB7Y31gIiBmb3IgYyBpbiBjb2xzXSkKICAgICAgICAgICAgc3FsID0gZiJJTlNFUlQgSU5UTyBge3RhYmxlfWAgKHtjb2xfbmFtZXN9KSBWQUxVRVMgKHtwbGFjZWhvbGRlcnN9KSIKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIFNRTDogJXMiLCByZXFfaWQsIHNxbCkKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIFBBUkFNUzogJXMiLCByZXFfaWQsIHBhcmFtcykKICAgICAgICAgICAgY3Vyc29yLmV4ZWN1dGUoc3FsLCBwYXJhbXMpCiAgICAgICAgICAgIGNvbm4uY29tbWl0KCkKICAgICAgICAgICAgbmV3X2lkID0gY3Vyc29yLmxhc3Ryb3dpZAogICAgICAgICAgICBsb2dnZXIuaW5mbygiW3JlcSAlc10gSU5TRVJUIGxhc3Ryb3dpZD0lcyIsIHJlcV9pZCwgbmV3X2lkKQogICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7Imluc2VydGVkX2lkIjogbmV3X2lkfSkKCiAgICAgICAgZWxpZiBhY3Rpb24gPT0gImRlbGV0ZSI6CiAgICAgICAgICAgIHRhYmxlID0gZGF0YS5nZXQoInRhYmxlIiwgIiIpCiAgICAgICAgICAgIHdoZXJlID0gZGF0YS5nZXQoIndoZXJlIiwge30pCiAgICAgICAgICAgIGxvZ2dlci5pbmZvKCJbcmVxICVzXSBERUxFVEUgdGFibGU9JXMgd2hlcmU9JXMiLCByZXFfaWQsIHRhYmxlLCB3aGVyZSkKCiAgICAgICAgICAgIGlmIG5vdCB0YWJsZSBvciBub3Qgd2hlcmU6CiAgICAgICAgICAgICAgICBsb2dnZXIud2FybmluZygiW3JlcSAlc10gTWlzc2luZyB0YWJsZS93aGVyZSIsIHJlcV9pZCkKICAgICAgICAgICAgICAgIHJldHVybiBqc29uaWZ5KHsiZXJyb3IiOiAiTWlzc2luZyB0YWJsZSBvciB3aGVyZSBjbGF1c2UifSksIDQwMAoKICAgICAgICAgICAgd2hlcmVfcGFydHMgPSBbXQogICAgICAgICAgICBwYXJhbXMgPSBbXQogICAgICAgICAgICBmb3IgY29sLCB2YWwgaW4gd2hlcmUuaXRlbXMoKToKICAgICAgICAgICAgICAgIHdoZXJlX3BhcnRzLmFwcGVuZChmImB7Y29sfWAgPSAlcyIpCiAgICAgICAgICAgICAgICBwYXJhbXMuYXBwZW5kKHZhbCkKCiAgICAgICAgICAgIHNxbCA9IGYiREVMRVRFIEZST00gYHt0YWJsZX1gIFdIRVJFIHsnIEFORCAnLmpvaW4od2hlcmVfcGFydHMpfSIKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIFNRTDogJXMiLCByZXFfaWQsIHNxbCkKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIFBBUkFNUzogJXMiLCByZXFfaWQsIHBhcmFtcykKICAgICAgICAgICAgY3Vyc29yLmV4ZWN1dGUoc3FsLCBwYXJhbXMpCiAgICAgICAgICAgIGNvbm4uY29tbWl0KCkKICAgICAgICAgICAgYWZmZWN0ZWQgPSBjdXJzb3Iucm93Y291bnQKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIERFTEVURSBhZmZlY3RlZCAlZCByb3dzIiwgcmVxX2lkLCBhZmZlY3RlZCkKICAgICAgICAgICAgcmV0dXJuIGpzb25pZnkoeyJhZmZlY3RlZF9yb3dzIjogYWZmZWN0ZWR9KQoKICAgICAgICBlbGlmIGFjdGlvbiA9PSAidHJ1bmNhdGUiOgogICAgICAgICAgICB0YWJsZSA9IGRhdGEuZ2V0KCJ0YWJsZSIsICIiKQogICAgICAgICAgICBsb2dnZXIuaW5mbygiW3JlcSAlc10gVFJVTkNBVEUgdGFibGU9JXMiLCByZXFfaWQsIHRhYmxlKQoKICAgICAgICAgICAgaWYgbm90IHRhYmxlOgogICAgICAgICAgICAgICAgbG9nZ2VyLndhcm5pbmcoIltyZXEgJXNdIE1pc3NpbmcgdGFibGUiLCByZXFfaWQpCiAgICAgICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogIk1pc3NpbmcgdGFibGUifSksIDQwMAoKICAgICAgICAgICAgIyBVc2UgREVMRVRFIGluc3RlYWQgb2YgVFJVTkNBVEUgdG8gcHJlc2VydmUgQVVUT19JTkNSRU1FTlQgYW5kIGFsbG93IHJvbGxiYWNrCiAgICAgICAgICAgIHNxbCA9IGYiREVMRVRFIEZST00gYHt0YWJsZX1gIgogICAgICAgICAgICBsb2dnZXIuaW5mbygiW3JlcSAlc10gU1FMOiAlcyIsIHJlcV9pZCwgc3FsKQogICAgICAgICAgICBjdXJzb3IuZXhlY3V0ZShzcWwpCiAgICAgICAgICAgIGNvbm4uY29tbWl0KCkKICAgICAgICAgICAgYWZmZWN0ZWQgPSBjdXJzb3Iucm93Y291bnQKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIFRSVU5DQVRFIChERUxFVEUpIGFmZmVjdGVkICVkIHJvd3MiLCByZXFfaWQsIGFmZmVjdGVkKQogICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImFmZmVjdGVkX3Jvd3MiOiBhZmZlY3RlZH0pCgogICAgICAgIGVsaWYgYWN0aW9uID09ICJkZXNjcmliZSI6CiAgICAgICAgICAgIHRhYmxlID0gZGF0YS5nZXQoInRhYmxlIiwgIiIpCiAgICAgICAgICAgIGxvZ2dlci5pbmZvKCJbcmVxICVzXSBERVNDUklCRSB0YWJsZT0lcyIsIHJlcV9pZCwgdGFibGUpCgogICAgICAgICAgICBpZiBub3QgdGFibGU6CiAgICAgICAgICAgICAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogIk1pc3NpbmcgdGFibGUifSksIDQwMAoKICAgICAgICAgICAgY3Vyc29yLmV4ZWN1dGUoZiJERVNDUklCRSBge3RhYmxlfWAiKQogICAgICAgICAgICByb3dzID0gY3Vyc29yLmZldGNoYWxsKCkKICAgICAgICAgICAgbG9nZ2VyLmluZm8oIltyZXEgJXNdIERFU0NSSUJFIHJldHVybmVkICVkIGNvbHVtbnMiLCByZXFfaWQsIGxlbihyb3dzKSkKICAgICAgICAgICAgcmV0dXJuIGpzb25pZnkoeyJkYXRhIjogcm93c30pCgogICAgICAgIGVsc2U6CiAgICAgICAgICAgIGxvZ2dlci53YXJuaW5nKCJbcmVxICVzXSBVbmtub3duIGFjdGlvbjogJXMiLCByZXFfaWQsIGFjdGlvbikKICAgICAgICAgICAgcmV0dXJuIGpzb25pZnkoeyJlcnJvciI6IGYiVW5rbm93biBhY3Rpb246IHthY3Rpb259In0pLCA0MDAKCiAgICBleGNlcHQgbXlzcWwuY29ubmVjdG9yLkVycm9yIGFzIGU6CiAgICAgICAgbG9nZ2VyLmVycm9yKCJbcmVxICVzXSBNeVNRTCBlcnJvcjogJXMiLCByZXFfaWQsIGUpCiAgICAgICAgbG9nZ2VyLmVycm9yKCJbcmVxICVzXSBUcmFjZWJhY2s6XG4lcyIsIHJlcV9pZCwgdHJhY2ViYWNrLmZvcm1hdF9leGMoKSkKICAgICAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogZiJNeVNRTCBlcnJvcjoge3N0cihlKX0iLCAidHlwZSI6ICJteXNxbCJ9KSwgNTAwCiAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgbG9nZ2VyLmVycm9yKCJbcmVxICVzXSBVbmhhbmRsZWQgZXJyb3I6ICVzIiwgcmVxX2lkLCBlKQogICAgICAgIGxvZ2dlci5lcnJvcigiW3JlcSAlc10gVHJhY2ViYWNrOlxuJXMiLCByZXFfaWQsIHRyYWNlYmFjay5mb3JtYXRfZXhjKCkpCiAgICAgICAgcmV0dXJuIGpzb25pZnkoeyJlcnJvciI6IHN0cihlKSwgInR5cGUiOiAic2VydmVyIn0pLCA1MDAKICAgIGZpbmFsbHk6CiAgICAgICAgdHJ5OgogICAgICAgICAgICBpZiBjdXJzb3IgaXMgbm90IE5vbmU6CiAgICAgICAgICAgICAgICBjdXJzb3IuY2xvc2UoKQogICAgICAgIGV4Y2VwdCBFeGNlcHRpb246CiAgICAgICAgICAgIHBhc3MKICAgICAgICB0cnk6CiAgICAgICAgICAgIGlmIGNvbm4gaXMgbm90IE5vbmUgYW5kIGNvbm4uaXNfY29ubmVjdGVkKCk6CiAgICAgICAgICAgICAgICBjb25uLmNsb3NlKCkKICAgICAgICBleGNlcHQgRXhjZXB0aW9uOgogICAgICAgICAgICBwYXNzCgoKQGFwcC5lcnJvcmhhbmRsZXIoNTAwKQpkZWYgaGFuZGxlXzUwMChlKToKICAgIGxvZ2dlci5lcnJvcigiRmxhc2sgNTAwIGhhbmRsZXI6ICVzXG4lcyIsIGUsIHRyYWNlYmFjay5mb3JtYXRfZXhjKCkpCiAgICByZXR1cm4ganNvbmlmeSh7ImVycm9yIjogIkludGVybmFsIHNlcnZlciBlcnJvciIsICJkZXRhaWwiOiBzdHIoZSl9KSwgNTAwCgoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIHByaW50KCJNeVNRTCBQcm94eSBydW5uaW5nIG9uIGh0dHA6Ly8wLjAuMC4wOjgwODAiKQogICAgcHJpbnQoZiJEZXRhaWxlZCBsb2dzIC0+IHtMT0dfRklMRX0iKQogICAgbG9nZ2VyLmluZm8oIj09PSBNeVNRTCBQcm94eSBzdGFydGluZyBvbiBodHRwOi8vMC4wLjAuMDo4MDgwID09PSIpCiAgICAjIGRlYnVnPUZhbHNlIGF2b2lkcyB0aGUgcmVsb2FkZXIgc3Bhd25pbmcgdHdvIHByb2Nlc3NlcyBhbmQgZHVwbGljYXRpbmcgbG9ncy4KICAgIGFwcC5ydW4oaG9zdD0iMC4wLjAuMCIsIHBvcnQ9ODA4MCwgZGVidWc9RmFsc2UsIHRocmVhZGVkPVRydWUpCg==';
+
+loadOverview();
+</script>
+</body>
+</html>
+
+
+
