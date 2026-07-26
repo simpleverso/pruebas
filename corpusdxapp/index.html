@@ -159,6 +159,7 @@
   <button onclick="showSection('clean')" id="nav-clean"><span class="icon">🗑️</span> Limpiar tablas</button>
   <div class="sep"></div>
   <button onclick="showSection('ia')" id="nav-ia"><span class="icon">🤖</span> Chat IA</button>
+  <button onclick="showSection('translator')" id="nav-translator"><span class="icon">🌐</span> Traductor Esp↔Zap</button>
 </nav>
 
 <main class="main">
@@ -298,6 +299,24 @@
 </main>
 </div>
 
+<!-- TRANSLATOR SECTION -->
+<div class="section" id="section-translator">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+      <span style="font-size:15px;font-weight:600">🌐 Traductor Español ↔ Zapoteco</span>
+      <span style="font-size:11px;color:var(--muted)">vía simpleverso/espzap-translator · Hugging Face Spaces</span>
+    </div>
+    <iframe
+      id="translatorFrame"
+      src=""
+      data-src="https://simpleverso-espzap-translator.hf.space"
+      style="width:100%;height:calc(100vh - 180px);border:none;display:block"
+      allow="microphone; clipboard-write"
+      title="Traductor Español ↔ Zapoteco"
+    ></iframe>
+  </div>
+</div>
+
 <script>
 // ─── Config ───────────────────────────────────────────────────────────────────
 const PROXY = 'http://127.0.0.1:8080/';
@@ -369,11 +388,16 @@ function showSection(name) {
   document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
-  if (name === 'traductor') loadTraductor(tradPage);
-  if (name === 'frases')    loadFrases(frasesPage);
-  if (name === 'overview')  loadOverview();
-  if (name === 'clean')     loadCleanCounts();
-  if (name === 'create')    { switchCreateTab('traductor'); }
+  if (name === 'traductor')   loadTraductor(tradPage);
+  if (name === 'frases')      loadFrases(frasesPage);
+  if (name === 'overview')    loadOverview();
+  if (name === 'clean')       loadCleanCounts();
+  if (name === 'create')      { switchCreateTab('traductor'); }
+  if (name === 'translator')  {
+    // Lazy-load the iframe: only set src on first visit
+    const fr = document.getElementById('translatorFrame');
+    if (fr && !fr.src) fr.src = fr.dataset.src;
+  }
 }
 
 // ─── Overview ─────────────────────────────────────────────────────────────────
