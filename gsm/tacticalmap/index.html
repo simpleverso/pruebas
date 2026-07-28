@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rossmo Formula Geographic Profiling</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,10 +12,21 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
         }
         #map {
-            height: 500px;
+            height: 380px;
             background-color: #1f2937; /* bg-gray-800 */
+        }
+        @media (min-width: 640px) {
+            #map {
+                height: 450px;
+            }
+        }
+        @media (min-width: 1024px) {
+            #map {
+                height: 520px;
+            }
         }
         #heatmapCanvas {
             position: absolute;
@@ -32,32 +43,44 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen">
+<body class="bg-gray-900 text-gray-200 min-h-screen p-2 sm:p-4 md:p-6 flex flex-col justify-center items-center">
 
-    <div class="w-full max-w-6xl bg-gray-800 rounded-xl shadow-2xl p-6 md:p-8 m-4">
+    <div class="w-full max-w-6xl bg-gray-800 rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 my-auto">
         <!-- Header -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-white">Geographic Profiling Algorithms</h1>
-            <p class="text-gray-400 mt-2">Select a tool, add crime locations, choose an algorithm, and press "Calculate".</p>
+        <div class="text-center mb-5 sm:mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Geographic Profiling Algorithms</h1>
+            <p class="text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2">Select a tool, add crime locations, choose an algorithm, and press "Calculate".</p>
         </div>
 
-        <!-- Controls -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end justify-center mb-6 bg-gray-900/50 p-4 rounded-lg">
-            <!-- Algorithm & Parameters -->
-            <div class="md:col-span-2 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Controls Container -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-end mb-6 bg-gray-900/60 p-3.5 sm:p-5 rounded-lg border border-gray-700/50">
+            
+            <!-- Location, Algorithm & Parameters -->
+            <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="algorithmSelect" class="block mb-1 text-sm font-medium">Algorithm</label>
-                    <select id="algorithmSelect" class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
+                    <label for="citySelect" class="block mb-1 text-xs sm:text-sm font-medium text-gray-300">City / Location</label>
+                    <select id="citySelect" class="w-full bg-gray-700 border border-gray-600 text-white text-xs sm:text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5 min-h-[44px]">
+                        <option value="19.4326,-99.1332,13" selected>Current City (CDMX)</option>
+                        <option value="16.4339,-95.0195,14">Juchitán, Oaxaca</option>
+                        <option value="19.7135,-98.9692,14">Tecámac, Estado de México</option>
+                        <option value="20.4744,-103.4475,14">Tlajomulco, Jalisco</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="algorithmSelect" class="block mb-1 text-xs sm:text-sm font-medium text-gray-300">Algorithm</label>
+                    <select id="algorithmSelect" class="w-full bg-gray-700 border border-gray-600 text-white text-xs sm:text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5 min-h-[44px]">
                         <option value="rossmo" selected>Rossmo's Formula</option>
                         <option value="decay">Simple Distance Decay</option>
                     </select>
                 </div>
-                 <div id="bufferZoneControl" class="w-full">
+                
+                <div id="bufferZoneControl" class="w-full sm:col-span-2">
                     <div class="flex items-center gap-1.5 mb-1">
-                        <label for="bufferZoneInput" class="text-sm font-medium">Buffer Zone (B)</label>
+                        <label for="bufferZoneInput" class="text-xs sm:text-sm font-medium text-gray-300">Buffer Zone (B)</label>
                         <div class="relative group flex items-center">
                             <span class="cursor-help text-cyan-400 text-xs font-bold border border-cyan-400 rounded-full w-4 h-4 flex items-center justify-center">?</span>
-                            <div class="absolute bottom-full mb-2 w-64 bg-gray-700 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                            <div class="absolute bottom-full mb-2 w-56 sm:w-64 bg-gray-700 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
                                 The buffer zone is a 'donut' shaped area around a crime scene. Rossmo's formula assumes offenders avoid committing crimes right next to their home, so this inner area is considered less probable.
                                 <svg class="absolute text-gray-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                             </div>
@@ -65,76 +88,93 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <input id="bufferZoneSlider" type="range" min="10" max="1000" value="150" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" title="Adjust common values quickly">
-                        <input id="bufferZoneInput" type="number" min="0" value="150" class="w-24 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 text-center" title="Enter any value">
-                        <select id="bufferUnit" class="bg-gray-700 border border-gray-600 text-white text-xs rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-1">
+                        <input id="bufferZoneInput" type="number" min="0" value="150" class="w-16 sm:w-20 bg-gray-700 border border-gray-600 text-white text-xs sm:text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 text-center shrink-0 min-h-[44px]" title="Enter any value">
+                        <select id="bufferUnit" class="bg-gray-700 border border-gray-600 text-white text-xs rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2 shrink-0 min-h-[44px]">
                             <option value="meters" selected>meters</option>
                             <option value="pixels">pixels</option>
                         </select>
                     </div>
                 </div>
-                <div class="w-full md:col-span-2">
-                     <div class="flex items-center gap-1.5 mb-1">
-                        <label for="distanceDecay" class="text-sm font-medium">Distance Decay (f)</label>
-                         <div class="relative group flex items-center">
+
+                <div class="w-full sm:col-span-2">
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <label for="distanceDecay" class="text-xs sm:text-sm font-medium text-gray-300">Distance Decay (f)</label>
+                        <div class="relative group flex items-center">
                             <span class="cursor-help text-cyan-400 text-xs font-bold border border-cyan-400 rounded-full w-4 h-4 flex items-center justify-center">?</span>
-                            <div class="absolute bottom-full mb-2 w-64 bg-gray-700 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
-                               This value (f) is a unitless exponent that controls how sharply the probability drops off with distance. It's not a measure of distance (like meters or km). A higher 'f' value means a more rapid decay.
+                            <div class="absolute bottom-full mb-2 w-56 sm:w-64 bg-gray-700 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
+                                This value (f) is a unitless exponent that controls how sharply the probability drops off with distance. It's not a measure of distance. A higher 'f' value means a more rapid decay.
                                 <svg class="absolute text-gray-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                             </div>
                         </div>
                     </div>
-                     <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
                         <input id="distanceDecay" type="range" min="0.1" max="2.0" value="1.2" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                        <span id="decayValue" class="font-mono text-cyan-400 w-12 text-center">1.2</span>
+                        <span id="decayValue" class="font-mono text-cyan-400 w-10 text-center text-sm font-bold shrink-0">1.2</span>
                     </div>
                 </div>
             </div>
             
             <!-- Tools & Actions -->
-            <div class="md:col-span-2 lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-6">
-                 <div>
-                    <label class="block mb-1 text-sm font-medium">Map Tools</label>
-                    <div class="flex gap-2">
-                        <button id="panTool" title="Pan Map" class="bg-gray-700 hover:bg-gray-600 text-white font-bold p-2.5 rounded-lg transition-colors duration-300 w-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="mx-auto" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708l3-3zM-1.95 8.354l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z"/></svg>
+            <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Map Tools -->
+                <div class="flex flex-col justify-end">
+                    <label class="block mb-1 text-xs sm:text-sm font-medium text-gray-300">Map Tools</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="panTool" title="Pan Map" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-2 sm:px-3 rounded-lg transition-colors duration-300 flex items-center justify-center gap-1.5 min-h-[44px] text-xs sm:text-sm w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z"/></svg>
+                            <span>Pan</span>
                         </button>
-                        <button id="addTool" title="Add Crime" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold p-2.5 rounded-lg transition-colors duration-300 w-full">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="mx-auto" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                        <button id="addTool" title="Add Crime" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 px-2 sm:px-3 rounded-lg transition-colors duration-300 flex items-center justify-center gap-1.5 min-h-[44px] text-xs sm:text-sm w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                            <span>Add</span>
                         </button>
                     </div>
                 </div>
-                 <div>
-                    <label class="block mb-1 text-sm font-medium">Analysis</label>
-                    <div class="flex gap-2 h-full items-end">
-                       <button id="calculateBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Calculate</button>
-                       <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Clear</button>
+                
+                <!-- Analysis -->
+                <div class="flex flex-col justify-end">
+                    <label class="block mb-1 text-xs sm:text-sm font-medium text-gray-300">Analysis</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="calculateBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 px-2 rounded-lg transition-colors duration-300 min-h-[44px] text-xs sm:text-sm flex items-center justify-center text-center w-full">Calculate</button>
+                        <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-2 rounded-lg transition-colors duration-300 min-h-[44px] text-xs sm:text-sm flex items-center justify-center text-center w-full">Clear</button>
                     </div>
                 </div>
-                <div>
-                    <label class="block mb-1 text-sm font-medium">Data</label>
-                    <div class="flex gap-2 h-full items-end">
-                       <button id="importBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Import KML</button>
-                       <button id="exportBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Export KML</button>
-                       <input type="file" id="kmlInput" accept=".kml,application/vnd.google-earth.kml+xml" class="hidden">
+
+                <!-- Data -->
+                <div class="flex flex-col justify-end">
+                    <label class="block mb-1 text-xs sm:text-sm font-medium text-gray-300">Data</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="importBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-1.5 rounded-lg transition-colors duration-300 min-h-[44px] text-xs sm:text-sm flex items-center justify-center text-center w-full" title="Import KML">Import KML</button>
+                        <button id="exportBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-1.5 rounded-lg transition-colors duration-300 min-h-[44px] text-xs sm:text-sm flex items-center justify-center text-center w-full" title="Export KML">Export KML</button>
+                        <input type="file" id="kmlInput" accept=".kml,application/vnd.google-earth.kml+xml" class="hidden">
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Map Container -->
-        <div id="mapContainer" class="bg-gray-900 p-2 rounded-lg shadow-inner relative">
+        <div id="mapContainer" class="bg-gray-900 p-1.5 sm:p-2 rounded-lg shadow-inner relative overflow-hidden">
             <div id="map" class="rounded-md w-full"></div>
-            <!-- The heatmap canvas will be added here by script -->
+            <!-- Live Coordinate Display Overlay -->
+            <div id="coordsDisplay" class="absolute bottom-3 left-3 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 text-cyan-400 font-mono text-xs px-2.5 py-1 rounded-md shadow-md pointer-events-none flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" class="text-cyan-400"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                <span id="coordsText">Lat: 19.43260, Lng: -99.13320</span>
+            </div>
         </div>
         
-        <!-- Instructions -->
-        <div id="instructions" class="text-center text-gray-500 mt-4 text-sm">
+        <!-- Instructions & Warning -->
+        <div id="instructions" class="text-center text-gray-400 mt-4 text-xs sm:text-sm px-2">
             Place 3 or more crime locations for the best results. The heatmap shows the most probable "anchor point" for the offender in red.
+        </div>
+        <div id="unexportedWarning" class="hidden text-amber-400 text-xs text-center font-medium mt-2.5 flex items-center justify-center gap-1.5 bg-amber-950/50 border border-amber-700/60 py-1.5 px-3 rounded-lg w-fit mx-auto shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="shrink-0 text-amber-400"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm0-1.016a1.146 1.146 0 0 0-.96.486L.12 13.153a1.163 1.163 0 0 0 .012 1.256c.214.357.6.591 1.014.591h13.708c.414 0 .8-.234 1.014-.591a1.163 1.163 0 0 0 .012-1.256L9.897 1.486A1.146 1.146 0 0 0 8.938 1z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+            <span>Notice: Data is not exported yet. Remember to Export KML to avoid losing data if browser cache is cleared.</span>
         </div>
     </div>
 
     <script>
         // DOM Elements
+        const citySelect = document.getElementById('citySelect');
         const algorithmSelect = document.getElementById('algorithmSelect');
         const bufferZoneControl = document.getElementById('bufferZoneControl');
         const calculateBtn = document.getElementById('calculateBtn');
@@ -152,16 +192,32 @@
         const importBtn = document.getElementById('importBtn');
         const exportBtn = document.getElementById('exportBtn');
         const kmlInput = document.getElementById('kmlInput');
-
+        const coordsText = document.getElementById('coordsText');
 
         // State variables
         let crimeLocations = []; // Stores LatLng objects
         let crimeMarkers = []; // Stores Leaflet marker objects
         let heatmapCanvas = null;
         let currentMode = 'add'; // 'add' or 'pan'
+        let hasExportedData = false;
+
+        function updateExportWarningStatus() {
+            const warningEl = document.getElementById('unexportedWarning');
+            if (warningEl) {
+                if (crimeLocations.length > 0 && !hasExportedData) {
+                    warningEl.classList.remove('hidden');
+                } else {
+                    warningEl.classList.add('hidden');
+                }
+            }
+        }
 
         // --- Initialize Leaflet Map ---
-        const map = L.map('map').setView([19.4326, -99.1332], 12);
+        const map = L.map('map', {
+            tap: true,
+            touchZoom: true
+        }).setView([19.4326, -99.1332], 12);
+
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -187,9 +243,132 @@
             }
         }
 
+        // --- Local Storage Auto-Save & Restore ---
+        const STORAGE_KEY = 'geographic_profiling_session';
+
+        function saveState() {
+            try {
+                const state = {
+                    crimeLocations: crimeLocations.map(loc => ({ lat: loc.lat, lng: loc.lng })),
+                    algorithm: algorithmSelect.value,
+                    bufferValue: bufferZoneInput.value,
+                    bufferUnit: bufferUnitSelect.value,
+                    decayValue: decaySlider.value,
+                    citySelect: citySelect.value,
+                    mapCenter: { lat: map.getCenter().lat, lng: map.getCenter().lng },
+                    mapZoom: map.getZoom(),
+                    hasCalculated: heatmapCanvas !== null,
+                    hasExportedData: hasExportedData
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.warn('Unable to save session to localStorage:', e);
+            }
+        }
+
+        function restoreState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return;
+                const state = JSON.parse(saved);
+
+                if (typeof state.hasExportedData === 'boolean') {
+                    hasExportedData = state.hasExportedData;
+                }
+
+                // Restore inputs
+                if (state.algorithm) {
+                    algorithmSelect.value = state.algorithm;
+                    bufferZoneControl.style.display = state.algorithm === 'rossmo' ? 'block' : 'none';
+                }
+                if (state.bufferValue) {
+                    bufferZoneInput.value = state.bufferValue;
+                    bufferSlider.value = state.bufferValue;
+                }
+                if (state.bufferUnit) {
+                    bufferUnitSelect.value = state.bufferUnit;
+                }
+                if (state.decayValue) {
+                    decaySlider.value = state.decayValue;
+                    decayValueSpan.textContent = state.decayValue;
+                }
+                if (state.citySelect) {
+                    citySelect.value = state.citySelect;
+                }
+
+                // Restore map center & zoom
+                if (state.mapCenter && state.mapZoom) {
+                    map.setView([state.mapCenter.lat, state.mapCenter.lng], state.mapZoom);
+                }
+
+                // Restore points
+                if (Array.isArray(state.crimeLocations) && state.crimeLocations.length > 0) {
+                    state.crimeLocations.forEach(loc => {
+                        const latlng = L.latLng(loc.lat, loc.lng);
+                        addCrimeLocation(latlng, true, true);
+                    });
+                    instructions.textContent = `Restored ${state.crimeLocations.length} crime location(s) from previous session.`;
+
+                    if (state.hasCalculated) {
+                        setTimeout(runCalculation, 150);
+                    }
+                }
+                updateExportWarningStatus();
+            } catch (e) {
+                console.warn('Unable to restore session from localStorage:', e);
+            }
+        }
+
         // --- Event Listeners ---
+        // Live coordinate display for mouse hover & touch dragging
+        const updateCoords = (e) => {
+            if (e && e.latlng) {
+                const lat = e.latlng.lat.toFixed(5);
+                const lng = e.latlng.lng.toFixed(5);
+                coordsText.textContent = `Lat: ${lat}, Lng: ${lng}`;
+            }
+        };
+        map.on('mousemove', updateCoords);
+        map.on('touchmove', updateCoords);
+
+        // Toggle tooltips on tap for touch devices
+        document.querySelectorAll('.cursor-help').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const tooltip = btn.nextElementSibling;
+                if (tooltip) {
+                    const isVisible = tooltip.classList.contains('opacity-100');
+                    document.querySelectorAll('.group > div').forEach(d => {
+                        d.classList.remove('opacity-100', 'pointer-events-auto');
+                        d.classList.add('opacity-0', 'pointer-events-none');
+                    });
+                    if (!isVisible) {
+                        tooltip.classList.remove('opacity-0', 'pointer-events-none');
+                        tooltip.classList.add('opacity-100', 'pointer-events-auto');
+                    }
+                }
+            });
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.group > div').forEach(d => {
+                d.classList.remove('opacity-100', 'pointer-events-auto');
+                d.classList.add('opacity-0', 'pointer-events-none');
+            });
+        });
+
+        citySelect.addEventListener('change', (e) => {
+            const [lat, lng, zoom] = e.target.value.split(',').map(Number);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng], zoom || 12);
+                instructions.textContent = `Map centered on ${e.target.options[e.target.selectedIndex].text}.`;
+            }
+            saveState();
+        });
+
         bufferSlider.addEventListener('input', () => {
             bufferZoneInput.value = bufferSlider.value;
+            saveState();
         });
         bufferZoneInput.addEventListener('input', () => {
             const value = parseInt(bufferZoneInput.value, 10);
@@ -199,11 +378,18 @@
             } else if (!isNaN(value) && value > maxSlider) {
                 bufferSlider.value = maxSlider;
             }
+            saveState();
         });
-        decaySlider.addEventListener('input', () => decayValueSpan.textContent = decaySlider.value);
+        bufferUnitSelect.addEventListener('change', saveState);
+
+        decaySlider.addEventListener('input', () => {
+            decayValueSpan.textContent = decaySlider.value;
+            saveState();
+        });
         
         algorithmSelect.addEventListener('change', (e) => {
             bufferZoneControl.style.display = e.target.value === 'rossmo' ? 'block' : 'none';
+            saveState();
         });
 
         map.on('click', (event) => {
@@ -212,9 +398,27 @@
         });
         
         map.on('moveend', () => {
+            saveState();
             if (heatmapCanvas && crimeLocations.length > 0) {
                 instructions.textContent = 'Map view changed. Recalculating...';
                 setTimeout(runCalculation, 50);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            map.invalidateSize();
+            if (heatmapCanvas && crimeLocations.length > 0) {
+                runCalculation();
+            }
+        });
+
+        window.addEventListener('beforeunload', (e) => {
+            saveState();
+            if (crimeLocations.length > 0 && !hasExportedData) {
+                const warningMsg = 'Warning: Data has not been exported to KML. Data may be lost if browser memory is cleared.';
+                e.preventDefault();
+                e.returnValue = warningMsg;
+                return warningMsg;
             }
         });
 
@@ -236,25 +440,31 @@
         exportBtn.addEventListener('click', exportToKML);
 
         // --- Core Functions ---
-        function addCrimeLocation(latlng, suppressMessage = false) {
+        function addCrimeLocation(latlng, suppressMessage = false, skipSave = false) {
              crimeLocations.push(latlng);
              const marker = L.marker(latlng).addTo(map);
              crimeMarkers.push(marker);
+             hasExportedData = false;
+             updateExportWarningStatus();
              if (!suppressMessage) {
                  instructions.textContent = `${crimeLocations.length} crime(s) plotted. Ready to calculate.`;
              }
+             if (!skipSave) saveState();
         }
 
         function clearMap() {
             crimeMarkers.forEach(marker => map.removeLayer(marker));
             crimeMarkers = [];
             crimeLocations = [];
+            hasExportedData = false;
+            updateExportWarningStatus();
 
             if (heatmapCanvas) {
                 mapContainer.removeChild(heatmapCanvas);
                 heatmapCanvas = null;
             }
             instructions.textContent = 'Map cleared. Click to add new crime locations.';
+            saveState();
         }
         
         function getBufferInPixels() {
@@ -448,6 +658,9 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            hasExportedData = true;
+            updateExportWarningStatus();
+            saveState();
             instructions.textContent = `Exported ${crimeLocations.length} locations to KML.`;
         }
 
@@ -505,8 +718,8 @@
 
         // --- Initial UI setup ---
         setToolMode('add'); // Default to add mode
+        restoreState(); // Restore state from previous session if available
         
     </script>
 </body>
 </html>
-
