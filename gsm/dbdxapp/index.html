@@ -491,7 +491,7 @@ async function _doGlobalSearch() {
     // ── 1. Direct DB search (runs immediately) ────────────────────────────────
     const [tr, fr] = await Promise.all([
       api({ action:'fetch', query:`SELECT idtraductor AS id, espaniol, zapoteco, significado, valido AS valid, variante FROM traductor WHERE ${col} LIKE '%${qEsc}%' ORDER BY id LIMIT 30` }),
-      api({ action:'fetch', query:`SELECT idfrases, espaniol, zapoteco, descripcion, valid FROM frases WHERE ${col} LIKE '%${qEsc}%' ORDER BY id LIMIT 30` }),
+      api({ action:'fetch', query:`SELECT idfrases, espaniol, zapoteco, descripcion, valid FROM frases WHERE ${col} LIKE '%${qEsc}%' ORDER BY idfrases LIMIT 30` }),
     ]);
 
     // Collect already-found IDs to deduplicate AI results
@@ -525,7 +525,7 @@ async function _doGlobalSearch() {
 
         const [trAI, frAI] = await Promise.all([
           api({ action:'fetch', query:`SELECT idtraductor AS id, espaniol, zapoteco, significado, valido AS valid, variante FROM traductor WHERE (${likeParts}) ORDER BY id LIMIT 40` }),
-          api({ action:'fetch', query:`SELECT idfrases, espaniol, zapoteco, descripcion, valid FROM frases WHERE (${likeParts}) ORDER BY id LIMIT 40` }),
+          api({ action:'fetch', query:`SELECT idfrases, espaniol, zapoteco, descripcion, valid FROM frases WHERE (${likeParts}) ORDER BY idfrases LIMIT 40` }),
         ]);
 
         // Deduplicate against direct results
@@ -659,7 +659,7 @@ async function loadFrases(page) {
     loading(true);
     const [cnt, rows] = await Promise.all([
       api({ action:'fetch', query:`SELECT COUNT(*) AS n FROM frases ${wClause}` }),
-      api({ action:'fetch', query:`SELECT idfrases, espaniol, zapoteco, descripcion, valid, fecha FROM frases ${wClause} ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}` }),
+      api({ action:'fetch', query:`SELECT idfrases, espaniol, zapoteco, descripcion, valid, fecha FROM frases ${wClause} ORDER BY idfrases DESC LIMIT ${limit} OFFSET ${offset}` }),
     ]);
     frasesTotal = cnt.data[0].n;
     document.getElementById('frasesCount').textContent = `(${frasesTotal} registros)`;
@@ -739,7 +739,7 @@ async function editTraductor(id) {
 async function editFrase(id) {
   try {
     loading(true);
-    const res = await api({ action:'fetch', query:`SELECT * FROM frases WHERE id=${id} LIMIT 1` });
+    const res = await api({ action:'fetch', query:`SELECT * FROM frases WHERE idfrases=${id} LIMIT 1` });
     openEditModal('frases', res.data[0]);
   } catch(e) { toast(e.message,'error'); }
   finally { loading(false); }
