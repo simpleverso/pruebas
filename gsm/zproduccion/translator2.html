@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -10,22 +11,59 @@
     <meta name="description" content="Traductor Web Español - Zapoteco del Istmo (Didxazapp v2 con NLLB-600M)">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
     <!-- Bootstrap 4.3.1 served from cdnjs -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
-        :root { --info: #3b99e0; }
-        body { font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
-        .bg-info { background-color: #3b99e0 !important; }
-        .text-info { color: #3b99e0 !important; }
-        .border-info { border-color: #3b99e0 !important; }
-        .btn-info { background-color: #3b99e0; border-color: #3b99e0; }
-        .btn-info:hover { background-color: #2d83c4; border-color: #2778b8; }
-        .btn-outline-info { color: #3b99e0; border-color: #3b99e0; }
-        .btn-outline-info:hover { background-color: #3b99e0; border-color: #3b99e0; }
-        .alert-info { color: #1f5077; background-color: #d8eaf9; border-color: #c8e0f5; }
+        :root {
+            --info: #3b99e0;
+        }
+
+        body {
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+
+        .bg-info {
+            background-color: #3b99e0 !important;
+        }
+
+        .text-info {
+            color: #3b99e0 !important;
+        }
+
+        .border-info {
+            border-color: #3b99e0 !important;
+        }
+
+        .btn-info {
+            background-color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .btn-info:hover {
+            background-color: #2d83c4;
+            border-color: #2778b8;
+        }
+
+        .btn-outline-info {
+            color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .btn-outline-info:hover {
+            background-color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .alert-info {
+            color: #1f5077;
+            background-color: #d8eaf9;
+            border-color: #c8e0f5;
+        }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
     <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
     <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
     <link rel="stylesheet" href="assets/css/Footer-Basic.css">
@@ -41,25 +79,25 @@
     <style>
         /* ===== Translator – paleta gris / azul (dark) ===== */
         :root {
-            --tx-bg-1:        #0b1322;
-            --tx-bg-2:        #111c2f;
-            --tx-surface:     #1a2436;
-            --tx-surface-2:   #131c2c;
-            --tx-surface-3:   #243047;
-            --tx-border:      #2a3447;
-            --tx-border-2:    #354260;
+            --tx-bg-1: #0b1322;
+            --tx-bg-2: #111c2f;
+            --tx-surface: #1a2436;
+            --tx-surface-2: #131c2c;
+            --tx-surface-3: #243047;
+            --tx-border: #2a3447;
+            --tx-border-2: #354260;
 
-            --tx-text:        #e6ecf5;
+            --tx-text: #e6ecf5;
             --tx-text-strong: #f3f6fb;
-            --tx-muted:       #94a3b8;
-            --tx-label:       #b6c2d4;
+            --tx-muted: #94a3b8;
+            --tx-label: #b6c2d4;
 
-            --tx-primary:     #4f8fcf;
-            --tx-primary-2:   #6ba6e0;
-            --tx-primary-deep:#22456b;
-            --tx-accent:      #3b82f6;
+            --tx-primary: #4f8fcf;
+            --tx-primary-2: #6ba6e0;
+            --tx-primary-deep: #22456b;
+            --tx-accent: #3b82f6;
 
-            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+            --tx-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
         }
 
         body {
@@ -82,23 +120,41 @@
             border-bottom: 1px solid var(--tx-border);
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
         }
+
         .clean-navbar .nav-link {
             color: var(--tx-label) !important;
             font-weight: 500;
             letter-spacing: 0.02em;
         }
+
         .clean-navbar .nav-link.active,
-        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
-        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .clean-navbar .nav-link:hover {
+            color: var(--tx-primary-2) !important;
+        }
+
+        .navbar-brand.logo {
+            color: var(--tx-text-strong) !important;
+            font-weight: 600;
+        }
+
         .navbar-toggler {
             border-color: var(--tx-border) !important;
         }
+
         .navbar-toggler-icon {
             filter: invert(1) brightness(1.4) opacity(0.7);
         }
 
-        #info-container { padding-top: 24px; padding-bottom: 40px; max-width: 1180px; }
-        #info-container .row { height: auto !important; margin: 0 !important; }
+        #info-container {
+            padding-top: 24px;
+            padding-bottom: 40px;
+            max-width: 1180px;
+        }
+
+        #info-container .row {
+            height: auto !important;
+            margin: 0 !important;
+        }
 
         h1.pulse.animated {
             color: var(--tx-text-strong) !important;
@@ -116,8 +172,14 @@
             box-shadow: var(--tx-shadow);
             margin: 0 auto;
         }
-        .site-form .form-group { margin-bottom: 6px; }
-        .site-form form { text-align: left !important; }
+
+        .site-form .form-group {
+            margin-bottom: 6px;
+        }
+
+        .site-form form {
+            text-align: left !important;
+        }
 
         /* Grid de resultados: 2 columnas */
         .results-grid {
@@ -126,11 +188,25 @@
             gap: 16px 22px;
             margin-top: 10px;
         }
-        .result-cell { display: flex; flex-direction: column; }
-        .result-cell.full-width { grid-column: 1 / -1; }
+
+        .result-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-cell.full-width {
+            grid-column: 1 / -1;
+        }
+
         @media (max-width: 767.98px) {
-            .results-grid { grid-template-columns: 1fr; gap: 14px 0; }
-            .result-cell.full-width { grid-column: auto; }
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 14px 0;
+            }
+
+            .result-cell.full-width {
+                grid-column: auto;
+            }
         }
 
         .field-label {
@@ -144,6 +220,7 @@
             color: var(--tx-label);
             margin: 12px 0 6px;
         }
+
         .field-label .src-tag {
             display: inline-block;
             padding: 2px 8px;
@@ -154,6 +231,7 @@
             letter-spacing: 0.06em;
             border: 1px solid rgba(107, 166, 224, 0.25);
         }
+
         .field-label .src-tag.v2-tag {
             background: rgba(110, 231, 183, 0.15);
             color: #6ee7b7;
@@ -172,7 +250,11 @@
             transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
             box-shadow: none;
         }
-        .site-form .form-control::placeholder { color: #6b7891; }
+
+        .site-form .form-control::placeholder {
+            color: #6b7891;
+        }
+
         .site-form .form-control:focus {
             background: #182236;
             border-color: var(--tx-accent);
@@ -180,6 +262,7 @@
             outline: none;
             color: var(--tx-text-strong);
         }
+
         .site-form .form-control.is-invalid,
         .site-form .form-control.is-invalid:focus {
             border-color: #f59e0b;
@@ -202,6 +285,7 @@
             align-items: flex-start;
             gap: 8px;
         }
+
         .input-warning::before {
             content: "⚠";
             font-size: 0.95rem;
@@ -209,13 +293,33 @@
             margin-top: 1px;
             color: #f59e0b;
         }
-        .input-warning.shake { animation: tx-shake 0.4s ease; }
+
+        .input-warning.shake {
+            animation: tx-shake 0.4s ease;
+        }
+
         @keyframes tx-shake {
-            0%, 100% { transform: translateX(0); }
-            20%      { transform: translateX(-5px); }
-            40%      { transform: translateX(5px); }
-            60%      { transform: translateX(-3px); }
-            80%      { transform: translateX(3px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-5px);
+            }
+
+            40% {
+                transform: translateX(5px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
+
+            80% {
+                transform: translateX(3px);
+            }
         }
 
         /* Sugerencias ortográficas */
@@ -230,9 +334,21 @@
             line-height: 1.45;
             color: var(--tx-label);
         }
-        .spell-panel.is-loading { opacity: 0.7; }
-        .spell-item { margin: 4px 0; }
-        .spell-item + .spell-item { border-top: 1px dashed var(--tx-border-2); padding-top: 6px; margin-top: 6px; }
+
+        .spell-panel.is-loading {
+            opacity: 0.7;
+        }
+
+        .spell-item {
+            margin: 4px 0;
+        }
+
+        .spell-item+.spell-item {
+            border-top: 1px dashed var(--tx-border-2);
+            padding-top: 6px;
+            margin-top: 6px;
+        }
+
         .spell-word {
             display: inline-block;
             font-weight: 600;
@@ -245,7 +361,12 @@
             font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
             font-size: 0.82rem;
         }
-        .spell-arrow { color: var(--tx-muted); margin: 0 4px; }
+
+        .spell-arrow {
+            color: var(--tx-muted);
+            margin: 0 4px;
+        }
+
         .spell-chip {
             display: inline-block;
             padding: 2px 9px;
@@ -259,17 +380,25 @@
             cursor: pointer;
             transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
         }
+
         .spell-chip:hover {
             background: var(--tx-primary);
             border-color: var(--tx-primary);
             color: #0b1322;
         }
+
         .spell-chip:focus {
             outline: 2px solid var(--tx-accent);
             outline-offset: 1px;
         }
-        .spell-msg { margin: 0; }
-        .spell-msg.spell-ok { color: #4ade80; }
+
+        .spell-msg {
+            margin: 0;
+        }
+
+        .spell-msg.spell-ok {
+            color: #4ade80;
+        }
 
         .source-row {
             display: grid;
@@ -277,13 +406,25 @@
             gap: 14px;
             align-items: start;
         }
-        .source-input { min-width: 0; }
-        @media (max-width: 575.98px) {
-            .source-row { grid-template-columns: 1fr; }
+
+        .source-input {
+            min-width: 0;
         }
 
-        .input-with-mic { position: relative; }
-        .input-with-mic .form-control { padding-right: 48px; }
+        @media (max-width: 575.98px) {
+            .source-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-with-mic {
+            position: relative;
+        }
+
+        .input-with-mic .form-control {
+            padding-right: 48px;
+        }
+
         .voice-btn {
             position: absolute;
             top: 50%;
@@ -302,14 +443,27 @@
             justify-content: center;
             transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.05s ease;
         }
+
         .voice-btn:hover {
             background: var(--tx-primary);
             border-color: var(--tx-primary);
             color: #ffffff;
         }
-        .voice-btn:active { transform: translateY(-50%) scale(0.94); }
-        .voice-btn:focus { outline: 2px solid var(--tx-accent); outline-offset: 1px; }
-        .voice-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+        .voice-btn:active {
+            transform: translateY(-50%) scale(0.94);
+        }
+
+        .voice-btn:focus {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 1px;
+        }
+
+        .voice-btn[disabled] {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         .voice-btn.is-listening {
             background: linear-gradient(180deg, #b45309 0%, #7c2d12 100%);
             border-color: #b45309;
@@ -317,10 +471,19 @@
             box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6);
             animation: tx-mic-pulse 1.4s ease-out infinite;
         }
+
         @keyframes tx-mic-pulse {
-            0%   { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0.55); }
-            70%  { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);    }
-            100% { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0);    }
+            0% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
         }
 
         .site-form select.form-control {
@@ -345,6 +508,7 @@
             background-size: 6px 6px, 6px 6px;
             background-repeat: no-repeat;
         }
+
         .site-form select.form-control:focus {
             background-color: #182236;
             border-color: var(--tx-accent);
@@ -352,7 +516,11 @@
             outline: none;
             color: var(--tx-text-strong);
         }
-        .site-form select.form-control option { background: var(--tx-surface); color: var(--tx-text); }
+
+        .site-form select.form-control option {
+            background: var(--tx-surface);
+            color: var(--tx-text);
+        }
 
         .bridge-panel {
             margin: 8px 0 0;
@@ -369,14 +537,24 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        .bridge-panel .bridge-from { color: var(--tx-muted); }
-        .bridge-panel .bridge-arrow { color: var(--tx-muted); }
+
+        .bridge-panel .bridge-from {
+            color: var(--tx-muted);
+        }
+
+        .bridge-panel .bridge-arrow {
+            color: var(--tx-muted);
+        }
+
         .bridge-panel .bridge-text {
             color: var(--tx-text-strong);
             font-weight: 600;
             font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
         }
-        .bridge-panel.is-loading { opacity: 0.7; }
+
+        .bridge-panel.is-loading {
+            opacity: 0.7;
+        }
 
         .site-form textarea.form-control {
             background: var(--tx-surface-2);
@@ -386,6 +564,7 @@
             font-size: 0.95rem;
             line-height: 1.6;
         }
+
         .site-form textarea.form-control[readonly] {
             color: var(--tx-text);
             cursor: text;
@@ -406,12 +585,20 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             transition: transform 0.05s ease, box-shadow 0.15s ease, filter 0.15s ease;
         }
+
         #btn_traduc:hover {
             filter: brightness(1.10);
             box-shadow: 0 8px 22px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
         }
-        #btn_traduc:active { transform: translateY(1px); }
-        #btn_traduc:focus { outline: 3px solid rgba(59, 130, 246, 0.35); outline-offset: 2px; }
+
+        #btn_traduc:active {
+            transform: translateY(1px);
+        }
+
+        #btn_traduc:focus {
+            outline: 3px solid rgba(59, 130, 246, 0.35);
+            outline-offset: 2px;
+        }
 
         /* Estilos específicos para Didxazapp v2 card */
         .v2-card-notice {
@@ -423,6 +610,7 @@
             color: #a7f3d0;
             margin-bottom: 8px;
         }
+
         .v2-progress-bar-wrap {
             height: 6px;
             background: var(--tx-surface-2);
@@ -431,6 +619,7 @@
             border: 1px solid var(--tx-border);
             margin: 6px 0;
         }
+
         .v2-progress-bar {
             height: 100%;
             width: 0%;
@@ -444,6 +633,7 @@
             margin-top: 40px;
             padding: 18px 0;
         }
+
         .footer-basic .copyright {
             color: var(--tx-muted);
             font-size: 0.82rem;
@@ -456,19 +646,37 @@
             color: var(--tx-text-strong);
         }
 
-        textarea::-webkit-scrollbar { width: 10px; height: 10px; }
-        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
         textarea::-webkit-scrollbar-thumb {
             background: var(--tx-surface-3);
             border-radius: 999px;
             border: 2px solid var(--tx-surface-2);
         }
-        textarea::-webkit-scrollbar-thumb:hover { background: var(--tx-border-2); }
+
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--tx-border-2);
+        }
 
         @media (max-width: 767.98px) {
-            #info-container { padding-top: 16px; }
-            .site-form { padding: 22px 18px; }
-            h1.pulse.animated { font-size: 1.5rem; }
+            #info-container {
+                padding-top: 16px;
+            }
+
+            .site-form {
+                padding: 22px 18px;
+            }
+
+            h1.pulse.animated {
+                font-size: 1.5rem;
+            }
         }
 
         .disclaimer-overlay {
@@ -484,7 +692,16 @@
             padding: 24px;
             animation: tx-fade-in 0.2s ease;
         }
-        @keyframes tx-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        @keyframes tx-fade-in {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
 
         .disclaimer-card {
             background: var(--tx-surface);
@@ -497,9 +714,17 @@
             animation: tx-card-in 0.25s ease;
             color: var(--tx-text);
         }
+
         @keyframes tx-card-in {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .disclaimer-card h2 {
@@ -512,12 +737,16 @@
             align-items: center;
             gap: 10px;
         }
+
         .disclaimer-card h2 .fa {
             background: rgba(107, 166, 224, 0.14);
             color: var(--tx-primary-2);
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            display: inline-flex; align-items: center; justify-content: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
             border: 1px solid rgba(107, 166, 224, 0.25);
         }
@@ -528,7 +757,11 @@
             line-height: 1.65;
             margin: 0 0 18px;
         }
-        .disclaimer-card p strong { color: var(--tx-primary-2); }
+
+        .disclaimer-card p strong {
+            color: var(--tx-primary-2);
+        }
+
         .disclaimer-card p.disclaimer-attribution {
             font-size: 0.78rem;
             line-height: 1.5;
@@ -564,17 +797,32 @@
             cursor: pointer;
             transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
         }
+
         .btn-disclaimer-accept:hover {
             filter: brightness(1.1);
             box-shadow: 0 8px 22px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
         }
-        .btn-disclaimer-accept:active { transform: translateY(1px); }
-        .btn-disclaimer-accept:focus { outline: 3px solid rgba(59, 130, 246, 0.35); outline-offset: 2px; }
 
-        body.disclaimer-open { overflow: hidden; }
+        .btn-disclaimer-accept:active {
+            transform: translateY(1px);
+        }
+
+        .btn-disclaimer-accept:focus {
+            outline: 3px solid rgba(59, 130, 246, 0.35);
+            outline-offset: 2px;
+        }
+
+        body.disclaimer-open {
+            overflow: hidden;
+        }
+
         body.disclaimer-open #info-container,
         body.disclaimer-open .clean-navbar,
-        body.disclaimer-open .footer-basic { filter: blur(1px); pointer-events: none; user-select: none; }
+        body.disclaimer-open .footer-basic {
+            filter: blur(1px);
+            pointer-events: none;
+            user-select: none;
+        }
 
         .ui-lang-toggle {
             display: inline-flex;
@@ -587,6 +835,7 @@
             box-shadow: var(--tx-shadow);
             margin-bottom: 14px;
         }
+
         .ui-lang-toggle button {
             appearance: none;
             border: 0;
@@ -601,15 +850,21 @@
             cursor: pointer;
             transition: background 0.12s ease, color 0.12s ease;
         }
-        .ui-lang-toggle button:hover { color: var(--tx-text-strong); }
+
+        .ui-lang-toggle button:hover {
+            color: var(--tx-text-strong);
+        }
+
         .ui-lang-toggle button.is-active {
             background: var(--tx-primary);
             color: #ffffff;
         }
+
         .ui-lang-toggle button:focus-visible {
             outline: 2px solid var(--tx-accent);
             outline-offset: 2px;
         }
+
         .ui-lang-row {
             display: flex;
             justify-content: flex-end;
@@ -617,17 +872,28 @@
         }
 
         @media (max-width: 575.98px) {
-            .disclaimer-card { padding: 24px 20px 20px; }
-            .disclaimer-actions { flex-direction: column-reverse; align-items: stretch; }
-            .btn-disclaimer-accept { width: 100%; }
+            .disclaimer-card {
+                padding: 24px 20px 20px;
+            }
+
+            .disclaimer-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .btn-disclaimer-accept {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div id="disclaimer" class="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title" aria-describedby="disclaimer-text" hidden>
+    <div id="disclaimer" class="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title"
+        aria-describedby="disclaimer-text" hidden>
         <div class="disclaimer-card">
-            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> <span data-i18n="disclaimer.title">Aviso importante</span></h2>
+            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> <span
+                    data-i18n="disclaimer.title">Aviso importante</span></h2>
             <p id="disclaimer-text" data-i18n-html="disclaimer.body">
                 El traductor de español a zapoteco del istmo es un proyecto experimental con la
                 finalidad de generar herramientas capaces de realizar traducciones al idioma Zapoteco
@@ -640,10 +906,12 @@
                 ***Las Traducciones de Fundación Historico Cultural Juchitán, aulex, Traductor
                 Familia Toledo, y Google se encuentran disponibles de manera gratuita en internet,
                 y pertenecen a Fundación Historico Cultural Juchitán, aulex, a la Familia Toledo
-                y Google respectivamente. Didxazapp v2 utiliza el modelo NLLB-600M mediante Transformers.js (simpleverso/espzap-nllb-600m).***
+                y Google respectivamente. Didxazapp v2 utiliza el modelo NLLB-600M mediante Transformers.js
+                (simpleverso/espzap-nllb-600m).***
             </p>
             <div class="disclaimer-actions">
-                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus data-i18n="disclaimer.accept">
+                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus
+                    data-i18n="disclaimer.accept">
                     Acepto y continuar
                 </button>
             </div>
@@ -653,28 +921,36 @@
     <div class="container" id="info-container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h2 class="text-center text-info pulse animated" data-i18n="page.title">Traductor Español - Zapoteco del Istmo en línea (Didxazapp v2)</h2>
+                <h2 class="text-center text-info pulse animated" data-i18n="page.title">Traductor Español - Zapoteco del
+                    Istmo en línea (Didxazapp v2)</h2>
             </div>
             <div class="col-12 col-md-11 col-lg-10 col-xl-9 site-form">
                 <div class="ui-lang-row">
                     <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
-                        <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                        <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es"
+                            aria-pressed="true">ES</button>
                         <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
                     </div>
                 </div>
                 <form id="my-form" onsubmit="return false;" action="">
                     <div class="source-row">
                         <div class="source-input">
-                            <label class="field-label" for="txt_texto_espanish" data-i18n="form.input_label">Palabra o frase</label>
+                            <label class="field-label" for="txt_texto_espanish" data-i18n="form.input_label">Palabra o
+                                frase</label>
                             <div class="input-with-mic">
-                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" data-i18n-placeholder="form.input_placeholder" autofocus spellcheck="true">
-                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz" title="Dictar por voz" data-i18n-aria-label="voice.start" data-i18n-title="voice.start">
+                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required
+                                    placeholder="Texto a traducir" data-i18n-placeholder="form.input_placeholder"
+                                    autofocus spellcheck="true">
+                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz"
+                                    title="Dictar por voz" data-i18n-aria-label="voice.start"
+                                    data-i18n-title="voice.start">
                                     <i class="fa fa-microphone" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="source-lang">
-                            <label class="field-label" for="src_lang" data-i18n="form.src_label">Idioma de origen</label>
+                            <label class="field-label" for="src_lang" data-i18n="form.src_label">Idioma de
+                                origen</label>
                             <select class="form-control" id="src_lang">
                                 <option value="es" selected data-i18n="lang.es">Español</option>
                                 <option value="auto" data-i18n="lang.auto">Detectar automáticamente</option>
@@ -704,37 +980,51 @@
                         <div class="result-cell full-width">
                             <label class="field-label" for="txt_res_didxazapp_v2">
                                 <span data-i18n="result.istmo">Zapoteco del Istmo</span>
-                                <span class="src-tag v2-tag">Didxazapp v2 (NLLB-600M Browser AI)</span>
+                                <span class="src-tag v2-tag">Didxazapp v2 (AI)</span>
                             </label>
-                            <div class="v2-card-notice" data-i18n-html="v2.notice">
-                                ⚡ <strong>Didxazapp v2:</strong> Corre 100% en tu navegador (Transformers.js / NLLB-600M). La primera vez el modelo (~1.1 GB) se guarda en caché.
-                            </div>
-                            <div id="v2_status" class="small text-muted mb-1" style="font-size:0.8rem;" data-i18n="v2.status.init">Inicializando modelo V2…</div>
+                            <div id="v2_status" class="small text-muted mb-1" style="font-size:0.8rem;"
+                                data-i18n="v2.status.init">Inicializando modelo V2…</div>
                             <div id="v2_bar_wrap" class="v2-progress-bar-wrap" style="display:none;">
                                 <div id="v2_bar" class="v2-progress-bar"></div>
                             </div>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp_v2" readonly placeholder="Resultado Didxazapp v2 (NLLB-600M) - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.didxazapp_v2" rows="4"></textarea>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp_v2" readonly
+                                placeholder="Resultado Didxazapp v2 (NLLB-600M) - Zapoteco del Istmo"
+                                data-i18n-placeholder="result.placeholder.didxazapp_v2" rows="4"></textarea>
                         </div>
 
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_didxazapp"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Didxazapp V1</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.didxazapp" rows="6"></textarea>
+                            <label class="field-label" for="txt_res_didxazapp"><span data-i18n="result.istmo">Zapoteco
+                                    del Istmo</span> <span class="src-tag">Didxazapp V1</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly
+                                placeholder="Resultado Didxazapp - Zapoteco del Istmo"
+                                data-i18n-placeholder="result.placeholder.didxazapp" rows="6"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_familia_toleto"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Familia Toledo</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.toledo" rows="6"></textarea>
+                            <label class="field-label" for="txt_familia_toleto"><span data-i18n="result.istmo">Zapoteco
+                                    del Istmo</span> <span class="src-tag">Familia Toledo</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly
+                                placeholder="Resultado Fam Toledo - Zapoteco del Istmo"
+                                data-i18n-placeholder="result.placeholder.toledo" rows="6"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_aulex_cajono"><span data-i18n="result.cajono">Zapoteco Cajono</span> <span class="src-tag">Aulex (zap-es)</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" data-i18n-placeholder="result.placeholder.aulex" rows="6"></textarea>
+                            <label class="field-label" for="txt_res_aulex_cajono"><span
+                                    data-i18n="result.cajono">Zapoteco Cajono</span> <span class="src-tag">Aulex
+                                    (zap-es)</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly
+                                placeholder="Resultado Aulex - Zapoteco Cajono"
+                                data-i18n-placeholder="result.placeholder.aulex" rows="6"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_google"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Google</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" data-i18n-placeholder="result.placeholder.google" rows="6"></textarea>
+                            <label class="field-label" for="txt_res_google"><span data-i18n="result.istmo">Zapoteco del
+                                    Istmo</span> <span class="src-tag">Google</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly
+                                placeholder="Resultado Google Translate - Zapoteco"
+                                data-i18n-placeholder="result.placeholder.google" rows="6"></textarea>
                         </div>
                     </div>
 
-                    <button id="btn_traduc" class="btn btn-primary" type="button" data-i18n="btn.translate">Traducir</button>
+                    <button id="btn_traduc" class="btn btn-primary" type="button"
+                        data-i18n="btn.translate">Traducir</button>
                 </form>
             </div>
             <div class="clearfix"></div>
@@ -743,7 +1033,8 @@
 
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
         <div class="container">
-            <a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a>
+            <a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="assets/img/Dictionary-icon.png"
+                    width="55" height="55">&nbsp;Nacubi research&nbsp;</a>
             <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="navbar-toggler-icon"></span>
@@ -751,8 +1042,7 @@
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR V1</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="translator2.html">TRADUCTOR V2</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="translator.html">TRADUCTOR</a></li>
                     <li class="nav-item"><a class="nav-link" href="translator_img.html">IMAGEN</a></li>
                     <li class="nav-item"><a class="nav-link" href="aprender.html">APRENDER</a></li>
                     <li class="nav-item"><a class="nav-link" href="numeros.html">NÚMEROS</a></li>
@@ -776,7 +1066,7 @@
             window.addEventListener('load', update);
             window.addEventListener('resize', update);
             if (window.ResizeObserver) {
-                try { new ResizeObserver(update).observe(navEl); } catch (_) {}
+                try { new ResizeObserver(update).observe(navEl); } catch (_) { }
             }
         })();
 
@@ -814,32 +1104,32 @@
         // ---- Config (cargado desde config.json) ----
         const MAX_CHARS = 36;
         const SERVERS = ['didxazapp1', 'didxazapp2', 'didxazapp4', 'didxazapp5'];
-        const AULEX_API  = 'https://aulex.org/zap-es/';
+        const AULEX_API = 'https://aulex.org/zap-es/';
         const BIYUBI_API = 'http://www.biyubi.com/did_consulta.php';
         const GOOGLE_API = 'https://translate.googleapis.com/translate_a/single';
 
         const FEATURES = {
-            enablePage:        true,
-            disclaimer:        true,
-            spellCheck:        true,
-            voiceInput:        true,
-            didxazappV2:       true,
-            didxazapp:         true,
-            toledo:            true,
-            aulexCajono:       true,
-            google:            true,
+            enablePage: true,
+            disclaimer: true,
+            spellCheck: true,
+            voiceInput: true,
+            didxazappV2: true,
+            didxazapp: true,
+            toledo: true,
+            aulexCajono: true,
+            google: true,
         };
 
         const CONFIG_MAP = {
-            translator_enablePage:        'enablePage',
-            translator_enableDisclaimer:  'disclaimer',
-            translator_enableSpellCheck:  'spellCheck',
-            translator_enableVoiceInput:  'voiceInput',
+            translator_enablePage: 'enablePage',
+            translator_enableDisclaimer: 'disclaimer',
+            translator_enableSpellCheck: 'spellCheck',
+            translator_enableVoiceInput: 'voiceInput',
             translator_enableDidxazappV2: 'didxazappV2',
-            translator_enableDidxazapp:   'didxazapp',
-            translator_enableToledo:      'toledo',
+            translator_enableDidxazapp: 'didxazapp',
+            translator_enableToledo: 'toledo',
             translator_enableAulexCajono: 'aulexCajono',
-            translator_enableGoogle:      'google',
+            translator_enableGoogle: 'google',
         };
 
         async function loadConfig() {
@@ -856,26 +1146,26 @@
         }
 
         // ---- DOM refs ----
-        const $input      = document.getElementById('txt_texto_espanish');
-        const $btn        = document.getElementById('btn_traduc');
-        const $resDxV2    = document.getElementById('txt_res_didxazapp_v2');
-        const $resDx      = document.getElementById('txt_res_didxazapp');
-        const $resFam     = document.getElementById('txt_familia_toleto');
-        const $resAulx    = document.getElementById('txt_res_aulex_cajono');
-        const $resGoog    = document.getElementById('txt_res_google');
-        const $warning    = document.getElementById('input_warning');
-        const $spell      = document.getElementById('spell_panel');
-        const $srcLang    = document.getElementById('src_lang');
-        const $bridge     = document.getElementById('bridge_panel');
-        const $voiceBtn   = document.getElementById('btn_voice');
-        const $v2Status   = document.getElementById('v2_status');
-        const $v2BarWrap  = document.getElementById('v2_bar_wrap');
-        const $v2Bar      = document.getElementById('v2_bar');
+        const $input = document.getElementById('txt_texto_espanish');
+        const $btn = document.getElementById('btn_traduc');
+        const $resDxV2 = document.getElementById('txt_res_didxazapp_v2');
+        const $resDx = document.getElementById('txt_res_didxazapp');
+        const $resFam = document.getElementById('txt_familia_toleto');
+        const $resAulx = document.getElementById('txt_res_aulex_cajono');
+        const $resGoog = document.getElementById('txt_res_google');
+        const $warning = document.getElementById('input_warning');
+        const $spell = document.getElementById('spell_panel');
+        const $srcLang = document.getElementById('src_lang');
+        const $bridge = document.getElementById('bridge_panel');
+        const $voiceBtn = document.getElementById('btn_voice');
+        const $v2Status = document.getElementById('v2_status');
+        const $v2BarWrap = document.getElementById('v2_bar_wrap');
+        const $v2Bar = document.getElementById('v2_bar');
 
         const UI_LANG_KEY = 'translator_ui_lang_v1';
         const I18N = {
             es: {
-                'page.title': 'Traductor Español - Zapoteco del Istmo en línea (Didxazapp v2)',
+                'page.title': 'Traductor Español - Zapoteco del Istmo en linea',
                 'form.input_label': 'Palabra o frase',
                 'form.input_placeholder': 'Texto a traducir',
                 'form.src_label': 'Idioma de origen',
@@ -921,7 +1211,7 @@
                 'spell.checking': 'Comprobando ortografía…',
                 'spell.no_errors': '✓ No se detectaron errores ortográficos.',
                 'spell.no_suggestions': '(sin sugerencias)',
-                'v2.notice': '⚡ <strong>Didxazapp v2:</strong> Corre 100% en tu navegador (Transformers.js / NLLB-600M). La primera vez el modelo (~1.1 GB) se guarda en caché.',
+                'v2.notice': '<strong>Didxazapp v2:</strong> Corre 100% en tu navegador (Transformers.js / NLLB-600M). La primera vez el modelo (~1.1 GB) se guarda en caché.',
                 'v2.status.init': 'Inicializando modelo V2…',
                 'v2.status.loading': 'Cargando modelo Didxazapp v2…',
                 'v2.status.ready': 'Modelo Didxazapp v2 listo.',
@@ -942,7 +1232,7 @@
                 'maintenance': 'Página en mantenimiento',
             },
             en: {
-                'page.title': 'Online Spanish — Isthmus Zapotec Translator (Didxazapp v2)',
+                'page.title': 'Online Spanish — Isthmus Zapotec Translator',
                 'form.input_label': 'Word or phrase',
                 'form.input_placeholder': 'Text to translate',
                 'form.src_label': 'Source language',
@@ -988,7 +1278,7 @@
                 'spell.checking': 'Checking spelling…',
                 'spell.no_errors': '✓ No spelling errors detected.',
                 'spell.no_suggestions': '(no suggestions)',
-                'v2.notice': '⚡ <strong>Didxazapp v2:</strong> Runs 100% in your browser (Transformers.js / NLLB-600M). The first time, the model (~1.1 GB) is cached.',
+                'v2.notice': '<strong>Didxazapp v2:</strong> Runs 100% in your browser (Transformers.js / NLLB-600M). The first time, the model (~1.1 GB) is cached.',
                 'v2.status.init': 'Initializing V2 model…',
                 'v2.status.loading': 'Loading Didxazapp v2 model…',
                 'v2.status.ready': 'Didxazapp v2 model ready.',
@@ -1279,7 +1569,7 @@
             }
 
             if (window.puter && puter.net && puter.net.fetch) {
-                puter.net.fetch('https://aulex.org/zap-es/?busca=hola').catch(() => {});
+                puter.net.fetch('https://aulex.org/zap-es/?busca=hola').catch(() => { });
             }
         })();
 
@@ -1314,9 +1604,9 @@
             const word = encodeURIComponent(palabra.trim());
             return {
                 didxazapp: `https://${host}.azurewebsites.net/service/didxaza.asmx/quierofraseenzapotecoclave?damelafraseenespaniol=${word}&clave=p`,
-                aulex:     `${AULEX_API}?busca=${word}`,
-                biyubi:    `${BIYUBI_API}?p=${word}`,
-                google:    `${GOOGLE_API}?client=gtx&sl=es&tl=zap&dt=t&q=${word}`,
+                aulex: `${AULEX_API}?busca=${word}`,
+                biyubi: `${BIYUBI_API}?p=${word}`,
+                google: `${GOOGLE_API}?client=gtx&sl=es&tl=zap&dt=t&q=${word}`,
             };
         };
 
@@ -1327,7 +1617,7 @@
 
         function parseBiyubi(html) {
             const hasCaption = /<caption>\s*Traducci[óo]n de/i.test(html);
-            const hasFooter  = /Familia Toledo/i.test(html);
+            const hasFooter = /Familia Toledo/i.test(html);
 
             if (!hasCaption) {
                 if (hasFooter) return t('result.no_results');
@@ -1467,7 +1757,7 @@
         }
 
         function escapeHtml(s) {
-            return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+            return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         function applySuggestion(offset, length, replacement) {
@@ -1491,7 +1781,7 @@
                 const chips = reps.length
                     ? reps.map(r =>
                         `<button type="button" class="spell-chip" data-offset="${m.offset}" data-length="${m.length}" data-rep="${escapeHtml(r.value)}">${escapeHtml(r.value)}</button>`
-                      ).join('')
+                    ).join('')
                     : `<span class="spell-arrow">${escapeHtml(t('spell.no_suggestions'))}</span>`;
                 const msg = escapeHtml(m.shortMessage || m.message || '');
                 return `
@@ -1515,7 +1805,7 @@
             $spell.innerHTML = '<p class="spell-msg">' + escapeHtml(t('spell.checking')) + '</p>';
             $spell.hidden = false;
             try {
-                const map = { es:'es', en:'en-US', fr:'fr', pt:'pt', it:'it', de:'de-DE', ru:'ru-RU', ja:'ja-JP' };
+                const map = { es: 'es', en: 'en-US', fr: 'fr', pt: 'pt', it: 'it', de: 'de-DE', ru: 'ru-RU', ja: 'ja-JP' };
                 const sel = $srcLang ? $srcLang.value : 'es';
                 const ltLang = map[sel] || 'auto';
                 const body = new URLSearchParams({ language: ltLang, text });
@@ -1616,21 +1906,21 @@
 
             const urls = buildUrls(textForES);
             const FALLBACK_DIDXAZAPP = t('result.fallback.didxazapp_maint');
-            const FALLBACK_GOOGLE    = t('result.fallback.google');
+            const FALLBACK_GOOGLE = t('result.fallback.google');
 
             await Promise.all([
                 translateV2(textForES),
                 runService(FEATURES.didxazapp, urls.didxazapp, parseDidxazapp, $resDx,
-                           FALLBACK_DIDXAZAPP),
+                    FALLBACK_DIDXAZAPP),
                 runService(FEATURES.toledo, urls.biyubi, parseBiyubi, $resFam,
-                           t('result.fallback.toledo'),
-                           { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
+                    t('result.fallback.toledo'),
+                    { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
                 runService(FEATURES.aulexCajono, urls.aulex, parseAulex, $resAulx,
-                           t('result.fallback.aulex'),
-                           { cors: false, retries: 2, retryDelay: 500 }),
+                    t('result.fallback.aulex'),
+                    { cors: false, retries: 2, retryDelay: 500 }),
                 new Promise(res => setTimeout(res, 1800)).then(() =>
                     runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
-                               FALLBACK_GOOGLE)),
+                        FALLBACK_GOOGLE)),
             ]);
 
             const norm = s => (s || '').trim().toLowerCase().replace(/[\s.,;:!¡¿?]+$/g, '');
@@ -1652,4 +1942,5 @@
         }
     </script>
 </body>
+
 </html>
