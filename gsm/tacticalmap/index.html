@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rossmo Formula Geographic Profiling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Leaflet.js for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #map {
+            height: 500px;
+            background-color: #1f2937; /* bg-gray-800 */
+        }
+        #heatmapCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 401; 
+        }
+        .leaflet-grab {
+             cursor: grab;
+        }
+        .leaflet-crosshair {
+             cursor: crosshair;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-6xl bg-gray-800 rounded-xl shadow-2xl p-6 md:p-8 m-4">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white">Geographic Profiling Algorithms</h1>
+            <p class="text-gray-400 mt-2">Select a tool, add crime locations, choose an algorithm, and press "Calculate".</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end justify-center mb-6 bg-gray-900/50 p-4 rounded-lg">
+            <!-- Algorithm & Parameters -->
+            <div class="md:col-span-2 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="algorithmSelect" class="block mb-1 text-sm font-medium">Algorithm</label>
+                    <select id="algorithmSelect" class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
+                        <option value="rossmo" selected>Rossmo's Formula</option>
+                        <option value="decay">Simple Distance Decay</option>
+                    </select>
+                </div>
+                 <div id="bufferZoneControl" class="w-full">
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <label for="bufferZoneInput" class="text-sm font-medium">Buffer Zone (B)</label>
+                        <div class="relative group flex items-center">
+                            <span class="cursor-help text-cyan-400 text-xs font-bold border border-cyan-400 rounded-full w-4 h-4 flex items-center justify-center">?</span>
+                            <div class="absolute bottom-full mb-2 w-64 bg-gray-700 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                                The buffer zone is a 'donut' shaped area around a crime scene. Rossmo's formula assumes offenders avoid committing crimes right next to their home, so this inner area is considered less probable.
+                                <svg class="absolute text-gray-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input id="bufferZoneSlider" type="range" min="10" max="1000" value="150" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" title="Adjust common values quickly">
+                        <input id="bufferZoneInput" type="number" min="0" value="150" class="w-24 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 text-center" title="Enter any value">
+                        <select id="bufferUnit" class="bg-gray-700 border border-gray-600 text-white text-xs rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-1">
+                            <option value="meters" selected>meters</option>
+                            <option value="pixels">pixels</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="w-full md:col-span-2">
+                     <div class="flex items-center gap-1.5 mb-1">
+                        <label for="distanceDecay" class="text-sm font-medium">Distance Decay (f)</label>
+                         <div class="relative group flex items-center">
+                            <span class="cursor-help text-cyan-400 text-xs font-bold border border-cyan-400 rounded-full w-4 h-4 flex items-center justify-center">?</span>
+                            <div class="absolute bottom-full mb-2 w-64 bg-gray-700 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2">
+                               This value (f) is a unitless exponent that controls how sharply the probability drops off with distance. It's not a measure of distance (like meters or km). A higher 'f' value means a more rapid decay.
+                                <svg class="absolute text-gray-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="flex items-center gap-4">
+                        <input id="distanceDecay" type="range" min="0.1" max="2.0" value="1.2" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <span id="decayValue" class="font-mono text-cyan-400 w-12 text-center">1.2</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tools & Actions -->
+            <div class="md:col-span-2 lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-6">
+                 <div>
+                    <label class="block mb-1 text-sm font-medium">Map Tools</label>
+                    <div class="flex gap-2">
+                        <button id="panTool" title="Pan Map" class="bg-gray-700 hover:bg-gray-600 text-white font-bold p-2.5 rounded-lg transition-colors duration-300 w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="mx-auto" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708l3-3zM-1.95 8.354l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z"/></svg>
+                        </button>
+                        <button id="addTool" title="Add Crime" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold p-2.5 rounded-lg transition-colors duration-300 w-full">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="mx-auto" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                 <div>
+                    <label class="block mb-1 text-sm font-medium">Analysis</label>
+                    <div class="flex gap-2 h-full items-end">
+                       <button id="calculateBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Calculate</button>
+                       <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Clear</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block mb-1 text-sm font-medium">Data</label>
+                    <div class="flex gap-2 h-full items-end">
+                       <button id="importBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Import KML</button>
+                       <button id="exportBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full h-full">Export KML</button>
+                       <input type="file" id="kmlInput" accept=".kml,application/vnd.google-earth.kml+xml" class="hidden">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div id="mapContainer" class="bg-gray-900 p-2 rounded-lg shadow-inner relative">
+            <div id="map" class="rounded-md w-full"></div>
+            <!-- The heatmap canvas will be added here by script -->
+        </div>
+        
+        <!-- Instructions -->
+        <div id="instructions" class="text-center text-gray-500 mt-4 text-sm">
+            Place 3 or more crime locations for the best results. The heatmap shows the most probable "anchor point" for the offender in red.
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const algorithmSelect = document.getElementById('algorithmSelect');
+        const bufferZoneControl = document.getElementById('bufferZoneControl');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const bufferSlider = document.getElementById('bufferZoneSlider');
+        const bufferZoneInput = document.getElementById('bufferZoneInput');
+        const decaySlider = document.getElementById('distanceDecay');
+        const decayValueSpan = document.getElementById('decayValue');
+        const instructions = document.getElementById('instructions');
+        const mapContainer = document.getElementById('mapContainer');
+        const bufferUnitSelect = document.getElementById('bufferUnit');
+        const panToolBtn = document.getElementById('panTool');
+        const addToolBtn = document.getElementById('addTool');
+        const mapDiv = document.getElementById('map');
+        const importBtn = document.getElementById('importBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const kmlInput = document.getElementById('kmlInput');
+
+
+        // State variables
+        let crimeLocations = []; // Stores LatLng objects
+        let crimeMarkers = []; // Stores Leaflet marker objects
+        let heatmapCanvas = null;
+        let currentMode = 'add'; // 'add' or 'pan'
+
+        // --- Initialize Leaflet Map ---
+        const map = L.map('map').setView([19.4326, -99.1332], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        }).addTo(map);
+
+        // --- UI Update & Tool Functions ---
+        function setToolMode(mode) {
+            currentMode = mode;
+            if (mode === 'pan') {
+                L.DomUtil.removeClass(mapDiv, 'leaflet-crosshair');
+                L.DomUtil.addClass(mapDiv, 'leaflet-grab');
+                panToolBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                panToolBtn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                addToolBtn.classList.remove('bg-cyan-600', 'hover:bg-cyan-500');
+                addToolBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+            } else { // 'add' mode
+                L.DomUtil.removeClass(mapDiv, 'leaflet-grab');
+                L.DomUtil.addClass(mapDiv, 'leaflet-crosshair');
+                addToolBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                addToolBtn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                panToolBtn.classList.remove('bg-cyan-600', 'hover:bg-cyan-500');
+                panToolBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+            }
+        }
+
+        // --- Event Listeners ---
+        bufferSlider.addEventListener('input', () => {
+            bufferZoneInput.value = bufferSlider.value;
+        });
+        bufferZoneInput.addEventListener('input', () => {
+            const value = parseInt(bufferZoneInput.value, 10);
+            const maxSlider = parseInt(bufferSlider.max, 10);
+            if (!isNaN(value) && value >= bufferSlider.min && value <= maxSlider) {
+                bufferSlider.value = value;
+            } else if (!isNaN(value) && value > maxSlider) {
+                bufferSlider.value = maxSlider;
+            }
+        });
+        decaySlider.addEventListener('input', () => decayValueSpan.textContent = decaySlider.value);
+        
+        algorithmSelect.addEventListener('change', (e) => {
+            bufferZoneControl.style.display = e.target.value === 'rossmo' ? 'block' : 'none';
+        });
+
+        map.on('click', (event) => {
+            if (currentMode !== 'add') return;
+            addCrimeLocation(event.latlng);
+        });
+        
+        map.on('moveend', () => {
+            if (heatmapCanvas && crimeLocations.length > 0) {
+                instructions.textContent = 'Map view changed. Recalculating...';
+                setTimeout(runCalculation, 50);
+            }
+        });
+
+        clearBtn.addEventListener('click', clearMap);
+        calculateBtn.addEventListener('click', () => {
+            if (crimeLocations.length === 0) {
+                instructions.textContent = 'Please add at least one crime location before calculating.';
+                return;
+            }
+            instructions.textContent = 'Calculating heatmap... this may take a moment.';
+            setTimeout(runCalculation, 50);
+        });
+
+        panToolBtn.addEventListener('click', () => setToolMode('pan'));
+        addToolBtn.addEventListener('click', () => setToolMode('add'));
+        
+        importBtn.addEventListener('click', () => kmlInput.click());
+        kmlInput.addEventListener('change', handleKMLImport);
+        exportBtn.addEventListener('click', exportToKML);
+
+        // --- Core Functions ---
+        function addCrimeLocation(latlng, suppressMessage = false) {
+             crimeLocations.push(latlng);
+             const marker = L.marker(latlng).addTo(map);
+             crimeMarkers.push(marker);
+             if (!suppressMessage) {
+                 instructions.textContent = `${crimeLocations.length} crime(s) plotted. Ready to calculate.`;
+             }
+        }
+
+        function clearMap() {
+            crimeMarkers.forEach(marker => map.removeLayer(marker));
+            crimeMarkers = [];
+            crimeLocations = [];
+
+            if (heatmapCanvas) {
+                mapContainer.removeChild(heatmapCanvas);
+                heatmapCanvas = null;
+            }
+            instructions.textContent = 'Map cleared. Click to add new crime locations.';
+        }
+        
+        function getBufferInPixels() {
+            const bufferValue = parseFloat(bufferZoneInput.value);
+            const unit = bufferUnitSelect.value;
+            if (unit === 'pixels') return bufferValue;
+            
+            const mapCenter = map.getCenter();
+            const centerPoint = map.latLngToContainerPoint(mapCenter);
+            const pointOnePixelAway = L.point(centerPoint.x + 1, centerPoint.y);
+            const latLngOnePixelAway = map.containerPointToLatLng(pointOnePixelAway);
+            const metersPerPixel = mapCenter.distanceTo(latLngOnePixelAway);
+            if (metersPerPixel === 0) return bufferValue; // Avoid division by zero
+            return bufferValue / metersPerPixel;
+        }
+
+        function runCalculation() {
+            if (heatmapCanvas) mapContainer.removeChild(heatmapCanvas);
+            
+            const mapSize = map.getSize();
+            heatmapCanvas = document.createElement('canvas');
+            heatmapCanvas.id = 'heatmapCanvas';
+            heatmapCanvas.width = mapSize.x;
+            heatmapCanvas.height = mapSize.y;
+            mapContainer.appendChild(heatmapCanvas);
+
+            const crimePixels = crimeLocations.map(latlng => map.latLngToContainerPoint(latlng));
+            const selectedAlgorithm = algorithmSelect.value;
+            let gridScores;
+
+            if (selectedAlgorithm === 'rossmo') {
+                const bufferInPixels = getBufferInPixels();
+                gridScores = calculateRossmo(crimePixels, mapSize, bufferInPixels);
+            } else {
+                gridScores = calculateDistanceDecay(crimePixels, mapSize);
+            }
+            
+            drawHeatmap(gridScores, mapSize);
+            instructions.textContent = 'Calculation complete. Red indicates the highest probability area.';
+        }
+
+        function calculateRossmo(crimePixels, mapSize, bufferInPixels) {
+            const f = parseFloat(decaySlider.value);
+            const g = f;
+            const { x: width, y: height } = mapSize;
+            const scores = new Array(width).fill(0).map(() => new Array(height).fill(0));
+
+            for (let i = 0; i < width; i++) {
+                for (let j = 0; j < height; j++) {
+                    let totalScore = 0;
+                    for (const crime of crimePixels) {
+                        const distance = Math.sqrt(Math.pow(i - crime.x, 2) + Math.pow(j - crime.y, 2));
+                        const effectiveDistance = Math.max(1, distance);
+                        
+                        let term = 0;
+                        if (effectiveDistance > bufferInPixels) {
+                            term = 1 / Math.pow(effectiveDistance, f);
+                        } else {
+                            // This part of the formula creates the 'donut hole' effect
+                            term = (Math.pow(bufferInPixels, g - f)) / (Math.pow(2 * bufferInPixels - effectiveDistance, g));
+                        }
+                        totalScore += term;
+                    }
+                    scores[i][j] = totalScore;
+                }
+            }
+            return scores;
+        }
+
+        function calculateDistanceDecay(crimePixels, mapSize) {
+            const f = parseFloat(decaySlider.value);
+            const { x: width, y: height } = mapSize;
+            const scores = new Array(width).fill(0).map(() => new Array(height).fill(0));
+            
+            for (let i = 0; i < width; i++) {
+                for (let j = 0; j < height; j++) {
+                    let totalScore = 0;
+                    for (const crime of crimePixels) {
+                        const distance = Math.sqrt(Math.pow(i - crime.x, 2) + Math.pow(j - crime.y, 2));
+                        const effectiveDistance = Math.max(1, distance);
+                        totalScore += 1 / Math.pow(effectiveDistance, f);
+                    }
+                    scores[i][j] = totalScore;
+                }
+            }
+            return scores;
+        }
+
+        function drawHeatmap(gridScores, mapSize) {
+            const { x: width, y: height } = mapSize;
+            const ctx = heatmapCanvas.getContext('2d');
+            const imageData = ctx.createImageData(width, height);
+            
+            let maxScore = 0;
+            const selectedAlgorithm = algorithmSelect.value;
+
+            // Using a percentile for decay helps avoid outlier distortion, making the heatmap more readable.
+            if (selectedAlgorithm === 'decay') {
+                const allScores = [];
+                for (let i = 0; i < width; i++) {
+                    for (let j = 0; j < height; j++) {
+                        if (gridScores[i][j] > 0) allScores.push(gridScores[i][j]);
+                    }
+                }
+                if (allScores.length > 0) {
+                    allScores.sort((a, b) => a - b);
+                    const percentileIndex = Math.floor(allScores.length * 0.995);
+                    maxScore = allScores[percentileIndex] || 0;
+                }
+            } else { // For Rossmo, a direct max is usually fine
+                for (let i = 0; i < width; i++) {
+                    for (let j = 0; j < height; j++) {
+                        if (gridScores[i][j] > maxScore) maxScore = gridScores[i][j];
+                    }
+                }
+            }
+
+            const logMaxScore = Math.log(1 + maxScore);
+
+            for (let i = 0; i < width; i++) {
+                for (let j = 0; j < height; j++) {
+                    const score = Math.min(gridScores[i][j], maxScore);
+                    const normalizedScore = maxScore > 0 ? Math.log(1 + score) / logMaxScore : 0;
+                    
+                    const hue = (1 - normalizedScore) * 240;
+                    const [r, g, b] = hslToRgb(hue / 360, 0.9, 0.5);
+                    
+                    const index = (j * width + i) * 4;
+                    imageData.data[index] = r;
+                    imageData.data[index + 1] = g;
+                    imageData.data[index + 2] = b;
+                    // Adjust alpha for a more pronounced center
+                    imageData.data[index + 3] = Math.pow(normalizedScore, 0.75) * 255;
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s === 0) { r = g = b = l; } 
+            else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+        
+        // --- KML Import/Export Functions ---
+        function exportToKML() {
+            if (crimeLocations.length === 0) {
+                instructions.textContent = 'No crime locations to export.';
+                return;
+            }
+
+            let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Crime Locations</name>
+    <description>Exported from Geographic Profiling Tool.</description>\n`;
+
+            crimeLocations.forEach((loc, index) => {
+                kmlContent += `    <Placemark>
+      <name>Crime Point ${index + 1}</name>
+      <Point>
+        <coordinates>${loc.lng},${loc.lat},0</coordinates>
+      </Point>
+    </Placemark>\n`;
+            });
+
+            kmlContent += `  </Document>
+</kml>`;
+
+            const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'crime_locations.kml';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            instructions.textContent = `Exported ${crimeLocations.length} locations to KML.`;
+        }
+
+        function handleKMLImport(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const kmlText = e.target.result;
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(kmlText, "text/xml");
+                    
+                    const coordinates = xmlDoc.getElementsByTagName('coordinates');
+                    if (coordinates.length === 0) {
+                        instructions.textContent = 'Error: No coordinates found in the KML file.';
+                        return;
+                    }
+                    
+                    clearMap();
+                    
+                    const newLocations = [];
+                    for (let i = 0; i < coordinates.length; i++) {
+                        const coordsText = coordinates[i].textContent.trim();
+                        const [lon, lat] = coordsText.split(',').map(Number);
+                        if (!isNaN(lat) && !isNaN(lon)) {
+                            const latlng = L.latLng(lat, lon);
+                            newLocations.push(latlng);
+                            addCrimeLocation(latlng, true); // Suppress message for each point
+                        }
+                    }
+
+                    if (newLocations.length > 0) {
+                        const bounds = L.latLngBounds(newLocations);
+                        map.fitBounds(bounds, {padding: [50, 50]});
+                        instructions.textContent = `Successfully imported ${newLocations.length} locations from KML.`;
+                    } else {
+                        instructions.textContent = 'No valid locations were found in the KML file.';
+                    }
+
+                } catch (error) {
+                    console.error("KML Parsing Error:", error);
+                    instructions.textContent = 'Error parsing KML file. Please ensure it is valid.';
+                } finally {
+                    // Reset the file input so the same file can be loaded again
+                    kmlInput.value = '';
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        // --- Initial UI setup ---
+        setToolMode('add'); // Default to add mode
+        
+    </script>
+</body>
+</html>
+
