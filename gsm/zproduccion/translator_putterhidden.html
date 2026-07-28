@@ -878,6 +878,28 @@
                 width: 100%;
             }
         }
+
+        /* Ocultar cualquier modal, iframe o elementos splash del SDK de Puter */
+        iframe[src*="puter.com"]:not(#puter-hidden-auth-iframe),
+        iframe[src*="sdk-splash"],
+        iframe[src*="utm_source=sdk-splash"],
+        div[class*="puter-splash"],
+        div[id*="puter-splash"],
+        div[class*="puter-modal"],
+        div[id*="puter-modal"],
+        .puter-splash,
+        .puter-modal {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+            z-index: -999999 !important;
+        }
     </style>
 </head>
 
@@ -1075,15 +1097,27 @@
         </footer>
     </div>
 
-    <!-- Script para enmascarar ventanas emergentes de Puter en background -->
+    <!-- Script para enmascarar ventanas emergentes, popups y el splash/modal del SDK de Puter -->
     <script>
-        (function maskPuterPopups() {
+        (function maskPuterPopupsAndSplash() {
+            // 1. Interceptar llamadas window.open para popups de autenticación y splash (utm_source=sdk-splash)
             const _origOpen = window.open;
             window.open = function (url, name, specs) {
                 const urlStr = String(url || '');
-                if (urlStr.includes('puter.com') || urlStr.includes('request_auth') || urlStr.includes('embedded_in_popup')) {
-                    console.log('[Puter Masker] Interceptada ventana emergente de Puter:', urlStr);
+                if (urlStr.includes('puter.com') || urlStr.includes('request_auth') || urlStr.includes('embedded_in_popup') || urlStr.includes('sdk-splash') || urlStr.includes('utm_source=sdk-splash')) {
+                    console.log('[Puter Masker] Interceptada ventana emergente/splash de Puter:', urlStr);
                     
+                    // Si es una ventana del tipo sdk-splash puro, suprimir completamente
+                    if (urlStr.includes('sdk-splash') || urlStr.includes('utm_source=sdk-splash')) {
+                        return {
+                            closed: true,
+                            close: function () {},
+                            focus: function () {},
+                            blur: function () {},
+                            postMessage: function () {}
+                        };
+                    }
+
                     let iframe = document.getElementById('puter-hidden-auth-iframe');
                     if (!iframe) {
                         iframe = document.createElement('iframe');
@@ -1117,6 +1151,62 @@
                 }
                 return _origOpen.apply(this, arguments);
             };
+
+            // 2. Interceptar inserciones de nodos DOM creados por el SDK de Puter para su modal/splash
+            function isSplashNode(node) {
+                if (!node || node.nodeType !== 1) return false;
+                if (node.id === 'puter-hidden-auth-iframe') return false;
+                const src = (node.src || (node.getAttribute && node.getAttribute('src')) || '').toLowerCase();
+                const href = (node.href || '').toLowerCase();
+                const id = (node.id || '').toLowerCase();
+                const className = (typeof node.className === 'string' ? node.className : '').toLowerCase();
+                const html = (node.innerHTML || '').toLowerCase();
+
+                if (src.includes('sdk-splash') || src.includes('utm_source=sdk-splash') ||
+                    href.includes('sdk-splash') ||
+                    id.includes('puter-splash') || id.includes('puter-modal') ||
+                    className.includes('puter-splash') || className.includes('puter-modal') ||
+                    (html.includes('puter.com') && html.includes('splash'))) {
+                    return true;
+                }
+                return false;
+            }
+
+            const origAppend = Element.prototype.appendChild;
+            const origInsert = Element.prototype.insertBefore;
+
+            Element.prototype.appendChild = function (child) {
+                if (isSplashNode(child)) {
+                    console.log('[Puter Masker] Bloqueada inserción de elemento splash de Puter');
+                    child.style.cssText = 'display:none !important; visibility:hidden !important; position:fixed !important; top:-9999px !important; left:-9999px !important;';
+                    return child;
+                }
+                return origAppend.apply(this, arguments);
+            };
+
+            Element.prototype.insertBefore = function (child, ref) {
+                if (isSplashNode(child)) {
+                    console.log('[Puter Masker] Bloqueada inserción insertBefore de splash de Puter');
+                    child.style.cssText = 'display:none !important; visibility:hidden !important; position:fixed !important; top:-9999px !important; left:-9999px !important;';
+                    return child;
+                }
+                return origInsert.apply(this, arguments);
+            };
+
+            // 3. MutationObserver de respaldo para remover cualquier modal/iframe inyectado asíncronamente
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    for (const node of mutation.addedNodes) {
+                        if (isSplashNode(node)) {
+                            if (node.parentNode) node.parentNode.removeChild(node);
+                        } else if (node.querySelectorAll) {
+                            const found = node.querySelectorAll('iframe[src*="sdk-splash"], iframe[src*="puter.com"]:not(#puter-hidden-auth-iframe), [id*="puter-splash"], [class*="puter-splash"]');
+                            found.forEach(el => { if (el.parentNode) el.parentNode.removeChild(el); });
+                        }
+                    }
+                }
+            });
+            observer.observe(document.documentElement || document.body, { childList: true, subtree: true });
         })();
     </script>
     <script src="https://js.puter.com/v2/"></script>
