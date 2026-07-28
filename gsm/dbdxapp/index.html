@@ -570,7 +570,7 @@ function buildGlobalTable(rows, tbl) {
   rows.forEach(r => {
     h += '<tr>';
     cols.forEach(c => h += `<td title="${esc(r[c])}">${esc(r[c]??'')}</td>`);
-    const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+    const pk = tbl === 'traductor' ? 'idtraductor' : 'idfrases';
     h += `<td><div class="row-actions">
       <button class="btn btn-ghost btn-sm" onclick='openEditFromGlobal(${JSON.stringify(tbl)},${r[pk]})'>✏️</button>
       <button class="btn btn-danger btn-sm" onclick='deleteRow(${JSON.stringify(tbl)},${r[pk]})'>🗑️</button>
@@ -583,7 +583,7 @@ function buildGlobalTable(rows, tbl) {
 async function openEditFromGlobal(tbl, id) {
   try {
     loading(true);
-    const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+    const pk = tbl === 'traductor' ? 'idtraductor' : 'idfrases';
     const res = await api({ action:'fetch', query:`SELECT * FROM ${tbl} WHERE ${pk}=${id} LIMIT 1` });
     if (res.data.length) openEditModal(tbl, res.data[0]);
   } catch(e) { toast(e.message,'error'); }
@@ -845,7 +845,7 @@ async function saveModal() {
       const res = await api({ action:'insert', table, values });
       toast(`✅ Creado con ID ${res.inserted_id}`);
     } else {
-      const pk = table === 'traductor' ? 'idtraductor' : 'id';
+      const pk = table === 'traductor' ? 'idtraductor' : 'idfrases';
       const whereVal = table === 'traductor' ? row.idtraductor : row.id;
       const res = await api({ action:'update', table, updates: values, where: { [pk]: whereVal } });
       toast(`✅ Actualizado (${res.affected_rows} fila)`);
@@ -863,7 +863,7 @@ async function deleteRow(tbl, id) {
   if (!confirm(`¿Eliminar el registro #${id} de "${tbl}"?`)) return;
   try {
     loading(true);
-    const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+    const pk = tbl === 'traductor' ? 'idtraductor' : 'idfrases';
     await api({ action:'delete', table: tbl, where: { [pk]: id } });
     toast('🗑️ Eliminado');
     if (tbl === 'traductor') loadTraductor(tradPage);
@@ -876,7 +876,7 @@ async function deleteRow(tbl, id) {
 // ─── Toggle válido ────────────────────────────────────────────────────────────
 async function toggleValid(tbl, id, col, currentVal) {
   const newVal = currentVal === '1' ? '0' : '1';
-  const pk = tbl === 'traductor' ? 'idtraductor' : 'id';
+  const pk = tbl === 'traductor' ? 'idtraductor' : 'idfrases';
   try {
     loading(true);
     await api({ action:'update', table: tbl, updates: { [col]: newVal }, where: { [pk]: id } });
