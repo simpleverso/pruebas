@@ -1,35 +1,69 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Didxazapp</title>
-    <meta name="description" content="Traductor Web Español - Zapoteco">
+    <title>Didxazapp v2 - Traductor Zapoteco</title>
+    <meta name="description" content="Traductor Web Español - Zapoteco del Istmo (Didxazapp v2 con NLLB-600M)">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <!-- Bootstrap 4.3.1 served from cdnjs (matches the bootstrap.bundle.min.js below) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Bootstrap 4.3.1 served from cdnjs -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
-        /* Restore the two project-specific tweaks that the upstream
-           bootstrap.min.css was carrying: a slightly cooler info color
-           and Montserrat as the default sans-serif. The Montserrat
-           webfont is already loaded via the <link> below this block. */
-        :root { --info: #3b99e0; }
-        body { font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
-        .bg-info { background-color: #3b99e0 !important; }
-        .text-info { color: #3b99e0 !important; }
-        .border-info { border-color: #3b99e0 !important; }
-        .btn-info { background-color: #3b99e0; border-color: #3b99e0; }
-        .btn-info:hover { background-color: #2d83c4; border-color: #2778b8; }
-        .btn-outline-info { color: #3b99e0; border-color: #3b99e0; }
-        .btn-outline-info:hover { background-color: #3b99e0; border-color: #3b99e0; }
-        .alert-info { color: #1f5077; background-color: #d8eaf9; border-color: #c8e0f5; }
+        :root {
+            --info: #3b99e0;
+        }
+
+        body {
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+
+        .bg-info {
+            background-color: #3b99e0 !important;
+        }
+
+        .text-info {
+            color: #3b99e0 !important;
+        }
+
+        .border-info {
+            border-color: #3b99e0 !important;
+        }
+
+        .btn-info {
+            background-color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .btn-info:hover {
+            background-color: #2d83c4;
+            border-color: #2778b8;
+        }
+
+        .btn-outline-info {
+            color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .btn-outline-info:hover {
+            background-color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .alert-info {
+            color: #1f5077;
+            background-color: #d8eaf9;
+            border-color: #c8e0f5;
+        }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
     <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
     <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
     <link rel="stylesheet" href="assets/css/Footer-Basic.css">
@@ -45,28 +79,25 @@
     <style>
         /* ===== Translator – paleta gris / azul (dark) ===== */
         :root {
-            /* Capas de superficie */
-            --tx-bg-1:        #0b1322;   /* fondo más profundo */
-            --tx-bg-2:        #111c2f;   /* fondo del gradiente */
-            --tx-surface:     #1a2436;   /* tarjetas */
-            --tx-surface-2:   #131c2c;   /* inputs, controles */
-            --tx-surface-3:   #243047;   /* hover / chips */
-            --tx-border:      #2a3447;
-            --tx-border-2:    #354260;
+            --tx-bg-1: #0b1322;
+            --tx-bg-2: #111c2f;
+            --tx-surface: #1a2436;
+            --tx-surface-2: #131c2c;
+            --tx-surface-3: #243047;
+            --tx-border: #2a3447;
+            --tx-border-2: #354260;
 
-            /* Texto */
-            --tx-text:        #e6ecf5;   /* texto principal */
+            --tx-text: #e6ecf5;
             --tx-text-strong: #f3f6fb;
-            --tx-muted:       #94a3b8;
-            --tx-label:       #b6c2d4;
+            --tx-muted: #94a3b8;
+            --tx-label: #b6c2d4;
 
-            /* Azules de acento */
-            --tx-primary:     #4f8fcf;   /* azul claro principal */
-            --tx-primary-2:   #6ba6e0;   /* hover / brillo */
-            --tx-primary-deep:#22456b;   /* base de gradiente del botón */
-            --tx-accent:      #3b82f6;   /* foco */
+            --tx-primary: #4f8fcf;
+            --tx-primary-2: #6ba6e0;
+            --tx-primary-deep: #22456b;
+            --tx-accent: #3b82f6;
 
-            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+            --tx-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
         }
 
         body {
@@ -77,9 +108,6 @@
             background-attachment: fixed;
             color: var(--tx-text);
             font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-            /* Reserve space for the fixed navbar so nothing sits behind it.
-               --nav-offset is updated at runtime to match the navbar's
-               actual rendered height; the fallback covers initial paint. */
             --nav-offset: 96px;
             padding-top: var(--nav-offset);
         }
@@ -92,27 +120,41 @@
             border-bottom: 1px solid var(--tx-border);
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
         }
+
         .clean-navbar .nav-link {
             color: var(--tx-label) !important;
             font-weight: 500;
             letter-spacing: 0.02em;
         }
+
         .clean-navbar .nav-link.active,
-        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
-        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .clean-navbar .nav-link:hover {
+            color: var(--tx-primary-2) !important;
+        }
+
+        .navbar-brand.logo {
+            color: var(--tx-text-strong) !important;
+            font-weight: 600;
+        }
+
         .navbar-toggler {
             border-color: var(--tx-border) !important;
         }
+
         .navbar-toggler-icon {
             filter: invert(1) brightness(1.4) opacity(0.7);
         }
 
-        /* Layout principal */
-        /* Body reserves the navbar's height via --nav-offset (set above and
-           refined at runtime), so the container only needs a small visual
-           gap between the navbar and the heading. */
-        #info-container { padding-top: 24px; padding-bottom: 40px; max-width: 1180px; }
-        #info-container .row { height: auto !important; margin: 0 !important; }
+        #info-container {
+            padding-top: 24px;
+            padding-bottom: 40px;
+            max-width: 1180px;
+        }
+
+        #info-container .row {
+            height: auto !important;
+            margin: 0 !important;
+        }
 
         h1.pulse.animated {
             color: var(--tx-text-strong) !important;
@@ -122,24 +164,6 @@
             font-size: 1.9rem;
         }
 
-        /* Conservada por compatibilidad (no se usa en esta versión) */
-        .info-box {
-            display: flex; align-items: center; gap: 10px;
-            margin: 10px 0;
-            color: var(--tx-label);
-            font-size: 0.92rem;
-        }
-        .info-box .my-info-icons {
-            color: var(--tx-primary-2);
-            background: rgba(107, 166, 224, 0.12);
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: inline-flex; align-items: center; justify-content: center;
-            font-size: 14px;
-        }
-        .info-box .text-info { color: var(--tx-primary-2) !important; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; }
-
-        /* Tarjeta del formulario */
         .site-form {
             background: var(--tx-surface);
             border: 1px solid var(--tx-border);
@@ -148,40 +172,70 @@
             box-shadow: var(--tx-shadow);
             margin: 0 auto;
         }
-        .site-form .form-group { margin-bottom: 6px; }
-        .site-form form { text-align: left !important; }
 
-        /* Grid de resultados: 2 columnas en pantallas medianas+, 1 columna en móvil */
+        .site-form .form-group {
+            margin-bottom: 6px;
+        }
+
+        .site-form form {
+            text-align: left !important;
+        }
+
+        /* Grid de resultados: 2 columnas */
         .results-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 6px 22px;
-            margin-top: 4px;
+            gap: 16px 22px;
+            margin-top: 10px;
         }
-        .result-cell { display: flex; flex-direction: column; }
-        @media (max-width: 575.98px) {
-            .results-grid { grid-template-columns: 1fr; gap: 0; }
+
+        .result-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-cell.full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 767.98px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 14px 0;
+            }
+
+            .result-cell.full-width {
+                grid-column: auto;
+            }
         }
 
         .field-label {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-size: 0.72rem;
             font-weight: 600;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: var(--tx-label);
-            margin: 18px 0 6px;
+            margin: 12px 0 6px;
         }
+
         .field-label .src-tag {
             display: inline-block;
-            margin-left: 8px;
-            padding: 1px 8px;
+            padding: 2px 8px;
             border-radius: 999px;
             background: rgba(107, 166, 224, 0.14);
             color: var(--tx-primary-2);
             font-size: 0.65rem;
             letter-spacing: 0.06em;
             border: 1px solid rgba(107, 166, 224, 0.25);
+        }
+
+        .field-label .src-tag.v2-tag {
+            background: rgba(110, 231, 183, 0.15);
+            color: #6ee7b7;
+            border-color: rgba(110, 231, 183, 0.3);
         }
 
         /* Inputs y textareas */
@@ -192,11 +246,15 @@
             border: 1px solid var(--tx-border);
             border-radius: 8px;
             padding: 10px 12px;
-            line-height: 1.5; /* Suficiente para acentos y descendentes (ñ, ó, ü, j, etc.) */
+            line-height: 1.5;
             transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
             box-shadow: none;
         }
-        .site-form .form-control::placeholder { color: #6b7891; }
+
+        .site-form .form-control::placeholder {
+            color: #6b7891;
+        }
+
         .site-form .form-control:focus {
             background: #182236;
             border-color: var(--tx-accent);
@@ -204,6 +262,7 @@
             outline: none;
             color: var(--tx-text-strong);
         }
+
         .site-form .form-control.is-invalid,
         .site-form .form-control.is-invalid:focus {
             border-color: #f59e0b;
@@ -212,7 +271,6 @@
             color: #fde68a;
         }
 
-        /* Aviso debajo del input cuando hay un problema con lo que escribió */
         .input-warning {
             margin: 8px 0 0;
             padding: 9px 12px;
@@ -227,6 +285,7 @@
             align-items: flex-start;
             gap: 8px;
         }
+
         .input-warning::before {
             content: "⚠";
             font-size: 0.95rem;
@@ -234,13 +293,33 @@
             margin-top: 1px;
             color: #f59e0b;
         }
-        .input-warning.shake { animation: tx-shake 0.4s ease; }
+
+        .input-warning.shake {
+            animation: tx-shake 0.4s ease;
+        }
+
         @keyframes tx-shake {
-            0%, 100% { transform: translateX(0); }
-            20%      { transform: translateX(-5px); }
-            40%      { transform: translateX(5px); }
-            60%      { transform: translateX(-3px); }
-            80%      { transform: translateX(3px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-5px);
+            }
+
+            40% {
+                transform: translateX(5px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
+
+            80% {
+                transform: translateX(3px);
+            }
         }
 
         /* Sugerencias ortográficas */
@@ -255,9 +334,21 @@
             line-height: 1.45;
             color: var(--tx-label);
         }
-        .spell-panel.is-loading { opacity: 0.7; }
-        .spell-item { margin: 4px 0; }
-        .spell-item + .spell-item { border-top: 1px dashed var(--tx-border-2); padding-top: 6px; margin-top: 6px; }
+
+        .spell-panel.is-loading {
+            opacity: 0.7;
+        }
+
+        .spell-item {
+            margin: 4px 0;
+        }
+
+        .spell-item+.spell-item {
+            border-top: 1px dashed var(--tx-border-2);
+            padding-top: 6px;
+            margin-top: 6px;
+        }
+
         .spell-word {
             display: inline-block;
             font-weight: 600;
@@ -270,7 +361,12 @@
             font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
             font-size: 0.82rem;
         }
-        .spell-arrow { color: var(--tx-muted); margin: 0 4px; }
+
+        .spell-arrow {
+            color: var(--tx-muted);
+            margin: 0 4px;
+        }
+
         .spell-chip {
             display: inline-block;
             padding: 2px 9px;
@@ -284,37 +380,51 @@
             cursor: pointer;
             transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
         }
+
         .spell-chip:hover {
             background: var(--tx-primary);
             border-color: var(--tx-primary);
             color: #0b1322;
         }
+
         .spell-chip:focus {
             outline: 2px solid var(--tx-accent);
             outline-offset: 1px;
         }
-        .spell-msg { margin: 0; }
-        .spell-msg.spell-ok { color: #4ade80; }
 
-        /* Fila con input + selector de idioma */
+        .spell-msg {
+            margin: 0;
+        }
+
+        .spell-msg.spell-ok {
+            color: #4ade80;
+        }
+
         .source-row {
             display: grid;
             grid-template-columns: 1fr 220px;
             gap: 14px;
             align-items: start;
         }
-        .source-input { min-width: 0; } /* evita que el input desborde el grid */
-        @media (max-width: 575.98px) {
-            .source-row { grid-template-columns: 1fr; }
+
+        .source-input {
+            min-width: 0;
         }
 
-        /* Input con botón de micrófono integrado */
+        @media (max-width: 575.98px) {
+            .source-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .input-with-mic {
             position: relative;
         }
+
         .input-with-mic .form-control {
-            padding-right: 48px; /* espacio para el botón */
+            padding-right: 48px;
         }
+
         .voice-btn {
             position: absolute;
             top: 50%;
@@ -333,19 +443,27 @@
             justify-content: center;
             transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.05s ease;
         }
+
         .voice-btn:hover {
             background: var(--tx-primary);
             border-color: var(--tx-primary);
             color: #ffffff;
         }
-        .voice-btn:active { transform: translateY(-50%) scale(0.94); }
-        .voice-btn:focus { outline: 2px solid var(--tx-accent); outline-offset: 1px; }
-        .voice-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
-        .voice-btn[disabled]:hover {
-            background: var(--tx-surface);
-            border-color: var(--tx-border-2);
-            color: var(--tx-primary-2);
+
+        .voice-btn:active {
+            transform: translateY(-50%) scale(0.94);
         }
+
+        .voice-btn:focus {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 1px;
+        }
+
+        .voice-btn[disabled] {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         .voice-btn.is-listening {
             background: linear-gradient(180deg, #b45309 0%, #7c2d12 100%);
             border-color: #b45309;
@@ -353,13 +471,21 @@
             box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6);
             animation: tx-mic-pulse 1.4s ease-out infinite;
         }
+
         @keyframes tx-mic-pulse {
-            0%   { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0.55); }
-            70%  { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);    }
-            100% { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0);    }
+            0% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
         }
 
-        /* Select estilizado igual que los inputs */
         .site-form select.form-control {
             font-size: 0.95rem;
             color: var(--tx-text);
@@ -368,9 +494,6 @@
             border-radius: 8px;
             padding: 10px 36px 10px 12px;
             line-height: 1.5;
-            /* Algunos navegadores (Safari) ignoran line-height en <select>;
-               un min-height fija el alto para que el texto con acentos
-               (Detectar automáticamente, 한국어, العربية…) no quede recortado. */
             min-height: 44px;
             cursor: pointer;
             appearance: none;
@@ -385,6 +508,7 @@
             background-size: 6px 6px, 6px 6px;
             background-repeat: no-repeat;
         }
+
         .site-form select.form-control:focus {
             background-color: #182236;
             border-color: var(--tx-accent);
@@ -392,9 +516,12 @@
             outline: none;
             color: var(--tx-text-strong);
         }
-        .site-form select.form-control option { background: var(--tx-surface); color: var(--tx-text); }
 
-        /* Aviso del puente: "traducido al español por Google" */
+        .site-form select.form-control option {
+            background: var(--tx-surface);
+            color: var(--tx-text);
+        }
+
         .bridge-panel {
             margin: 8px 0 0;
             padding: 8px 12px;
@@ -410,29 +537,39 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        .bridge-panel .bridge-from { color: var(--tx-muted); }
-        .bridge-panel .bridge-arrow { color: var(--tx-muted); }
+
+        .bridge-panel .bridge-from {
+            color: var(--tx-muted);
+        }
+
+        .bridge-panel .bridge-arrow {
+            color: var(--tx-muted);
+        }
+
         .bridge-panel .bridge-text {
             color: var(--tx-text-strong);
             font-weight: 600;
             font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
         }
-        .bridge-panel.is-loading { opacity: 0.7; }
+
+        .bridge-panel.is-loading {
+            opacity: 0.7;
+        }
 
         .site-form textarea.form-control {
             background: var(--tx-surface-2);
             resize: vertical;
-            min-height: 180px;
+            min-height: 140px;
             font-family: 'Menlo', 'Consolas', ui-monospace, monospace;
             font-size: 0.95rem;
             line-height: 1.6;
         }
+
         .site-form textarea.form-control[readonly] {
             color: var(--tx-text);
             cursor: text;
         }
 
-        /* Botón principal */
         #btn_traduc {
             width: 100%;
             margin-top: 20px;
@@ -448,20 +585,55 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             transition: transform 0.05s ease, box-shadow 0.15s ease, filter 0.15s ease;
         }
+
         #btn_traduc:hover {
             filter: brightness(1.10);
             box-shadow: 0 8px 22px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
         }
-        #btn_traduc:active { transform: translateY(1px); }
-        #btn_traduc:focus { outline: 3px solid rgba(59, 130, 246, 0.35); outline-offset: 2px; }
 
-        /* Footer */
+        #btn_traduc:active {
+            transform: translateY(1px);
+        }
+
+        #btn_traduc:focus {
+            outline: 3px solid rgba(59, 130, 246, 0.35);
+            outline-offset: 2px;
+        }
+
+        /* Estilos específicos para Didxazapp v2 card */
+        .v2-card-notice {
+            background: rgba(110, 231, 183, 0.06);
+            border: 1px solid rgba(110, 231, 183, 0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            color: #a7f3d0;
+            margin-bottom: 8px;
+        }
+
+        .v2-progress-bar-wrap {
+            height: 6px;
+            background: var(--tx-surface-2);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--tx-border);
+            margin: 6px 0;
+        }
+
+        .v2-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #6ee7b7);
+            transition: width 0.2s;
+        }
+
         .footer-basic {
             background: transparent;
             border-top: 1px solid var(--tx-border);
             margin-top: 40px;
             padding: 18px 0;
         }
+
         .footer-basic .copyright {
             color: var(--tx-muted);
             font-size: 0.82rem;
@@ -469,30 +641,44 @@
             text-align: center;
         }
 
-        /* Selección de texto */
         ::selection {
             background: rgba(59, 130, 246, 0.45);
             color: var(--tx-text-strong);
         }
 
-        /* Scrollbar (WebKit) – discreto, en tono frío */
-        textarea::-webkit-scrollbar { width: 10px; height: 10px; }
-        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
         textarea::-webkit-scrollbar-thumb {
             background: var(--tx-surface-3);
             border-radius: 999px;
             border: 2px solid var(--tx-surface-2);
         }
-        textarea::-webkit-scrollbar-thumb:hover { background: var(--tx-border-2); }
 
-        /* Responsive: en móvil ajustamos paddings y tipografía */
-        @media (max-width: 767.98px) {
-            #info-container { padding-top: 16px; }
-            .site-form { padding: 22px 18px; }
-            h1.pulse.animated { font-size: 1.5rem; }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--tx-border-2);
         }
 
-        /* ===== Aviso (modal de aceptación) ===== */
+        @media (max-width: 767.98px) {
+            #info-container {
+                padding-top: 16px;
+            }
+
+            .site-form {
+                padding: 22px 18px;
+            }
+
+            h1.pulse.animated {
+                font-size: 1.5rem;
+            }
+        }
+
         .disclaimer-overlay {
             position: fixed;
             inset: 0;
@@ -506,7 +692,16 @@
             padding: 24px;
             animation: tx-fade-in 0.2s ease;
         }
-        @keyframes tx-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        @keyframes tx-fade-in {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
 
         .disclaimer-card {
             background: var(--tx-surface);
@@ -519,9 +714,17 @@
             animation: tx-card-in 0.25s ease;
             color: var(--tx-text);
         }
+
         @keyframes tx-card-in {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .disclaimer-card h2 {
@@ -534,12 +737,16 @@
             align-items: center;
             gap: 10px;
         }
+
         .disclaimer-card h2 .fa {
             background: rgba(107, 166, 224, 0.14);
             color: var(--tx-primary-2);
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            display: inline-flex; align-items: center; justify-content: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
             border: 1px solid rgba(107, 166, 224, 0.25);
         }
@@ -550,7 +757,11 @@
             line-height: 1.65;
             margin: 0 0 18px;
         }
-        .disclaimer-card p strong { color: var(--tx-primary-2); }
+
+        .disclaimer-card p strong {
+            color: var(--tx-primary-2);
+        }
+
         .disclaimer-card p.disclaimer-attribution {
             font-size: 0.78rem;
             line-height: 1.5;
@@ -586,20 +797,33 @@
             cursor: pointer;
             transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
         }
+
         .btn-disclaimer-accept:hover {
             filter: brightness(1.1);
             box-shadow: 0 8px 22px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
         }
-        .btn-disclaimer-accept:active { transform: translateY(1px); }
-        .btn-disclaimer-accept:focus { outline: 3px solid rgba(59, 130, 246, 0.35); outline-offset: 2px; }
 
-        /* Mientras el aviso está abierto, bloqueamos scroll y ocultamos foco del fondo */
-        body.disclaimer-open { overflow: hidden; }
+        .btn-disclaimer-accept:active {
+            transform: translateY(1px);
+        }
+
+        .btn-disclaimer-accept:focus {
+            outline: 3px solid rgba(59, 130, 246, 0.35);
+            outline-offset: 2px;
+        }
+
+        body.disclaimer-open {
+            overflow: hidden;
+        }
+
         body.disclaimer-open #info-container,
         body.disclaimer-open .clean-navbar,
-        body.disclaimer-open .footer-basic { filter: blur(1px); pointer-events: none; user-select: none; }
+        body.disclaimer-open .footer-basic {
+            filter: blur(1px);
+            pointer-events: none;
+            user-select: none;
+        }
 
-        /* Toggle ES / EN, exclusivo de esta página (no toca el menú) */
         .ui-lang-toggle {
             display: inline-flex;
             align-items: center;
@@ -611,6 +835,7 @@
             box-shadow: var(--tx-shadow);
             margin-bottom: 14px;
         }
+
         .ui-lang-toggle button {
             appearance: none;
             border: 0;
@@ -625,15 +850,21 @@
             cursor: pointer;
             transition: background 0.12s ease, color 0.12s ease;
         }
-        .ui-lang-toggle button:hover { color: var(--tx-text-strong); }
+
+        .ui-lang-toggle button:hover {
+            color: var(--tx-text-strong);
+        }
+
         .ui-lang-toggle button.is-active {
             background: var(--tx-primary);
             color: #ffffff;
         }
+
         .ui-lang-toggle button:focus-visible {
             outline: 2px solid var(--tx-accent);
             outline-offset: 2px;
         }
+
         .ui-lang-row {
             display: flex;
             justify-content: flex-end;
@@ -641,17 +872,28 @@
         }
 
         @media (max-width: 575.98px) {
-            .disclaimer-card { padding: 24px 20px 20px; }
-            .disclaimer-actions { flex-direction: column-reverse; align-items: stretch; }
-            .btn-disclaimer-accept { width: 100%; }
+            .disclaimer-card {
+                padding: 24px 20px 20px;
+            }
+
+            .disclaimer-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .btn-disclaimer-accept {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div id="disclaimer" class="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title" aria-describedby="disclaimer-text" hidden>
+    <div id="disclaimer" class="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title"
+        aria-describedby="disclaimer-text" hidden>
         <div class="disclaimer-card">
-            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> <span data-i18n="disclaimer.title">Aviso importante</span></h2>
+            <h2 id="disclaimer-title"><i class="fa fa-info-circle" aria-hidden="true"></i> <span
+                    data-i18n="disclaimer.title">Aviso importante</span></h2>
             <p id="disclaimer-text" data-i18n-html="disclaimer.body">
                 El traductor de español a zapoteco del istmo es un proyecto experimental con la
                 finalidad de generar herramientas capaces de realizar traducciones al idioma Zapoteco
@@ -664,10 +906,12 @@
                 ***Las Traducciones de Fundación Historico Cultural Juchitán, aulex, Traductor
                 Familia Toledo, y Google se encuentran disponibles de manera gratuita en internet,
                 y pertenecen a Fundación Historico Cultural Juchitán, aulex, a la Familia Toledo
-                y Google respectivamente.***
+                y Google respectivamente. Didxazapp v2 utiliza el modelo NLLB-600M mediante Transformers.js
+                (simpleverso/espzap-nllb-600m).***
             </p>
             <div class="disclaimer-actions">
-                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus data-i18n="disclaimer.accept">
+                <button type="button" id="btn_disclaimer_accept" class="btn-disclaimer-accept" autofocus
+                    data-i18n="disclaimer.accept">
                     Acepto y continuar
                 </button>
             </div>
@@ -677,28 +921,36 @@
     <div class="container" id="info-container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h2 class="text-center text-info pulse animated" data-i18n="page.title">Traductor Español - Zapoteco del Istmo en linea</h2>
+                <h2 class="text-center text-info pulse animated" data-i18n="page.title">Traductor Español - Zapoteco del
+                    Istmo en línea (Didxazapp v2)</h2>
             </div>
             <div class="col-12 col-md-11 col-lg-10 col-xl-9 site-form">
                 <div class="ui-lang-row">
                     <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
-                        <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                        <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es"
+                            aria-pressed="true">ES</button>
                         <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
                     </div>
                 </div>
                 <form id="my-form" onsubmit="return false;" action="">
                     <div class="source-row">
                         <div class="source-input">
-                            <label class="field-label" for="txt_texto_espanish" data-i18n="form.input_label">Palabra o frase</label>
+                            <label class="field-label" for="txt_texto_espanish" data-i18n="form.input_label">Palabra o
+                                frase</label>
                             <div class="input-with-mic">
-                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required placeholder="Texto a traducir" data-i18n-placeholder="form.input_placeholder" autofocus spellcheck="true">
-                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz" title="Dictar por voz" data-i18n-aria-label="voice.start" data-i18n-title="voice.start">
+                                <input class="form-control" type="text" data-aos="fade" id="txt_texto_espanish" required
+                                    placeholder="Texto a traducir" data-i18n-placeholder="form.input_placeholder"
+                                    autofocus spellcheck="true">
+                                <button id="btn_voice" class="voice-btn" type="button" aria-label="Dictar por voz"
+                                    title="Dictar por voz" data-i18n-aria-label="voice.start"
+                                    data-i18n-title="voice.start">
                                     <i class="fa fa-microphone" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="source-lang">
-                            <label class="field-label" for="src_lang" data-i18n="form.src_label">Idioma de origen</label>
+                            <label class="field-label" for="src_lang" data-i18n="form.src_label">Idioma de
+                                origen</label>
                             <select class="form-control" id="src_lang">
                                 <option value="es" selected data-i18n="lang.es">Español</option>
                                 <option value="auto" data-i18n="lang.auto">Detectar automáticamente</option>
@@ -724,33 +976,65 @@
                     <div id="spell_panel" class="spell-panel" aria-live="polite" hidden></div>
 
                     <div class="results-grid">
+                        <!-- Didxazapp V2 (Experimental NLLB-600M) -->
+                        <div class="result-cell full-width">
+                            <label class="field-label" for="txt_res_didxazapp_v2">
+                                <span data-i18n="result.istmo">Zapoteco del Istmo</span>
+                                <span class="src-tag v2-tag">Didxazapp v2 (AI)</span>
+                            </label>
+                            <div id="v2_status" class="small text-muted mb-1" style="font-size:0.8rem;"
+                                data-i18n="v2.status.init">Inicializando modelo V2…</div>
+                            <div id="v2_bar_wrap" class="v2-progress-bar-wrap" style="display:none;">
+                                <div id="v2_bar" class="v2-progress-bar"></div>
+                            </div>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp_v2" readonly
+                                placeholder="Resultado Didxazapp v2 (AI) - Zapoteco del Istmo"
+                                data-i18n-placeholder="result.placeholder.didxazapp_v2" rows="4"></textarea>
+                        </div>
+
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_didxazapp"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Didxazapp V1</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly placeholder="Resultado Didxazapp - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.didxazapp" rows="8"></textarea>
+                            <label class="field-label" for="txt_res_didxazapp"><span data-i18n="result.istmo">Zapoteco
+                                    del Istmo</span> <span class="src-tag">Didxazapp V1</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_didxazapp" readonly
+                                placeholder="Resultado Didxazapp - Zapoteco del Istmo"
+                                data-i18n-placeholder="result.placeholder.didxazapp" rows="6"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_familia_toleto"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Familia Toledo</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly placeholder="Resultado Fam Toledo - Zapoteco del Istmo" data-i18n-placeholder="result.placeholder.toledo" rows="8"></textarea>
+                            <label class="field-label" for="txt_familia_toleto"><span data-i18n="result.istmo">Zapoteco
+                                    del Istmo</span> <span class="src-tag">Familia Toledo</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_familia_toleto" readonly
+                                placeholder="Resultado Fam Toledo - Zapoteco del Istmo"
+                                data-i18n-placeholder="result.placeholder.toledo" rows="6"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_aulex_cajono"><span data-i18n="result.cajono">Zapoteco Cajono</span> <span class="src-tag">Aulex (zap-es)</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly placeholder="Resultado Aulex - Zapoteco Cajono" data-i18n-placeholder="result.placeholder.aulex" rows="8"></textarea>
+                            <label class="field-label" for="txt_res_aulex_cajono"><span
+                                    data-i18n="result.cajono">Zapoteco Cajono</span> <span class="src-tag">Aulex
+                                    (zap-es)</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_aulex_cajono" readonly
+                                placeholder="Resultado Aulex - Zapoteco Cajono"
+                                data-i18n-placeholder="result.placeholder.aulex" rows="6"></textarea>
                         </div>
                         <div class="result-cell">
-                            <label class="field-label" for="txt_res_google"><span data-i18n="result.istmo">Zapoteco del Istmo</span> <span class="src-tag">Google</span></label>
-                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly placeholder="Resultado Google Translate - Zapoteco" data-i18n-placeholder="result.placeholder.google" rows="8"></textarea>
+                            <label class="field-label" for="txt_res_google"><span data-i18n="result.istmo">Zapoteco del
+                                    Istmo</span> <span class="src-tag">Google</span></label>
+                            <textarea class="form-control" data-aos="fade" id="txt_res_google" readonly
+                                placeholder="Resultado Google Translate - Zapoteco"
+                                data-i18n-placeholder="result.placeholder.google" rows="6"></textarea>
                         </div>
                     </div>
 
-                    <button id="btn_traduc" class="btn btn-primary" type="button" data-i18n="btn.translate">Traducir</button>
+                    <button id="btn_traduc" class="btn btn-primary" type="button"
+                        data-i18n="btn.translate">Traducir</button>
                 </form>
             </div>
             <div class="clearfix"></div>
         </div>
     </div>
+
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
         <div class="container">
-            <a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a>
+            <a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="assets/img/Dictionary-icon.png"
+                    width="55" height="55">&nbsp;Nacubi research&nbsp;</a>
             <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="navbar-toggler-icon"></span>
@@ -771,11 +1055,6 @@
     </nav>
 
     <script>
-        // Keep --nav-offset in sync with the navbar's real height so the
-        // page heading is never tucked behind the fixed-top navbar. This
-        // runs as soon as the navbar exists in the DOM and re-checks on
-        // load (when web fonts and the logo image have settled) and on
-        // resize/orientation changes.
         (function syncNavOffset() {
             var navEl = document.querySelector('.clean-navbar');
             if (!navEl) return;
@@ -786,20 +1065,15 @@
             update();
             window.addEventListener('load', update);
             window.addEventListener('resize', update);
-            // Mobile nav expand/collapse changes height mid-session; watch it.
             if (window.ResizeObserver) {
-                try { new ResizeObserver(update).observe(navEl); } catch (_) { /* noop */ }
+                try { new ResizeObserver(update).observe(navEl); } catch (_) { }
             }
         })();
 
-        // Highlight the nav link that matches the current page, regardless
-        // of which <a> happens to have a hardcoded `active` class. This
-        // makes the menu robust against copy-paste mistakes between pages.
         (function highlightCurrentNav() {
             var links = document.querySelectorAll('.clean-navbar .nav-link');
             if (!links.length) return;
             var here = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
-            // Treat empty path (server root) as index.html.
             if (!here) here = 'index.html';
             links.forEach(function (a) {
                 var href = (a.getAttribute('href') || '').split('/').pop().toLowerCase();
@@ -830,32 +1104,32 @@
         // ---- Config (cargado desde config.json) ----
         const MAX_CHARS = 36;
         const SERVERS = ['didxazapp1', 'didxazapp2', 'didxazapp4', 'didxazapp5'];
-        const AULEX_API  = 'https://aulex.org/zap-es/';
+        const AULEX_API = 'https://aulex.org/zap-es/';
         const BIYUBI_API = 'http://www.biyubi.com/did_consulta.php';
         const GOOGLE_API = 'https://translate.googleapis.com/translate_a/single';
 
-        // Defaults: si config.json no carga, todo queda habilitado.
         const FEATURES = {
-            enablePage:        true,
-            disclaimer:        true,
-            spellCheck:        true,
-            voiceInput:        true,
-            didxazapp:         true,
-            toledo:            true,
-            aulexCajono:       true,
-            google:            true,
+            enablePage: true,
+            disclaimer: true,
+            spellCheck: true,
+            voiceInput: true,
+            didxazappV2: true,
+            didxazapp: true,
+            toledo: true,
+            aulexCajono: true,
+            google: true,
         };
 
-        // Mapeo: clave en config.json -> propiedad en FEATURES
         const CONFIG_MAP = {
-            translator_enablePage:        'enablePage',
-            translator_enableDisclaimer:  'disclaimer',
-            translator_enableSpellCheck:  'spellCheck',
-            translator_enableVoiceInput:  'voiceInput',
-            translator_enableDidxazapp:   'didxazapp',
-            translator_enableToledo:      'toledo',
+            translator_enablePage: 'enablePage',
+            translator_enableDisclaimer: 'disclaimer',
+            translator_enableSpellCheck: 'spellCheck',
+            translator_enableVoiceInput: 'voiceInput',
+            translator_enableDidxazappV2: 'didxazappV2',
+            translator_enableDidxazapp: 'didxazapp',
+            translator_enableToledo: 'toledo',
             translator_enableAulexCajono: 'aulexCajono',
-            translator_enableGoogle:      'google',
+            translator_enableGoogle: 'google',
         };
 
         async function loadConfig() {
@@ -867,30 +1141,27 @@
                     if (key in cfg) FEATURES[prop] = !!cfg[key];
                 }
             } catch (e) {
-                // Si no se puede leer (ej. file://), quedan los defaults.
                 console.warn('No se pudo cargar config.json, usando valores por defecto.', e);
             }
         }
 
         // ---- DOM refs ----
-        const $input    = document.getElementById('txt_texto_espanish');
-        const $btn      = document.getElementById('btn_traduc');
-        const $resDx    = document.getElementById('txt_res_didxazapp');
-        const $resFam   = document.getElementById('txt_familia_toleto');
-        const $resAulx  = document.getElementById('txt_res_aulex_cajono');
-        const $resGoog  = document.getElementById('txt_res_google');
-        const $warning  = document.getElementById('input_warning');
-        const $spell    = document.getElementById('spell_panel');
-        const $srcLang  = document.getElementById('src_lang');
-        const $bridge   = document.getElementById('bridge_panel');
+        const $input = document.getElementById('txt_texto_espanish');
+        const $btn = document.getElementById('btn_traduc');
+        const $resDxV2 = document.getElementById('txt_res_didxazapp_v2');
+        const $resDx = document.getElementById('txt_res_didxazapp');
+        const $resFam = document.getElementById('txt_familia_toleto');
+        const $resAulx = document.getElementById('txt_res_aulex_cajono');
+        const $resGoog = document.getElementById('txt_res_google');
+        const $warning = document.getElementById('input_warning');
+        const $spell = document.getElementById('spell_panel');
+        const $srcLang = document.getElementById('src_lang');
+        const $bridge = document.getElementById('bridge_panel');
         const $voiceBtn = document.getElementById('btn_voice');
+        const $v2Status = document.getElementById('v2_status');
+        const $v2BarWrap = document.getElementById('v2_bar_wrap');
+        const $v2Bar = document.getElementById('v2_bar');
 
-        // ---- i18n: toggle ES / EN solo para esta página ----
-        // Cualquier elemento con `data-i18n="key"` recibe su textContent del diccionario.
-        // `data-i18n-html` permite insertar HTML (p. ej. el aviso con <strong>).
-        // `data-i18n-placeholder`, `data-i18n-aria-label`, `data-i18n-title` ajustan
-        // los atributos correspondientes. La función global `t(key, ...args)` permite
-        // formatear strings dinámicos en el resto del script.
         const UI_LANG_KEY = 'translator_ui_lang_v1';
         const I18N = {
             es: {
@@ -918,7 +1189,8 @@
                 'lang.zh': '中文 (Chino)',
                 'result.istmo': 'Zapoteco del Istmo',
                 'result.cajono': 'Zapoteco Cajono',
-                'result.placeholder.didxazapp': 'Resultado Didxazapp - Zapoteco del Istmo',
+                'result.placeholder.didxazapp_v2': 'Resultado Didxazapp v2 (AI) - Zapoteco del Istmo',
+                'result.placeholder.didxazapp': 'Resultado Didxazapp V1 - Zapoteco del Istmo',
                 'result.placeholder.toledo': 'Resultado Fam Toledo - Zapoteco del Istmo',
                 'result.placeholder.aulex': 'Resultado Aulex - Zapoteco Cajono',
                 'result.placeholder.google': 'Resultado Google Translate - Zapoteco',
@@ -939,6 +1211,10 @@
                 'spell.checking': 'Comprobando ortografía…',
                 'spell.no_errors': '✓ No se detectaron errores ortográficos.',
                 'spell.no_suggestions': '(sin sugerencias)',
+                'v2.notice': '<strong>Didxazapp v2:</strong> Corre 100% en tu navegador (Transformers.js / NLLB-600M). La primera vez el modelo (~1.1 GB) se guarda en caché.',
+                'v2.status.init': 'Inicializando modelo V2…',
+                'v2.status.loading': 'Cargando modelo Didxazapp v2…',
+                'v2.status.ready': 'Modelo Didxazapp v2 listo.',
                 'disclaimer.title': 'Aviso importante',
                 'disclaimer.body':
                     'El traductor de español a zapoteco del istmo es un proyecto experimental con la ' +
@@ -951,7 +1227,7 @@
                     '***Las Traducciones de Fundación Historico Cultural Juchitán, aulex, Traductor ' +
                     'Familia Toledo, y Google se encuentran disponibles de manera gratuita en internet, ' +
                     'y pertenecen a Fundación Historico Cultural Juchitán, aulex, a la Familia Toledo ' +
-                    'y Google respectivamente.***',
+                    'y Google respectivamente. Didxazapp v2 utiliza el modelo NLLB-600M mediante Transformers.js (simpleverso/espzap-nllb-600m).***',
                 'disclaimer.accept': 'Acepto y continuar',
                 'maintenance': 'Página en mantenimiento',
             },
@@ -980,7 +1256,8 @@
                 'lang.zh': '中文 (Chinese)',
                 'result.istmo': 'Isthmus Zapotec',
                 'result.cajono': 'Cajono Zapotec',
-                'result.placeholder.didxazapp': 'Didxazapp result - Isthmus Zapotec',
+                'result.placeholder.didxazapp_v2': 'Didxazapp v2 (AI) result - Isthmus Zapotec',
+                'result.placeholder.didxazapp': 'Didxazapp V1 result - Isthmus Zapotec',
                 'result.placeholder.toledo': 'Familia Toledo result - Isthmus Zapotec',
                 'result.placeholder.aulex': 'Aulex result - Cajono Zapotec',
                 'result.placeholder.google': 'Google Translate result - Zapotec',
@@ -1001,6 +1278,10 @@
                 'spell.checking': 'Checking spelling…',
                 'spell.no_errors': '✓ No spelling errors detected.',
                 'spell.no_suggestions': '(no suggestions)',
+                'v2.notice': '<strong>Didxazapp v2:</strong> Runs 100% in your browser (Transformers.js / AI). The first time, the model (~1.1 GB) is cached.',
+                'v2.status.init': 'Initializing V2 model…',
+                'v2.status.loading': 'Loading Didxazapp v2 model…',
+                'v2.status.ready': 'Didxazapp v2 model ready.',
                 'disclaimer.title': 'Important notice',
                 'disclaimer.body':
                     'The Spanish to Isthmus Zapotec translator is an experimental project ' +
@@ -1012,7 +1293,7 @@
                 'disclaimer.attribution':
                     '***Translations from Fundación Histórico Cultural Juchitán, Aulex, the Familia Toledo ' +
                     'translator, and Google are available for free online, and belong to Fundación Histórico ' +
-                    'Cultural Juchitán, Aulex, the Familia Toledo, and Google respectively.***',
+                    'Cultural Juchitán, Aulex, the Familia Toledo, and Google respectively. Didxazapp v2 uses NLLB-600M via Transformers.js (simpleverso/espzap-nllb-600m).***',
                 'disclaimer.accept': 'I accept and continue',
                 'maintenance': 'Page under maintenance',
             },
@@ -1052,7 +1333,6 @@
             document.querySelectorAll('[data-i18n-title]').forEach(el => {
                 el.setAttribute('title', t(el.dataset.i18nTitle));
             });
-            // Estado visual del toggle
             document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
                 const active = b.dataset.uiLang === UI_LANG;
                 b.classList.toggle('is-active', active);
@@ -1073,11 +1353,8 @@
 
         applyI18n();
 
-        // Año automático en el footer
         document.getElementById('anio').innerHTML += new Date().getFullYear();
 
-        // Aviso experimental: requiere aceptación explícita en cada navegador.
-        // Una vez aceptado se guarda en localStorage para no volver a mostrarlo.
         const DISCLAIMER_KEY = 'translator_disclaimer_accepted_v1';
 
         function showDisclaimer() {
@@ -1088,11 +1365,10 @@
             return new Promise((resolve) => {
                 overlay.hidden = false;
                 document.body.classList.add('disclaimer-open');
-                // Foco en el botón para accesibilidad de teclado.
                 setTimeout(() => btn.focus(), 50);
 
                 btn.addEventListener('click', () => {
-                    try { localStorage.setItem(DISCLAIMER_KEY, '1'); } catch (e) { /* modo privado */ }
+                    try { localStorage.setItem(DISCLAIMER_KEY, '1'); } catch (e) { /* mode */ }
                     overlay.hidden = true;
                     document.body.classList.remove('disclaimer-open');
                     resolve();
@@ -1105,8 +1381,87 @@
             catch (e) { return false; }
         }
 
-        // Inicialización: carga config.json y, si la página está deshabilitada,
-        // muestra mensaje de mantenimiento; en caso contrario, conecta los eventos.
+        // ---- Integration of Didxazapp v2 (Transformers.js NLLB-600M) ----
+        let translatorV2 = null;
+        let v2Loading = false;
+        let v2ProgressPercent = 0;
+
+        function updateV2Status(msg, progress = null) {
+            if ($v2Status) $v2Status.textContent = msg;
+            if (progress !== null && $v2BarWrap && $v2Bar) {
+                $v2BarWrap.style.display = 'block';
+                $v2Bar.style.width = progress.toFixed(1) + '%';
+            } else if (progress === 100 && $v2BarWrap) {
+                $v2BarWrap.style.display = 'none';
+            }
+        }
+
+        async function initDidxazappV2() {
+            if (!FEATURES.didxazappV2) return;
+            v2Loading = true;
+            updateV2Status(t('v2.status.loading'));
+            try {
+                const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
+                env.allowLocalModels = false;
+
+                const MODEL_ID = "simpleverso/espzap-nllb-600m";
+                const fileProgress = {};
+
+                function onProgress(p) {
+                    if (p.status === "progress" && p.file) {
+                        fileProgress[p.file] = p.progress || 0;
+                        const vals = Object.values(fileProgress);
+                        const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+                        v2ProgressPercent = avg;
+                        updateV2Status(`Descargando modelo Didxazapp v2… ${avg.toFixed(0)}%`, avg);
+                    } else if (p.status === "ready") {
+                        // File cached / ready
+                    }
+                }
+
+                translatorV2 = await pipeline("translation", MODEL_ID, {
+                    dtype: "q8",
+                    progress_callback: onProgress,
+                });
+
+                v2Loading = false;
+                if ($v2BarWrap) $v2BarWrap.style.display = 'none';
+                updateV2Status(t('v2.status.ready'));
+            } catch (e) {
+                v2Loading = false;
+                console.error("Error al cargar Didxazapp v2:", e);
+                updateV2Status("Error al cargar modelo V2: " + e.message);
+            }
+        }
+
+        async function translateV2(text) {
+            if (!FEATURES.didxazappV2) {
+                $resDxV2.value = "Didxazapp v2 deshabilitado en configuración.";
+                return;
+            }
+            if (!translatorV2) {
+                if (v2Loading) {
+                    $resDxV2.value = `Descargando modelo Didxazapp v2… ${v2ProgressPercent.toFixed(0)}%\nPor favor espere a que termine de descargar el modelo (~1.1 GB).`;
+                } else {
+                    $resDxV2.value = "Didxazapp v2 no está disponible (error al cargar modelo).";
+                }
+                return;
+            }
+
+            $resDxV2.value = t('result.searching');
+            try {
+                const res = await translatorV2(text, {
+                    src_lang: "spa_Latn",
+                    tgt_lang: "ayr_Latn",
+                    max_new_tokens: 96,
+                });
+                $resDxV2.value = res[0].translation_text;
+            } catch (e) {
+                console.error("Error al traducir con Didxazapp v2:", e);
+                $resDxV2.value = "Error en Didxazapp v2: " + e.message;
+            }
+        }
+
         (async function init() {
             await loadConfig();
             if (!FEATURES.enablePage) {
@@ -1114,35 +1469,31 @@
                 return;
             }
 
-            // Bloquea la interacción hasta que el usuario acepte el aviso.
-            // Se puede desactivar desde config.json (translator_enableDisclaimer).
             if (FEATURES.disclaimer && !disclaimerAlreadyAccepted()) {
                 await showDisclaimer();
             }
 
+            // Iniciar la carga en segundo plano del modelo Didxazapp v2
+            initDidxazappV2();
+
             $btn.addEventListener('click', traductorjs);
             $input.addEventListener('keyup', (e) => { if (e.key === 'Enter') traductorjs(); });
-            // Limpia el aviso en cuanto el usuario empieza a corregir, y dispara
-            // la comprobación ortográfica con un pequeño retraso (debounce).
             $input.addEventListener('input', () => {
                 clearInputWarning();
                 clearBridge();
                 scheduleSpellCheck();
             });
             $spell.addEventListener('click', onSpellPanelClick);
-            // Cambiar idioma reinicia la corrección y limpia el panel del puente.
             $srcLang.addEventListener('change', () => {
                 clearBridge();
                 scheduleSpellCheck();
             });
 
             // ---- Entrada por voz (Web Speech API) ----
-            // Mapa del selector a códigos BCP-47 que entiende SpeechRecognition.
             const VOICE_LANG_MAP = {
                 es: 'es-MX', auto: 'es-MX', en: 'en-US', fr: 'fr-FR', pt: 'pt-BR',
                 it: 'it-IT', de: 'de-DE', ja: 'ja-JP', ko: 'ko-KR',
                 'zh-CN': 'zh-CN', ru: 'ru-RU', ar: 'ar-SA', hi: 'hi-IN',
-                // Idiomas indígenas/no soportados por el navegador: caemos a español.
                 nah: 'es-MX', qu: 'es-MX', yua: 'es-MX',
             };
 
@@ -1184,7 +1535,6 @@
                             else interim += r[0].transcript;
                         }
                         $input.value = (finalText + interim).trim();
-                        // Re-comprobar ortografía mientras se va escribiendo.
                         scheduleSpellCheck();
                     });
                     rec.addEventListener('error', (ev) => {
@@ -1202,7 +1552,6 @@
                     });
                     rec.addEventListener('end', () => {
                         stopVoice();
-                        // Si tenemos texto final, traducimos automáticamente.
                         if (finalText && finalText.trim().length) {
                             $input.value = finalText.trim();
                             traductorjs();
@@ -1219,70 +1568,35 @@
                 });
             }
 
-            // Pre-calienta puter.net.fetch (su primer uso suele ser lento por inicialización
-            // del worker/TLS). Si falla, no pasa nada: solo afectaría a la primera traducción.
             if (window.puter && puter.net && puter.net.fetch) {
-                puter.net.fetch('https://aulex.org/zap-es/?busca=hola').catch(() => {});
+                puter.net.fetch('https://aulex.org/zap-es/?busca=hola').catch(() => { });
             }
         })();
 
         // ---- Helpers ----
-        // Repara caracteres mal codificados (mojibake) que devuelven los servicios.
-        // Cubre el caso clásico (UTF-8 leído como cp1252/latin-1), la variante de
-        // doble codificación (`í*` en lugar de `Ã*`) y secuencias de 3 bytes
-        // (comillas tipográficas, guiones largos, etc.).
         const MOJIBAKE_FIXES = [
-            // --- Secuencias de 3 bytes: â€<x> y â‚¬ ---
-            [/â€œ/g, '\u201C'],            // " comilla doble izquierda
-            [/â€\u009D/g, '\u201D'],       // " comilla doble derecha
-            [/â€˜/g, '\u2018'],            // ' comilla simple izquierda
-            [/â€™/g, '\u2019'],            // ' comilla simple derecha
-            [/â€\u0093/g, '\u2013'],       // – en dash
-            [/â€\u0094/g, '\u2014'],       // — em dash
-            [/â€¦/g, '\u2026'],            // … puntos suspensivos
-            [/â‚¬/g, '€'],                 // € euro
-
-            // --- Latin-1 minúsculas (Ã + char) y variante doble (í + char) ---
-            [/Ã¡|í¡/g, 'á'],
-            [/Ã©|í©/g, 'é'],
-            [/Ã­|í­/g, 'í'],
-            [/Ã³|í³/g, 'ó'],
-            [/Ãº|íº/g, 'ú'],
-            [/Ã±|í±/g, 'ñ'],
-            [/Ã¼|í¼/g, 'ü'],
-            [/Ã /g, 'à'], [/Ã¨/g, 'è'], [/Ã¬/g, 'ì'], [/Ã²/g, 'ò'], [/Ã¹/g, 'ù'],
-            [/Ã§/g, 'ç'],
-
-            // --- Latin-1 mayúsculas ---
-            [/Ã\u0081/g, 'Á'],
-            [/Ã‰/g, 'É'],
-            [/Ã\u008D/g, 'Í'],
-            [/Ã\u201C/g, 'Ó'],
-            [/Ãš/g, 'Ú'],
-            [/Ã\u2018/g, 'Ñ'],
-            [/Ãœ/g, 'Ü'],
-            [/Ã\u0080/g, 'À'],
-            [/Ãˆ/g, 'È'],
-            [/Ã\u008C/g, 'Ì'],
-            [/Ã\u2019/g, 'Ò'],
-            [/Ã™/g, 'Ù'],
-            [/Ã‡/g, 'Ç'],
-
-            // --- Puntuación y símbolos (Â + char) ---
-            [/Â¿/g, '¿'], [/Â¡/g, '¡'],
-            [/Â«/g, '«'], [/Â»/g, '»'],
-            [/Â°/g, '°'], [/Â·/g, '·'],
-            [/Â©/g, '©'], [/Â®/g, '®'],
-            [/Âª/g, 'ª'], [/Âº/g, 'º'],
+            [/â€œ/g, '\u201C'],
+            [/â€\u009D/g, '\u201D'],
+            [/â€˜/g, '\u2018'],
+            [/â€™/g, '\u2019'],
+            [/â€\u0093/g, '\u2013'],
+            [/â€\u0094/g, '\u2014'],
+            [/â€¦/g, '\u2026'],
+            [/â‚¬/g, '€'],
+            [/Ã¡|í¡/g, 'á'], [/Ã©|í©/g, 'é'], [/Ã­|í­/g, 'í'], [/Ã³/g, 'ó'], [/Ãº|íº/g, 'ú'],
+            [/Ã±|í±/g, 'ñ'], [/Ã¼|í¼/g, 'ü'], [/Ã /g, 'à'], [/Ã¨/g, 'è'], [/Ã¬/g, 'ì'],
+            [/Ã²/g, 'ò'], [/Ã¹/g, 'ù'], [/Ã§/g, 'ç'],
+            [/Ã\u0081/g, 'Á'], [/Ã‰/g, 'É'], [/Ã\u008D/g, 'Í'], [/Ã\u201C/g, 'Ó'],
+            [/Ãš/g, 'Ú'], [/Ã\u2018/g, 'Ñ'], [/Ãœ/g, 'Ü'], [/Ã\u0080/g, 'À'],
+            [/Ãˆ/g, 'È'], [/Ã\u008C/g, 'Ì'], [/Ã\u2019/g, 'Ò'], [/Ã™/g, 'Ù'], [/Ã‡/g, 'Ç'],
+            [/Â¿/g, '¿'], [/Â¡/g, '¡'], [/Â«/g, '«'], [/Â»/g, '»'], [/Â°/g, '°'],
+            [/Â·/g, '·'], [/Â©/g, '©'], [/Â®/g, '®'], [/Âª/g, 'ª'], [/Âº/g, 'º'],
             [/Â¼/g, '¼'], [/Â½/g, '½'], [/Â¾/g, '¾'],
-
-            // --- Último recurso: Ã suelta suele venir de `Ã­` con el soft-hyphen perdido ---
             [/Ã/g, 'í'],
         ];
         const fixMojibake = (s) => MOJIBAKE_FIXES.reduce((t, [r, v]) => t.replace(r, v), s);
 
         const setBtn = (text) => { $btn.textContent = text; };
-
         const pickServer = () => SERVERS[Math.floor(Math.random() * SERVERS.length)];
 
         const buildUrls = (palabra) => {
@@ -1290,29 +1604,24 @@
             const word = encodeURIComponent(palabra.trim());
             return {
                 didxazapp: `https://${host}.azurewebsites.net/service/didxaza.asmx/quierofraseenzapotecoclave?damelafraseenespaniol=${word}&clave=p`,
-                aulex:     `${AULEX_API}?busca=${word}`,
-                biyubi:    `${BIYUBI_API}?p=${word}`,
-                google:    `${GOOGLE_API}?client=gtx&sl=es&tl=zap&dt=t&q=${word}`,
+                aulex: `${AULEX_API}?busca=${word}`,
+                biyubi: `${BIYUBI_API}?p=${word}`,
+                google: `${GOOGLE_API}?client=gtx&sl=es&tl=zap&dt=t&q=${word}`,
             };
         };
 
-        // ---- Parsers por servicio ----
         function parseDidxazapp(xml) {
             const raw = xml.substr(107).split('</string>')[0];
             return fixMojibake(raw);
         }
 
-        // Biyubi (sitio de Familia Toledo) devuelve una tabla con pares
-        // <td>...<font color=#800000>zapoteco</font>...<td>...<font color=#006000>castellano</font>
-        // Cuando no hay coincidencias, la tabla con <caption>Traducción de '...'</caption>
-        // simplemente no aparece (pero el resto del layout sí).
         function parseBiyubi(html) {
             const hasCaption = /<caption>\s*Traducci[óo]n de/i.test(html);
-            const hasFooter  = /Familia Toledo/i.test(html); // pista de que la página cargó completa
+            const hasFooter = /Familia Toledo/i.test(html);
 
             if (!hasCaption) {
-                if (hasFooter) return t('result.no_results');        // página completa, sin coincidencias
-                throw new Error('biyubi: respuesta incompleta'); // probable cold-start, reintentar
+                if (hasFooter) return t('result.no_results');
+                throw new Error('biyubi: respuesta incompleta');
             }
 
             const stripTags = (s) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
@@ -1332,9 +1641,6 @@
             return lines.length ? lines.join('\n') : t('result.no_results');
         }
 
-        // Aulex devuelve HTML con varios <p>, cada uno con la forma:
-        //   <p><span class=dict>palabra:</span> resto del texto</p>
-        // Si no hay coincidencias incluye "No hay resultados".
         function parseAulex(html) {
             if (/No hay resultados/i.test(html)) return t('result.no_results');
 
@@ -1354,15 +1660,9 @@
                 if (word) lines.push(`${word}: ${rest}`);
             }
             if (lines.length) return fixMojibake(lines.join('\n'));
-
-            // Respuesta inesperada (vacía, error transitorio de puter.net.fetch, etc.)
-            // Lanzamos para que runService pueda reintentar.
-            throw new Error('aulex: respuesta sin resultados ni marcador "No hay resultados"');
+            throw new Error('aulex: respuesta sin resultados');
         }
 
-        // Google Translate (endpoint público usado por el widget). La respuesta es:
-        //   [[["traducción","original",null,null,10], ...], null, "es", ...]
-        // Si la frase es larga, viene fragmentada en varios elementos del primer array.
         function parseGoogle(json) {
             let data;
             try { data = JSON.parse(json); } catch (e) { return t('result.no_results'); }
@@ -1371,7 +1671,6 @@
             return out || t('result.no_results');
         }
 
-        // Detección de idioma: data[2] devuelve el código BCP-47 (ej. "en", "fr", "ja").
         function parseGoogleDetected(json) {
             try {
                 const data = JSON.parse(json);
@@ -1379,8 +1678,6 @@
             } catch (e) { return ''; }
         }
 
-        // Llama a Google Translate para convertir texto desde `sl` (source lang) a `tl`
-        // (target lang). Devuelve `{ text, detected }`. Lanza si la API falla.
         async function googleTranslate(text, sl, tl) {
             const word = encodeURIComponent(text);
             const url = `${GOOGLE_API}?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${word}`;
@@ -1393,10 +1690,6 @@
             };
         }
 
-        // ---- Fetch wrapper ----
-        // Para servicios bloqueados por CORS (o sólo en HTTP) usamos puter.net.fetch
-        // (drop-in replacement), cargado con <script src="https://js.puter.com/v2/">.
-        // `encoding` permite decodificar respuestas Latin-1 / windows-1252 correctamente.
         async function fetchText(url, { cors = true, encoding = 'utf-8' } = {}) {
             const fn = (!cors && window.puter && puter.net && puter.net.fetch)
                 ? puter.net.fetch
@@ -1429,14 +1722,11 @@
             $target.value = fallback;
         }
 
-        // ---- Aviso de validación ----
         function showInputWarning(msg) {
             $warning.textContent = msg;
             $warning.hidden = false;
             $input.classList.add('is-invalid');
-            // Reinicia la animación de shake aunque ya estuviera visible.
             $warning.classList.remove('shake');
-            // Forza reflow para reiniciar la animación.
             void $warning.offsetWidth;
             $warning.classList.add('shake');
             $input.focus();
@@ -1448,9 +1738,7 @@
             $input.classList.remove('is-invalid');
         }
 
-        // ---- Sugerencias ortográficas (LanguageTool API) ----
         const LT_API = 'https://api.languagetool.org/v2/check';
-        // Reglas que ignoramos (ruido para una herramienta de traducción).
         const LT_IGNORED_RULES = new Set([
             'UPPERCASE_SENTENCE_START',
             'PUNCTUATION_PARAGRAPH_END',
@@ -1469,14 +1757,13 @@
         }
 
         function escapeHtml(s) {
-            return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+            return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         function applySuggestion(offset, length, replacement) {
             const v = $input.value;
             $input.value = v.slice(0, offset) + replacement + v.slice(offset + length);
             $input.focus();
-            // Reanaliza el texto corregido.
             scheduleSpellCheck();
         }
 
@@ -1494,7 +1781,7 @@
                 const chips = reps.length
                     ? reps.map(r =>
                         `<button type="button" class="spell-chip" data-offset="${m.offset}" data-length="${m.length}" data-rep="${escapeHtml(r.value)}">${escapeHtml(r.value)}</button>`
-                      ).join('')
+                    ).join('')
                     : `<span class="spell-arrow">${escapeHtml(t('spell.no_suggestions'))}</span>`;
                 const msg = escapeHtml(m.shortMessage || m.message || '');
                 return `
@@ -1518,16 +1805,13 @@
             $spell.innerHTML = '<p class="spell-msg">' + escapeHtml(t('spell.checking')) + '</p>';
             $spell.hidden = false;
             try {
-                // Mapeamos los códigos del selector a los que entiende LanguageTool.
-                // Si el idioma no es soportado, dejamos que LT lo autodetecte.
-                const map = { es:'es', en:'en-US', fr:'fr', pt:'pt', it:'it', de:'de-DE', ru:'ru-RU', ja:'ja-JP' };
+                const map = { es: 'es', en: 'en-US', fr: 'fr', pt: 'pt', it: 'it', de: 'de-DE', ru: 'ru-RU', ja: 'ja-JP' };
                 const sel = $srcLang ? $srcLang.value : 'es';
                 const ltLang = map[sel] || 'auto';
                 const body = new URLSearchParams({ language: ltLang, text });
                 const r = await fetch(LT_API, { method: 'POST', body, signal: spellAbort.signal });
                 if (!r.ok) throw new Error('LT ' + r.status);
                 const data = await r.json();
-                // Si llegó otra petición más reciente, ignora ésta.
                 if (seq !== spellSeq) return;
                 renderSpell(text, data.matches || []);
             } catch (e) {
@@ -1545,7 +1829,6 @@
             spellTimer = setTimeout(() => runSpellCheck(text), 600);
         }
 
-        // Delegación: aplicar la sugerencia al hacer clic en cualquier chip.
         function onSpellPanelClick(ev) {
             const btn = ev.target.closest('.spell-chip');
             if (!btn) return;
@@ -1556,8 +1839,6 @@
             applySuggestion(offset, length, rep);
         }
 
-        // ---- Acción principal ----
-        // Etiqueta amigable del idioma seleccionado (para los avisos).
         function langLabel(code) {
             const opt = $srcLang.querySelector(`option[value="${code}"]`);
             return opt ? opt.textContent.trim() : code;
@@ -1587,9 +1868,6 @@
             clearInputWarning();
 
             const srcLang = $srcLang.value || 'es';
-            // El flujo de los tres diccionarios y de Google → zap requiere texto en español.
-            // Si el usuario eligió otro idioma, lo pasamos primero por Google (xx → es)
-            // y usamos el resultado como entrada al pipeline existente.
             let textForES = raw;
             if (srcLang !== 'es') {
                 setBtn(t('btn.translating'));
@@ -1623,36 +1901,28 @@
                 clearBridge();
             }
 
-            // A partir de aquí el flujo es idéntico al anterior, pero con `textForES`
-            // en lugar del valor crudo del input.
             setBtn(t('btn.translating'));
-            $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = t('result.searching');
+            $resDxV2.value = $resDx.value = $resFam.value = $resAulx.value = $resGoog.value = t('result.searching');
 
             const urls = buildUrls(textForES);
-
-            // Mensajes de fallback que necesitamos detectar al final del flujo.
             const FALLBACK_DIDXAZAPP = t('result.fallback.didxazapp_maint');
-            const FALLBACK_GOOGLE    = t('result.fallback.google');
+            const FALLBACK_GOOGLE = t('result.fallback.google');
 
             await Promise.all([
+                translateV2(textForES),
                 runService(FEATURES.didxazapp, urls.didxazapp, parseDidxazapp, $resDx,
-                           FALLBACK_DIDXAZAPP),
+                    FALLBACK_DIDXAZAPP),
                 runService(FEATURES.toledo, urls.biyubi, parseBiyubi, $resFam,
-                           t('result.fallback.toledo'),
-                           { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
+                    t('result.fallback.toledo'),
+                    { cors: false, encoding: 'windows-1252', retries: 2, retryDelay: 500 }),
                 runService(FEATURES.aulexCajono, urls.aulex, parseAulex, $resAulx,
-                           t('result.fallback.aulex'),
-                           { cors: false, retries: 2, retryDelay: 500 }),
-                // Pequeño retraso antes de consultar Google para evitar rate-limiting.
+                    t('result.fallback.aulex'),
+                    { cors: false, retries: 2, retryDelay: 500 }),
                 new Promise(res => setTimeout(res, 1800)).then(() =>
                     runService(FEATURES.google, urls.google, parseGoogle, $resGoog,
-                               FALLBACK_GOOGLE)),
+                        FALLBACK_GOOGLE)),
             ]);
 
-            // Fallback inteligente: si Didxazapp no pudo traducir (devuelve la misma
-            // palabra, vacío o un mensaje de error) y Google sí lo logró, mostramos la
-            // respuesta de Google en el campo de Didxazapp para que el usuario tenga
-            // al menos una opción.
             const norm = s => (s || '').trim().toLowerCase().replace(/[\s.,;:!¡¿?]+$/g, '');
             const didxFailed =
                 $resDx.value === '' ||
@@ -1672,4 +1942,5 @@
         }
     </script>
 </body>
+
 </html>
