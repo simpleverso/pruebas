@@ -414,11 +414,34 @@
             </div>
             <form id="pointForm" class="p-4 space-y-3">
                 <input type="hidden" id="modalPointIndex" value="">
-                <div>
-                    <label for="modalEventInput" class="block text-xs font-medium text-gray-300 mb-1">Event</label>
-                    <input type="text" id="modalEventInput" required
-                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
-                        placeholder="e.g. Bank Robbery">
+                <!-- Coordinates & Google Maps Link -->
+                <div class="bg-gray-900/60 border border-gray-700/70 rounded-lg p-2.5 flex items-center justify-between gap-2">
+                    <div>
+                        <span class="block text-[10px] uppercase font-semibold text-gray-400 tracking-wider">Coordinates (Lat, Lng)</span>
+                        <span id="modalLatLongDisplay" class="text-xs font-mono text-cyan-300 font-semibold">0.000000, 0.000000</span>
+                    </div>
+                    <a id="modalGoogleMapsBtn" href="#" target="_blank" rel="noopener noreferrer"
+                        class="bg-gray-700 hover:bg-cyan-900 text-cyan-400 hover:text-cyan-200 border border-cyan-700/60 text-xs font-medium px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-colors shrink-0"
+                        title="View location in Google Maps">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        <span>Google Maps ↗</span>
+                    </a>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="modalReportNoInput" class="block text-xs font-medium text-gray-300 mb-1">Report Number</label>
+                        <input type="text" id="modalReportNoInput"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+                            placeholder="e.g. REP-2026-001">
+                    </div>
+                    <div>
+                        <label for="modalEventInput" class="block text-xs font-medium text-gray-300 mb-1">Event</label>
+                        <input type="text" id="modalEventInput" required
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+                            placeholder="e.g. Bank Robbery">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -604,6 +627,7 @@
         const modalCancelBtn = document.getElementById('modalCancelBtn');
         const modalDeleteBtn = document.getElementById('modalDeleteBtn');
         const modalPointIndexInput = document.getElementById('modalPointIndex');
+        const modalReportNoInput = document.getElementById('modalReportNoInput');
         const modalEventInput = document.getElementById('modalEventInput');
         const modalDateInput = document.getElementById('modalDateInput');
         const modalTypeInput = document.getElementById('modalTypeInput');
@@ -627,7 +651,7 @@
         const confirmExportJsonBtn = document.getElementById('confirmExportJsonBtn');
 
         // State variables
-        let crimeLocations = []; // Array of objects: { lat, lng, event, date, type, comments, url, photo }
+        let crimeLocations = []; // Array of objects: { lat, lng, event, reportNo, date, type, comments, url, photo }
         let crimeMarkers = []; // Array of Leaflet marker objects
         let heatmapCanvas = null;
         let currentMode = 'add'; // 'add' or 'pan'
@@ -759,6 +783,7 @@
 
         // --- Create Popup & Tooltip Content ---
         function createPopupContent(loc, index) {
+            const googleUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
             const commentsHtml = loc.comments ? `<div class="mt-1 text-[11px] text-gray-300 bg-gray-900/70 p-2 rounded-md border border-gray-700/50 max-h-24 overflow-y-auto whitespace-pre-wrap break-words">${escapeHtml(loc.comments)}</div>` : '';
             const photoHtml = loc.photo ? `<div class="my-1.5 overflow-hidden rounded-md border border-gray-700 max-h-36 bg-black/40 flex items-center justify-center"><img src="${loc.photo}" alt="Point Photo" class="w-full max-h-36 object-contain rounded-md cursor-pointer" onclick="window.open('${loc.photo}', '_blank')"></div>` : '';
             const urlHtml = loc.url ? `<div class="mt-1.5 text-[11px] overflow-hidden"><a href="${escapeHtml(loc.url)}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 underline font-mono flex items-center gap-1 shrink-0 truncate"><svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg><span class="truncate">${escapeHtml(loc.url)}</span></a></div>` : '';
@@ -769,9 +794,22 @@
                         <span class="truncate pr-1">${escapeHtml(loc.event || 'Point ' + (index + 1))}</span>
                         <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-normal shrink-0">${escapeHtml(loc.type || 'General')}</span>
                     </div>
-                    <div class="text-[11px] text-gray-300 mb-1 flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        <span><strong>Date:</strong> ${escapeHtml(loc.date || 'N/A')}</span>
+                    <div class="text-[11px] text-gray-300 mb-1 flex items-center justify-between gap-1">
+                        <div class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span><strong>Date:</strong> ${escapeHtml(loc.date || 'N/A')}</span>
+                        </div>
+                        ${loc.reportNo ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-cyan-300 border border-gray-700 font-mono"><strong>Rep #:</strong> ${escapeHtml(loc.reportNo)}</span>` : ''}
+                    </div>
+                    <div class="text-[11px] text-gray-300 mb-1 flex items-center justify-between gap-1 bg-gray-900/60 p-1.5 rounded border border-gray-700/50">
+                        <div class="flex items-center gap-1 font-mono text-[10px] text-gray-200 truncate">
+                            <svg class="w-3.5 h-3.5 text-cyan-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}</span>
+                        </div>
+                        <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 font-semibold text-[10px] flex items-center gap-0.5 bg-cyan-950 hover:bg-cyan-900 px-1.5 py-0.5 rounded border border-cyan-800 transition-colors shrink-0" title="Open location in Google Maps">
+                            <span>Google Maps</span>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
                     </div>
                     ${photoHtml}
                     ${commentsHtml}
@@ -792,9 +830,15 @@
 
         function createTooltipContent(loc) {
             let html = `<div class="font-bold text-cyan-300 text-xs">${escapeHtml(loc.event)}</div>`;
-            if (loc.date || loc.type) {
-                html += `<div class="text-[10px] text-gray-300 font-mono">${escapeHtml(loc.date)} • ${escapeHtml(loc.type)}</div>`;
+            const metaParts = [];
+            if (loc.reportNo) metaParts.push(`Rep #: ${escapeHtml(loc.reportNo)}`);
+            if (loc.date) metaParts.push(escapeHtml(loc.date));
+            if (loc.type) metaParts.push(escapeHtml(loc.type));
+            if (metaParts.length > 0) {
+                html += `<div class="text-[10px] text-gray-300 font-mono">${metaParts.join(' • ')}</div>`;
             }
+            const googleUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+            html += `<div class="text-[10px] text-cyan-400 font-mono mt-0.5">📍 ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}</div>`;
             if (loc.photo) {
                 html += `<div class="my-1 rounded overflow-hidden max-h-16 max-w-[120px]"><img src="${loc.photo}" class="h-12 w-full object-cover rounded border border-gray-700"></div>`;
             }
@@ -833,6 +877,7 @@
             if (index < 0 || index >= crimeLocations.length) return;
             const loc = crimeLocations[index];
             modalPointIndexInput.value = index;
+            modalReportNoInput.value = loc.reportNo || '';
             modalEventInput.value = loc.event || '';
             modalDateInput.value = loc.date || new Date().toISOString().split('T')[0];
             modalTypeInput.value = loc.type || 'Theft';
@@ -841,6 +886,19 @@
             currentModalPhoto = loc.photo || '';
             modalPhotoInput.value = '';
             showPhotoPreview(currentModalPhoto);
+
+            const lat = Number(loc.lat);
+            const lng = Number(loc.lng);
+            const googleUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+            const modalLatLongDisplay = document.getElementById('modalLatLongDisplay');
+            const modalGoogleMapsBtn = document.getElementById('modalGoogleMapsBtn');
+            if (modalLatLongDisplay) {
+                modalLatLongDisplay.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+            if (modalGoogleMapsBtn) {
+                modalGoogleMapsBtn.href = googleUrl;
+            }
 
             pointModal.classList.remove('hidden');
             modalEventInput.focus();
@@ -859,6 +917,7 @@
             const index = parseInt(modalPointIndexInput.value, 10);
             if (isNaN(index) || index < 0 || index >= crimeLocations.length) return;
 
+            crimeLocations[index].reportNo = modalReportNoInput.value.trim();
             crimeLocations[index].event = modalEventInput.value.trim() || `Point #${index + 1}`;
             crimeLocations[index].date = modalDateInput.value;
             crimeLocations[index].type = modalTypeInput.value;
@@ -925,6 +984,7 @@
                         lat: loc.lat,
                         lng: loc.lng,
                         event: loc.event,
+                        reportNo: loc.reportNo,
                         date: loc.date,
                         type: loc.type,
                         comments: loc.comments,
@@ -998,6 +1058,7 @@
                         const latlng = L.latLng(loc.lat, loc.lng);
                         addCrimeLocation(latlng, true, true, {
                             event: loc.event,
+                            reportNo: loc.reportNo,
                             date: loc.date,
                             type: loc.type,
                             comments: loc.comments,
@@ -1063,9 +1124,18 @@
             saveState();
         });
 
+        let calcDebounceTimer = null;
+        function triggerAutoRecalculate() {
+            if (heatmapCanvas && crimeLocations.length > 0) {
+                if (calcDebounceTimer) clearTimeout(calcDebounceTimer);
+                calcDebounceTimer = setTimeout(runCalculation, 60);
+            }
+        }
+
         bufferSlider.addEventListener('input', () => {
             bufferZoneInput.value = bufferSlider.value;
             saveState();
+            triggerAutoRecalculate();
         });
         bufferZoneInput.addEventListener('input', () => {
             const value = parseInt(bufferZoneInput.value, 10);
@@ -1076,12 +1146,17 @@
                 bufferSlider.value = maxSlider;
             }
             saveState();
+            triggerAutoRecalculate();
         });
-        bufferUnitSelect.addEventListener('change', saveState);
+        bufferUnitSelect.addEventListener('change', () => {
+            saveState();
+            triggerAutoRecalculate();
+        });
 
         decaySlider.addEventListener('input', () => {
             decayValueSpan.textContent = decaySlider.value;
             saveState();
+            triggerAutoRecalculate();
         });
 
         graphOpacitySlider.addEventListener('input', () => {
@@ -1096,6 +1171,7 @@
         algorithmSelect.addEventListener('change', (e) => {
             bufferZoneControl.style.display = e.target.value === 'rossmo' ? 'block' : 'none';
             saveState();
+            triggerAutoRecalculate();
         });
 
         map.on('click', (event) => {
@@ -1202,6 +1278,7 @@
                 lat: latlng.lat,
                 lng: latlng.lng,
                 event: customInfo && customInfo.event ? customInfo.event : `Point #${crimeLocations.length + 1}`,
+                reportNo: customInfo && customInfo.reportNo ? customInfo.reportNo : '',
                 date: customInfo && customInfo.date ? customInfo.date : new Date().toISOString().split('T')[0],
                 type: customInfo && customInfo.type ? customInfo.type : 'Theft',
                 comments: customInfo && customInfo.comments ? customInfo.comments : '',
@@ -1425,6 +1502,7 @@
 
             crimeLocations.forEach((loc, index) => {
                 const eventName = escapeXml(loc.event || `Crime Point ${index + 1}`);
+                const reportNoVal = escapeXml(loc.reportNo || '');
                 const dateVal = escapeXml(loc.date || '');
                 const typeVal = escapeXml(loc.type || '');
                 const commentsVal = escapeXml(loc.comments || '');
@@ -1434,7 +1512,7 @@
                 // HTML formatted description for Google Earth & GIS tools
                 let htmlDesc = `<div style="font-family: sans-serif; font-size: 13px; color: #111827;">
   <h3 style="margin: 0 0 6px 0; color: #0891b2;">${eventName}</h3>
-  <p style="margin: 0 0 4px 0;"><b>Type:</b> ${typeVal} | <b>Date:</b> ${dateVal}</p>`;
+  <p style="margin: 0 0 4px 0;"><b>Report #:</b> ${reportNoVal || 'N/A'} | <b>Type:</b> ${typeVal} | <b>Date:</b> ${dateVal}</p>`;
                 if (photoVal) {
                     htmlDesc += `\n  <p style="margin: 6px 0;"><img src="${photoVal}" style="max-width: 250px; max-height: 180px; border-radius: 6px; border: 1px solid #ccc;" alt="Photo"/></p>`;
                 }
@@ -1451,6 +1529,7 @@
       <description><![CDATA[${htmlDesc}]]></description>
       <ExtendedData>
         <Data name="Event"><value>${eventName}</value></Data>
+        <Data name="ReportNo"><value>${reportNoVal}</value></Data>
         <Data name="Date"><value>${dateVal}</value></Data>
         <Data name="Type"><value>${typeVal}</value></Data>
         <Data name="Comments"><value>${commentsVal}</value></Data>
@@ -1531,6 +1610,7 @@
                         if (isNaN(lat) || isNaN(lon)) continue;
 
                         let eventVal = '';
+                        let reportNoVal = '';
                         let dateVal = '';
                         let typeVal = '';
                         let commentsVal = '';
@@ -1548,6 +1628,7 @@
                                 const valNode = dataNodes[d].getElementsByTagName('value')[0];
                                 const valText = valNode ? valNode.textContent.trim() : '';
                                 if (dName === 'Event' && valText) eventVal = valText;
+                                if ((dName === 'ReportNo' || dName === 'ReportNumber') && valText) reportNoVal = valText;
                                 if (dName === 'Date') dateVal = valText;
                                 if (dName === 'Type') typeVal = valText;
                                 if (dName === 'Comments') commentsVal = valText;
@@ -1559,12 +1640,14 @@
                         const descNode = placemark.getElementsByTagName('description')[0];
                         if (descNode && descNode.textContent) {
                             const desc = descNode.textContent;
-                            const dateMatch = desc.match(/Date:\s*([^\n]+)/i);
-                            const typeMatch = desc.match(/Type:\s*([^\n]+)/i);
+                            const reportNoMatch = desc.match(/Report #:\s*([^\n|<]+)/i);
+                            const dateMatch = desc.match(/Date:\s*([^\n|<]+)/i);
+                            const typeMatch = desc.match(/Type:\s*([^\n|<]+)/i);
                             const commentsMatch = desc.match(/Comments:\s*([\s\S]+?)(?:\nURL:|\nPhoto:|$)/i);
                             const urlMatch = desc.match(/URL:\s*([^\n]+)/i);
                             const photoMatch = desc.match(/Photo:\s*([^\n]+)/i);
 
+                            if (reportNoMatch && !reportNoVal) reportNoVal = reportNoMatch[1].trim();
                             if (dateMatch && !dateVal) dateVal = dateMatch[1].trim();
                             if (typeMatch && !typeVal) typeVal = typeMatch[1].trim();
                             if (commentsMatch && !commentsVal) commentsVal = commentsMatch[1].trim();
@@ -1576,6 +1659,7 @@
                         newLocations.push(latlng);
                         addCrimeLocation(latlng, true, false, {
                             event: eventVal || `Crime Point ${i + 1}`,
+                            reportNo: reportNoVal || '',
                             date: dateVal || new Date().toISOString().split('T')[0],
                             type: typeVal || 'Theft',
                             comments: commentsVal || '',
@@ -1623,6 +1707,7 @@
                     lat: loc.lat,
                     lng: loc.lng,
                     event: loc.event,
+                    reportNo: loc.reportNo || '',
                     date: loc.date,
                     type: loc.type,
                     comments: loc.comments,
@@ -1699,6 +1784,7 @@
                             newLocations.push(latlng);
                             addCrimeLocation(latlng, true, false, {
                                 event: loc.event || `Point #${index + 1}`,
+                                reportNo: loc.reportNo || loc.reportNumber || '',
                                 date: loc.date || new Date().toISOString().split('T')[0],
                                 type: loc.type || 'Theft',
                                 comments: loc.comments || '',
@@ -1906,16 +1992,18 @@
 
                         pdf.text('#', 13, 28.5);
                         pdf.text('EVENT NAME', 22, 28.5);
-                        pdf.text('TYPE', 75, 28.5);
-                        pdf.text('DATE', 108, 28.5);
-                        pdf.text('COORDINATES (LAT, LNG)', 138, 28.5);
-                        pdf.text('COMMENTS / ATTACHED LINK', 188, 28.5);
+                        pdf.text('REPORT #', 68, 28.5);
+                        pdf.text('TYPE', 102, 28.5);
+                        pdf.text('DATE', 130, 28.5);
+                        pdf.text('COORDINATES (LAT, LNG)', 158, 28.5);
+                        pdf.text('COMMENTS / ATTACHED LINK', 208, 28.5);
                     };
 
                     drawDirectoryHeader(pageNumber);
                     let currentY = 32;
 
-                    crimeLocations.forEach((loc, idx) => {
+                    crimeLocations.forEach((idx_loc, idx) => {
+                        const loc = idx_loc;
                         // Build details text
                         let detailsStr = loc.comments || '';
                         if (loc.url) {
@@ -1923,7 +2011,7 @@
                         }
                         if (!detailsStr) detailsStr = '-';
 
-                        const wrappedDetails = pdf.splitTextToSize(detailsStr, 94);
+                        const wrappedDetails = pdf.splitTextToSize(detailsStr, 72);
                         const rowHeight = Math.max(7, wrappedDetails.length * 3.8 + 3);
 
                         // Check if row exceeds page bounds (margin 12mm)
@@ -1960,15 +2048,16 @@
 
                         pdf.setFont('helvetica', 'normal');
                         const eventName = loc.event || `Point #${idx + 1}`;
-                        const truncatedEvent = pdf.splitTextToSize(eventName, 50)[0];
+                        const truncatedEvent = pdf.splitTextToSize(eventName, 44)[0];
                         pdf.text(truncatedEvent, 22, currentY + 4.5);
 
-                        pdf.text(loc.type || 'General', 75, currentY + 4.5);
-                        pdf.text(loc.date || 'N/A', 108, currentY + 4.5);
-                        pdf.text(`${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`, 138, currentY + 4.5);
+                        pdf.text(loc.reportNo || 'N/A', 68, currentY + 4.5);
+                        pdf.text(loc.type || 'General', 102, currentY + 4.5);
+                        pdf.text(loc.date || 'N/A', 130, currentY + 4.5);
+                        pdf.text(`${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`, 158, currentY + 4.5);
 
                         pdf.setTextColor(209, 213, 219);
-                        pdf.text(wrappedDetails, 188, currentY + 4.5);
+                        pdf.text(wrappedDetails, 208, currentY + 4.5);
 
                         currentY += rowHeight;
                     });
