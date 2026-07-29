@@ -415,23 +415,28 @@
             <form id="pointForm" class="p-4 space-y-3">
                 <input type="hidden" id="modalPointIndex" value="">
                 <!-- Coordinates & Google Maps Link -->
-                <div class="bg-gray-900/60 border border-gray-700/70 rounded-lg p-2.5 flex items-center justify-between gap-2">
+                <div
+                    class="bg-gray-900/60 border border-gray-700/70 rounded-lg p-2.5 flex items-center justify-between gap-2">
                     <div>
-                        <span class="block text-[10px] uppercase font-semibold text-gray-400 tracking-wider">Coordinates (Lat, Lng)</span>
-                        <span id="modalLatLongDisplay" class="text-xs font-mono text-cyan-300 font-semibold">0.000000, 0.000000</span>
+                        <span class="block text-[10px] uppercase font-semibold text-gray-400 tracking-wider">Coordinates
+                            (Lat, Lng)</span>
+                        <span id="modalLatLongDisplay" class="text-xs font-mono text-cyan-300 font-semibold">0.000000,
+                            0.000000</span>
                     </div>
                     <a id="modalGoogleMapsBtn" href="#" target="_blank" rel="noopener noreferrer"
                         class="bg-gray-700 hover:bg-cyan-900 text-cyan-400 hover:text-cyan-200 border border-cyan-700/60 text-xs font-medium px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-colors shrink-0"
                         title="View location in Google Maps">
                         <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            <path
+                                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                         </svg>
                         <span>Google Maps ↗</span>
                     </a>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="modalReportNoInput" class="block text-xs font-medium text-gray-300 mb-1">Report Number</label>
+                        <label for="modalReportNoInput" class="block text-xs font-medium text-gray-300 mb-1">Report
+                            Number</label>
                         <input type="text" id="modalReportNoInput"
                             class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
                             placeholder="e.g. REP-2026-001">
