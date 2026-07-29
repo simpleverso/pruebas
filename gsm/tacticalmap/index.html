@@ -185,9 +185,10 @@
                 <!-- Analysis -->
                 <div class="flex flex-col justify-end">
                     <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Analysis</label>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <button id="calculateBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1.5 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full">Calculate</button>
-                        <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-1.5 px-1.5 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full">Clear</button>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button id="calculateBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Run Heatmap Calculation">Calculate</button>
+                        <button id="clearGraphBtn" class="bg-amber-600 hover:bg-amber-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Clear Heatmap Overlay Only">Clear Graph</button>
+                        <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Clear All Points and Heatmap">Clear Points</button>
                     </div>
                 </div>
 
@@ -317,6 +318,7 @@
         const algorithmSelect = document.getElementById('algorithmSelect');
         const bufferZoneControl = document.getElementById('bufferZoneControl');
         const calculateBtn = document.getElementById('calculateBtn');
+        const clearGraphBtn = document.getElementById('clearGraphBtn');
         const clearBtn = document.getElementById('clearBtn');
         const bufferSlider = document.getElementById('bufferZoneSlider');
         const bufferZoneInput = document.getElementById('bufferZoneInput');
@@ -849,6 +851,7 @@
         });
 
         clearBtn.addEventListener('click', clearMap);
+        clearGraphBtn.addEventListener('click', clearHeatmapGraph);
         calculateBtn.addEventListener('click', () => {
             if (crimeLocations.length === 0) {
                 instructions.textContent = 'Please add at least one crime location before calculating.';
@@ -916,6 +919,17 @@
             }
             instructions.textContent = 'Map cleared. Click to add new crime locations.';
             saveState();
+        }
+
+        function clearHeatmapGraph() {
+            if (heatmapCanvas) {
+                mapContainer.removeChild(heatmapCanvas);
+                heatmapCanvas = null;
+                instructions.textContent = 'Heatmap calculation graph cleared. Crime points remain on map.';
+                saveState();
+            } else {
+                instructions.textContent = 'No heatmap calculation graph layer to clear.';
+            }
         }
         
         function getBufferInPixels() {
