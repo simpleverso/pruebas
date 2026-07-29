@@ -37,6 +37,54 @@
         .leaflet-crosshair {
              cursor: crosshair;
         }
+        .leaflet-tooltip.custom-point-label {
+            background-color: rgba(17, 24, 39, 0.94);
+            border: 1px solid rgba(55, 65, 81, 0.8);
+            color: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 6px 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            font-family: 'Inter', sans-serif;
+            pointer-events: none;
+            min-width: 130px;
+            max-width: 240px;
+            width: max-content;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .leaflet-tooltip.custom-point-label::before {
+            border-top-color: rgba(17, 24, 39, 0.94);
+        }
+        .leaflet-popup-content-wrapper {
+            background-color: rgba(31, 41, 55, 0.96);
+            color: #f3f4f6;
+            border: 1px solid rgba(75, 85, 99, 0.7);
+            border-radius: 0.75rem;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        .leaflet-popup-content {
+            margin: 12px 14px !important;
+            line-height: 1.4 !important;
+            box-sizing: border-box !important;
+            width: 260px !important;
+            min-width: 220px !important;
+            max-width: 280px !important;
+        }
+        .leaflet-popup-tip {
+            background-color: rgba(31, 41, 55, 0.96);
+        }
+        .leaflet-container a.leaflet-popup-close-button {
+            color: #9ca3af;
+            padding: 4px 6px;
+            top: 4px;
+            right: 4px;
+        }
+        .leaflet-container a.leaflet-popup-close-button:hover {
+            color: #ffffff;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 h-screen w-screen p-1.5 sm:p-2.5 flex flex-col box-border">
@@ -118,14 +166,18 @@
                 <!-- Map Tools -->
                 <div class="flex flex-col justify-end">
                     <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Map Tools</label>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <button id="panTool" title="Pan Map" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1.5 px-2 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z"/></svg>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button id="panTool" title="Pan Map" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z"/></svg>
                             <span>Pan</span>
                         </button>
-                        <button id="addTool" title="Add Crime" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-2 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                        <button id="addTool" title="Add Crime Point" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
                             <span>Add</span>
+                        </button>
+                        <button id="toggleLabelsBtn" title="Show/Hide Point Information on Map" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span id="toggleLabelsText">Hide Info</span>
                         </button>
                     </div>
                 </div>
@@ -141,11 +193,14 @@
 
                 <!-- Data -->
                 <div class="flex flex-col justify-end">
-                    <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Data</label>
+                    <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Data (KML & JSON)</label>
                     <div class="grid grid-cols-2 gap-1.5">
                         <button id="importBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Import KML">Import KML</button>
                         <button id="exportBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Export KML">Export KML</button>
+                        <button id="importJsonBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Import JSON">Import JSON</button>
+                        <button id="exportJsonBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Export JSON">Export JSON</button>
                         <input type="file" id="kmlInput" accept=".kml,application/vnd.google-earth.kml+xml" class="hidden">
+                        <input type="file" id="jsonInput" accept=".json,application/json" class="hidden">
                     </div>
                 </div>
             </div>
@@ -154,6 +209,11 @@
         <!-- Map Container (flex-1 dynamically fills all remaining screen height) -->
         <div id="mapContainer" class="flex-1 bg-gray-900 p-1 rounded-lg shadow-inner relative overflow-hidden min-h-[200px]">
             <div id="map" class="rounded-md w-full h-full"></div>
+            <!-- Floating Map Info Toggle Button -->
+            <button id="mapOverlayToggleLabelsBtn" title="Show/Hide Info on Map" class="absolute top-2.5 right-2.5 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 hover:bg-gray-800 text-cyan-400 text-xs font-medium px-2.5 py-1.5 rounded-md shadow-md flex items-center gap-1.5 transition-colors">
+                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span id="overlayToggleText">Hide Map Info</span>
+            </button>
             <!-- Live Coordinate Display Overlay -->
             <div id="coordsDisplay" class="absolute bottom-2.5 left-2.5 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 text-cyan-400 font-mono text-[11px] px-2 py-0.5 rounded shadow-md pointer-events-none flex items-center gap-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" class="text-cyan-400"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
@@ -164,12 +224,90 @@
         <!-- Instructions & Warning Footer -->
         <div class="mt-2 shrink-0">
             <div id="instructions" class="text-center text-gray-400 text-[11px] sm:text-xs px-2">
-                Place 3 or more crime locations for the best results. The heatmap shows the most probable "anchor point" for the offender in red.
+                Place 3 or more crime locations for the best results. Click on points to view or edit Event, Date, Type, and Comments.
             </div>
             <div id="unexportedWarning" class="hidden text-amber-400 text-[11px] text-center font-medium mt-1 flex items-center justify-center gap-1 bg-amber-950/50 border border-amber-700/60 py-1 px-2.5 rounded-md w-fit mx-auto shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" class="shrink-0 text-amber-400"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm0-1.016a1.146 1.146 0 0 0-.96.486L.12 13.153a1.163 1.163 0 0 0 .012 1.256c.214.357.6.591 1.014.591h13.708c.414 0 .8-.234 1.014-.591a1.163 1.163 0 0 0 .012-1.256L9.897 1.486A1.146 1.146 0 0 0 8.938 1z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
                 <span>Notice: Data is not exported yet. Remember to Export KML to avoid losing data if browser cache is cleared.</span>
             </div>
+        </div>
+    </div>
+
+    <!-- Point Information Modal -->
+    <div id="pointModal" class="hidden fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-900/50">
+                <h3 id="modalTitle" class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Point Information
+                </h3>
+                <button type="button" id="modalCloseX" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="pointForm" class="p-4 space-y-3">
+                <input type="hidden" id="modalPointIndex" value="">
+                <div>
+                    <label for="modalEventInput" class="block text-xs font-medium text-gray-300 mb-1">Event</label>
+                    <input type="text" id="modalEventInput" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none" placeholder="e.g. Bank Robbery">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="modalDateInput" class="block text-xs font-medium text-gray-300 mb-1">Date</label>
+                        <input type="date" id="modalDateInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                    </div>
+                    <div>
+                        <label for="modalTypeInput" class="block text-xs font-medium text-gray-300 mb-1">Type</label>
+                        <select id="modalTypeInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                            <option value="Theft">Theft</option>
+                            <option value="Robbery">Robbery</option>
+                            <option value="Assault">Assault</option>
+                            <option value="Burglary">Burglary</option>
+                            <option value="Homicide">Homicide</option>
+                            <option value="Protection money">Protection money</option>
+                            <option value="Vandalism">Vandalism</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label for="modalCommentsInput" class="block text-xs font-medium text-gray-300 mb-1">Comments</label>
+                    <textarea id="modalCommentsInput" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none" placeholder="Add comments or details..."></textarea>
+                </div>
+                <div>
+                    <label for="modalUrlInput" class="block text-xs font-medium text-gray-300 mb-1">Web URL / External Link</label>
+                    <input type="url" id="modalUrlInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none" placeholder="https://example.com/report">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Photo / Image</label>
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="modalPhotoInput" accept="image/*" class="hidden">
+                        <button type="button" id="modalPhotoUploadBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span id="photoBtnLabel">Upload Photo</span>
+                        </button>
+                        <button type="button" id="modalPhotoRemoveBtn" class="hidden bg-red-600/80 hover:bg-red-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors" title="Remove Photo">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                    <div id="modalPhotoPreviewContainer" class="hidden mt-2 relative w-full max-h-32 rounded-lg overflow-hidden border border-gray-600 bg-gray-900/80 flex items-center justify-center p-1">
+                        <img id="modalPhotoPreview" src="" alt="Photo Preview" class="max-h-28 object-contain rounded-md">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-gray-700">
+                    <button type="button" id="modalDeleteBtn" class="bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Delete Point
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="modalCancelBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" id="modalSaveBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -189,18 +327,46 @@
         const bufferUnitSelect = document.getElementById('bufferUnit');
         const panToolBtn = document.getElementById('panTool');
         const addToolBtn = document.getElementById('addTool');
+        const toggleLabelsBtn = document.getElementById('toggleLabelsBtn');
+        const toggleLabelsText = document.getElementById('toggleLabelsText');
+        const mapOverlayToggleLabelsBtn = document.getElementById('mapOverlayToggleLabelsBtn');
+        const overlayToggleText = document.getElementById('overlayToggleText');
         const mapDiv = document.getElementById('map');
         const importBtn = document.getElementById('importBtn');
         const exportBtn = document.getElementById('exportBtn');
         const kmlInput = document.getElementById('kmlInput');
+        const importJsonBtn = document.getElementById('importJsonBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const jsonInput = document.getElementById('jsonInput');
         const coordsText = document.getElementById('coordsText');
 
+        // Modal DOM Elements
+        const pointModal = document.getElementById('pointModal');
+        const pointForm = document.getElementById('pointForm');
+        const modalCloseX = document.getElementById('modalCloseX');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+        const modalPointIndexInput = document.getElementById('modalPointIndex');
+        const modalEventInput = document.getElementById('modalEventInput');
+        const modalDateInput = document.getElementById('modalDateInput');
+        const modalTypeInput = document.getElementById('modalTypeInput');
+        const modalCommentsInput = document.getElementById('modalCommentsInput');
+        const modalUrlInput = document.getElementById('modalUrlInput');
+        const modalPhotoInput = document.getElementById('modalPhotoInput');
+        const modalPhotoUploadBtn = document.getElementById('modalPhotoUploadBtn');
+        const photoBtnLabel = document.getElementById('photoBtnLabel');
+        const modalPhotoRemoveBtn = document.getElementById('modalPhotoRemoveBtn');
+        const modalPhotoPreviewContainer = document.getElementById('modalPhotoPreviewContainer');
+        const modalPhotoPreview = document.getElementById('modalPhotoPreview');
+
         // State variables
-        let crimeLocations = []; // Stores LatLng objects
-        let crimeMarkers = []; // Stores Leaflet marker objects
+        let crimeLocations = []; // Array of objects: { lat, lng, event, date, type, comments, url, photo }
+        let crimeMarkers = []; // Array of Leaflet marker objects
         let heatmapCanvas = null;
         let currentMode = 'add'; // 'add' or 'pan'
         let hasExportedData = false;
+        let showInfoLabels = true;
+        let currentModalPhoto = ''; // Stores current photo data URL / image URL
 
         function updateExportWarningStatus() {
             const warningEl = document.getElementById('unexportedWarning');
@@ -211,6 +377,62 @@
                     warningEl.classList.add('hidden');
                 }
             }
+        }
+
+        // Photo Upload UI Handlers
+        modalPhotoUploadBtn.addEventListener('click', () => modalPhotoInput.click());
+
+        modalPhotoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentModalPhoto = evt.target.result;
+                    showPhotoPreview(currentModalPhoto);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        modalPhotoRemoveBtn.addEventListener('click', () => {
+            currentModalPhoto = '';
+            modalPhotoInput.value = '';
+            showPhotoPreview('');
+        });
+
+        function showPhotoPreview(url) {
+            if (url) {
+                modalPhotoPreview.src = url;
+                modalPhotoPreviewContainer.classList.remove('hidden');
+                modalPhotoRemoveBtn.classList.remove('hidden');
+                photoBtnLabel.textContent = 'Change Photo';
+            } else {
+                modalPhotoPreview.src = '';
+                modalPhotoPreviewContainer.classList.add('hidden');
+                modalPhotoRemoveBtn.classList.add('hidden');
+                photoBtnLabel.textContent = 'Upload Photo';
+            }
+        }
+
+        // Helper to escape HTML characters
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeXml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
         }
 
         // --- Initialize Leaflet Map ---
@@ -244,13 +466,203 @@
             }
         }
 
+        function toggleMapInfoLabels() {
+            showInfoLabels = !showInfoLabels;
+            updateLabelsToggleButton();
+            crimeLocations.forEach((loc, index) => {
+                updateMarkerLabel(crimeMarkers[index], loc);
+            });
+            saveState();
+        }
+
+        function updateLabelsToggleButton() {
+            if (showInfoLabels) {
+                toggleLabelsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                toggleLabelsBtn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                toggleLabelsText.textContent = 'Hide Info';
+                overlayToggleText.textContent = 'Hide Map Info';
+            } else {
+                toggleLabelsBtn.classList.remove('bg-cyan-600', 'hover:bg-cyan-500');
+                toggleLabelsBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                toggleLabelsText.textContent = 'Show Info';
+                overlayToggleText.textContent = 'Show Map Info';
+            }
+        }
+
+        // --- Create Popup & Tooltip Content ---
+        function createPopupContent(loc, index) {
+            const commentsHtml = loc.comments ? `<div class="mt-1 text-[11px] text-gray-300 bg-gray-900/70 p-2 rounded-md border border-gray-700/50 max-h-24 overflow-y-auto whitespace-pre-wrap break-words">${escapeHtml(loc.comments)}</div>` : '';
+            const photoHtml = loc.photo ? `<div class="my-1.5 overflow-hidden rounded-md border border-gray-700 max-h-36 bg-black/40 flex items-center justify-center"><img src="${loc.photo}" alt="Point Photo" class="w-full max-h-36 object-contain rounded-md cursor-pointer" onclick="window.open('${loc.photo}', '_blank')"></div>` : '';
+            const urlHtml = loc.url ? `<div class="mt-1.5 text-[11px] overflow-hidden"><a href="${escapeHtml(loc.url)}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 underline font-mono flex items-center gap-1 shrink-0 truncate"><svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg><span class="truncate">${escapeHtml(loc.url)}</span></a></div>` : '';
+
+            return `
+                <div class="text-xs font-sans w-full box-border p-0.5">
+                    <div class="font-bold text-sm text-cyan-400 border-b border-gray-700/80 pb-1 mb-1.5 flex items-center justify-between gap-1.5">
+                        <span class="truncate pr-1">${escapeHtml(loc.event || 'Point ' + (index + 1))}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-normal shrink-0">${escapeHtml(loc.type || 'General')}</span>
+                    </div>
+                    <div class="text-[11px] text-gray-300 mb-1 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span><strong>Date:</strong> ${escapeHtml(loc.date || 'N/A')}</span>
+                    </div>
+                    ${photoHtml}
+                    ${commentsHtml}
+                    ${urlHtml}
+                    <div class="mt-2.5 pt-2 border-t border-gray-700/80 flex items-center justify-between gap-2">
+                        <button type="button" onclick="openEditModal(${index})" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-3 py-1 rounded-md text-[11px] transition-colors flex items-center justify-center gap-1 shrink-0 min-w-[80px]">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Edit
+                        </button>
+                        <button type="button" onclick="deletePoint(${index})" class="bg-red-600/80 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-md text-[11px] transition-colors flex items-center justify-center gap-1 shrink-0 min-w-[80px]">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createTooltipContent(loc) {
+            let html = `<div class="font-bold text-cyan-300 text-xs">${escapeHtml(loc.event)}</div>`;
+            if (loc.date || loc.type) {
+                html += `<div class="text-[10px] text-gray-300 font-mono">${escapeHtml(loc.date)} • ${escapeHtml(loc.type)}</div>`;
+            }
+            if (loc.photo) {
+                html += `<div class="my-1 rounded overflow-hidden max-h-16 max-w-[120px]"><img src="${loc.photo}" class="h-12 w-full object-cover rounded border border-gray-700"></div>`;
+            }
+            if (loc.comments) {
+                const shortComments = loc.comments.length > 35 ? loc.comments.substring(0, 35) + '...' : loc.comments;
+                html += `<div class="text-[10px] text-gray-400 italic mt-0.5">${escapeHtml(shortComments)}</div>`;
+            }
+            if (loc.url) {
+                html += `<div class="text-[10px] text-cyan-400 font-mono truncate mt-0.5">🔗 Link attached</div>`;
+            }
+            return html;
+        }
+
+        function updateMarkerLabel(marker, loc) {
+            if (showInfoLabels) {
+                const content = createTooltipContent(loc);
+                if (marker.getTooltip()) {
+                    marker.setTooltipContent(content);
+                } else {
+                    marker.bindTooltip(content, {
+                        permanent: true,
+                        direction: 'top',
+                        offset: [0, -10],
+                        className: 'custom-point-label'
+                    });
+                }
+            } else {
+                if (marker.getTooltip()) {
+                    marker.unbindTooltip();
+                }
+            }
+        }
+
+        // --- Modal Dialog Functions ---
+        function openEditModal(index) {
+            if (index < 0 || index >= crimeLocations.length) return;
+            const loc = crimeLocations[index];
+            modalPointIndexInput.value = index;
+            modalEventInput.value = loc.event || '';
+            modalDateInput.value = loc.date || new Date().toISOString().split('T')[0];
+            modalTypeInput.value = loc.type || 'Theft';
+            modalCommentsInput.value = loc.comments || '';
+            modalUrlInput.value = loc.url || '';
+            currentModalPhoto = loc.photo || '';
+            modalPhotoInput.value = '';
+            showPhotoPreview(currentModalPhoto);
+            
+            pointModal.classList.remove('hidden');
+            modalEventInput.focus();
+        }
+
+        function closeModal() {
+            pointModal.classList.add('hidden');
+            modalPointIndexInput.value = '';
+            currentModalPhoto = '';
+            showPhotoPreview('');
+        }
+
+        // Form submission for point information
+        pointForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const index = parseInt(modalPointIndexInput.value, 10);
+            if (isNaN(index) || index < 0 || index >= crimeLocations.length) return;
+
+            crimeLocations[index].event = modalEventInput.value.trim() || `Point #${index + 1}`;
+            crimeLocations[index].date = modalDateInput.value;
+            crimeLocations[index].type = modalTypeInput.value;
+            crimeLocations[index].comments = modalCommentsInput.value.trim();
+            crimeLocations[index].url = modalUrlInput.value.trim();
+            crimeLocations[index].photo = currentModalPhoto;
+
+            // Update Leaflet marker popup & tooltip
+            const marker = crimeMarkers[index];
+            marker.setPopupContent(createPopupContent(crimeLocations[index], index));
+            updateMarkerLabel(marker, crimeLocations[index]);
+
+            closeModal();
+            hasExportedData = false;
+            updateExportWarningStatus();
+            saveState();
+            instructions.textContent = `Updated point information for "${crimeLocations[index].event}".`;
+        });
+
+        modalCloseX.addEventListener('click', closeModal);
+        modalCancelBtn.addEventListener('click', closeModal);
+        modalDeleteBtn.addEventListener('click', () => {
+            const index = parseInt(modalPointIndexInput.value, 10);
+            if (!isNaN(index)) {
+                deletePoint(index);
+            }
+        });
+
+        // Delete point function
+        function deletePoint(index) {
+            if (index < 0 || index >= crimeLocations.length) return;
+            map.removeLayer(crimeMarkers[index]);
+            crimeMarkers.splice(index, 1);
+            crimeLocations.splice(index, 1);
+
+            // Re-bind popups with updated index references
+            crimeLocations.forEach((loc, i) => {
+                crimeMarkers[i].setPopupContent(createPopupContent(loc, i));
+            });
+
+            closeModal();
+            hasExportedData = false;
+            updateExportWarningStatus();
+            saveState();
+
+            if (heatmapCanvas && crimeLocations.length > 0) {
+                runCalculation();
+            } else if (crimeLocations.length === 0) {
+                if (heatmapCanvas) {
+                    mapContainer.removeChild(heatmapCanvas);
+                    heatmapCanvas = null;
+                }
+            }
+            instructions.textContent = `Point deleted. ${crimeLocations.length} location(s) remaining.`;
+        }
+
         // --- Local Storage Auto-Save & Restore ---
         const STORAGE_KEY = 'geographic_profiling_session';
 
         function saveState() {
             try {
                 const state = {
-                    crimeLocations: crimeLocations.map(loc => ({ lat: loc.lat, lng: loc.lng })),
+                    crimeLocations: crimeLocations.map(loc => ({
+                        lat: loc.lat,
+                        lng: loc.lng,
+                        event: loc.event,
+                        date: loc.date,
+                        type: loc.type,
+                        comments: loc.comments,
+                        url: loc.url,
+                        photo: loc.photo
+                    })),
                     algorithm: algorithmSelect.value,
                     bufferValue: bufferZoneInput.value,
                     bufferUnit: bufferUnitSelect.value,
@@ -259,7 +671,8 @@
                     mapCenter: { lat: map.getCenter().lat, lng: map.getCenter().lng },
                     mapZoom: map.getZoom(),
                     hasCalculated: heatmapCanvas !== null,
-                    hasExportedData: hasExportedData
+                    hasExportedData: hasExportedData,
+                    showInfoLabels: showInfoLabels
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             } catch (e) {
@@ -275,6 +688,10 @@
 
                 if (typeof state.hasExportedData === 'boolean') {
                     hasExportedData = state.hasExportedData;
+                }
+                if (typeof state.showInfoLabels === 'boolean') {
+                    showInfoLabels = state.showInfoLabels;
+                    updateLabelsToggleButton();
                 }
 
                 // Restore inputs
@@ -306,7 +723,14 @@
                 if (Array.isArray(state.crimeLocations) && state.crimeLocations.length > 0) {
                     state.crimeLocations.forEach(loc => {
                         const latlng = L.latLng(loc.lat, loc.lng);
-                        addCrimeLocation(latlng, true, true);
+                        addCrimeLocation(latlng, true, true, {
+                            event: loc.event,
+                            date: loc.date,
+                            type: loc.type,
+                            comments: loc.comments,
+                            url: loc.url,
+                            photo: loc.photo
+                        });
                     });
                     instructions.textContent = `Restored ${state.crimeLocations.length} crime location(s) from previous session.`;
 
@@ -321,7 +745,6 @@
         }
 
         // --- Event Listeners ---
-        // Live coordinate display for mouse hover & touch dragging
         const updateCoords = (e) => {
             if (e && e.latlng) {
                 const lat = e.latlng.lat.toFixed(5);
@@ -395,7 +818,9 @@
 
         map.on('click', (event) => {
             if (currentMode !== 'add') return;
-            addCrimeLocation(event.latlng);
+            const newIndex = addCrimeLocation(event.latlng);
+            // Open modal immediately to edit info for new point
+            openEditModal(newIndex);
         });
         
         map.on('moveend', () => {
@@ -435,22 +860,47 @@
 
         panToolBtn.addEventListener('click', () => setToolMode('pan'));
         addToolBtn.addEventListener('click', () => setToolMode('add'));
+        toggleLabelsBtn.addEventListener('click', toggleMapInfoLabels);
+        mapOverlayToggleLabelsBtn.addEventListener('click', toggleMapInfoLabels);
         
         importBtn.addEventListener('click', () => kmlInput.click());
         kmlInput.addEventListener('change', handleKMLImport);
         exportBtn.addEventListener('click', exportToKML);
 
+        importJsonBtn.addEventListener('click', () => jsonInput.click());
+        jsonInput.addEventListener('change', handleJSONImport);
+        exportJsonBtn.addEventListener('click', exportToJSON);
+
         // --- Core Functions ---
-        function addCrimeLocation(latlng, suppressMessage = false, skipSave = false) {
-             crimeLocations.push(latlng);
-             const marker = L.marker(latlng).addTo(map);
-             crimeMarkers.push(marker);
-             hasExportedData = false;
-             updateExportWarningStatus();
-             if (!suppressMessage) {
-                 instructions.textContent = `${crimeLocations.length} crime(s) plotted. Ready to calculate.`;
-             }
-             if (!skipSave) saveState();
+        function addCrimeLocation(latlng, suppressMessage = false, skipSave = false, customInfo = null) {
+            const pointData = {
+                lat: latlng.lat,
+                lng: latlng.lng,
+                event: customInfo && customInfo.event ? customInfo.event : `Point #${crimeLocations.length + 1}`,
+                date: customInfo && customInfo.date ? customInfo.date : new Date().toISOString().split('T')[0],
+                type: customInfo && customInfo.type ? customInfo.type : 'Theft',
+                comments: customInfo && customInfo.comments ? customInfo.comments : '',
+                url: customInfo && customInfo.url ? customInfo.url : '',
+                photo: customInfo && customInfo.photo ? customInfo.photo : ''
+            };
+
+            crimeLocations.push(pointData);
+            const index = crimeLocations.length - 1;
+
+            const marker = L.marker([pointData.lat, pointData.lng]).addTo(map);
+            marker.bindPopup(createPopupContent(pointData, index));
+            crimeMarkers.push(marker);
+
+            updateMarkerLabel(marker, pointData);
+
+            hasExportedData = false;
+            updateExportWarningStatus();
+            if (!suppressMessage) {
+                instructions.textContent = `${crimeLocations.length} crime(s) plotted. Click point for details.`;
+            }
+            if (!skipSave) saveState();
+
+            return index;
         }
 
         function clearMap() {
@@ -492,7 +942,7 @@
             heatmapCanvas.height = mapSize.y;
             mapContainer.appendChild(heatmapCanvas);
 
-            const crimePixels = crimeLocations.map(latlng => map.latLngToContainerPoint(latlng));
+            const crimePixels = crimeLocations.map(loc => map.latLngToContainerPoint(L.latLng(loc.lat, loc.lng)));
             const selectedAlgorithm = algorithmSelect.value;
             let gridScores;
 
@@ -524,7 +974,7 @@
                         if (effectiveDistance > bufferInPixels) {
                             term = 1 / Math.pow(effectiveDistance, f);
                         } else {
-                            // This part of the formula creates the 'donut hole' effect
+                            // Rossmo donut-hole effect
                             term = (Math.pow(bufferInPixels, g - f)) / (Math.pow(2 * bufferInPixels - effectiveDistance, g));
                         }
                         totalScore += term;
@@ -562,7 +1012,6 @@
             let maxScore = 0;
             const selectedAlgorithm = algorithmSelect.value;
 
-            // Using a percentile for decay helps avoid outlier distortion, making the heatmap more readable.
             if (selectedAlgorithm === 'decay') {
                 const allScores = [];
                 for (let i = 0; i < width; i++) {
@@ -575,7 +1024,7 @@
                     const percentileIndex = Math.floor(allScores.length * 0.995);
                     maxScore = allScores[percentileIndex] || 0;
                 }
-            } else { // For Rossmo, a direct max is usually fine
+            } else {
                 for (let i = 0; i < width; i++) {
                     for (let j = 0; j < height; j++) {
                         if (gridScores[i][j] > maxScore) maxScore = gridScores[i][j];
@@ -597,7 +1046,6 @@
                     imageData.data[index] = r;
                     imageData.data[index + 1] = g;
                     imageData.data[index + 2] = b;
-                    // Adjust alpha for a more pronounced center
                     imageData.data[index + 3] = Math.pow(normalizedScore, 0.75) * 255;
                 }
             }
@@ -639,8 +1087,39 @@
     <description>Exported from Geographic Profiling Tool.</description>\n`;
 
             crimeLocations.forEach((loc, index) => {
+                const eventName = escapeXml(loc.event || `Crime Point ${index + 1}`);
+                const dateVal = escapeXml(loc.date || '');
+                const typeVal = escapeXml(loc.type || '');
+                const commentsVal = escapeXml(loc.comments || '');
+                const urlVal = escapeXml(loc.url || '');
+                const photoVal = loc.photo || ''; // Data URL or Image URL
+
+                // HTML formatted description for Google Earth & GIS tools
+                let htmlDesc = `<div style="font-family: sans-serif; font-size: 13px; color: #111827;">
+  <h3 style="margin: 0 0 6px 0; color: #0891b2;">${eventName}</h3>
+  <p style="margin: 0 0 4px 0;"><b>Type:</b> ${typeVal} | <b>Date:</b> ${dateVal}</p>`;
+                if (photoVal) {
+                    htmlDesc += `\n  <p style="margin: 6px 0;"><img src="${photoVal}" style="max-width: 250px; max-height: 180px; border-radius: 6px; border: 1px solid #ccc;" alt="Photo"/></p>`;
+                }
+                if (commentsVal) {
+                    htmlDesc += `\n  <p style="margin: 4px 0;"><b>Comments:</b> ${commentsVal}</p>`;
+                }
+                if (urlVal) {
+                    htmlDesc += `\n  <p style="margin: 4px 0;"><a href="${urlVal}" target="_blank" style="color: #0284c7;">🔗 Open Web Link</a></p>`;
+                }
+                htmlDesc += `\n</div>`;
+
                 kmlContent += `    <Placemark>
-      <name>Crime Point ${index + 1}</name>
+      <name>${eventName}</name>
+      <description><![CDATA[${htmlDesc}]]></description>
+      <ExtendedData>
+        <Data name="Event"><value>${eventName}</value></Data>
+        <Data name="Date"><value>${dateVal}</value></Data>
+        <Data name="Type"><value>${typeVal}</value></Data>
+        <Data name="Comments"><value>${commentsVal}</value></Data>
+        <Data name="URL"><value>${urlVal}</value></Data>
+        <Data name="Photo"><value>${escapeXml(photoVal)}</value></Data>
+      </ExtendedData>
       <Point>
         <coordinates>${loc.lng},${loc.lat},0</coordinates>
       </Point>
@@ -662,14 +1141,12 @@
             hasExportedData = true;
             updateExportWarningStatus();
             saveState();
-            instructions.textContent = `Exported ${crimeLocations.length} locations to KML.`;
+            instructions.textContent = `Exported ${crimeLocations.length} location(s) to KML.`;
         }
 
         function handleKMLImport(event) {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -678,29 +1155,102 @@
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(kmlText, "text/xml");
                     
-                    const coordinates = xmlDoc.getElementsByTagName('coordinates');
-                    if (coordinates.length === 0) {
-                        instructions.textContent = 'Error: No coordinates found in the KML file.';
+                    const placemarks = xmlDoc.getElementsByTagName('Placemark');
+                    
+                    if (placemarks.length === 0) {
+                        const coordinates = xmlDoc.getElementsByTagName('coordinates');
+                        if (coordinates.length === 0) {
+                            instructions.textContent = 'Error: No coordinates found in the KML file.';
+                            return;
+                        }
+                        clearMap();
+                        const newLocations = [];
+                        for (let i = 0; i < coordinates.length; i++) {
+                            const coordsText = coordinates[i].textContent.trim();
+                            const [lon, lat] = coordsText.split(',').map(Number);
+                            if (!isNaN(lat) && !isNaN(lon)) {
+                                const latlng = L.latLng(lat, lon);
+                                newLocations.push(latlng);
+                                addCrimeLocation(latlng, true, false);
+                            }
+                        }
+                        if (newLocations.length > 0) {
+                            map.fitBounds(L.latLngBounds(newLocations), {padding: [50, 50]});
+                            instructions.textContent = `Successfully imported ${newLocations.length} locations from KML.`;
+                        }
                         return;
                     }
                     
                     clearMap();
-                    
                     const newLocations = [];
-                    for (let i = 0; i < coordinates.length; i++) {
-                        const coordsText = coordinates[i].textContent.trim();
+
+                    for (let i = 0; i < placemarks.length; i++) {
+                        const placemark = placemarks[i];
+                        const coordNode = placemark.getElementsByTagName('coordinates')[0];
+                        if (!coordNode) continue;
+                        
+                        const coordsText = coordNode.textContent.trim();
                         const [lon, lat] = coordsText.split(',').map(Number);
-                        if (!isNaN(lat) && !isNaN(lon)) {
-                            const latlng = L.latLng(lat, lon);
-                            newLocations.push(latlng);
-                            addCrimeLocation(latlng, true); // Suppress message for each point
+                        if (isNaN(lat) || isNaN(lon)) continue;
+
+                        let eventVal = '';
+                        let dateVal = '';
+                        let typeVal = '';
+                        let commentsVal = '';
+                        let urlVal = '';
+                        let photoVal = '';
+
+                        const nameNode = placemark.getElementsByTagName('name')[0];
+                        if (nameNode && nameNode.textContent) eventVal = nameNode.textContent.trim();
+
+                        const extendedData = placemark.getElementsByTagName('ExtendedData')[0];
+                        if (extendedData) {
+                            const dataNodes = extendedData.getElementsByTagName('Data');
+                            for (let d = 0; d < dataNodes.length; d++) {
+                                const dName = dataNodes[d].getAttribute('name');
+                                const valNode = dataNodes[d].getElementsByTagName('value')[0];
+                                const valText = valNode ? valNode.textContent.trim() : '';
+                                if (dName === 'Event' && valText) eventVal = valText;
+                                if (dName === 'Date') dateVal = valText;
+                                if (dName === 'Type') typeVal = valText;
+                                if (dName === 'Comments') commentsVal = valText;
+                                if (dName === 'URL') urlVal = valText;
+                                if (dName === 'Photo') photoVal = valText;
+                            }
                         }
+
+                        const descNode = placemark.getElementsByTagName('description')[0];
+                        if (descNode && descNode.textContent) {
+                            const desc = descNode.textContent;
+                            const dateMatch = desc.match(/Date:\s*([^\n]+)/i);
+                            const typeMatch = desc.match(/Type:\s*([^\n]+)/i);
+                            const commentsMatch = desc.match(/Comments:\s*([\s\S]+?)(?:\nURL:|\nPhoto:|$)/i);
+                            const urlMatch = desc.match(/URL:\s*([^\n]+)/i);
+                            const photoMatch = desc.match(/Photo:\s*([^\n]+)/i);
+
+                            if (dateMatch && !dateVal) dateVal = dateMatch[1].trim();
+                            if (typeMatch && !typeVal) typeVal = typeMatch[1].trim();
+                            if (commentsMatch && !commentsVal) commentsVal = commentsMatch[1].trim();
+                            if (urlMatch && !urlVal) urlVal = urlMatch[1].trim();
+                            if (photoMatch && !photoVal) photoVal = photoMatch[1].trim();
+                        }
+
+                        const latlng = L.latLng(lat, lon);
+                        newLocations.push(latlng);
+                        addCrimeLocation(latlng, true, false, {
+                            event: eventVal || `Crime Point ${i + 1}`,
+                            date: dateVal || new Date().toISOString().split('T')[0],
+                            type: typeVal || 'Theft',
+                            comments: commentsVal || '',
+                            url: urlVal || '',
+                            photo: photoVal || ''
+                        });
                     }
 
                     if (newLocations.length > 0) {
                         const bounds = L.latLngBounds(newLocations);
                         map.fitBounds(bounds, {padding: [50, 50]});
-                        instructions.textContent = `Successfully imported ${newLocations.length} locations from KML.`;
+                        instructions.textContent = `Successfully imported ${newLocations.length} location(s) with details from KML.`;
                     } else {
                         instructions.textContent = 'No valid locations were found in the KML file.';
                     }
@@ -709,8 +1259,126 @@
                     console.error("KML Parsing Error:", error);
                     instructions.textContent = 'Error parsing KML file. Please ensure it is valid.';
                 } finally {
-                    // Reset the file input so the same file can be loaded again
                     kmlInput.value = '';
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        // --- JSON Import/Export Functions ---
+        function exportToJSON() {
+            if (crimeLocations.length === 0) {
+                instructions.textContent = 'No crime locations to export.';
+                return;
+            }
+
+            const dataObj = {
+                version: "1.0",
+                exportedAt: new Date().toISOString(),
+                algorithm: algorithmSelect.value,
+                bufferValue: bufferZoneInput.value,
+                bufferUnit: bufferUnitSelect.value,
+                decayValue: decaySlider.value,
+                citySelect: citySelect.value,
+                crimeLocations: crimeLocations.map(loc => ({
+                    lat: loc.lat,
+                    lng: loc.lng,
+                    event: loc.event,
+                    date: loc.date,
+                    type: loc.type,
+                    comments: loc.comments,
+                    url: loc.url,
+                    photo: loc.photo
+                }))
+            };
+
+            const jsonStr = JSON.stringify(dataObj, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'crime_locations.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            hasExportedData = true;
+            updateExportWarningStatus();
+            saveState();
+            instructions.textContent = `Exported ${crimeLocations.length} location(s) to JSON.`;
+        }
+
+        function handleJSONImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonText = e.target.result;
+                    const parsedData = JSON.parse(jsonText);
+
+                    let locArray = [];
+                    if (Array.isArray(parsedData)) {
+                        locArray = parsedData;
+                    } else if (parsedData && Array.isArray(parsedData.crimeLocations)) {
+                        locArray = parsedData.crimeLocations;
+                        if (parsedData.algorithm) {
+                            algorithmSelect.value = parsedData.algorithm;
+                            bufferZoneControl.style.display = parsedData.algorithm === 'rossmo' ? 'block' : 'none';
+                        }
+                        if (parsedData.bufferValue) {
+                            bufferZoneInput.value = parsedData.bufferValue;
+                            bufferSlider.value = parsedData.bufferValue;
+                        }
+                        if (parsedData.bufferUnit) bufferUnitSelect.value = parsedData.bufferUnit;
+                        if (parsedData.decayValue) {
+                            decaySlider.value = parsedData.decayValue;
+                            decayValueSpan.textContent = parsedData.decayValue;
+                        }
+                        if (parsedData.citySelect) citySelect.value = parsedData.citySelect;
+                    }
+
+                    if (!locArray || locArray.length === 0) {
+                        instructions.textContent = 'Error: No valid point locations found in the JSON file.';
+                        return;
+                    }
+
+                    clearMap();
+                    const newLocations = [];
+
+                    locArray.forEach((loc, index) => {
+                        const lat = parseFloat(loc.lat);
+                        const lng = parseFloat(loc.lng);
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            const latlng = L.latLng(lat, lng);
+                            newLocations.push(latlng);
+                            addCrimeLocation(latlng, true, false, {
+                                event: loc.event || `Point #${index + 1}`,
+                                date: loc.date || new Date().toISOString().split('T')[0],
+                                type: loc.type || 'Theft',
+                                comments: loc.comments || '',
+                                url: loc.url || '',
+                                photo: loc.photo || ''
+                            });
+                        }
+                    });
+
+                    if (newLocations.length > 0) {
+                        const bounds = L.latLngBounds(newLocations);
+                        map.fitBounds(bounds, {padding: [50, 50]});
+                        instructions.textContent = `Successfully imported ${newLocations.length} location(s) with details from JSON.`;
+                    } else {
+                        instructions.textContent = 'No valid locations were found in the JSON file.';
+                    }
+
+                } catch (error) {
+                    console.error("JSON Parsing Error:", error);
+                    instructions.textContent = 'Error parsing JSON file. Please ensure it is valid JSON.';
+                } finally {
+                    jsonInput.value = '';
                 }
             };
 
