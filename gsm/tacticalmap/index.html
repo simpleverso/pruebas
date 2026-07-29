@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,10 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Leaflet.js for interactive maps -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- html2canvas and jsPDF for PNG & PDF map export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
@@ -18,25 +25,31 @@
             font-family: 'Inter', sans-serif;
             touch-action: manipulation;
         }
+
         #map {
             height: 100%;
             width: 100%;
             min-height: 180px;
-            background-color: #1f2937; /* bg-gray-800 */
+            background-color: #1f2937;
+            /* bg-gray-800 */
         }
+
         #heatmapCanvas {
             position: absolute;
             top: 0;
             left: 0;
             pointer-events: none;
-            z-index: 401; 
+            z-index: 401;
         }
+
         .leaflet-grab {
-             cursor: grab;
+            cursor: grab;
         }
+
         .leaflet-crosshair {
-             cursor: crosshair;
+            cursor: crosshair;
         }
+
         .leaflet-tooltip.custom-point-label {
             background-color: rgba(17, 24, 39, 0.94);
             border: 1px solid rgba(55, 65, 81, 0.8);
@@ -52,9 +65,11 @@
             white-space: normal;
             word-wrap: break-word;
         }
+
         .leaflet-tooltip.custom-point-label::before {
             border-top-color: rgba(17, 24, 39, 0.94);
         }
+
         .leaflet-popup-content-wrapper {
             background-color: rgba(31, 41, 55, 0.96);
             color: #f3f4f6;
@@ -65,6 +80,7 @@
             padding: 0 !important;
             overflow: hidden !important;
         }
+
         .leaflet-popup-content {
             margin: 12px 14px !important;
             line-height: 1.4 !important;
@@ -73,40 +89,50 @@
             min-width: 220px !important;
             max-width: 280px !important;
         }
+
         .leaflet-popup-tip {
             background-color: rgba(31, 41, 55, 0.96);
         }
+
         .leaflet-container a.leaflet-popup-close-button {
             color: #9ca3af;
             padding: 4px 6px;
             top: 4px;
             right: 4px;
         }
+
         .leaflet-container a.leaflet-popup-close-button:hover {
             color: #ffffff;
         }
     </style>
 </head>
+
 <body class="bg-gray-900 text-gray-200 h-screen w-screen p-1.5 sm:p-2.5 flex flex-col box-border">
 
-    <div class="w-full max-w-7xl h-full flex flex-col bg-gray-800 rounded-xl shadow-2xl p-2.5 sm:p-3.5 mx-auto border border-gray-700/50 box-border overflow-hidden">
-        
+    <div
+        class="w-full max-w-7xl h-full flex flex-col bg-gray-800 rounded-xl shadow-2xl p-2.5 sm:p-3.5 mx-auto border border-gray-700/50 box-border overflow-hidden">
+
         <!-- Compact Header -->
         <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-700/50 shrink-0">
             <div>
-                <h1 class="text-base sm:text-xl font-bold text-white tracking-tight">Geographic Profiling Algorithms</h1>
-                <p class="text-gray-400 text-[11px] sm:text-xs hidden sm:block">Select a tool, add crime locations, choose an algorithm, and press "Calculate".</p>
+                <h1 class="text-base sm:text-xl font-bold text-white tracking-tight">Geographic Profiling Algorithms
+                </h1>
+                <p class="text-gray-400 text-[11px] sm:text-xs hidden sm:block">Select a tool, add crime locations,
+                    choose an algorithm, and press "Calculate".</p>
             </div>
         </div>
 
         <!-- Compact Controls Container -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-end mb-2 bg-gray-900/60 p-2 sm:p-3 rounded-lg border border-gray-700/50 shrink-0">
-            
+        <div
+            class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-end mb-2 bg-gray-900/60 p-2 sm:p-3 rounded-lg border border-gray-700/50 shrink-0">
+
             <!-- Location, Algorithm & Parameters -->
             <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                    <label for="citySelect" class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">City / Location</label>
-                    <select id="citySelect" class="w-full bg-gray-700 border border-gray-600 text-white text-xs rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 min-h-[36px]">
+                    <label for="citySelect" class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">City /
+                        Location</label>
+                    <select id="citySelect"
+                        class="w-full bg-gray-700 border border-gray-600 text-white text-xs rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 min-h-[36px]">
                         <option value="19.4326,-99.1332,13" selected>Current City (CDMX)</option>
                         <option value="16.4339,-95.0195,14">Juchitán, Oaxaca</option>
                         <option value="19.7135,-98.9692,14">Tecámac, Estado de México</option>
@@ -115,28 +141,43 @@
                 </div>
 
                 <div>
-                    <label for="algorithmSelect" class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Algorithm</label>
-                    <select id="algorithmSelect" class="w-full bg-gray-700 border border-gray-600 text-white text-xs rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 min-h-[36px]">
+                    <label for="algorithmSelect"
+                        class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Algorithm</label>
+                    <select id="algorithmSelect"
+                        class="w-full bg-gray-700 border border-gray-600 text-white text-xs rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1.5 min-h-[36px]">
                         <option value="rossmo" selected>Rossmo's Formula</option>
                         <option value="decay">Simple Distance Decay</option>
                     </select>
                 </div>
-                
+
                 <div id="bufferZoneControl" class="w-full sm:col-span-2">
                     <div class="flex items-center gap-1 mb-0.5">
-                        <label for="bufferZoneInput" class="text-[11px] sm:text-xs font-medium text-gray-300">Buffer Zone (B)</label>
+                        <label for="bufferZoneInput" class="text-[11px] sm:text-xs font-medium text-gray-300">Buffer
+                            Zone (B)</label>
                         <div class="relative group flex items-center">
-                            <span class="cursor-help text-cyan-400 text-[10px] font-bold border border-cyan-400 rounded-full w-3.5 h-3.5 flex items-center justify-center">?</span>
-                            <div class="absolute bottom-full mb-1.5 w-52 sm:w-60 bg-gray-700 text-white text-[11px] rounded py-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
-                                The buffer zone is a 'donut' shaped area around a crime scene. Rossmo's formula assumes offenders avoid committing crimes right next to their home, so this inner area is considered less probable.
-                                <svg class="absolute text-gray-700 h-1.5 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            <span
+                                class="cursor-help text-cyan-400 text-[10px] font-bold border border-cyan-400 rounded-full w-3.5 h-3.5 flex items-center justify-center">?</span>
+                            <div
+                                class="absolute bottom-full mb-1.5 w-52 sm:w-60 bg-gray-700 text-white text-[11px] rounded py-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
+                                The buffer zone is a 'donut' shaped area around a crime scene. Rossmo's formula assumes
+                                offenders avoid committing crimes right next to their home, so this inner area is
+                                considered less probable.
+                                <svg class="absolute text-gray-700 h-1.5 w-full left-0 top-full" x="0px" y="0px"
+                                    viewBox="0 0 255 255" xml:space="preserve">
+                                    <polygon class="fill-current" points="0,0 127.5,127.5 255,0" />
+                                </svg>
                             </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <input id="bufferZoneSlider" type="range" min="10" max="1000" value="150" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer" title="Adjust common values quickly">
-                        <input id="bufferZoneInput" type="number" min="0" value="150" class="w-14 sm:w-16 bg-gray-700 border border-gray-600 text-white text-xs rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1 text-center shrink-0 min-h-[34px]" title="Enter any value">
-                        <select id="bufferUnit" class="bg-gray-700 border border-gray-600 text-white text-[11px] rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1 shrink-0 min-h-[34px]">
+                        <input id="bufferZoneSlider" type="range" min="10" max="1000" value="150"
+                            class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                            title="Adjust common values quickly">
+                        <input id="bufferZoneInput" type="number" min="0" value="150"
+                            class="w-14 sm:w-16 bg-gray-700 border border-gray-600 text-white text-xs rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1 text-center shrink-0 min-h-[34px]"
+                            title="Enter any value">
+                        <select id="bufferUnit"
+                            class="bg-gray-700 border border-gray-600 text-white text-[11px] rounded-md focus:ring-cyan-500 focus:border-cyan-500 block p-1 shrink-0 min-h-[34px]">
                             <option value="meters" selected>meters</option>
                             <option value="pixels">pixels</option>
                         </select>
@@ -145,138 +186,250 @@
 
                 <div class="w-full sm:col-span-1">
                     <div class="flex items-center gap-1 mb-0.5">
-                        <label for="distanceDecay" class="text-[11px] sm:text-xs font-medium text-gray-300">Distance Decay (f)</label>
+                        <label for="distanceDecay" class="text-[11px] sm:text-xs font-medium text-gray-300">Distance
+                            Decay (f)</label>
                         <div class="relative group flex items-center">
-                            <span class="cursor-help text-cyan-400 text-[10px] font-bold border border-cyan-400 rounded-full w-3.5 h-3.5 flex items-center justify-center">?</span>
-                            <div class="absolute bottom-full mb-1.5 w-52 sm:w-60 bg-gray-700 text-white text-[11px] rounded py-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
-                                This value (f) is a unitless exponent that controls how sharply the probability drops off with distance. A higher 'f' value means a more rapid decay.
-                                <svg class="absolute text-gray-700 h-1.5 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            <span
+                                class="cursor-help text-cyan-400 text-[10px] font-bold border border-cyan-400 rounded-full w-3.5 h-3.5 flex items-center justify-center">?</span>
+                            <div
+                                class="absolute bottom-full mb-1.5 w-52 sm:w-60 bg-gray-700 text-white text-[11px] rounded py-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
+                                This value (f) is a unitless exponent that controls how sharply the probability drops
+                                off with distance. A higher 'f' value means a more rapid decay.
+                                <svg class="absolute text-gray-700 h-1.5 w-full left-0 top-full" x="0px" y="0px"
+                                    viewBox="0 0 255 255" xml:space="preserve">
+                                    <polygon class="fill-current" points="0,0 127.5,127.5 255,0" />
+                                </svg>
                             </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input id="distanceDecay" type="range" min="0.1" max="2.0" value="1.2" step="0.1" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                        <span id="decayValue" class="font-mono text-cyan-400 w-8 text-center text-xs font-bold shrink-0">1.2</span>
+                        <input id="distanceDecay" type="range" min="0.1" max="2.0" value="1.2" step="0.1"
+                            class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <span id="decayValue"
+                            class="font-mono text-cyan-400 w-8 text-center text-xs font-bold shrink-0">1.2</span>
                     </div>
                 </div>
 
                 <div class="w-full sm:col-span-1">
                     <div class="flex items-center gap-1 mb-0.5">
-                        <label for="graphOpacitySlider" class="text-[11px] sm:text-xs font-medium text-gray-300">Graph Opacity</label>
+                        <label for="graphOpacitySlider" class="text-[11px] sm:text-xs font-medium text-gray-300">Graph
+                            Opacity</label>
                         <div class="relative group flex items-center">
-                            <span class="cursor-help text-cyan-400 text-[10px] font-bold border border-cyan-400 rounded-full w-3.5 h-3.5 flex items-center justify-center">?</span>
-                            <div class="absolute bottom-full mb-1.5 w-52 sm:w-60 bg-gray-700 text-white text-[11px] rounded py-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
-                                Controls the transparency of the calculated probability heatmap graph layer overlay on the map.
-                                <svg class="absolute text-gray-700 h-1.5 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            <span
+                                class="cursor-help text-cyan-400 text-[10px] font-bold border border-cyan-400 rounded-full w-3.5 h-3.5 flex items-center justify-center">?</span>
+                            <div
+                                class="absolute bottom-full mb-1.5 w-52 sm:w-60 bg-gray-700 text-white text-[11px] rounded py-1.5 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-0 sm:-translate-x-1/2 sm:left-1/2 shadow-xl border border-gray-600">
+                                Controls the transparency of the calculated probability heatmap graph layer overlay on
+                                the map.
+                                <svg class="absolute text-gray-700 h-1.5 w-full left-0 top-full" x="0px" y="0px"
+                                    viewBox="0 0 255 255" xml:space="preserve">
+                                    <polygon class="fill-current" points="0,0 127.5,127.5 255,0" />
+                                </svg>
                             </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input id="graphOpacitySlider" type="range" min="10" max="100" value="35" step="5" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                        <span id="graphOpacityValue" class="font-mono text-cyan-400 w-10 text-center text-xs font-bold shrink-0">35%</span>
+                        <input id="graphOpacitySlider" type="range" min="10" max="100" value="35" step="5"
+                            class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <span id="graphOpacityValue"
+                            class="font-mono text-cyan-400 w-10 text-center text-xs font-bold shrink-0">35%</span>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tools & Actions -->
-            <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5">
                 <!-- Map Tools -->
                 <div class="flex flex-col justify-end">
                     <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Map Tools</label>
                     <div class="grid grid-cols-3 gap-1.5">
-                        <button id="panTool" title="Pan Map" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z"/></svg>
+                        <button id="panTool" title="Pan Map"
+                            class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor"
+                                class="shrink-0" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708L.293 11.5H11.5a.5.5 0 0 1 0 1H.293l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM14 8a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 0 1H14.5A.5.5 0 0 1 14 8z" />
+                            </svg>
                             <span>Pan</span>
                         </button>
-                        <button id="addTool" title="Add Crime Point" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="shrink-0" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                        <button id="addTool" title="Add Crime Point"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor"
+                                class="shrink-0" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                <path
+                                    d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                            </svg>
                             <span>Add</span>
                         </button>
-                        <button id="toggleLabelsBtn" title="Show/Hide Point Information on Map" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <button id="toggleLabelsBtn" title="Show/Hide Point Information on Map"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 flex items-center justify-center gap-1 min-h-[36px] text-xs w-full">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
                             <span id="toggleLabelsText">Hide Info</span>
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Analysis -->
                 <div class="flex flex-col justify-end">
                     <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Analysis</label>
                     <div class="grid grid-cols-3 gap-1.5">
-                        <button id="calculateBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Run Heatmap Calculation">Calculate</button>
-                        <button id="clearGraphBtn" class="bg-amber-600 hover:bg-amber-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Clear Heatmap Overlay Only">Clear Graph</button>
-                        <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Clear All Points and Heatmap">Clear Points</button>
+                        <button id="calculateBtn"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Run Heatmap Calculation">Calculate</button>
+                        <button id="clearGraphBtn"
+                            class="bg-amber-600 hover:bg-amber-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Clear Heatmap Overlay Only">Clear Graph</button>
+                        <button id="clearBtn"
+                            class="bg-red-600 hover:bg-red-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Clear All Points and Heatmap">Clear Points</button>
                     </div>
                 </div>
 
                 <!-- Data -->
                 <div class="flex flex-col justify-end">
-                    <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Data (KML & JSON)</label>
+                    <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Data (KML &
+                        JSON)</label>
                     <div class="grid grid-cols-2 gap-1.5">
-                        <button id="importBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Import KML">Import KML</button>
-                        <button id="exportBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Export KML">Export KML</button>
-                        <button id="importJsonBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Import JSON">Import JSON</button>
-                        <button id="exportJsonBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full" title="Export JSON">Export JSON</button>
-                        <input type="file" id="kmlInput" accept=".kml,application/vnd.google-earth.kml+xml" class="hidden">
+                        <button id="importBtn"
+                            class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Import KML">Import KML</button>
+                        <button id="exportBtn"
+                            class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Export KML">Export KML</button>
+                        <button id="importJsonBtn"
+                            class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Import JSON">Import JSON</button>
+                        <button id="exportJsonBtn"
+                            class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center text-center w-full"
+                            title="Export JSON">Export JSON</button>
+                        <input type="file" id="kmlInput" accept=".kml,application/vnd.google-earth.kml+xml"
+                            class="hidden">
                         <input type="file" id="jsonInput" accept=".json,application/json" class="hidden">
+                    </div>
+                </div>
+
+                <!-- Map Export -->
+                <div class="flex flex-col justify-end">
+                    <label class="block mb-0.5 text-[11px] sm:text-xs font-medium text-gray-300">Map Export</label>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button id="exportPngBtn"
+                            class="col-span-1 col-start-1 bg-teal-600 hover:bg-teal-500 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center gap-1 text-center w-full shadow-sm"
+                            title="Export Map View to PNG Image">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>PNG</span>
+                        </button>
+                        <button id="exportPdfBtn"
+                            class="col-span-1 col-start-1 bg-rose-700 hover:bg-rose-600 text-white font-semibold py-1.5 px-1 rounded-md transition-colors duration-300 min-h-[36px] text-xs flex items-center justify-center gap-1 text-center w-full shadow-sm"
+                            title="Export Map Report to PDF Document">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 9h1.5m0 0A1.5 1.5 0 0112 10.5v3a1.5 1.5 0 01-1.5 1.5H9V9z" />
+                            </svg>
+                            <span>PDF</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Map Container (flex-1 dynamically fills all remaining screen height) -->
-        <div id="mapContainer" class="flex-1 bg-gray-900 p-1 rounded-lg shadow-inner relative overflow-hidden min-h-[200px]">
+        <div id="mapContainer"
+            class="flex-1 bg-gray-900 p-1 rounded-lg shadow-inner relative overflow-hidden min-h-[200px]">
             <div id="map" class="rounded-md w-full h-full"></div>
             <!-- Floating Map Info Toggle Button -->
-            <button id="mapOverlayToggleLabelsBtn" title="Show/Hide Info on Map" class="absolute top-2.5 right-2.5 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 hover:bg-gray-800 text-cyan-400 text-xs font-medium px-2.5 py-1.5 rounded-md shadow-md flex items-center gap-1.5 transition-colors">
-                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <button id="mapOverlayToggleLabelsBtn" title="Show/Hide Info on Map"
+                class="absolute top-2.5 right-2.5 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 hover:bg-gray-800 text-cyan-400 text-xs font-medium px-2.5 py-1.5 rounded-md shadow-md flex items-center gap-1.5 transition-colors">
+                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
                 <span id="overlayToggleText">Hide Map Info</span>
             </button>
             <!-- Live Coordinate Display Overlay -->
-            <div id="coordsDisplay" class="absolute bottom-2.5 left-2.5 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 text-cyan-400 font-mono text-[11px] px-2 py-0.5 rounded shadow-md pointer-events-none flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" class="text-cyan-400"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+            <div id="coordsDisplay"
+                class="absolute bottom-2.5 left-2.5 z-[500] bg-gray-900/85 backdrop-blur-sm border border-gray-700/80 text-cyan-400 font-mono text-[11px] px-2 py-0.5 rounded shadow-md pointer-events-none flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"
+                    class="text-cyan-400">
+                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+                </svg>
                 <span id="coordsText">Lat: 19.43260, Lng: -99.13320</span>
             </div>
         </div>
-        
+
         <!-- Instructions & Warning Footer -->
         <div class="mt-2 shrink-0">
             <div id="instructions" class="text-center text-gray-400 text-[11px] sm:text-xs px-2">
-                Place 3 or more crime locations for the best results. Click on points to view or edit Event, Date, Type, and Comments.
+                Place 3 or more crime locations for the best results. Click on points to view or edit Event, Date, Type,
+                and Comments.
             </div>
-            <div id="unexportedWarning" class="hidden text-amber-400 text-[11px] text-center font-medium mt-1 flex items-center justify-center gap-1 bg-amber-950/50 border border-amber-700/60 py-1 px-2.5 rounded-md w-fit mx-auto shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" class="shrink-0 text-amber-400"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm0-1.016a1.146 1.146 0 0 0-.96.486L.12 13.153a1.163 1.163 0 0 0 .012 1.256c.214.357.6.591 1.014.591h13.708c.414 0 .8-.234 1.014-.591a1.163 1.163 0 0 0 .012-1.256L9.897 1.486A1.146 1.146 0 0 0 8.938 1z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
-                <span>Notice: Data is not exported yet. Remember to Export KML to avoid losing data if browser cache is cleared.</span>
+            <div id="unexportedWarning"
+                class="hidden text-amber-400 text-[11px] text-center font-medium mt-1 flex items-center justify-center gap-1 bg-amber-950/50 border border-amber-700/60 py-1 px-2.5 rounded-md w-fit mx-auto shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"
+                    class="shrink-0 text-amber-400">
+                    <path
+                        d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm0-1.016a1.146 1.146 0 0 0-.96.486L.12 13.153a1.163 1.163 0 0 0 .012 1.256c.214.357.6.591 1.014.591h13.708c.414 0 .8-.234 1.014-.591a1.163 1.163 0 0 0 .012-1.256L9.897 1.486A1.146 1.146 0 0 0 8.938 1z" />
+                    <path
+                        d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
+                </svg>
+                <span>Notice: Data is not exported yet. Remember to Export KML to avoid losing data if browser cache is
+                    cleared.</span>
             </div>
         </div>
     </div>
 
     <!-- Point Information Modal -->
-    <div id="pointModal" class="hidden fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+    <div id="pointModal"
+        class="hidden fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-900/50">
                 <h3 id="modalTitle" class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                     Point Information
                 </h3>
                 <button type="button" id="modalCloseX" class="text-gray-400 hover:text-white transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
             <form id="pointForm" class="p-4 space-y-3">
                 <input type="hidden" id="modalPointIndex" value="">
                 <div>
                     <label for="modalEventInput" class="block text-xs font-medium text-gray-300 mb-1">Event</label>
-                    <input type="text" id="modalEventInput" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none" placeholder="e.g. Bank Robbery">
+                    <input type="text" id="modalEventInput" required
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+                        placeholder="e.g. Bank Robbery">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label for="modalDateInput" class="block text-xs font-medium text-gray-300 mb-1">Date</label>
-                        <input type="date" id="modalDateInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                        <input type="date" id="modalDateInput"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
                     </div>
                     <div>
                         <label for="modalTypeInput" class="block text-xs font-medium text-gray-300 mb-1">Type</label>
-                        <select id="modalTypeInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                        <select id="modalTypeInput"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
                             <option value="Theft">Theft</option>
                             <option value="Robbery">Robbery</option>
                             <option value="Assault">Assault</option>
@@ -289,38 +442,64 @@
                     </div>
                 </div>
                 <div>
-                    <label for="modalCommentsInput" class="block text-xs font-medium text-gray-300 mb-1">Comments</label>
-                    <textarea id="modalCommentsInput" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none" placeholder="Add comments or details..."></textarea>
+                    <label for="modalCommentsInput"
+                        class="block text-xs font-medium text-gray-300 mb-1">Comments</label>
+                    <textarea id="modalCommentsInput" rows="2"
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none"
+                        placeholder="Add comments or details..."></textarea>
                 </div>
                 <div>
-                    <label for="modalUrlInput" class="block text-xs font-medium text-gray-300 mb-1">Web URL / External Link</label>
-                    <input type="url" id="modalUrlInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none" placeholder="https://example.com/report">
+                    <label for="modalUrlInput" class="block text-xs font-medium text-gray-300 mb-1">Web URL / External
+                        Link</label>
+                    <input type="url" id="modalUrlInput"
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+                        placeholder="https://example.com/report">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-300 mb-1">Photo / Image</label>
                     <div class="flex items-center gap-2">
                         <input type="file" id="modalPhotoInput" accept="image/*" class="hidden">
-                        <button type="button" id="modalPhotoUploadBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
-                            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <button type="button" id="modalPhotoUploadBtn"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
                             <span id="photoBtnLabel">Upload Photo</span>
                         </button>
-                        <button type="button" id="modalPhotoRemoveBtn" class="hidden bg-red-600/80 hover:bg-red-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors" title="Remove Photo">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        <button type="button" id="modalPhotoRemoveBtn"
+                            class="hidden bg-red-600/80 hover:bg-red-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors"
+                            title="Remove Photo">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                         </button>
                     </div>
-                    <div id="modalPhotoPreviewContainer" class="hidden mt-2 relative w-full max-h-32 rounded-lg overflow-hidden border border-gray-600 bg-gray-900/80 flex items-center justify-center p-1">
-                        <img id="modalPhotoPreview" src="" alt="Photo Preview" class="max-h-28 object-contain rounded-md">
+                    <div id="modalPhotoPreviewContainer"
+                        class="hidden mt-2 relative w-full max-h-32 rounded-lg overflow-hidden border border-gray-600 bg-gray-900/80 flex items-center justify-center p-1">
+                        <img id="modalPhotoPreview" src="" alt="Photo Preview"
+                            class="max-h-28 object-contain rounded-md">
                     </div>
                 </div>
                 <div class="flex items-center justify-between pt-2 border-t border-gray-700">
-                    <button type="button" id="modalDeleteBtn" class="bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    <button type="button" id="modalDeleteBtn"
+                        class="bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                         Delete Point
                     </button>
                     <div class="flex items-center gap-2">
-                        <button type="button" id="modalCancelBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
-                        <button type="submit" id="modalSaveBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <button type="button" id="modalCancelBtn"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" id="modalSaveBtn"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
                             Save
                         </button>
                     </div>
@@ -330,33 +509,54 @@
     </div>
 
     <!-- Confirm Clear Points Modal -->
-    <div id="confirmClearModal" class="hidden fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+    <div id="confirmClearModal"
+        class="hidden fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-red-950/40">
                 <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
                     Confirm Clear Points
                 </h3>
                 <button type="button" id="confirmClearCloseX" class="text-gray-400 hover:text-white transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
             <div class="p-4 space-y-3">
                 <p id="confirmClearMessage" class="text-xs sm:text-sm text-gray-200">
                     Are you sure you want to clear all points from the map?
                 </p>
-                <div id="confirmClearWarningBox" class="bg-amber-950/60 border border-amber-700/60 rounded-lg p-2.5 text-xs text-amber-300 flex items-start gap-2">
-                    <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span><strong>Warning:</strong> Points have not been exported yet. All point details (dates, types, photos, comments) will be lost if not exported.</span>
+                <div id="confirmClearWarningBox"
+                    class="bg-amber-950/60 border border-amber-700/60 rounded-lg p-2.5 text-xs text-amber-300 flex items-start gap-2">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span><strong>Warning:</strong> Points have not been exported yet. All point details (dates, types,
+                        photos, comments) will be lost if not exported.</span>
                 </div>
                 <div class="pt-2 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5 w-full sm:w-auto">
-                        <button type="button" id="confirmExportKmlBtn" class="bg-gray-700 hover:bg-gray-600 text-cyan-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-600 transition-colors w-full sm:w-auto text-center" title="Export KML before clearing">Export KML</button>
-                        <button type="button" id="confirmExportJsonBtn" class="bg-gray-700 hover:bg-gray-600 text-cyan-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-600 transition-colors w-full sm:w-auto text-center" title="Export JSON before clearing">Export JSON</button>
+                        <button type="button" id="confirmExportKmlBtn"
+                            class="bg-gray-700 hover:bg-gray-600 text-cyan-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-600 transition-colors w-full sm:w-auto text-center"
+                            title="Export KML before clearing">Export KML</button>
+                        <button type="button" id="confirmExportJsonBtn"
+                            class="bg-gray-700 hover:bg-gray-600 text-cyan-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-600 transition-colors w-full sm:w-auto text-center"
+                            title="Export JSON before clearing">Export JSON</button>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        <button type="button" id="confirmClearCancelBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
-                        <button type="button" id="confirmClearProceedBtn" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Clear Points</button>
+                        <button type="button" id="confirmClearCancelBtn"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
+                        <button type="button" id="confirmClearProceedBtn"
+                            class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Clear
+                            Points</button>
                     </div>
                 </div>
             </div>
@@ -392,6 +592,8 @@
         const kmlInput = document.getElementById('kmlInput');
         const importJsonBtn = document.getElementById('importJsonBtn');
         const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const exportPngBtn = document.getElementById('exportPngBtn');
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
         const jsonInput = document.getElementById('jsonInput');
         const coordsText = document.getElementById('coordsText');
 
@@ -451,7 +653,7 @@
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(evt) {
+                reader.onload = function (evt) {
                     currentModalPhoto = evt.target.result;
                     showPhotoPreview(currentModalPhoto);
                 };
@@ -508,6 +710,7 @@
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
+            crossOrigin: true,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
 
@@ -638,7 +841,7 @@
             currentModalPhoto = loc.photo || '';
             modalPhotoInput.value = '';
             showPhotoPreview(currentModalPhoto);
-            
+
             pointModal.classList.remove('hidden');
             modalEventInput.focus();
         }
@@ -889,7 +1092,7 @@
             }
             saveState();
         });
-        
+
         algorithmSelect.addEventListener('change', (e) => {
             bufferZoneControl.style.display = e.target.value === 'rossmo' ? 'block' : 'none';
             saveState();
@@ -901,7 +1104,7 @@
             // Open modal immediately to edit info for new point
             openEditModal(newIndex);
         });
-        
+
         map.on('moveend', () => {
             saveState();
             if (heatmapCanvas && crimeLocations.length > 0) {
@@ -981,7 +1184,7 @@
         addToolBtn.addEventListener('click', () => setToolMode('add'));
         toggleLabelsBtn.addEventListener('click', toggleMapInfoLabels);
         mapOverlayToggleLabelsBtn.addEventListener('click', toggleMapInfoLabels);
-        
+
         importBtn.addEventListener('click', () => kmlInput.click());
         kmlInput.addEventListener('change', handleKMLImport);
         exportBtn.addEventListener('click', exportToKML);
@@ -989,6 +1192,9 @@
         importJsonBtn.addEventListener('click', () => jsonInput.click());
         jsonInput.addEventListener('change', handleJSONImport);
         exportJsonBtn.addEventListener('click', exportToJSON);
+
+        exportPngBtn.addEventListener('click', exportToPNG);
+        exportPdfBtn.addEventListener('click', exportToPDF);
 
         // --- Core Functions ---
         function addCrimeLocation(latlng, suppressMessage = false, skipSave = false, customInfo = null) {
@@ -1047,12 +1253,12 @@
                 instructions.textContent = 'No heatmap calculation graph layer to clear.';
             }
         }
-        
+
         function getBufferInPixels() {
             const bufferValue = parseFloat(bufferZoneInput.value);
             const unit = bufferUnitSelect.value;
             if (unit === 'pixels') return bufferValue;
-            
+
             const mapCenter = map.getCenter();
             const centerPoint = map.latLngToContainerPoint(mapCenter);
             const pointOnePixelAway = L.point(centerPoint.x + 1, centerPoint.y);
@@ -1064,7 +1270,7 @@
 
         function runCalculation() {
             if (heatmapCanvas) mapContainer.removeChild(heatmapCanvas);
-            
+
             const mapSize = map.getSize();
             heatmapCanvas = document.createElement('canvas');
             heatmapCanvas.id = 'heatmapCanvas';
@@ -1083,7 +1289,7 @@
             } else {
                 gridScores = calculateDistanceDecay(crimePixels, mapSize);
             }
-            
+
             drawHeatmap(gridScores, mapSize);
             instructions.textContent = 'Calculation complete. Red indicates the highest probability area.';
         }
@@ -1100,7 +1306,7 @@
                     for (const crime of crimePixels) {
                         const distance = Math.sqrt(Math.pow(i - crime.x, 2) + Math.pow(j - crime.y, 2));
                         const effectiveDistance = Math.max(1, distance);
-                        
+
                         let term = 0;
                         if (effectiveDistance > bufferInPixels) {
                             term = 1 / Math.pow(effectiveDistance, f);
@@ -1120,7 +1326,7 @@
             const f = parseFloat(decaySlider.value);
             const { x: width, y: height } = mapSize;
             const scores = new Array(width).fill(0).map(() => new Array(height).fill(0));
-            
+
             for (let i = 0; i < width; i++) {
                 for (let j = 0; j < height; j++) {
                     let totalScore = 0;
@@ -1139,7 +1345,7 @@
             const { x: width, y: height } = mapSize;
             const ctx = heatmapCanvas.getContext('2d');
             const imageData = ctx.createImageData(width, height);
-            
+
             let maxScore = 0;
             const selectedAlgorithm = algorithmSelect.value;
 
@@ -1169,10 +1375,10 @@
                 for (let j = 0; j < height; j++) {
                     const score = Math.min(gridScores[i][j], maxScore);
                     const normalizedScore = maxScore > 0 ? Math.log(1 + score) / logMaxScore : 0;
-                    
+
                     const hue = (1 - normalizedScore) * 240;
                     const [r, g, b] = hslToRgb(hue / 360, 0.9, 0.5);
-                    
+
                     const index = (j * width + i) * 4;
                     imageData.data[index] = r;
                     imageData.data[index + 1] = g;
@@ -1185,7 +1391,7 @@
 
         function hslToRgb(h, s, l) {
             let r, g, b;
-            if (s === 0) { r = g = b = l; } 
+            if (s === 0) { r = g = b = l; }
             else {
                 const hue2rgb = (p, q, t) => {
                     if (t < 0) t += 1;
@@ -1203,7 +1409,7 @@
             }
             return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
         }
-        
+
         // --- KML Import/Export Functions ---
         function exportToKML() {
             if (crimeLocations.length === 0) {
@@ -1280,14 +1486,14 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const kmlText = e.target.result;
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(kmlText, "text/xml");
-                    
+
                     const placemarks = xmlDoc.getElementsByTagName('Placemark');
-                    
+
                     if (placemarks.length === 0) {
                         const coordinates = xmlDoc.getElementsByTagName('coordinates');
                         if (coordinates.length === 0) {
@@ -1306,12 +1512,12 @@
                             }
                         }
                         if (newLocations.length > 0) {
-                            map.fitBounds(L.latLngBounds(newLocations), {padding: [50, 50]});
+                            map.fitBounds(L.latLngBounds(newLocations), { padding: [50, 50] });
                             instructions.textContent = `Successfully imported ${newLocations.length} locations from KML.`;
                         }
                         return;
                     }
-                    
+
                     clearMap();
                     const newLocations = [];
 
@@ -1319,7 +1525,7 @@
                         const placemark = placemarks[i];
                         const coordNode = placemark.getElementsByTagName('coordinates')[0];
                         if (!coordNode) continue;
-                        
+
                         const coordsText = coordNode.textContent.trim();
                         const [lon, lat] = coordsText.split(',').map(Number);
                         if (isNaN(lat) || isNaN(lon)) continue;
@@ -1380,7 +1586,7 @@
 
                     if (newLocations.length > 0) {
                         const bounds = L.latLngBounds(newLocations);
-                        map.fitBounds(bounds, {padding: [50, 50]});
+                        map.fitBounds(bounds, { padding: [50, 50] });
                         instructions.textContent = `Successfully imported ${newLocations.length} location(s) with details from KML.`;
                     } else {
                         instructions.textContent = 'No valid locations were found in the KML file.';
@@ -1447,7 +1653,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const jsonText = e.target.result;
                     const parsedData = JSON.parse(jsonText);
@@ -1504,7 +1710,7 @@
 
                     if (newLocations.length > 0) {
                         const bounds = L.latLngBounds(newLocations);
-                        map.fitBounds(bounds, {padding: [50, 50]});
+                        map.fitBounds(bounds, { padding: [50, 50] });
                         instructions.textContent = `Successfully imported ${newLocations.length} location(s) with details from JSON.`;
                     } else {
                         instructions.textContent = 'No valid locations were found in the JSON file.';
@@ -1521,10 +1727,284 @@
             reader.readAsText(file);
         }
 
+        // --- PNG and PDF Map Export Functions ---
+        async function exportToPNG() {
+            if (crimeLocations.length === 0 && !heatmapCanvas) {
+                instructions.textContent = 'Exporting map view to PNG...';
+            } else {
+                instructions.textContent = 'Generating PNG map image... Please wait.';
+            }
+
+            const originalBtnContent = exportPngBtn ? exportPngBtn.innerHTML : '';
+            if (exportPngBtn) {
+                exportPngBtn.disabled = true;
+                exportPngBtn.classList.add('opacity-70', 'cursor-wait');
+                exportPngBtn.innerHTML = `
+                    <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>PNG...</span>`;
+            }
+
+            try {
+                await new Promise(r => setTimeout(r, 100));
+
+                const canvas = await html2canvas(mapContainer, {
+                    useCORS: true,
+                    allowTaint: false,
+                    scale: 2,
+                    logging: false
+                });
+
+                const imageUri = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+                link.download = `tactical_map_${timestamp}.png`;
+                link.href = imageUri;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                hasExportedData = true;
+                updateExportWarningStatus();
+                saveState();
+                instructions.textContent = 'Map successfully exported to PNG.';
+            } catch (err) {
+                console.error('Export PNG failed:', err);
+                instructions.textContent = 'Failed to export PNG map image. See console for details.';
+            } finally {
+                if (exportPngBtn) {
+                    exportPngBtn.disabled = false;
+                    exportPngBtn.classList.remove('opacity-70', 'cursor-wait');
+                    exportPngBtn.innerHTML = originalBtnContent;
+                }
+            }
+        }
+
+        async function exportToPDF() {
+            instructions.textContent = 'Generating tactical PDF document... Please wait.';
+
+            const originalBtnContent = exportPdfBtn ? exportPdfBtn.innerHTML : '';
+            if (exportPdfBtn) {
+                exportPdfBtn.disabled = true;
+                exportPdfBtn.classList.add('opacity-70', 'cursor-wait');
+                exportPdfBtn.innerHTML = `
+                    <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>PDF...</span>`;
+            }
+
+            try {
+                await new Promise(r => setTimeout(r, 100));
+
+                const canvas = await html2canvas(mapContainer, {
+                    useCORS: true,
+                    allowTaint: false,
+                    scale: 2,
+                    logging: false
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+
+                // Landscape A4 document: 297mm width x 210mm height
+                const pdf = new jsPDF('landscape', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                // Header Banner
+                pdf.setFillColor(17, 24, 39); // #111827
+                pdf.rect(0, 0, pdfWidth, 24, 'F');
+
+                pdf.setTextColor(6, 182, 212); // cyan-500
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('GEOGRAPHIC PROFILING TACTICAL REPORT', 12, 10);
+
+                // Subheader metadata
+                pdf.setTextColor(209, 213, 219); // gray-300
+                pdf.setFontSize(8);
+                pdf.setFont('helvetica', 'normal');
+
+                const selectedAlg = algorithmSelect.value === 'rossmo' ? "Rossmo's Formula" : 'Distance Decay';
+                const bufferInfo = algorithmSelect.value === 'rossmo' ? ` | Buffer: ${bufferZoneInput.value} ${bufferUnitSelect.value}` : '';
+                const decayInfo = ` | Decay (f): ${decaySlider.value}`;
+                const pointsInfo = ` | Crime Points: ${crimeLocations.length}`;
+                const timestampStr = new Date().toLocaleString();
+
+                const paramLine = `Algorithm: ${selectedAlg}${bufferInfo}${decayInfo}${pointsInfo}`;
+                const dateLine = `Generated: ${timestampStr}`;
+
+                pdf.text(paramLine, 12, 17);
+                pdf.text(dateLine, pdfWidth - 12, 17, { align: 'right' });
+
+                // Map canvas dimensions inside PDF
+                const marginX = 10;
+                const marginTop = 27;
+                const availableWidth = pdfWidth - (marginX * 2);
+                const availableHeight = pdfHeight - marginTop - 10;
+
+                const canvasAspect = canvas.width / canvas.height;
+                let renderWidth = availableWidth;
+                let renderHeight = renderWidth / canvasAspect;
+
+                if (renderHeight > availableHeight) {
+                    renderHeight = availableHeight;
+                    renderWidth = renderHeight * canvasAspect;
+                }
+
+                const renderX = marginX + (availableWidth - renderWidth) / 2;
+                const renderY = marginTop + (availableHeight - renderHeight) / 2;
+
+                // Subtle border
+                pdf.setDrawColor(55, 65, 81);
+                pdf.setLineWidth(0.4);
+                pdf.rect(renderX - 0.4, renderY - 0.4, renderWidth + 0.8, renderHeight + 0.8);
+
+                pdf.addImage(imgData, 'JPEG', renderX, renderY, renderWidth, renderHeight);
+
+                // Page 1 Footer Banner
+                pdf.setFillColor(17, 24, 39);
+                pdf.rect(0, pdfHeight - 8, pdfWidth, 8, 'F');
+                pdf.setTextColor(156, 163, 175);
+                pdf.setFontSize(7.5);
+                pdf.text('Geographic Profiling Analysis System • Page 1 (Tactical Visualization)', 12, pdfHeight - 3);
+
+                // --- Page 2+: Crime Point Details Directory ---
+                if (crimeLocations.length > 0) {
+                    pdf.addPage('landscape', 'a4');
+                    let pageNumber = 2;
+
+                    const drawDirectoryHeader = (pNum) => {
+                        // Header Banner
+                        pdf.setFillColor(17, 24, 39); // #111827
+                        pdf.rect(0, 0, pdfWidth, 22, 'F');
+
+                        pdf.setTextColor(6, 182, 212); // cyan-500
+                        pdf.setFontSize(13);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text('GEOGRAPHIC PROFILING TACTICAL REPORT — CRIME POINT DIRECTORY', 12, 9);
+
+                        pdf.setTextColor(209, 213, 219);
+                        pdf.setFontSize(8);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.text(`Total Plotted Locations: ${crimeLocations.length} | Exported: ${timestampStr}`, 12, 16);
+
+                        // Table Header Row
+                        pdf.setFillColor(31, 41, 55); // gray-800
+                        pdf.rect(10, 23, pdfWidth - 20, 8, 'F');
+                        pdf.setDrawColor(55, 65, 81);
+                        pdf.setLineWidth(0.3);
+                        pdf.rect(10, 23, pdfWidth - 20, 8, 'S');
+
+                        pdf.setTextColor(6, 182, 212); // cyan-400
+                        pdf.setFontSize(8);
+                        pdf.setFont('helvetica', 'bold');
+
+                        pdf.text('#', 13, 28.5);
+                        pdf.text('EVENT NAME', 22, 28.5);
+                        pdf.text('TYPE', 75, 28.5);
+                        pdf.text('DATE', 108, 28.5);
+                        pdf.text('COORDINATES (LAT, LNG)', 138, 28.5);
+                        pdf.text('COMMENTS / ATTACHED LINK', 188, 28.5);
+                    };
+
+                    drawDirectoryHeader(pageNumber);
+                    let currentY = 32;
+
+                    crimeLocations.forEach((loc, idx) => {
+                        // Build details text
+                        let detailsStr = loc.comments || '';
+                        if (loc.url) {
+                            detailsStr += detailsStr ? `\nURL: ${loc.url}` : `URL: ${loc.url}`;
+                        }
+                        if (!detailsStr) detailsStr = '-';
+
+                        const wrappedDetails = pdf.splitTextToSize(detailsStr, 94);
+                        const rowHeight = Math.max(7, wrappedDetails.length * 3.8 + 3);
+
+                        // Check if row exceeds page bounds (margin 12mm)
+                        if (currentY + rowHeight > pdfHeight - 12) {
+                            // Footer for previous page
+                            pdf.setFillColor(17, 24, 39);
+                            pdf.rect(0, pdfHeight - 8, pdfWidth, 8, 'F');
+                            pdf.setTextColor(156, 163, 175);
+                            pdf.setFontSize(7.5);
+                            pdf.text(`Geographic Profiling Analysis System • Page ${pageNumber}`, 12, pdfHeight - 3);
+
+                            pdf.addPage('landscape', 'a4');
+                            pageNumber++;
+                            drawDirectoryHeader(pageNumber);
+                            currentY = 32;
+                        }
+
+                        // Alternating dark row background
+                        if (idx % 2 === 0) {
+                            pdf.setFillColor(31, 41, 55); // #1f2937
+                        } else {
+                            pdf.setFillColor(17, 24, 39); // #111827
+                        }
+                        pdf.rect(10, currentY, pdfWidth - 20, rowHeight, 'F');
+                        pdf.setDrawColor(55, 65, 81);
+                        pdf.setLineWidth(0.2);
+                        pdf.rect(10, currentY, pdfWidth - 20, rowHeight, 'S');
+
+                        // Row text
+                        pdf.setTextColor(243, 244, 246);
+                        pdf.setFontSize(7.5);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text(`${idx + 1}`, 13, currentY + 4.5);
+
+                        pdf.setFont('helvetica', 'normal');
+                        const eventName = loc.event || `Point #${idx + 1}`;
+                        const truncatedEvent = pdf.splitTextToSize(eventName, 50)[0];
+                        pdf.text(truncatedEvent, 22, currentY + 4.5);
+
+                        pdf.text(loc.type || 'General', 75, currentY + 4.5);
+                        pdf.text(loc.date || 'N/A', 108, currentY + 4.5);
+                        pdf.text(`${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`, 138, currentY + 4.5);
+
+                        pdf.setTextColor(209, 213, 219);
+                        pdf.text(wrappedDetails, 188, currentY + 4.5);
+
+                        currentY += rowHeight;
+                    });
+
+                    // Final Page Footer Banner
+                    pdf.setFillColor(17, 24, 39);
+                    pdf.rect(0, pdfHeight - 8, pdfWidth, 8, 'F');
+                    pdf.setTextColor(156, 163, 175);
+                    pdf.setFontSize(7.5);
+                    pdf.text(`Geographic Profiling Analysis System • Page ${pageNumber}`, 12, pdfHeight - 3);
+                }
+
+                const filenameTimestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+                pdf.save(`tactical_map_${filenameTimestamp}.pdf`);
+
+                hasExportedData = true;
+                updateExportWarningStatus();
+                saveState();
+                instructions.textContent = 'Map report successfully exported to multi-page PDF.';
+            } catch (err) {
+                console.error('Export PDF failed:', err);
+                instructions.textContent = 'Failed to export PDF document. See console for details.';
+            } finally {
+                if (exportPdfBtn) {
+                    exportPdfBtn.disabled = false;
+                    exportPdfBtn.classList.remove('opacity-70', 'cursor-wait');
+                    exportPdfBtn.innerHTML = originalBtnContent;
+                }
+            }
+        }
+
         // --- Initial UI setup ---
         setToolMode('add'); // Default to add mode
         restoreState(); // Restore state from previous session if available
-        
+
     </script>
 </body>
+
 </html>
