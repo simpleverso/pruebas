@@ -312,6 +312,40 @@
         </div>
     </div>
 
+    <!-- Confirm Clear Points Modal -->
+    <div id="confirmClearModal" class="hidden fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-red-950/40">
+                <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Confirm Clear Points
+                </h3>
+                <button type="button" id="confirmClearCloseX" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-4 space-y-3">
+                <p id="confirmClearMessage" class="text-xs sm:text-sm text-gray-200">
+                    Are you sure you want to clear all points from the map?
+                </p>
+                <div id="confirmClearWarningBox" class="bg-amber-950/60 border border-amber-700/60 rounded-lg p-2.5 text-xs text-amber-300 flex items-start gap-2">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span><strong>Warning:</strong> Points have not been exported yet. All point details (dates, types, photos, comments) will be lost if not exported.</span>
+                </div>
+                <div class="pt-2 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 w-full sm:w-auto">
+                        <button type="button" id="confirmExportKmlBtn" class="bg-gray-700 hover:bg-gray-600 text-cyan-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-600 transition-colors w-full sm:w-auto text-center" title="Export KML before clearing">Export KML</button>
+                        <button type="button" id="confirmExportJsonBtn" class="bg-gray-700 hover:bg-gray-600 text-cyan-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-600 transition-colors w-full sm:w-auto text-center" title="Export JSON before clearing">Export JSON</button>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button type="button" id="confirmClearCancelBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
+                        <button type="button" id="confirmClearProceedBtn" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Clear Points</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // DOM Elements
         const citySelect = document.getElementById('citySelect');
@@ -360,6 +394,16 @@
         const modalPhotoRemoveBtn = document.getElementById('modalPhotoRemoveBtn');
         const modalPhotoPreviewContainer = document.getElementById('modalPhotoPreviewContainer');
         const modalPhotoPreview = document.getElementById('modalPhotoPreview');
+
+        // Confirm Clear Modal DOM Elements
+        const confirmClearModal = document.getElementById('confirmClearModal');
+        const confirmClearCloseX = document.getElementById('confirmClearCloseX');
+        const confirmClearCancelBtn = document.getElementById('confirmClearCancelBtn');
+        const confirmClearProceedBtn = document.getElementById('confirmClearProceedBtn');
+        const confirmClearMessage = document.getElementById('confirmClearMessage');
+        const confirmClearWarningBox = document.getElementById('confirmClearWarningBox');
+        const confirmExportKmlBtn = document.getElementById('confirmExportKmlBtn');
+        const confirmExportJsonBtn = document.getElementById('confirmExportJsonBtn');
 
         // State variables
         let crimeLocations = []; // Array of objects: { lat, lng, event, date, type, comments, url, photo }
@@ -850,7 +894,46 @@
             }
         });
 
-        clearBtn.addEventListener('click', clearMap);
+        function openConfirmClearModal() {
+            confirmClearMessage.textContent = `Are you sure you want to clear all ${crimeLocations.length} point(s) from the map?`;
+            if (!hasExportedData) {
+                confirmClearWarningBox.classList.remove('hidden');
+            } else {
+                confirmClearWarningBox.classList.add('hidden');
+            }
+            confirmClearModal.classList.remove('hidden');
+        }
+
+        function closeConfirmClearModal() {
+            confirmClearModal.classList.add('hidden');
+        }
+
+        clearBtn.addEventListener('click', () => {
+            if (crimeLocations.length === 0) {
+                instructions.textContent = 'Map is already empty.';
+                return;
+            }
+            openConfirmClearModal();
+        });
+
+        confirmClearCloseX.addEventListener('click', closeConfirmClearModal);
+        confirmClearCancelBtn.addEventListener('click', closeConfirmClearModal);
+
+        confirmClearProceedBtn.addEventListener('click', () => {
+            closeConfirmClearModal();
+            clearMap();
+        });
+
+        confirmExportKmlBtn.addEventListener('click', () => {
+            exportToKML();
+            confirmClearWarningBox.classList.add('hidden');
+        });
+
+        confirmExportJsonBtn.addEventListener('click', () => {
+            exportToJSON();
+            confirmClearWarningBox.classList.add('hidden');
+        });
+
         clearGraphBtn.addEventListener('click', clearHeatmapGraph);
         calculateBtn.addEventListener('click', () => {
             if (crimeLocations.length === 0) {
