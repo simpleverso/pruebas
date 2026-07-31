@@ -1462,7 +1462,8 @@
                 'result.no_results': 'Sin resultados',
                 'result.fallback.didxazapp_maint': 'No disponible por mantenimiento, intente más tarde',
                 'result.fallback.google': 'No se pudo obtener información de Google Translate',
-                'result.fallback.toledo': 'Deshabilitado. (Haga 3 clics en este recuadro para HABILITAR). La fuente Familia Toledo requiere Puter.js para consultar su servidor externo.',
+                'result.disabled.toledo': 'Deshabilitado. (Haga 3 clics en este recuadro para HABILITAR). La fuente Familia Toledo requiere Puter.js para consultar su servidor externo.',
+                'result.fallback.toledo': 'No se pudo obtener información de: http://www.biyubi.com',
                 'result.toledo_enabled_msg': 'Familia Toledo HABILITADO (requiere Puter.js). Haga 3 clics en este recuadro para DESHABILITAR.',
                 'result.fallback.aulex': 'No se pudo obtener información de aulex.org',
                 'result.google_provided': '(traducción provista por Google Translate)',
@@ -1531,7 +1532,8 @@
                 'result.no_results': 'No results',
                 'result.fallback.didxazapp_maint': 'Unavailable for maintenance, please try later',
                 'result.fallback.google': 'Could not reach Google Translate',
-                'result.fallback.toledo': 'Disabled. (Triple-click inside this box to ENABLE). The Familia Toledo resource requires Puter.js to connect to its external server.',
+                'result.disabled.toledo': 'Disabled. (Triple-click inside this box to ENABLE). The Familia Toledo resource requires Puter.js to connect to its external server.',
+                'result.fallback.toledo': 'Could not reach: http://www.biyubi.com',
                 'result.toledo_enabled_msg': 'Familia Toledo ENABLED (requires Puter.js). Triple-click inside this box to DISABLE.',
                 'result.fallback.aulex': 'Could not reach aulex.org',
                 'result.google_provided': '(translation provided by Google Translate)',
@@ -1898,11 +1900,11 @@
         function updateToledoStatusUI(forceReset) {
             if (!$resFam) return;
             if (FEATURES.toledo) {
-                if (forceReset || !$resFam.value || $resFam.value.includes('Deshabilitado') || $resFam.value.includes('Disabled')) {
+                if (forceReset || !$resFam.value || $resFam.value === t('result.disabled.toledo') || $resFam.value.includes('Deshabilitado') || $resFam.value.includes('Disabled')) {
                     $resFam.value = t('result.toledo_enabled_msg');
                 }
             } else {
-                $resFam.value = t('result.fallback.toledo');
+                $resFam.value = t('result.disabled.toledo');
             }
         }
 
