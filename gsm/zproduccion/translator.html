@@ -1351,7 +1351,7 @@
 
         let UI_LANG = (() => {
             try {
-                const saved = localStorage.getItem(UI_LANG_KEY);
+                const saved = localStorage.getItem(UI_LANG_KEY) || localStorage.getItem('didxazapp_ui_lang_v1') || localStorage.getItem('index_ui_lang_v1');
                 if (saved === 'es' || saved === 'en') return saved;
             } catch (e) { /* ignore */ }
             return 'es';
@@ -1393,13 +1393,25 @@
         function setUiLang(lang) {
             if (lang !== 'es' && lang !== 'en') return;
             UI_LANG = lang;
-            try { localStorage.setItem(UI_LANG_KEY, lang); } catch (e) { /* ignore */ }
+            try {
+                localStorage.setItem(UI_LANG_KEY, lang);
+                localStorage.setItem('didxazapp_ui_lang_v1', lang);
+                localStorage.setItem('index_ui_lang_v1', lang);
+            } catch (e) { /* ignore */ }
+            if ($srcLang) {
+                $srcLang.value = (lang === 'en') ? 'en' : 'es';
+                $srcLang.dispatchEvent(new Event('change'));
+            }
             applyI18n();
         }
 
         document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
             b.addEventListener('click', () => setUiLang(b.dataset.uiLang));
         });
+
+        if ($srcLang) {
+            $srcLang.value = (UI_LANG === 'en') ? 'en' : 'es';
+        }
 
         applyI18n();
 
