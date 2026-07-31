@@ -12,8 +12,8 @@
   "translator_enableSpellCheck": true,
   "translator_enableVoiceInput": true,
   "translator_enableDidxazapp": true,
-  "translator_enableToledo": true,
-  "translator_enableAulexCajono": true,
+  "translator_enableToledo": false,
+  "translator_enableAulexCajono": false,
   "translator_enableGoogle": true,
   "translator_img_enablePage": true
 }
