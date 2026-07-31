@@ -1429,10 +1429,18 @@
             },
         };
 
+        const ALL_LANG_KEYS = [
+            'didxazapp_ui_lang_v1', 'index_ui_lang_v1', 'translator_ui_lang_v1',
+            'animales_ui_lang_v1', 'numeros_ui_lang_v1', 'memorygame_ui_lang_v1',
+            'aprender_ui_lang_v1', 'translator_img_ui_lang_v1'
+        ];
+
         let UI_LANG = (() => {
             try {
-                const saved = localStorage.getItem(UI_LANG_KEY) || localStorage.getItem('didxazapp_ui_lang_v1') || localStorage.getItem('index_ui_lang_v1');
-                if (saved === 'es' || saved === 'en') return saved;
+                for (const k of ALL_LANG_KEYS) {
+                    const saved = localStorage.getItem(k);
+                    if (saved === 'es' || saved === 'en') return saved;
+                }
             } catch (e) { /* ignore */ }
             return 'es';
         })();
@@ -1475,9 +1483,7 @@
             if (lang !== 'es' && lang !== 'en') return;
             UI_LANG = lang;
             try {
-                localStorage.setItem(UI_LANG_KEY, lang);
-                localStorage.setItem('didxazapp_ui_lang_v1', lang);
-                localStorage.setItem('index_ui_lang_v1', lang);
+                ALL_LANG_KEYS.forEach(k => localStorage.setItem(k, lang));
             } catch (e) { /* ignore */ }
             if ($srcLang) {
                 $srcLang.value = (lang === 'en') ? 'en' : 'es';
@@ -1488,6 +1494,12 @@
 
         document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
             b.addEventListener('click', () => setUiLang(b.dataset.uiLang));
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key && ALL_LANG_KEYS.includes(e.key) && (e.newValue === 'es' || e.newValue === 'en')) {
+                if (UI_LANG !== e.newValue) setUiLang(e.newValue);
+            }
         });
 
         if ($srcLang) {
