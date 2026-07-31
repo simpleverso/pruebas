@@ -2,8 +2,11 @@
   "index_enablePage": true,
   "gallery_enablePage": true,
   "faq_enablePage": true,
+  "animals_enablePage": true,
   "animales_enablePage": true,
+  "learn_enablePage": true,
   "aprender_enablePage": true,
+  "numbers_enablePage": true,
   "numeros_enablePage": true,
   "memorygame_enablePage": true,
 
