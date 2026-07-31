@@ -1606,6 +1606,7 @@
                 b.classList.toggle('is-active', active);
                 b.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
+            if (typeof updateToledoStatusUI === 'function') updateToledoStatusUI(true);
         }
 
         function setUiLang(lang) {
@@ -1882,10 +1883,10 @@
             });
         }
 
-        function updateToledoStatusUI() {
+        function updateToledoStatusUI(forceReset) {
             if (!$resFam) return;
             if (FEATURES.toledo) {
-                if ($resFam.value === t('result.fallback.toledo') || !$resFam.value) {
+                if (forceReset || !$resFam.value || $resFam.value.includes('Deshabilitado') || $resFam.value.includes('Disabled')) {
                     $resFam.value = t('result.toledo_enabled_msg');
                 }
             } else {
