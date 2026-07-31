@@ -1944,8 +1944,9 @@
         };
 
         function parseDidxazapp(xml) {
-            const raw = xml.substr(107).split('</string>')[0];
-            return fixMojibake(raw);
+            const m = (xml || '').match(/<string[^>]*>([\s\S]*?)<\/string>/i);
+            const raw = m ? m[1] : (xml || '').substr(107).split('</string>')[0];
+            return fixMojibake(raw.trim());
         }
 
         function parseBiyubi(html) {
@@ -2065,12 +2066,24 @@
                 }
             }
 
-            const r = await fetch(url);
-            if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                const buf = await r.arrayBuffer();
-                return new TextDecoder(encoding).decode(buf);
+            try {
+                const r = await fetch(url);
+                if (encoding && encoding.toLowerCase() !== 'utf-8') {
+                    const buf = await r.arrayBuffer();
+                    return new TextDecoder(encoding).decode(buf);
+                }
+                return r.text();
+            } catch (err) {
+                if (cors && window.puter && puter.net && puter.net.fetch) {
+                    const r = await puter.net.fetch(url);
+                    if (encoding && encoding.toLowerCase() !== 'utf-8') {
+                        const buf = await r.arrayBuffer();
+                        return new TextDecoder(encoding).decode(buf);
+                    }
+                    return r.text();
+                }
+                throw err;
             }
-            return r.text();
         }
 
         async function runService(enabled, url, parser, $target, fallback, opts) {
