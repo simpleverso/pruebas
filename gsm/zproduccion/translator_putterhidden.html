@@ -2027,65 +2027,63 @@
         }
 
         async function fetchText(url, { cors = true, encoding = 'utf-8' } = {}) {
-            if (!cors) {
-                // Intentar mediante Puter con la ventana emergente enmascarada en segundo plano
-                if (window.puter && puter.net && puter.net.fetch) {
-                    try {
-                        const puterReq = puter.net.fetch(url);
-                        const timeoutReq = new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('Puter fetch timeout')), 3500)
-                        );
-                        const r = await Promise.race([puterReq, timeoutReq]);
-                        if (r && r.ok) {
-                            if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                                const buf = await r.arrayBuffer();
-                                return new TextDecoder(encoding).decode(buf);
-                            }
-                            return await r.text();
-                        }
-                    } catch (e) {
-                        console.warn('[Puter Masker] puter.net.fetch no disponible o bloqueado, usando proxy CORS de respaldo:', e);
+            const decodeResponse = async (r) => {
+                if (encoding && encoding.toLowerCase() !== 'utf-8') {
+                    if (typeof r.arrayBuffer === 'function') {
+                        try {
+                            const buf = await r.arrayBuffer();
+                            return new TextDecoder(encoding).decode(buf);
+                        } catch (e) { /* ignore */ }
                     }
                 }
+                if (typeof r.text === 'function') {
+                    return await r.text();
+                }
+                return String(r);
+            };
 
-                // Proxies CORS de respaldo para garantizar la solicitud sin mostrar popups al usuario
-                const proxies = [
-                    `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-                ];
-                for (const proxyUrl of proxies) {
-                    try {
-                        const r = await fetch(proxyUrl);
-                        if (r && r.ok) {
-                            if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                                const buf = await r.arrayBuffer();
-                                return new TextDecoder(encoding).decode(buf);
-                            }
-                            return await r.text();
-                        }
-                    } catch (_) {}
+            // 1. Si se solicita proxy/Puter (o si puter está disponible), intentar mediante puter.net.fetch
+            if (window.puter && puter.net && puter.net.fetch) {
+                try {
+                    const puterReq = puter.net.fetch(url);
+                    const timeoutReq = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Puter fetch timeout')), 3500)
+                    );
+                    const r = await Promise.race([puterReq, timeoutReq]);
+                    if (r) {
+                        const txt = await decodeResponse(r);
+                        if (txt && txt.length > 50) return txt;
+                    }
+                } catch (e) {
+                    console.warn('[Puter Fetch] Error:', e);
                 }
             }
 
+            // 2. Intentar fetch directo
             try {
                 const r = await fetch(url);
-                if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                    const buf = await r.arrayBuffer();
-                    return new TextDecoder(encoding).decode(buf);
+                if (r && r.ok) {
+                    return await decodeResponse(r);
                 }
-                return r.text();
-            } catch (err) {
-                if (cors && window.puter && puter.net && puter.net.fetch) {
-                    const r = await puter.net.fetch(url);
-                    if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                        const buf = await r.arrayBuffer();
-                        return new TextDecoder(encoding).decode(buf);
-                    }
-                    return r.text();
-                }
-                throw err;
+            } catch (e) {
+                console.warn('[Direct Fetch] Error:', e);
             }
+
+            // 3. Respaldo mediante proxy CORS
+            const proxies = [
+                `https://cors.eu.org/${url}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+            ];
+            for (const proxyUrl of proxies) {
+                try {
+                    const r = await fetch(proxyUrl);
+                    if (r && r.ok) {
+                        return await decodeResponse(r);
+                    }
+                } catch (_) {}
+            }
+
+            throw new Error('No se pudo establecer conexión con el servidor.');
         }
 
         async function runService(enabled, url, parser, $target, fallback, opts) {

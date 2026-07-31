@@ -1219,6 +1219,7 @@
     <script src="assets/js/bs-animation.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
     <script src="assets/js/ml-video.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
 
     <script>
         // ---- Config (cargado desde config.json) ----
@@ -1890,28 +1891,63 @@
         }
 
         async function fetchText(url, { cors = true, encoding = 'utf-8' } = {}) {
-            let fn = fetch;
-            if (!cors && window.puter && puter.net && puter.net.fetch) {
-                fn = puter.net.fetch;
-            }
-            try {
-                const r = await fn(url);
+            const decodeResponse = async (r) => {
                 if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                    const buf = await r.arrayBuffer();
-                    return new TextDecoder(encoding).decode(buf);
-                }
-                return r.text();
-            } catch (err) {
-                if (cors && window.puter && puter.net && puter.net.fetch) {
-                    const r = await puter.net.fetch(url);
-                    if (encoding && encoding.toLowerCase() !== 'utf-8') {
-                        const buf = await r.arrayBuffer();
-                        return new TextDecoder(encoding).decode(buf);
+                    if (typeof r.arrayBuffer === 'function') {
+                        try {
+                            const buf = await r.arrayBuffer();
+                            return new TextDecoder(encoding).decode(buf);
+                        } catch (e) { /* ignore */ }
                     }
-                    return r.text();
                 }
-                throw err;
+                if (typeof r.text === 'function') {
+                    return await r.text();
+                }
+                return String(r);
+            };
+
+            // 1. Si se solicita proxy/Puter (o si puter está disponible), intentar mediante puter.net.fetch
+            if (window.puter && puter.net && puter.net.fetch) {
+                try {
+                    const puterReq = puter.net.fetch(url);
+                    const timeoutReq = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Puter fetch timeout')), 3500)
+                    );
+                    const r = await Promise.race([puterReq, timeoutReq]);
+                    if (r) {
+                        const txt = await decodeResponse(r);
+                        if (txt && txt.length > 50) return txt;
+                    }
+                } catch (e) {
+                    console.warn('[Puter Fetch] Error:', e);
+                }
             }
+
+            // 2. Intentar fetch directo
+            try {
+                const r = await fetch(url);
+                if (r && r.ok) {
+                    return await decodeResponse(r);
+                }
+            } catch (e) {
+                console.warn('[Direct Fetch] Error:', e);
+            }
+
+            // 3. Respaldo mediante proxy CORS
+            const proxies = [
+                `https://cors.eu.org/${url}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+            ];
+            for (const proxyUrl of proxies) {
+                try {
+                    const r = await fetch(proxyUrl);
+                    if (r && r.ok) {
+                        return await decodeResponse(r);
+                    }
+                } catch (_) {}
+            }
+
+            throw new Error('No se pudo establecer conexión con el servidor.');
         }
 
         async function runService(enabled, url, parser, $target, fallback, opts) {
