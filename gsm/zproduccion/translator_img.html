@@ -490,15 +490,7 @@
 
         ::selection { background: rgba(59, 130, 246, 0.45); color: var(--tx-text-strong); }
 
-        @media (max-width: 575.98px) {
-            .img-shell { padding: 110px 16px 40px; }
-            h1.page-title { font-size: 1.5rem; }
-            .img-card { padding: 18px 14px; }
-            .pred-card { grid-template-columns: 56px 1fr; }
-            .pred-confidence { width: 50px; height: 50px; font-size: 0.72rem; }
-        }
-
-        /* Toggle ES / EN, exclusivo de esta página (no toca el menú) */
+        /* Toggle ES / EN */
         .ui-lang-row {
             display: flex;
             justify-content: flex-end;
@@ -537,6 +529,152 @@
             outline: 2px solid var(--tx-accent);
             outline-offset: 2px;
         }
+
+        /* Estilos responsivos optimizados para teléfonos móviles */
+        @media (max-width: 575.98px) {
+            .img-shell {
+                padding: 100px 12px 36px;
+            }
+
+            h1.page-title {
+                font-size: 1.45rem;
+                margin-bottom: 6px;
+            }
+
+            .page-subtitle {
+                font-size: 0.88rem;
+                margin-bottom: 20px;
+                padding: 0 4px;
+            }
+
+            .img-card {
+                padding: 16px 12px;
+                border-radius: 12px;
+            }
+
+            .model-loader {
+                padding: 12px;
+                gap: 10px;
+            }
+            .model-loader .ml-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            .model-loader .ml-title {
+                font-size: 0.85rem;
+            }
+            .model-loader .ml-subtitle {
+                font-size: 0.74rem;
+            }
+
+            .mode-tabs {
+                gap: 6px;
+                width: 100%;
+            }
+            .mode-tab {
+                flex: 1 1 50%;
+                justify-content: center;
+                padding: 10px 8px;
+                font-size: 0.8rem;
+                text-align: center;
+            }
+
+            .drop-zone {
+                padding: 24px 12px;
+                border-radius: 10px;
+            }
+            .drop-zone .fa {
+                font-size: 26px;
+                margin-bottom: 6px;
+            }
+            .drop-zone p {
+                font-size: 0.85rem;
+                line-height: 1.4;
+            }
+            .drop-zone .small {
+                font-size: 0.75rem;
+            }
+
+            .camera-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .camera-controls-label {
+                font-size: 0.8rem;
+            }
+            .camera-select {
+                width: 100%;
+                font-size: 0.84rem;
+            }
+
+            .preview-wrap img,
+            .preview-wrap canvas,
+            .preview-wrap video {
+                max-height: 320px;
+            }
+
+            .preview-actions button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .samples-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .sample-thumb .sample-tag {
+                font-size: 0.62rem;
+                padding: 2px 4px;
+                left: 4px;
+                bottom: 4px;
+                right: 4px;
+            }
+
+            .btn-primary-tx {
+                padding: 12px 16px;
+                font-size: 0.86rem;
+                letter-spacing: 0.04em;
+            }
+
+            .pred-card {
+                grid-template-columns: 48px 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .pred-confidence {
+                width: 48px;
+                height: 48px;
+                font-size: 0.72rem;
+            }
+
+            .pred-lang-row {
+                grid-template-columns: 46px 1fr;
+                gap: 8px;
+            }
+
+            .pred-lang-tag {
+                font-size: 0.6rem;
+                padding: 1px 4px;
+            }
+
+            .pred-lang-text {
+                font-size: 0.88rem;
+            }
+
+            .status-line {
+                font-size: 0.82rem;
+                padding: 0 4px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .samples-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 
@@ -552,14 +690,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">INICIO</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="translator_img.html">IMAGEN</a></li>
-                    <li class="nav-item"><a class="nav-link" href="aprender.html">APRENDER</a></li>
-                    <li class="nav-item"><a class="nav-link" href="numeros.html">NÚMEROS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="animales.html">ANIMALES</a></li>
-                    <li class="nav-item"><a class="nav-link" href="memorygame.html">MEMORAMA</a></li>
-                    <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html" data-i18n="nav.translator">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="translator_img.html" data-i18n="nav.image">IMAGEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="aprender.html" data-i18n="nav.learn">APRENDER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numeros.html" data-i18n="nav.numbers">NÚMEROS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html" data-i18n="nav.animals">ANIMALES</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html" data-i18n="nav.memory">MEMORAMA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html" data-i18n="nav.faq">FAQ</a></li>
                 </ul>
             </div>
         </div>
@@ -717,8 +855,17 @@
         // `data-i18n-alt` y `data-i18n-aria-label` ajustan los atributos.
         // La función `t(key, params)` interpola `{var}` en strings dinámicos.
         const UI_LANG_KEY = 'translator_img_ui_lang_v1';
+        const SHARED_LANG_KEY = 'didxazapp_ui_lang_v1';
         const I18N = {
             es: {
+                'nav.home': 'INICIO',
+                'nav.translator': 'TRADUCTOR',
+                'nav.image': 'IMAGEN',
+                'nav.learn': 'APRENDER',
+                'nav.numbers': 'NÚMEROS',
+                'nav.animals': 'ANIMALES',
+                'nav.memory': 'MEMORAMA',
+                'nav.faq': 'FAQ',
                 'page.title': 'Traductor de imágenes',
                 'page.subtitle': 'Sube una foto o usa la cámara. El modelo identificará lo que aparece y mostrará su nombre en inglés, español y Zapoteco del Istmo.',
                 'loader.title': 'Estamos preparando el sistema de análisis de imágenes…',
@@ -768,6 +915,14 @@
                 'model.error_subtitle': 'Verifica tu conexión y recarga la página para intentarlo de nuevo.',
             },
             en: {
+                'nav.home': 'HOME',
+                'nav.translator': 'TRANSLATOR',
+                'nav.image': 'IMAGE',
+                'nav.learn': 'LEARN',
+                'nav.numbers': 'NUMBERS',
+                'nav.animals': 'ANIMALS',
+                'nav.memory': 'MEMORY GAME',
+                'nav.faq': 'FAQ',
                 'page.title': 'Image translator',
                 'page.subtitle': 'Upload a photo or use the camera. The model will identify what appears and show its name in English, Spanish, and Isthmus Zapotec.',
                 'loader.title': 'Preparing the image analysis system…',
@@ -820,7 +975,7 @@
 
         let UI_LANG = (() => {
             try {
-                const saved = localStorage.getItem(UI_LANG_KEY);
+                const saved = localStorage.getItem(UI_LANG_KEY) || localStorage.getItem(SHARED_LANG_KEY) || localStorage.getItem('index_ui_lang_v1');
                 if (saved === 'es' || saved === 'en') return saved;
             } catch (e) { /* ignore */ }
             return 'es';
@@ -865,7 +1020,11 @@
         function setUiLang(lang) {
             if (lang !== 'es' && lang !== 'en') return;
             UI_LANG = lang;
-            try { localStorage.setItem(UI_LANG_KEY, lang); } catch (e) { /* ignore */ }
+            try {
+                localStorage.setItem(UI_LANG_KEY, lang);
+                localStorage.setItem(SHARED_LANG_KEY, lang);
+                localStorage.setItem('index_ui_lang_v1', lang);
+            } catch (e) { /* ignore */ }
             applyI18n();
         }
 
@@ -1469,6 +1628,8 @@
         loadModel();
     })();
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/page-config.js" data-page="translator_img"></script>
 </body>
 

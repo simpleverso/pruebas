@@ -475,6 +475,47 @@
         }
         .feature-card.is-disabled:hover .feature-icon,
         .feature-card.is-soon:hover .feature-icon { transform: none; background: inherit; color: inherit; }
+
+        /* Toggle ES / EN */
+        .ui-lang-row {
+            display: flex;
+            justify-content: flex-end;
+            max-width: 1180px;
+            margin: -20px auto 20px;
+        }
+        .ui-lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            box-shadow: var(--tx-shadow);
+        }
+        .ui-lang-toggle button {
+            appearance: none;
+            border: 0;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            background: transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .ui-lang-toggle button:hover { color: var(--tx-text-strong); }
+        .ui-lang-toggle button.is-active {
+            background: var(--tx-primary);
+            color: #ffffff;
+        }
+        .ui-lang-toggle button:focus-visible {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 
@@ -490,14 +531,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link active" href="index.html">INICIO</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator_img.html">IMAGEN</a></li>
-                    <li class="nav-item"><a class="nav-link" href="aprender.html">APRENDER</a></li>
-                    <li class="nav-item"><a class="nav-link" href="numeros.html">NÚMEROS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="animales.html">ANIMALES</a></li>
-                    <li class="nav-item"><a class="nav-link" href="memorygame.html">MEMORAMA</a></li>
-                    <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="index.html" data-i18n="nav.home">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html" data-i18n="nav.translator">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html" data-i18n="nav.image">IMAGEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="aprender.html" data-i18n="nav.learn">APRENDER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numeros.html" data-i18n="nav.numbers">NÚMEROS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animales.html" data-i18n="nav.animals">ANIMALES</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html" data-i18n="nav.memory">MEMORAMA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html" data-i18n="nav.faq">FAQ</a></li>
                 </ul>
             </div>
         </div>
@@ -505,17 +546,23 @@
 
     <!-- Hero -->
     <header class="hero">
-        <span class="eyebrow">Proyecto experimental · Nacubi research</span>
-        <h1 class="hero-title">Didxazapp<br><span class="accent">Español ↔ Zapoteco</span></h1>
-        <p class="hero-subtitle">
+        <div class="ui-lang-row">
+            <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
+                <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
+            </div>
+        </div>
+        <span class="eyebrow" data-i18n="hero.eyebrow">Proyecto experimental · Nacubi research</span>
+        <h1 class="hero-title" data-i18n="hero.title">Didxazapp<br><span class="accent">Español ↔ Zapoteco</span></h1>
+        <p class="hero-subtitle" data-i18n="hero.subtitle">
             Traductor en línea para el Zapoteco del Istmo. Escribe, dicta por voz o sube una foto:
             el sistema combina diccionarios humanos y modelos de IA para acercarte al idioma.
         </p>
         <div class="hero-actions">
-            <a class="btn-cta" href="translator.html">
+            <a class="btn-cta" href="translator.html" data-i18n="hero.cta_translate">
                 <i class="fa fa-language" aria-hidden="true"></i> Empezar a traducir
             </a>
-            <a class="btn-ghost" href="translator_img.html">
+            <a class="btn-ghost" href="translator_img.html" data-i18n="hero.cta_image">
                 <i class="fa fa-image" aria-hidden="true"></i> Probar con imagen
             </a>
         </div>
@@ -525,18 +572,18 @@
     <section class="spotlight-shell">
         <article class="spotlight reveal">
             <div>
-                <span class="spotlight-eyebrow">Proyecto cultural · En desarrollo</span>
-                <h2>XHUNI: la muñeca que habla zapoteco</h2>
-                <p>
+                <span class="spotlight-eyebrow" data-i18n="spotlight.eyebrow">Proyecto cultural · En desarrollo</span>
+                <h2 data-i18n="spotlight.title">XHUNI: la muñeca que habla zapoteco</h2>
+                <p data-i18n="spotlight.desc">
                     XHUNI es una muñeca capaz de pronunciar más de mil frases en español y zapoteco
                     del istmo. Combina tecnología y cultura para acercar la lengua zapoteca a las
                     nuevas generaciones, especialmente a niñas y niños.
                 </p>
                 <p class="spotlight-meta">
                     <i class="fa fa-map-marker" aria-hidden="true"></i>
-                    <span>Próximamente disponible para conocerla en la <strong>Casa de Cultura de Juchitán</strong>.</span>
+                    <span data-i18n="spotlight.meta">Próximamente disponible para conocerla en la <strong>Casa de Cultura de Juchitán</strong>.</span>
                 </p>
-                <span class="status-chip is-soon">
+                <span class="status-chip is-soon" data-i18n="spotlight.status">
                     <i class="fa fa-clock-o" aria-hidden="true"></i> Disponible próximamente
                 </span>
             </div>
@@ -548,9 +595,9 @@
 
     <!-- Features -->
     <section class="features-shell">
-        <span class="section-eyebrow">Herramientas</span>
-        <h2 class="section-title">Cuatro maneras de explorar la lengua</h2>
-        <p class="section-lead">
+        <span class="section-eyebrow" data-i18n="features.eyebrow">Herramientas</span>
+        <h2 class="section-title" data-i18n="features.title">Cuatro maneras de explorar la lengua</h2>
+        <p class="section-lead" data-i18n="features.lead">
             Cada herramienta está pensada para un uso distinto: traducción rápida de texto,
             entrada por voz, identificación de objetos en una imagen y galerías culturales.
         </p>
@@ -558,86 +605,86 @@
         <div class="feature-grid">
             <a href="translator.html" class="feature-card reveal">
                 <span class="feature-icon"><i class="fa fa-language" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Traductor de texto</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.text.title">Traductor de texto</h3>
+                <p class="feature-desc" data-i18n="card.text.desc">
                     Escribe en español (u otro idioma) y obtén traducciones desde cuatro fuentes:
                     Didxazapp, Familia Toledo, Aulex y Google. Con corrección ortográfica integrada.
                 </p>
-                <span class="feature-cta">Abrir traductor <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                <span class="feature-cta" data-i18n="card.text.cta">Abrir traductor <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
             </a>
 
             <a href="translator.html" class="feature-card reveal">
                 <span class="feature-icon"><i class="fa fa-microphone" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Entrada por voz</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.voice.title">Entrada por voz</h3>
+                <p class="feature-desc" data-i18n="card.voice.desc">
                     Pulsa el micrófono dentro del traductor, habla con claridad y la traducción
                     se ejecuta automáticamente. Soporta varios idiomas de origen.
                 </p>
-                <span class="feature-cta">Hablar y traducir <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                <span class="feature-cta" data-i18n="card.voice.cta">Hablar y traducir <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
             </a>
 
             <a href="translator_img.html" class="feature-card reveal">
                 <span class="feature-icon"><i class="fa fa-camera-retro" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Traductor de imágenes</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.image.title">Traductor de imágenes</h3>
+                <p class="feature-desc" data-i18n="card.image.desc">
                     Sube una foto o usa la cámara: un modelo identifica el objeto y muestra su
                     nombre en inglés, español y zapoteco al instante.
                 </p>
-                <span class="feature-cta">Analizar foto <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                <span class="feature-cta" data-i18n="card.image.cta">Analizar foto <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
             </a>
 
             <a href="animales.html" class="feature-card reveal">
                 <span class="feature-icon"><i class="fa fa-paw" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Animales</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.animals.title">Animales</h3>
+                <p class="feature-desc" data-i18n="card.animals.desc">
                     Catálogo organizado por categorías: aves, reptiles, mamíferos, insectos y más,
                     con sus nombres en zapoteco e ilustraciones cuando están disponibles.
                 </p>
-                <span class="feature-cta">Ver galería <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                <span class="feature-cta" data-i18n="card.animals.cta">Ver galería <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
             </a>
 
             <a href="numeros.html" class="feature-card reveal">
                 <span class="feature-icon"><i class="fa fa-hashtag" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Números</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.numbers.title">Números</h3>
+                <p class="feature-desc" data-i18n="card.numbers.desc">
                     Aprende a contar del cero al mil con tarjetas visuales y audio de pronunciación
                     en zapoteco del istmo.
                 </p>
-                <span class="feature-cta">Practicar números <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                <span class="feature-cta" data-i18n="card.numbers.cta">Practicar números <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
             </a>
 
             <div class="feature-card is-soon reveal">
                 <span class="feature-icon"><i class="fa fa-paper-plane" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Bot de Telegram con IA</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.telegram.title">Bot de Telegram con IA</h3>
+                <p class="feature-desc" data-i18n="card.telegram.desc">
                     Estamos desarrollando un bot conversacional en Telegram que traducirá y responderá
                     preguntas sobre el zapoteco usando modelos de lenguaje. Disponible muy pronto.
                 </p>
-                <span class="status-chip is-soon">
+                <span class="status-chip is-soon" data-i18n="card.telegram.status">
                     <i class="fa fa-cog fa-spin" aria-hidden="true"></i> En desarrollo
                 </span>
             </div>
 
             <div class="feature-card is-disabled reveal">
                 <span class="feature-icon"><i class="fa fa-commenting-o" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Traducción por SMS</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.sms.title">Traducción por SMS</h3>
+                <p class="feature-desc" data-i18n="card.sms.desc">
                     Servicio gratuito de traducción enviando <strong>"Zapoteco + frase corta en español"</strong>
                     al número <strong>5571381948</strong>. No requiere internet, solo saldo o plan de mensajes.
                 </p>
-                <span class="status-chip is-disabled">
+                <span class="status-chip is-disabled" data-i18n="card.sms.status">
                     <i class="fa fa-pause-circle-o" aria-hidden="true"></i> No disponible por el momento
                 </span>
             </div>
 
             <div class="feature-card reveal" style="cursor: default;">
                 <span class="feature-icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
-                <h3 class="feature-title">Privacidad ante todo</h3>
-                <p class="feature-desc">
+                <h3 class="feature-title" data-i18n="card.privacy.title">Privacidad ante todo</h3>
+                <p class="feature-desc" data-i18n="card.privacy.desc">
                     No recolectamos información personal. Las traducciones viajan directamente desde
                     tu navegador a las fuentes públicas; no hay cuentas ni seguimiento.
                 </p>
-                <span class="feature-cta" style="opacity: 0.6;">Sin cuentas requeridas</span>
+                <span class="feature-cta" style="opacity: 0.6;" data-i18n="card.privacy.cta">Sin cuentas requeridas</span>
             </div>
         </div>
     </section>
@@ -671,6 +718,172 @@
             }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
             document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         }
+
+        // ---- i18n: toggle ES / EN ----
+        const UI_LANG_KEY = 'index_ui_lang_v1';
+        const SHARED_LANG_KEY = 'didxazapp_ui_lang_v1';
+        const I18N = {
+            es: {
+                'meta.title': 'Didxazapp · Nacubi research',
+                'meta.description': 'Didxazapp: traductor experimental español ↔ zapoteco del istmo, con voz, imagen y galerías culturales.',
+                'nav.home': 'INICIO',
+                'nav.translator': 'TRADUCTOR',
+                'nav.image': 'IMAGEN',
+                'nav.learn': 'APRENDER',
+                'nav.numbers': 'NÚMEROS',
+                'nav.animals': 'ANIMALES',
+                'nav.memory': 'MEMORAMA',
+                'nav.faq': 'FAQ',
+                'hero.eyebrow': 'Proyecto experimental · Nacubi research',
+                'hero.title': 'Didxazapp<br><span class="accent">Español ↔ Zapoteco</span>',
+                'hero.subtitle': 'Traductor en línea para el Zapoteco del Istmo. Escribe, dicta por voz o sube una foto: el sistema combina diccionarios humanos y modelos de IA para acercarte al idioma.',
+                'hero.cta_translate': '<i class="fa fa-language" aria-hidden="true"></i> Empezar a traducir',
+                'hero.cta_image': '<i class="fa fa-image" aria-hidden="true"></i> Probar con imagen',
+                'spotlight.eyebrow': 'Proyecto cultural · En desarrollo',
+                'spotlight.title': 'XHUNI: la muñeca que habla zapoteco',
+                'spotlight.desc': 'XHUNI es una muñeca capaz de pronunciar más de mil frases en español y zapoteco del istmo. Combina tecnología y cultura para acercar la lengua zapoteca a las nuevas generaciones, especialmente a niñas y niños.',
+                'spotlight.meta': 'Próximamente disponible para conocerla en la <strong>Casa de Cultura de Juchitán</strong>.',
+                'spotlight.status': '<i class="fa fa-clock-o" aria-hidden="true"></i> Disponible próximamente',
+                'features.eyebrow': 'Herramientas',
+                'features.title': 'Cuatro maneras de explorar la lengua',
+                'features.lead': 'Cada herramienta está pensada para un uso distinto: traducción rápida de texto, entrada por voz, identificación de objetos en una imagen y galerías culturales.',
+                'card.text.title': 'Traductor de texto',
+                'card.text.desc': 'Escribe en español (u otro idioma) y obtén traducciones desde cuatro fuentes: Didxazapp, Familia Toledo, Aulex y Google. Con corrección ortográfica integrada.',
+                'card.text.cta': 'Abrir traductor <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.voice.title': 'Entrada por voz',
+                'card.voice.desc': 'Pulsa el micrófono dentro del traductor, habla con claridad y la traducción se ejecuta automáticamente. Soporta varios idiomas de origen.',
+                'card.voice.cta': 'Hablar y traducir <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.image.title': 'Traductor de imágenes',
+                'card.image.desc': 'Sube una foto o usa la cámara: un modelo identifica el objeto y muestra su nombre en inglés, español y zapoteco al instante.',
+                'card.image.cta': 'Analizar foto <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.animals.title': 'Animales',
+                'card.animals.desc': 'Catálogo organizado por categorías: aves, reptiles, mamíferos, insectos y más, con sus nombres en zapoteco e ilustraciones cuando están disponibles.',
+                'card.animals.cta': 'Ver galería <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.numbers.title': 'Números',
+                'card.numbers.desc': 'Aprende a contar del cero al mil con tarjetas visuales y audio de pronunciación en zapoteco del istmo.',
+                'card.numbers.cta': 'Practicar números <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.telegram.title': 'Bot de Telegram con IA',
+                'card.telegram.desc': 'Estamos desarrollando un bot conversacional en Telegram que traducirá y responderá preguntas sobre el zapoteco usando modelos de lenguaje. Disponible muy pronto.',
+                'card.telegram.status': '<i class="fa fa-cog fa-spin" aria-hidden="true"></i> En desarrollo',
+                'card.sms.title': 'Traducción por SMS',
+                'card.sms.desc': 'Servicio gratuito de traducción enviando <strong>"Zapoteco + frase corta en español"</strong> al número <strong>5571381948</strong>. No requiere internet, solo saldo o plan de mensajes.',
+                'card.sms.status': '<i class="fa fa-pause-circle-o" aria-hidden="true"></i> No disponible por el momento',
+                'card.privacy.title': 'Privacidad ante todo',
+                'card.privacy.desc': 'No recolectamos información personal. Las traducciones viajan directamente desde tu navegador a las fuentes públicas; no hay cuentas ni seguimiento.',
+                'card.privacy.cta': 'Sin cuentas requeridas',
+            },
+            en: {
+                'meta.title': 'Didxazapp · Nacubi research',
+                'meta.description': 'Didxazapp: experimental Spanish ↔ Isthmus Zapotec translator, featuring voice, image recognition, and cultural galleries.',
+                'nav.home': 'HOME',
+                'nav.translator': 'TRANSLATOR',
+                'nav.image': 'IMAGE',
+                'nav.learn': 'LEARN',
+                'nav.numbers': 'NUMBERS',
+                'nav.animals': 'ANIMALS',
+                'nav.memory': 'MEMORY GAME',
+                'nav.faq': 'FAQ',
+                'hero.eyebrow': 'Experimental project · Nacubi research',
+                'hero.title': 'Didxazapp<br><span class="accent">Spanish ↔ Zapotec</span>',
+                'hero.subtitle': 'Online translator for Isthmus Zapotec. Type, speak by voice, or upload a photo: the system combines human dictionaries and AI models to bring you closer to the language.',
+                'hero.cta_translate': '<i class="fa fa-language" aria-hidden="true"></i> Start translating',
+                'hero.cta_image': '<i class="fa fa-image" aria-hidden="true"></i> Try with image',
+                'spotlight.eyebrow': 'Cultural project · In development',
+                'spotlight.title': 'XHUNI: the doll that speaks Zapotec',
+                'spotlight.desc': 'XHUNI is a doll capable of pronouncing over a thousand phrases in Spanish and Isthmus Zapotec. It combines technology and culture to bring the Zapotec language closer to new generations, especially children.',
+                'spotlight.meta': 'Coming soon to meet her at the <strong>Casa de Cultura de Juchitán</strong>.',
+                'spotlight.status': '<i class="fa fa-clock-o" aria-hidden="true"></i> Available soon',
+                'features.eyebrow': 'Tools',
+                'features.title': 'Four ways to explore the language',
+                'features.lead': 'Each tool is designed for a distinct use: fast text translation, voice input, object recognition in images, and cultural galleries.',
+                'card.text.title': 'Text translator',
+                'card.text.desc': 'Type in Spanish (or another language) and get translations from four sources: Didxazapp, Familia Toledo, Aulex, and Google. With built-in spell check.',
+                'card.text.cta': 'Open translator <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.voice.title': 'Voice input',
+                'card.voice.desc': 'Tap the microphone inside the translator, speak clearly, and translation runs automatically. Supports multiple source languages.',
+                'card.voice.cta': 'Speak and translate <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.image.title': 'Image translator',
+                'card.image.desc': 'Upload a photo or use the camera: a model identifies the object and instantly displays its name in English, Spanish, and Zapotec.',
+                'card.image.cta': 'Analyze photo <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.animals.title': 'Animals',
+                'card.animals.desc': 'Catalog organized by categories: birds, reptiles, mammals, insects, and more, with their names in Zapotec and illustrations when available.',
+                'card.animals.cta': 'View gallery <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.numbers.title': 'Numbers',
+                'card.numbers.desc': 'Learn to count from zero to one thousand with visual cards and audio pronunciation in Isthmus Zapotec.',
+                'card.numbers.cta': 'Practice numbers <i class="fa fa-arrow-right" aria-hidden="true"></i>',
+                'card.telegram.title': 'Telegram Bot with AI',
+                'card.telegram.desc': 'We are developing a conversational Telegram bot that will translate and answer questions about Zapotec using language models. Coming very soon.',
+                'card.telegram.status': '<i class="fa fa-cog fa-spin" aria-hidden="true"></i> In development',
+                'card.sms.title': 'SMS Translation',
+                'card.sms.desc': 'Free translation service by sending <strong>"Zapoteco + short phrase in Spanish"</strong> to <strong>5571381948</strong>. No internet required, just airtime or SMS plan.',
+                'card.sms.status': '<i class="fa fa-pause-circle-o" aria-hidden="true"></i> Currently unavailable',
+                'card.privacy.title': 'Privacy first',
+                'card.privacy.desc': 'We do not collect personal information. Translations travel directly from your browser to public sources; no accounts or tracking.',
+                'card.privacy.cta': 'No accounts required',
+            }
+        };
+
+        let UI_LANG = (() => {
+            try {
+                const saved = localStorage.getItem(UI_LANG_KEY) || localStorage.getItem(SHARED_LANG_KEY) || localStorage.getItem('translator_img_ui_lang_v1');
+                if (saved === 'es' || saved === 'en') return saved;
+            } catch (e) { /* ignore */ }
+            return 'es';
+        })();
+
+        function t(key, params) {
+            const dict = I18N[UI_LANG] || I18N.es;
+            let s = (dict[key] !== undefined) ? dict[key] : (I18N.es[key] !== undefined ? I18N.es[key] : key);
+            if (params) {
+                s = s.replace(/\{(\w+)\}/g, (_, k) => (params[k] !== undefined ? params[k] : `{${k}}`));
+            }
+            return s;
+        }
+
+        function applyI18n() {
+            document.documentElement.lang = UI_LANG;
+            if (I18N.es['meta.title']) {
+                document.title = t('meta.title');
+            }
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+                metaDesc.setAttribute('content', t('meta.description'));
+            }
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.innerHTML = t(el.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+                el.setAttribute('alt', t(el.dataset.i18nAlt));
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+                el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                el.setAttribute('title', t(el.dataset.i18nTitle));
+            });
+            document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+                const active = b.dataset.uiLang === UI_LANG;
+                b.classList.toggle('is-active', active);
+                b.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+        }
+
+        function setUiLang(lang) {
+            if (lang !== 'es' && lang !== 'en') return;
+            UI_LANG = lang;
+            try {
+                localStorage.setItem(UI_LANG_KEY, lang);
+                localStorage.setItem(SHARED_LANG_KEY, lang);
+                localStorage.setItem('translator_img_ui_lang_v1', lang);
+            } catch (e) { /* ignore */ }
+            applyI18n();
+        }
+
+        document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+            b.addEventListener('click', () => setUiLang(b.dataset.uiLang));
+        });
+
+        applyI18n();
     </script>
     <script src="assets/js/page-config.js" data-page="index"></script>
 </body>
