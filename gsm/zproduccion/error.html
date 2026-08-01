@@ -58,6 +58,7 @@
         body {
             margin: 0;
             padding: 0;
+            min-height: 100vh;
         }
 
         body {
@@ -68,7 +69,9 @@
             background-attachment: fixed;
             color: var(--tx-text);
             font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         /* Glassmorphic Navbar */
@@ -97,6 +100,8 @@
         .navbar-brand.logo {
             color: var(--tx-text-strong) !important;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
         }
 
         .navbar-toggler {
@@ -107,42 +112,134 @@
             filter: invert(1) brightness(1.4) opacity(0.7);
         }
 
-        /* Estilo oscuro para highlight-phone */
-        .highlight-phone {
-            background: transparent !important;
-            color: var(--tx-text) !important;
-            padding: 60px 0 40px;
+        /* Responsive Error Content Section */
+        .error-section {
+            flex: 1 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 110px 20px 40px;
         }
 
-        .highlight-phone h2 {
+        .error-card {
+            background: rgba(26, 36, 54, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--tx-border);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: var(--tx-shadow);
+            width: 100%;
+            max-width: 920px;
+        }
+
+        .error-title {
             color: var(--tx-text-strong) !important;
             font-weight: 700;
+            font-size: clamp(1.35rem, 3.5vw, 2.1rem);
+            line-height: 1.35;
+            margin-bottom: 18px;
         }
 
-        .highlight-phone p {
+        .error-description {
             color: var(--tx-muted) !important;
+            font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 580px;
         }
 
-        .highlight-phone a {
-            color: var(--tx-primary-2) !important;
-            transition: color 0.2s ease;
+        .btn-action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
         }
 
-        .highlight-phone a:hover {
+        .btn-custom-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-custom-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+            color: #ffffff !important;
+        }
+
+        .btn-custom-secondary {
+            background: rgba(36, 48, 71, 0.7);
+            border: 1px solid var(--tx-border-2);
+            color: var(--tx-text) !important;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-custom-secondary:hover {
+            background: rgba(53, 66, 96, 0.85);
             color: var(--tx-text-strong) !important;
+            transform: translateY(-2px);
         }
 
         /* Estilo oscuro para footer */
         .footer-basic {
             background: rgba(11, 19, 34, 0.8) !important;
             border-top: 1px solid var(--tx-border);
-            padding: 24px 0;
+            padding: 20px 0;
             color: var(--tx-muted);
+            text-align: center;
+            flex-shrink: 0;
         }
 
         .footer-basic p.copyright {
             color: var(--tx-muted) !important;
             margin: 0;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 767.98px) {
+            .error-section {
+                padding: 95px 14px 30px;
+            }
+
+            .error-card {
+                padding: 28px 20px;
+                border-radius: 16px;
+                text-align: center;
+            }
+
+            .error-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .btn-action-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-custom-primary,
+            .btn-custom-secondary {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -151,8 +248,8 @@
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
         <div class="container">
             <a class="navbar-brand logo" href="index.html">
-                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi
-                research&nbsp;
+                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="45" height="45" alt="Logo">&nbsp;Nacubi
+                research
             </a>
             <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
                 <span class="sr-only">Toggle navigation</span>
@@ -179,32 +276,40 @@
         </div>
     </nav>
 
-    <div class="highlight-phone" style="margin: 100px 0px 0px 0px;">
+    <main class="error-section">
         <div class="container">
-            <div class="row">
-                <div class="col-md-8" style="height: 447px;">
-                    <div class="text-center intro" style="height: 321px;">
-                        <h2 data-bs-hover-animate="pulse" style="opacity: 0.87;">Se nos cayó el "Infrastruktor" o
-                            estamos en proceso de mantenimiento<br></h2>
-
-                        <p style="height: 240px;width: 500px;opacity: 0.81;margin: 0 auto;"><br>&nbsp;Puedes ver videos
-                            de gatitos en youtube mientras solucionamos &nbsp;los
-                            inconvenientes!<br><br><br>&nbsp;&nbsp;<a href="https://www.youtube.com/watch?v=hvi3J3yBRXI"
-                                target="_blank" rel="noopener noreferrer"><strong><span
-                                        style="text-decoration: underline;">Videos de gatitos</span></strong></a><br>
+            <div class="error-card">
+                <div class="row align-items-center">
+                    <div class="col-md-7 col-lg-8">
+                        <h2 class="error-title" data-bs-hover-animate="pulse">
+                            Se nos cayó el "Infrastruktor" o estamos en proceso de mantenimiento
+                        </h2>
+                        <p class="error-description">
+                            Puedes ver videos de gatitos en YouTube mientras solucionamos los inconvenientes.
                         </p>
+                        <div class="btn-action-group">
+                            <a href="https://www.youtube.com/watch?v=hvi3J3yBRXI" target="_blank" rel="noopener noreferrer" class="btn-custom-primary">
+                                <i class="fa fa-youtube-play"></i> Videos de gatitos
+                            </a>
+                            <a href="index.html" class="btn-custom-secondary">
+                                <i class="fa fa-home"></i> Volver al inicio
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="d-none d-md-block iphone-mockup"><img class="device" src="assets/img/iphone.svg">
-                        <div class="screen"
-                            style="background-image: url(&quot;assets/img/tenor.gif&quot;);height: 335px,10px,0px,0px;width: 10px, 223px,0px,0px;opacity: 0.63;filter: brightness(113%) contrast(153%) saturate(101%);">
+                    <div class="col-md-5 col-lg-4 d-none d-md-block text-center">
+                        <div class="highlight-phone p-0">
+                            <div class="iphone-mockup" style="margin: 0 auto;">
+                                <img class="device" src="assets/img/iphone.svg" alt="iPhone mockup">
+                                <div class="screen"
+                                    style="background-image: url('assets/img/tenor.gif'); opacity: 0.63; filter: brightness(113%) contrast(153%) saturate(101%);">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <div class="footer-basic">
         <footer>
