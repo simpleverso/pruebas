@@ -18,5 +18,7 @@
   "translator_enableToledo": false,
   "translator_enableAulexCajono": false,
   "translator_enableGoogle": true,
+  "plants_enablePage": true,
+  "plantas_enablePage": true,
   "translator_img_enablePage": true
 }

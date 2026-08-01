@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Plantas, Árboles y Frutos · Didxazapp</title>
+    <meta name="description"
+        content="Catálogo de plantas, árboles, flores y frutos en Zapoteco del Istmo, español e inglés, organizado por categorías.">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
+    <!-- Bootstrap 4.3.1 served from cdnjs -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        :root {
+            --info: #3b99e0;
+        }
+
+        body {
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        .bg-info {
+            background-color: #3b99e0 !important;
+        }
+
+        .text-info {
+            color: #3b99e0 !important;
+        }
+
+        .border-info {
+            border-color: #3b99e0 !important;
+        }
+
+        .btn-info {
+            background-color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .btn-info:hover {
+            background-color: #2d83c4;
+            border-color: #2778b8;
+        }
+
+        .btn-outline-info {
+            color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .btn-outline-info:hover {
+            background-color: #3b99e0;
+            border-color: #3b99e0;
+        }
+
+        .alert-info {
+            color: #1f5077;
+            background-color: #d8eaf9;
+            border-color: #c8e0f5;
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <style>
+        /* ===== Plantas y Frutos – tema oscuro gris/azul (alineado con translator.html y animales.html) ===== */
+        :root {
+            --tx-bg-1: #0b1322;
+            --tx-bg-2: #111c2f;
+            --tx-surface: #1a2436;
+            --tx-surface-2: #131c2c;
+            --tx-surface-3: #243047;
+            --tx-border: #2a3447;
+            --tx-border-2: #354260;
+            --tx-text: #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted: #94a3b8;
+            --tx-label: #b6c2d4;
+            --tx-primary: #4f8fcf;
+            --tx-primary-2: #6ba6e0;
+            --tx-accent: #3b82f6;
+            --tx-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Navbar */
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover {
+            color: var(--tx-primary-2) !important;
+        }
+
+        .navbar-brand.logo {
+            color: var(--tx-text-strong) !important;
+            font-weight: 600;
+        }
+
+        .navbar-toggler {
+            border-color: var(--tx-border) !important;
+        }
+
+        .navbar-toggler-icon {
+            filter: invert(1) brightness(1.4) opacity(0.7);
+        }
+
+        /* Encabezado */
+        .gallery-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 110px 24px 60px;
+        }
+
+        .gallery-heading {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .gallery-heading h1 {
+            color: var(--tx-text-strong);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 2rem;
+            margin: 0 0 8px;
+        }
+
+        .gallery-heading p {
+            color: var(--tx-muted);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Barra de búsqueda y filtros */
+        .filter-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: var(--tx-shadow);
+        }
+
+        .filter-search {
+            flex: 1 1 260px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-search .fa-search {
+            position: absolute;
+            left: 12px;
+            color: var(--tx-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .filter-search input[type="search"] {
+            width: 100%;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 8px;
+            padding: 8px 36px 8px 34px;
+            color: var(--tx-text-strong);
+            font-size: 0.88rem;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .filter-search input[type="search"]:focus {
+            outline: none;
+            border-color: var(--tx-primary);
+            background: var(--tx-surface);
+        }
+
+        .filter-clear {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 26px;
+            height: 26px;
+            border: 0;
+            background: transparent;
+            color: var(--tx-muted);
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 0.85rem;
+        }
+
+        .filter-clear:hover {
+            color: var(--tx-text-strong);
+            background: var(--tx-surface-3);
+        }
+
+        .filter-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            font-size: 0.82rem;
+            color: var(--tx-label);
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+            margin: 0;
+        }
+
+        .filter-check input {
+            accent-color: var(--tx-primary);
+            margin: 0;
+        }
+
+        .filter-check:hover {
+            color: var(--tx-text-strong);
+        }
+
+        .filter-check.is-active {
+            background: var(--tx-primary);
+            border-color: var(--tx-primary);
+            color: #ffffff;
+        }
+
+        /* Navegación por categorías */
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .category-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--tx-label);
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 999px;
+            text-decoration: none;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .category-nav a:hover {
+            color: var(--tx-text-strong);
+            border-color: var(--tx-border-2);
+            background: var(--tx-surface-3);
+        }
+
+        .category-nav a .count {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.15);
+            padding: 1px 6px;
+            border-radius: 999px;
+        }
+
+        /* Estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--tx-muted);
+            font-size: 0.92rem;
+            background: var(--tx-surface);
+            border: 1px dashed var(--tx-border-2);
+            border-radius: 12px;
+        }
+
+        .empty-state .fa {
+            font-size: 28px;
+            color: var(--tx-border-2);
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .empty-state strong {
+            color: var(--tx-label);
+        }
+
+        /* Sección por categoría */
+        .category-section {
+            scroll-margin-top: 96px;
+            margin-bottom: 44px;
+        }
+
+        .category-title {
+            color: var(--tx-text-strong);
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            margin: 0 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--tx-border);
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .category-title .count {
+            color: var(--tx-muted);
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        /* Grid responsivo */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .plant-card {
+            background: var(--tx-surface);
+            border: 1px solid var(--tx-border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--tx-shadow);
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plant-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--tx-border-2);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+        }
+
+        .plant-photo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            aspect-ratio: 4 / 3;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(79, 143, 207, 0.12), transparent 65%),
+                var(--tx-surface-2);
+            overflow: hidden;
+        }
+
+        .plant-photo .ph-icon {
+            color: var(--tx-border-2);
+            font-size: 38px;
+            transition: color 0.2s ease, transform 0.4s ease;
+        }
+
+        .plant-card:hover .plant-photo .ph-icon {
+            color: var(--tx-primary);
+            transform: scale(1.08);
+        }
+
+        .plant-body {
+            padding: 12px 14px 14px;
+            border-top: 1px solid var(--tx-border);
+        }
+
+        .plant-name-zap {
+            color: var(--tx-text-strong);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 4px;
+            letter-spacing: 0.005em;
+            word-break: break-word;
+        }
+
+        .plant-name-zap.is-empty {
+            color: var(--tx-muted);
+            opacity: 0.6;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 0.88rem;
+        }
+
+        .plant-name-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--tx-muted);
+        }
+
+        .plant-name-row + .plant-name-row {
+            margin-top: 2px;
+        }
+
+        .plant-name-row .lang-tag {
+            flex-shrink: 0;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--tx-primary-2);
+            background: rgba(107, 166, 224, 0.14);
+            border: 1px solid rgba(107, 166, 224, 0.25);
+            padding: 1px 6px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .plant-name-row .name-text {
+            word-break: break-word;
+        }
+
+        .plant-name-row.is-empty .name-text {
+            opacity: 0.55;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .footer-basic {
+            background: transparent;
+            border-top: 1px solid var(--tx-border);
+            margin-top: 40px;
+            padding: 18px 0;
+        }
+
+        .footer-basic .copyright {
+            color: var(--tx-muted);
+            font-size: 0.82rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Toggle ES / EN */
+        .ui-lang-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 14px;
+        }
+
+        .ui-lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 3px;
+            background: var(--tx-surface-2);
+            border: 1px solid var(--tx-border-2);
+            border-radius: 999px;
+            box-shadow: var(--tx-shadow);
+        }
+
+        .ui-lang-toggle button {
+            appearance: none;
+            border: 0;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--tx-label);
+            background: transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+
+        .ui-lang-toggle button:hover {
+            color: var(--tx-text-strong);
+        }
+
+        .ui-lang-toggle button.is-active {
+            background: var(--tx-primary);
+            color: #ffffff;
+        }
+
+        .ui-lang-toggle button:focus-visible {
+            outline: 2px solid var(--tx-accent);
+            outline-offset: 2px;
+        }
+
+        body[data-ui-lang="es"] [data-lang-row="en"] {
+            display: none !important;
+        }
+
+        body[data-ui-lang="en"] [data-lang-row="es"] {
+            display: none !important;
+        }
+
+        ::selection {
+            background: rgba(59, 130, 246, 0.45);
+            color: var(--tx-text-strong);
+        }
+
+        @media (max-width: 575.98px) {
+            .gallery-shell {
+                padding: 100px 12px 36px;
+            }
+
+            .gallery-heading h1 {
+                font-size: 1.45rem;
+                margin-bottom: 6px;
+            }
+
+            .gallery-heading p {
+                font-size: 0.88rem;
+                padding: 0 4px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .plant-body {
+                padding: 10px 10px 12px;
+            }
+
+            .category-title {
+                font-size: 1.15rem;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi
+                research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html" data-i18n="nav.translator">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html" data-i18n="nav.image">IMAGEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="learn.html" data-i18n="nav.learn">APRENDER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numbers.html" data-i18n="nav.numbers">NÚMEROS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animals.html" data-i18n="nav.animals">ANIMALES</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="plants.html" data-i18n="nav.plants">PLANTAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html" data-i18n="nav.memory">MEMORAMA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html" data-i18n="nav.faq">FAQ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="gallery-shell">
+        <header class="gallery-heading">
+            <div class="ui-lang-row">
+                <div class="ui-lang-toggle" role="group" aria-label="Interface language / Idioma de interfaz">
+                    <button type="button" id="btn_ui_es" class="is-active" data-ui-lang="es" aria-pressed="true">ES</button>
+                    <button type="button" id="btn_ui_en" data-ui-lang="en" aria-pressed="false">EN</button>
+                </div>
+            </div>
+            <h1 data-i18n="page.title">Plantas, Árboles y Frutos en Zapoteco</h1>
+            <p data-i18n="page.subtitle">Catálogo de plantas, árboles, flores, cultivos y frutos con sus nombres en Zapoteco del Istmo, español e inglés.</p>
+        </header>
+
+        <div class="filter-toolbar" role="search">
+            <div class="filter-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input type="search" id="filter-input" placeholder="Buscar por nombre en zapoteco, español o inglés…"
+                    data-i18n-placeholder="search.placeholder" aria-label="Buscar planta o fruto">
+                <button type="button" id="filter-clear" class="filter-clear" aria-label="Limpiar búsqueda" hidden>
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <label class="filter-check" id="chk-zap-wrap">
+                <input type="checkbox" id="chk-zap"> <span data-i18n="filter.only_zap">Solo con Zapoteco</span>
+            </label>
+        </div>
+
+        <nav class="category-nav" id="category-nav" aria-label="Categorías de plantas">
+            <!-- Generado dinámicamente -->
+        </nav>
+
+        <div id="empty-state" class="empty-state" hidden>
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <strong data-i18n="empty.title">Sin coincidencias.</strong>
+            <div data-i18n="empty.sub">Prueba con otro término o quita los filtros.</div>
+        </div>
+
+        <div id="content-root">
+            <!-- Las secciones y tarjetas se generan dinámicamente desde PLANT_GROUPS -->
+        </div>
+    </main>
+
+    <div class="footer-basic">
+        <footer>
+            <p class="copyright">Nacubi research · <span id="anio"></span></p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ---- i18n: toggle ES / EN ----
+        const UI_LANG_KEY = 'plants_ui_lang_v1';
+        const ALL_LANG_KEYS = [
+            'didxazapp_ui_lang_v1', 'index_ui_lang_v1', 'translator_ui_lang_v1',
+            'animals_ui_lang_v1', 'numbers_ui_lang_v1', 'plants_ui_lang_v1', 'plantas_ui_lang_v1'
+        ];
+
+        const I18N = {
+            es: {
+                'meta.title': 'Plantas, Árboles y Frutos · Didxazapp',
+                'meta.description': 'Catálogo de plantas, árboles, flores y frutos en Zapoteco del Istmo, español e inglés, organizado por categorías.',
+                'nav.home': 'INICIO',
+                'nav.translator': 'TRADUCTOR',
+                'nav.image': 'IMAGEN',
+                'nav.learn': 'APRENDER',
+                'nav.numbers': 'NÚMEROS',
+                'nav.animals': 'ANIMALES',
+                'nav.plants': 'PLANTAS',
+                'nav.memory': 'MEMORAMA',
+                'nav.faq': 'FAQ',
+                'page.title': 'Plantas, Árboles y Frutos en Zapoteco',
+                'page.subtitle': 'Catálogo de plantas, árboles, flores, cultivos y frutos con sus nombres en Zapoteco del Istmo, español e inglés.',
+                'search.placeholder': 'Buscar por nombre en zapoteco, español o inglés…',
+                'filter.only_zap': 'Solo con traducción zapoteca',
+                'empty.title': 'Sin coincidencias.',
+                'empty.sub': 'Prueba con otro término o quita los filtros.',
+                'card.not_available': 'No disponible',
+                'card.no_zap': 'Sin traducción zapoteca registrada',
+            },
+            en: {
+                'meta.title': 'Plants, Trees & Fruits · Didxazapp',
+                'meta.description': 'Catalog of plants, trees, flowers, and fruits in Isthmus Zapotec, Spanish, and English, organized by category.',
+                'nav.home': 'HOME',
+                'nav.translator': 'TRANSLATOR',
+                'nav.image': 'IMAGE',
+                'nav.learn': 'LEARN',
+                'nav.numbers': 'NUMBERS',
+                'nav.animals': 'ANIMALS',
+                'nav.plants': 'PLANTS',
+                'nav.memory': 'MEMORY GAME',
+                'nav.faq': 'FAQ',
+                'page.title': 'Plants, Trees & Fruits in Zapotec',
+                'page.subtitle': 'Catalog of plants, trees, flowers, crops, and fruits with names in Isthmus Zapotec, Spanish, and English.',
+                'search.placeholder': 'Search by name in Zapotec, Spanish, or English…',
+                'filter.only_zap': 'Zapotec translation only',
+                'empty.title': 'No matches found.',
+                'empty.sub': 'Try another search term or clear filters.',
+                'card.not_available': 'Not available',
+                'card.no_zap': 'No Zapotec translation recorded',
+            }
+        };
+
+        let UI_LANG = (() => {
+            try {
+                for (const k of ALL_LANG_KEYS) {
+                    const saved = localStorage.getItem(k);
+                    if (saved === 'es' || saved === 'en') return saved;
+                }
+            } catch (e) { }
+            return 'es';
+        })();
+
+        const getGroupTitle = g => (UI_LANG === 'en' && g.titleEn ? g.titleEn : g.title);
+
+        function t(key, params) {
+            const dict = I18N[UI_LANG] || I18N.es;
+            let s = (dict[key] !== undefined) ? dict[key] : (I18N.es[key] !== undefined ? I18N.es[key] : key);
+            if (params) {
+                s = s.replace(/\{(\w+)\}/g, (_, k) => (params[k] !== undefined ? params[k] : `{${k}}`));
+            }
+            return s;
+        }
+
+        // ============================================================================
+        //  PLANT_GROUPS
+        // ============================================================================
+        const PLANT_GROUPS = [
+            {
+                id: "arboles_plantas",
+                title: "Árboles y Plantas",
+                titleEn: "Trees & Plants",
+                icon: "fa-tree",
+                items: [
+                    { es: "Árbol", zap: "yaga", en: "Tree" },
+                    { es: "Árboles", zap: "ca yaga", en: "Trees" },
+                    { es: "Flora", zap: "guie'", en: "Flora" },
+                    { es: "Planta", zap: "yaga guie'", en: "Plant" },
+                    { es: "Plantas", zap: "yága ca", en: "Plants" },
+                    { es: "Arbusto", zap: "yaga", en: "Shrub" },
+                    { es: "Palma", zap: "ziña", en: "Palm tree" },
+                    { es: "Mezquite", zap: "bii", en: "Mesquite tree" },
+                    { es: "Ocote", zap: "guiri bidxi", en: "Resin pine" },
+                    { es: "Naranjo", zap: "yagalanna'", en: "Orange tree" },
+                    { es: "Nopal", zap: "guichi biaagueta", en: "Prickly pear cactus" },
+                    { es: "Maguey", zap: "duba", en: "Agave / Maguey" },
+                    { es: "Carrizo", zap: "ubaguí", en: "Reed / Cane" },
+                    { es: "Bejuco", zap: "lubá'", en: "Vine / Liana" },
+                    { es: "Vine", zap: "ma benda'", en: "Vine / Climbing plant" },
+                    { es: "Zacate", zap: "guixi", en: "Grass / Weed" },
+                    { es: "Hierba", zap: "guixi", en: "Herb / Grass" },
+                    { es: "Pasto", zap: "guixi baata", en: "Lawn / Grass" },
+                    { es: "Madera", zap: "yaga", en: "Wood" },
+                    { es: "Corteza", zap: "guidi ladi yaga", en: "Bark" },
+                    { es: "Espina", zap: "guichi", en: "Thorn" }
+                ]
+            },
+            {
+                id: "flores",
+                title: "Flores y Plantas de Jardín",
+                titleEn: "Flowers & Garden Plants",
+                icon: "fa-leaf",
+                items: [
+                    { es: "Flor", zap: "guie'", en: "Flower" },
+                    { es: "Flores", zap: "ca guie'", en: "Flowers" },
+                    { es: "Rosa", zap: "guie' xhiñaa'", en: "Rose" },
+                    { es: "Cempasúchil", zap: "bigua", en: "Marigold" },
+                    { es: "Cempasúchil", zap: "guie' bigua", en: "Marigold" },
+                    { es: "Jazmín", zap: "guie' xhuuba'", en: "Jasmine" },
+                    { es: "Albahaca", zap: "guie' stia", en: "Basil" },
+                    { es: "Tulipán", zap: "gui'ña'", en: "Tulip / Hibiscus" },
+                    { es: "Epazote", zap: "bitiaa", en: "Epazote / Mexican tea" },
+                    { es: "Ortiga", zap: "guichibidu'", en: "Nettle" },
+                    { es: "Nenúfar", zap: "mudubina", en: "Water lily" },
+                    { es: "Viola", zap: "rilaxóo", en: "Violet" },
+                    { es: "Lila", zap: "guhuí", en: "Lilac" },
+                    { es: "Romero", zap: "romero", en: "Rosemary" },
+                    { es: "Daphne", zap: "daphne", en: "Daphne" }
+                ]
+            },
+            {
+                id: "frutas",
+                title: "Frutas y Frutos",
+                titleEn: "Fruits",
+                icon: "fa-apple",
+                items: [
+                    { es: "Fruta", zap: "cuananaxhi", en: "Fruit" },
+                    { es: "Fruto", zap: "cuananaxhi", en: "Fruit" },
+                    { es: "Plátano", zap: "biduaa", en: "Banana" },
+                    { es: "Guayaba", zap: "bui'", en: "Guava" },
+                    { es: "Aguacate", zap: "yaxhu", en: "Avocado" },
+                    { es: "Naranja", zap: "bolor biguitu", en: "Orange" },
+                    { es: "Mandarina", zap: "mandarina", en: "Tangerine" },
+                    { es: "Manzana", zap: "manzana", en: "Apple" },
+                    { es: "Ciruela", zap: "biadxi", en: "Plum" },
+                    { es: "Cereza", zap: "beu'", en: "Cherry" },
+                    { es: "Pitahaya", zap: "bidxí", en: "Dragon fruit" },
+                    { es: "Granadilla", zap: "pepe gui'xhi'", en: "Passion fruit" },
+                    { es: "Mamey", zap: "guenda xunu", en: "Mamey" },
+                    { es: "Higo", zap: "chubí'", en: "Fig" },
+                    { es: "Mora", zap: "ribezá", en: "Blackberry" },
+                    { es: "Sandía", zap: "xandie", en: "Watermelon" },
+                    { es: "Tamarindo", zap: "tamma", en: "Tamarind" },
+                    { es: "Limón", zap: "limón", en: "Lemon" },
+                    { es: "Tejocote", zap: "manzanita", en: "Tejocote / Hawthorn" },
+                    { es: "Coco", zap: "coco", en: "Coconut" },
+                    { es: "Dátil", zap: "dxí", en: "Date fruit" },
+                    { es: "Granada", zap: null, en: "Pomegranate" },
+                    { es: "Oliva", zap: null, en: "Olive" }
+                ]
+            },
+            {
+                id: "cultivos",
+                title: "Cultivos, Vegetales y Semillas",
+                titleEn: "Crops, Vegetables & Seeds",
+                icon: "fa-cutlery",
+                items: [
+                    { es: "Maíz", zap: "xuuba'", en: "Corn / Maize" },
+                    { es: "Maíz", zap: "xhuuba'", en: "Maize" },
+                    { es: "Elote", zap: "zee", en: "Fresh corn / Corn cob" },
+                    { es: "Mazorca", zap: "niiza", en: "Corn ear" },
+                    { es: "Frijol", zap: "bizaa", en: "Bean" },
+                    { es: "Frijoles", zap: "bizaa", en: "Beans" },
+                    { es: "Frijol", zap: "haba", en: "Broad bean" },
+                    { es: "Ejote", zap: "bizaa huiini'", en: "Green bean" },
+                    { es: "Jitomate", zap: "bichooxhe", en: "Tomato" },
+                    { es: "Tomate", zap: "bichooxhe ndaba'", en: "Husk tomato" },
+                    { es: "Tomates", zap: "ca bichooxhe", en: "Tomatoes" },
+                    { es: "Chile", zap: "guiiña'", en: "Chili pepper" },
+                    { es: "Calabaza", zap: "guitu", en: "Squash / Pumpkin" },
+                    { es: "Chilacayote", zap: "guitu xembe'", en: "Chilacayote" },
+                    { es: "Chayote", zap: "yape", en: "Chayote" },
+                    { es: "Camote", zap: "gu", en: "Sweet potato" },
+                    { es: "Yuca", zap: "gu yaga", en: "Cassava / Yucca" },
+                    { es: "Caña", zap: "nite", en: "Sugarcane" },
+                    { es: "Cacao", zap: "biziaa", en: "Cacao" },
+                    { es: "Chocolate", zap: "dxuládi", en: "Chocolate" },
+                    { es: "Achiote", zap: "bia", en: "Annatto" },
+                    { es: "Huamúchil", zap: "biquiiche", en: "Guamuchil" },
+                    { es: "Cultivo", zap: "biní", en: "Crop / Cultivation" },
+                    { es: "Grano", zap: "bexa", en: "Grain" },
+                    { es: "Semilla", zap: "biidxi'", en: "Seed" },
+                    { es: "Racimo", zap: "be'za", en: "Cluster / Bunch" },
+                    { es: "Guiuba", zap: "guiuba", en: "Guiuba" },
+                    { es: "Tabaco", zap: "gueza", en: "Tobacco" },
+                    { es: "Algodón", zap: "xhiaa", en: "Cotton" }
+                ]
+            },
+            {
+                id: "procesos_partes",
+                title: "Anatomía Vegetal y Estados",
+                titleEn: "Plant Parts & Botanical States",
+                icon: "fa-tags",
+                items: [
+                    { es: "Raíz", zap: "xcu", en: "Root" },
+                    { es: "Hoja", zap: "bandaga", en: "Leaf" },
+                    { es: "Hojas", zap: null, en: "Leaves" },
+                    { es: "Retoño", zap: "biitu", en: "Shoot / Sprout" },
+                    { es: "Brotar", zap: "rundaani", en: "To sprout" },
+                    { es: "Brotó", zap: "gundani", en: "Sprouted" },
+                    { es: "Germinó", zap: "gundani", en: "Germinated" },
+                    { es: "Florece", zap: "rica guie'", en: "Blooms / Flowers" },
+                    { es: "Crece", zap: "riniisí", en: "Grows" },
+                    { es: "Crezca", zap: "guinizibe", en: "May grow" },
+                    { es: "Marchita", zap: "riguundu'", en: "Wilts / Withered" },
+                    { es: "Maduro", zap: "güi", en: "Ripe" },
+                    { es: "Cáscara", zap: "guidi ladi", en: "Peel / Rind" },
+                    { es: "Pulpa", zap: "la'dxi'", en: "Pulp" },
+                    { es: "Silvestre", zap: "cuaanayaga", en: "Wild" },
+                    { es: "Muérdago", zap: "biniidxi", en: "Mistletoe" },
+                    { es: "Pinolillo", zap: "bichi dxiña", en: "Pinolillo" },
+                    { es: "Oropéndola", zap: "biguitu rini", en: "Oropendola" }
+                ]
+            }
+        ];
+
+        // ---------- Render ----------
+        const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const collator = new Intl.Collator('es', { sensitivity: 'base', ignorePunctuation: true });
+        const sortItems = arr => arr.slice().sort((a, b) => collator.compare(a.es || '', b.es || ''));
+        const normalize = s => String(s || '').toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        function renderCard(item, iconClass) {
+            const hasZap = item.zap && item.zap !== 'NULL';
+            const zapHeader = hasZap
+                ? `<h3 class="plant-name-zap">${escapeHtml(item.zap)}</h3>`
+                : `<h3 class="plant-name-zap is-empty" data-i18n="card.no_zap">Sin traducción zapoteca registrada</h3>`;
+
+            const esRow = item.es
+                ? `<p class="plant-name-row" data-lang-row="es"><span class="lang-tag">ES</span><span class="name-text">${escapeHtml(item.es)}</span></p>`
+                : `<p class="plant-name-row is-empty" data-lang-row="es"><span class="lang-tag">ES</span><span class="name-text" data-i18n="card.not_available">No disponible</span></p>`;
+            const enRow = item.en
+                ? `<p class="plant-name-row" data-lang-row="en"><span class="lang-tag">EN</span><span class="name-text">${escapeHtml(item.en)}</span></p>`
+                : `<p class="plant-name-row is-empty" data-lang-row="en"><span class="lang-tag">EN</span><span class="name-text" data-i18n="card.not_available">Not available</span></p>`;
+
+            return `<article class="plant-card">
+                <div class="plant-photo" aria-hidden="true">
+                    <i class="fa ${iconClass || 'fa-leaf'} ph-icon" aria-hidden="true"></i>
+                </div>
+                <div class="plant-body">
+                    ${zapHeader}
+                    ${esRow}
+                    ${enRow}
+                </div>
+            </article>`;
+        }
+
+        function applyFilters(items, state) {
+            return items.filter(a => {
+                const hasZap = a.zap && a.zap !== 'NULL';
+                if (state.onlyZap && !hasZap) return false;
+                if (state.q) {
+                    const haystack = normalize(a.zap) + ' ' + normalize(a.es) + ' ' + normalize(a.en);
+                    if (!haystack.includes(state.q)) return false;
+                }
+                return true;
+            });
+        }
+
+        function renderSection(group, state) {
+            const items = sortItems(applyFilters(group.items, state));
+            if (!items.length) return '';
+
+            const displayTitle = getGroupTitle(group);
+
+            return `<section class="category-section" id="${group.id}">
+                <h2 class="category-title">${escapeHtml(displayTitle)} <span class="count">${items.length}</span></h2>
+                <div class="gallery-grid">
+                    ${items.map(i => renderCard(i, group.icon)).join('')}
+                </div>
+            </section>`;
+        }
+
+        function renderNav(state) {
+            return PLANT_GROUPS.map(g => {
+                const visible = applyFilters(g.items, state).length;
+                if (!visible) return '';
+                const displayTitle = getGroupTitle(g);
+                return `<a href="#${g.id}">${escapeHtml(displayTitle)}<span class="count">${visible}</span></a>`;
+            }).join('');
+        }
+
+        // ---------- Estado de filtros + render reactivo ----------
+        const $input = document.getElementById('filter-input');
+        const $clear = document.getElementById('filter-clear');
+        const $chkZap = document.getElementById('chk-zap');
+        const $chkZapL = document.getElementById('chk-zap-wrap');
+        const $nav = document.getElementById('category-nav');
+        const $root = document.getElementById('content-root');
+        const $empty = document.getElementById('empty-state');
+
+        function getState() {
+            return {
+                q: normalize($input.value.trim()),
+                onlyZap: $chkZap.checked,
+            };
+        }
+
+        function applyView() {
+            const state = getState();
+            $clear.hidden = !state.q;
+            $chkZapL.classList.toggle('is-active', state.onlyZap);
+
+            const sectionsHtml = PLANT_GROUPS.map(g => renderSection(g, state)).filter(Boolean).join('');
+            $nav.innerHTML = renderNav(state);
+            $root.innerHTML = sectionsHtml;
+            $empty.hidden = !!sectionsHtml;
+        }
+
+        let searchTimer = null;
+        $input.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(applyView, 120);
+        });
+        $clear.addEventListener('click', () => {
+            $input.value = '';
+            $input.focus();
+            applyView();
+        });
+        $chkZap.addEventListener('change', applyView);
+
+        applyView();
+        document.getElementById('anio').textContent = new Date().getFullYear();
+
+        function applyI18n() {
+            document.documentElement.lang = UI_LANG;
+            document.body.setAttribute('data-ui-lang', UI_LANG);
+
+            applyView();
+
+            if (I18N.es['meta.title']) {
+                document.title = t('meta.title');
+            }
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+                metaDesc.setAttribute('content', t('meta.description'));
+            }
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (key) el.innerHTML = t(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (key) el.placeholder = t(key);
+            });
+            document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+                const targetLang = b.getAttribute('data-ui-lang');
+                const active = targetLang === UI_LANG;
+                b.classList.toggle('is-active', active);
+                b.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+        }
+
+        function setUiLang(lang) {
+            if (lang !== 'es' && lang !== 'en') return;
+            UI_LANG = lang;
+            try {
+                ALL_LANG_KEYS.forEach(k => localStorage.setItem(k, lang));
+            } catch (e) { }
+            applyI18n();
+        }
+
+        document.querySelectorAll('.ui-lang-toggle button[data-ui-lang]').forEach(b => {
+            b.addEventListener('click', () => setUiLang(b.getAttribute('data-ui-lang')));
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key && ALL_LANG_KEYS.includes(e.key) && (e.newValue === 'es' || e.newValue === 'en')) {
+                if (UI_LANG !== e.newValue) setUiLang(e.newValue);
+            }
+        });
+
+        applyI18n();
+    </script>
+    <script src="assets/js/page-config.js" data-page="plants"></script>
+</body>
+
+</html>
