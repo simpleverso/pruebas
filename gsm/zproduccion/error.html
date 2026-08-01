@@ -7,13 +7,15 @@
     <title>Didxazapp · Nacubi research</title>
     <meta name="description" content="Traductor Web Español - Zapoteco">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    
+
     <!-- Bootstrap 4.3.1 served from cdnjs -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,500,600,700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
-    
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
+
     <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
     <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
     <link rel="stylesheet" href="assets/css/Footer-Basic.css">
@@ -30,26 +32,33 @@
     <style>
         /* ===== Error Page – Tema oscuro y paleta general del sitio ===== */
         :root {
-            --tx-bg-1:        #0b1322;
-            --tx-bg-2:        #111c2f;
-            --tx-surface:     #1a2436;
-            --tx-surface-2:   #131c2c;
-            --tx-surface-3:   #243047;
-            --tx-border:      #2a3447;
-            --tx-border-2:    #354260;
-            --tx-text:        #e6ecf5;
+            --tx-bg-1: #0b1322;
+            --tx-bg-2: #111c2f;
+            --tx-surface: #1a2436;
+            --tx-surface-2: #131c2c;
+            --tx-surface-3: #243047;
+            --tx-border: #2a3447;
+            --tx-border-2: #354260;
+            --tx-text: #e6ecf5;
             --tx-text-strong: #f3f6fb;
-            --tx-muted:       #94a3b8;
-            --tx-label:       #b6c2d4;
-            --tx-primary:     #4f8fcf;
-            --tx-primary-2:   #6ba6e0;
-            --tx-primary-deep:#22456b;
-            --tx-accent:      #3b82f6;
-            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+            --tx-muted: #94a3b8;
+            --tx-label: #b6c2d4;
+            --tx-primary: #4f8fcf;
+            --tx-primary-2: #6ba6e0;
+            --tx-primary-deep: #22456b;
+            --tx-accent: #3b82f6;
+            --tx-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
         }
 
-        * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background:
@@ -70,6 +79,7 @@
             border-bottom: 1px solid var(--tx-border);
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
         }
+
         .clean-navbar .nav-link {
             color: var(--tx-label) !important;
             font-weight: 500;
@@ -78,11 +88,24 @@
             padding-right: 0.42rem !important;
             letter-spacing: 0.01em;
         }
+
         .clean-navbar .nav-link.active,
-        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
-        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
-        .navbar-toggler { border-color: var(--tx-border) !important; }
-        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+        .clean-navbar .nav-link:hover {
+            color: var(--tx-primary-2) !important;
+        }
+
+        .navbar-brand.logo {
+            color: var(--tx-text-strong) !important;
+            font-weight: 600;
+        }
+
+        .navbar-toggler {
+            border-color: var(--tx-border) !important;
+        }
+
+        .navbar-toggler-icon {
+            filter: invert(1) brightness(1.4) opacity(0.7);
+        }
 
         /* Estilo oscuro para highlight-phone */
         .highlight-phone {
@@ -90,17 +113,21 @@
             color: var(--tx-text) !important;
             padding: 60px 0 40px;
         }
+
         .highlight-phone h2 {
             color: var(--tx-text-strong) !important;
             font-weight: 700;
         }
+
         .highlight-phone p {
             color: var(--tx-muted) !important;
         }
+
         .highlight-phone a {
             color: var(--tx-primary-2) !important;
             transition: color 0.2s ease;
         }
+
         .highlight-phone a:hover {
             color: var(--tx-text-strong) !important;
         }
@@ -112,6 +139,7 @@
             padding: 24px 0;
             color: var(--tx-muted);
         }
+
         .footer-basic p.copyright {
             color: var(--tx-muted) !important;
             margin: 0;
@@ -123,7 +151,8 @@
     <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
         <div class="container">
             <a class="navbar-brand logo" href="index.html">
-                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi
+                research&nbsp;
             </a>
             <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
                 <span class="sr-only">Toggle navigation</span>
@@ -132,37 +161,51 @@
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">INICIO</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator.html" data-i18n="nav.translator">TRADUCTOR</a></li>
-                    <li class="nav-item"><a class="nav-link" href="translator_img.html" data-i18n="nav.image">IMAGEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html"
+                            data-i18n="nav.translator">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html" data-i18n="nav.image">IMAGEN</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="learn.html" data-i18n="nav.learn">APRENDER</a></li>
-                    <li class="nav-item"><a class="nav-link" href="numbers.html" data-i18n="nav.numbers">NÚMEROS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="animals.html" data-i18n="nav.animals">ANIMALES</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numbers.html" data-i18n="nav.numbers">NÚMEROS</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="animals.html" data-i18n="nav.animals">ANIMALES</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="plants.html" data-i18n="nav.plants">PLANTAS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="memorygame.html" data-i18n="nav.memory">MEMORAMA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html" data-i18n="nav.memory">MEMORAMA</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="faq.html" data-i18n="nav.faq">FAQ</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    
+
     <div class="highlight-phone" style="margin: 100px 0px 0px 0px;">
         <div class="container">
             <div class="row">
                 <div class="col-md-8" style="height: 447px;">
                     <div class="text-center intro" style="height: 321px;">
-                        <h2 data-bs-hover-animate="pulse" style="opacity: 0.87;">Se nos cayó el "Infrastruktor"<br></h2>
-                        <p style="height: 240px;width: 500px;opacity: 0.81;margin: 0 auto;"><br>&nbsp;Puedes ver videos de gatitos en youtube mientras solucionamos &nbsp;los inconvenientes!<br><br><br>&nbsp;&nbsp;<a href="https://www.youtube.com/results?search_query=gatitos" target="_blank" rel="noopener noreferrer"><strong><span style="text-decoration: underline;">Videos de gatitos</span></strong></a><br></p>
+                        <h2 data-bs-hover-animate="pulse" style="opacity: 0.87;">Se nos cayó el "Infrastruktor" o
+                            estamos en proceso de mantenimiento<br></h2>
+
+                        <p style="height: 240px;width: 500px;opacity: 0.81;margin: 0 auto;"><br>&nbsp;Puedes ver videos
+                            de gatitos en youtube mientras solucionamos &nbsp;los
+                            inconvenientes!<br><br><br>&nbsp;&nbsp;<a href="https://www.youtube.com/watch?v=hvi3J3yBRXI"
+                                target="_blank" rel="noopener noreferrer"><strong><span
+                                        style="text-decoration: underline;">Videos de gatitos</span></strong></a><br>
+                        </p>
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div class="d-none d-md-block iphone-mockup"><img class="device" src="assets/img/iphone.svg">
-                        <div class="screen" style="background-image: url(&quot;assets/img/tenor.gif&quot;);height: 335px,10px,0px,0px;width: 10px, 223px,0px,0px;opacity: 0.63;filter: brightness(113%) contrast(153%) saturate(101%);"></div>
+                        <div class="screen"
+                            style="background-image: url(&quot;assets/img/tenor.gif&quot;);height: 335px,10px,0px,0px;width: 10px, 223px,0px,0px;opacity: 0.63;filter: brightness(113%) contrast(153%) saturate(101%);">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="footer-basic">
         <footer>
             <ul class="list-inline"></ul>

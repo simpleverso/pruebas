@@ -9,7 +9,6 @@
   "numbers_enablePage": true,
   "numeros_enablePage": true,
   "memorygame_enablePage": true,
-
   "translator_enablePage": true,
   "translator_enableDisclaimer": true,
   "translator_enableSpellCheck": true,
@@ -20,5 +19,6 @@
   "translator_enableGoogle": true,
   "plants_enablePage": true,
   "plantas_enablePage": true,
-  "translator_img_enablePage": true
+  "translator_img_enablePage": true,
+  "error_enablePage": true
 }
