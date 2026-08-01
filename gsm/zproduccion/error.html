@@ -1,39 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Didxazapp</title>
+    <title>Didxazapp · Nacubi research</title>
     <meta name="description" content="Traductor Web Español - Zapoteco">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/Dictionary-icon.png">
-    <!-- Bootstrap 4.3.1 served from cdnjs (matches the bootstrap.bundle.min.js below) -->
+    
+    <!-- Bootstrap 4.3.1 served from cdnjs -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <style>
-        /* Restore the two project-specific tweaks that the upstream
-           bootstrap.min.css was carrying: a slightly cooler info color
-           and Montserrat as the default sans-serif. The Montserrat
-           webfont is already loaded via the <link> below this block. */
-        :root { --info: #3b99e0; }
-        body { font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
-        .bg-info { background-color: #3b99e0 !important; }
-        .text-info { color: #3b99e0 !important; }
-        .border-info { border-color: #3b99e0 !important; }
-        .btn-info { background-color: #3b99e0; border-color: #3b99e0; }
-        .btn-info:hover { background-color: #2d83c4; border-color: #2778b8; }
-        .btn-outline-info { color: #3b99e0; border-color: #3b99e0; }
-        .btn-outline-info:hover { background-color: #3b99e0; border-color: #3b99e0; }
-        .alert-info { color: #1f5077; background-color: #d8eaf9; border-color: #c8e0f5; }
-    </style>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,500,600,700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
+    
     <link rel="stylesheet" href="assets/css/best-carousel-slide.css">
-    <link rel="stylesheet" href="assets/css/ebs-contact-form-1.css">
     <link rel="stylesheet" href="assets/css/ebs-contact-form.css">
     <link rel="stylesheet" href="assets/css/Footer-Basic.css">
-    <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image-1.css">
     <link rel="stylesheet" href="assets/css/Full-Screen-Hero-Image.css">
     <link rel="stylesheet" href="assets/css/Highlight-Blue.css">
     <link rel="stylesheet" href="assets/css/Highlight-Phone.css">
@@ -41,19 +24,134 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
     <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
-    <link rel="stylesheet" href="assets/css/ml-video-1.css">
     <link rel="stylesheet" href="assets/css/ml-video.css">
-    <link rel="stylesheet" href="assets/css/smoothproducts.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kthornbloom/smoothproducts@master/css/smoothproducts.css">
+
+    <style>
+        /* ===== Error Page – Tema oscuro y paleta general del sitio ===== */
+        :root {
+            --tx-bg-1:        #0b1322;
+            --tx-bg-2:        #111c2f;
+            --tx-surface:     #1a2436;
+            --tx-surface-2:   #131c2c;
+            --tx-surface-3:   #243047;
+            --tx-border:      #2a3447;
+            --tx-border-2:    #354260;
+            --tx-text:        #e6ecf5;
+            --tx-text-strong: #f3f6fb;
+            --tx-muted:       #94a3b8;
+            --tx-label:       #b6c2d4;
+            --tx-primary:     #4f8fcf;
+            --tx-primary-2:   #6ba6e0;
+            --tx-primary-deep:#22456b;
+            --tx-accent:      #3b82f6;
+            --tx-shadow:      0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -20%, rgba(59, 130, 246, 0.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 110%, rgba(79, 143, 207, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--tx-bg-1) 0%, var(--tx-bg-2) 100%);
+            background-attachment: fixed;
+            color: var(--tx-text);
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphic Navbar */
+        .clean-navbar.bg-white {
+            background: rgba(15, 23, 38, 0.85) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--tx-border);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+        .clean-navbar .nav-link {
+            color: var(--tx-label) !important;
+            font-weight: 500;
+            font-size: 0.78rem;
+            padding-left: 0.42rem !important;
+            padding-right: 0.42rem !important;
+            letter-spacing: 0.01em;
+        }
+        .clean-navbar .nav-link.active,
+        .clean-navbar .nav-link:hover { color: var(--tx-primary-2) !important; }
+        .navbar-brand.logo { color: var(--tx-text-strong) !important; font-weight: 600; }
+        .navbar-toggler { border-color: var(--tx-border) !important; }
+        .navbar-toggler-icon { filter: invert(1) brightness(1.4) opacity(0.7); }
+
+        /* Estilo oscuro para highlight-phone */
+        .highlight-phone {
+            background: transparent !important;
+            color: var(--tx-text) !important;
+            padding: 60px 0 40px;
+        }
+        .highlight-phone h2 {
+            color: var(--tx-text-strong) !important;
+            font-weight: 700;
+        }
+        .highlight-phone p {
+            color: var(--tx-muted) !important;
+        }
+        .highlight-phone a {
+            color: var(--tx-primary-2) !important;
+            transition: color 0.2s ease;
+        }
+        .highlight-phone a:hover {
+            color: var(--tx-text-strong) !important;
+        }
+
+        /* Estilo oscuro para footer */
+        .footer-basic {
+            background: rgba(11, 19, 34, 0.8) !important;
+            border-top: 1px solid var(--tx-border);
+            padding: 24px 0;
+            color: var(--tx-muted);
+        }
+        .footer-basic p.copyright {
+            color: var(--tx-muted) !important;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container">
+            <a class="navbar-brand logo" href="index.html">
+                <img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;
+            </a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav.home">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator.html" data-i18n="nav.translator">TRADUCTOR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="translator_img.html" data-i18n="nav.image">IMAGEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="learn.html" data-i18n="nav.learn">APRENDER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="numbers.html" data-i18n="nav.numbers">NÚMEROS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="animals.html" data-i18n="nav.animals">ANIMALES</a></li>
+                    <li class="nav-item"><a class="nav-link" href="plants.html" data-i18n="nav.plants">PLANTAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="memorygame.html" data-i18n="nav.memory">MEMORAMA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html" data-i18n="nav.faq">FAQ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
     <div class="highlight-phone" style="margin: 100px 0px 0px 0px;">
         <div class="container">
             <div class="row">
                 <div class="col-md-8" style="height: 447px;">
                     <div class="text-center intro" style="height: 321px;">
                         <h2 data-bs-hover-animate="pulse" style="opacity: 0.87;">Se nos cayó el "Infrastruktor"<br></h2>
-                        <p style="height: 240px;width: 500px;color: rgb(32,32,33);opacity: 0.81;"><br>&nbsp;Puedes ver videos de gatitos en youtube mientras solucionamos &nbsp;los inconvenientes!<br><br><br>&nbsp;&nbsp;<a href="https://www.youtube.com/results?search_query=gatitos"><strong><span style="text-decoration: underline;">Videos de gatitos</span></strong></a><br></p>
+                        <p style="height: 240px;width: 500px;opacity: 0.81;margin: 0 auto;"><br>&nbsp;Puedes ver videos de gatitos en youtube mientras solucionamos &nbsp;los inconvenientes!<br><br><br>&nbsp;&nbsp;<a href="https://www.youtube.com/results?search_query=gatitos" target="_blank" rel="noopener noreferrer"><strong><span style="text-decoration: underline;">Videos de gatitos</span></strong></a><br></p>
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -64,36 +162,25 @@
             </div>
         </div>
     </div>
+    
     <div class="footer-basic">
         <footer>
             <ul class="list-inline"></ul>
             <p class="copyright">Nacubi research - 2019</p>
         </footer>
     </div>
-    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
-        <div class="container"><a class="navbar-brand logo" href="#"><img class="rounded img-fluid" src="assets/img/Dictionary-icon.png" width="55" height="55">&nbsp;Nacubi research&nbsp;</a><button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div
-                class="collapse navbar-collapse" id="navcol-1">
-                <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="index.html">INICIO</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="translator.html">TRADUCTOR</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="learn.html">APRENDER</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="pricing.html">Precio</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="faq.html">FAQ</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="donate.html">Donar</a></li>
-                </ul>
-        </div>
-        </div>
-    </nav>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
-    <script src="assets/js/smoothproducts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/kthornbloom/smoothproducts@master/js/smoothproducts.min.js"></script>
     <script src="assets/js/theme.js"></script>
+
     <script src="assets/js/bs-animation.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
     <script src="assets/js/ml-video.js"></script>
     <script src="assets/js/traductor.js"></script>
+    <script src="assets/js/page-config.js" data-page="error"></script>
     <script src="assets/js/footer-year.js"></script>
 </body>
 

@@ -1,0 +1,595 @@
+{
+  "local_css_assets": {
+    "assets/css/Footer-Basic.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/Full-Screen-Hero-Image.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/Highlight-Blue.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/Highlight-Phone.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/Login-Form-Dark.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/best-carousel-slide.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/ebs-contact-form.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/css/ml-video.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ]
+  },
+  "local_js_assets": {
+    "animals.js": [
+      "memorygame.html"
+    ],
+    "assets/js/bs-animation.js": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/js/footer-year.js": [
+      "error.html",
+      "gallery.html"
+    ],
+    "assets/js/ml-video.js": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/js/page-config.js": [
+      "animals.html",
+      "error.html",
+      "faq.html",
+      "gallery.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator_img.html"
+    ],
+    "assets/js/theme.js": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/js/traductor.js": [
+      "error.html",
+      "gallery.html"
+    ]
+  },
+  "local_bootstrap_assets": {},
+  "local_img_assets": {
+    "${IMG_BASE}${n.slug}.png": [
+      "numbers.html"
+    ],
+    "assets/img/123.png": [
+      "gallery.html"
+    ],
+    "assets/img/Captura%20de%20pantalla%202017-12-27%20a%20la(s)%2012.02.24%20p.%20m..png": [
+      "gallery.html"
+    ],
+    "assets/img/Captura%20de%20pantalla%202017-12-30%20a%20la(s)%207.46.51%20p.%20m..png": [
+      "gallery.html"
+    ],
+    "assets/img/Captura%20de%20pantalla%202017-12-30%20a%20la(s)%208.15.59%20p.%20m..png": [
+      "gallery.html"
+    ],
+    "assets/img/Captura%20de%20pantalla%202017-12-30%20a%20la(s)%208.29.07%20p.%20m..png": [
+      "gallery.html"
+    ],
+    "assets/img/Captura%20de%20pantalla%202017-12-30%20a%20la(s)%208.56.26%20p.%20m..png": [
+      "gallery.html"
+    ],
+    "assets/img/Captura%20de%20pantalla%202017-12-30%20a%20la(s)%209.04.52%20p.%20m..png": [
+      "gallery.html"
+    ],
+    "assets/img/Dictionary-icon.png": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "faq.html",
+      "gallery.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator.html",
+      "translator_img.html",
+      "translator_putterhidden.html"
+    ],
+    "assets/img/Leon_mini.png": [
+      "gallery.html"
+    ],
+    "assets/img/Presentación2.jpg": [
+      "gallery.html"
+    ],
+    "assets/img/Presentación3.jpg": [
+      "gallery.html"
+    ],
+    "assets/img/arbol.png": [
+      "gallery.html"
+    ],
+    "assets/img/benito.png": [
+      "gallery.html"
+    ],
+    "assets/img/brillo.png": [
+      "gallery.html"
+    ],
+    "assets/img/commited-relatioships-696x435.png": [
+      "gallery.html"
+    ],
+    "assets/img/corran.png": [
+      "gallery.html"
+    ],
+    "assets/img/escuchar.png": [
+      "gallery.html"
+    ],
+    "assets/img/estoy%20soñando.png": [
+      "gallery.html"
+    ],
+    "assets/img/gatito.png": [
+      "gallery.html"
+    ],
+    "assets/img/huele%20rico.png": [
+      "gallery.html"
+    ],
+    "assets/img/iphone.svg": [
+      "error.html"
+    ],
+    "assets/img/maxresdefault.png": [
+      "gallery.html"
+    ],
+    "assets/img/me%20da%20miedo%20dormir.png": [
+      "gallery.html"
+    ],
+    "assets/img/miedo.png": [
+      "gallery.html"
+    ],
+    "assets/img/obedece.png": [
+      "gallery.html"
+    ],
+    "assets/img/scenery/image1.jpg": [
+      "gallery.html"
+    ],
+    "assets/img/te%20amo%20preciosa.png": [
+      "gallery.html"
+    ],
+    "assets/img/todo%20el%20dia.png": [
+      "gallery.html"
+    ],
+    "assets/img/todos%20los%20dias.png": [
+      "gallery.html"
+    ],
+    "assets/img/trabajo.png": [
+      "gallery.html"
+    ]
+  },
+  "local_other_assets": {
+    "${IMG_BASE}${a.img}": [
+      "animals.html"
+    ],
+    "${SAMPLE_BASE}${s.slug}": [
+      "translator_img.html"
+    ],
+    "${escapeHtml(a.image)}": [
+      "memorygame.html"
+    ],
+    "indexeddb://": [
+      "translator_img.html"
+    ]
+  },
+  "external_cdn_assets": {
+    "https://cdn.jsdelivr.net/gh/kthornbloom/smoothproducts@master/css/smoothproducts.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdn.jsdelivr.net/gh/kthornbloom/smoothproducts@master/js/smoothproducts.min.js": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js": [
+      "translator_img.html"
+    ],
+    "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js": [
+      "translator_img.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "numbers.html",
+      "plants.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "faq.html",
+      "gallery.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator.html",
+      "translator_img.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "faq.html",
+      "gallery.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator.html",
+      "translator_img.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css": [
+      "appchalupaxx.html",
+      "error.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "faq.html",
+      "gallery.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator.html",
+      "translator_img.html",
+      "translator_putterhidden.html"
+    ],
+    "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js": [
+      "animals.html",
+      "appchalupaxx.html",
+      "error.html",
+      "faq.html",
+      "gallery.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator.html",
+      "translator_img.html",
+      "translator_putterhidden.html"
+    ],
+    "https://fonts.googleapis.com/css?family=Montserrat:400,400i,500,600,700&display=swap": [
+      "error.html"
+    ],
+    "https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i": [
+      "appchalupaxx.html",
+      "gallery.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap": [
+      "animals.html",
+      "faq.html",
+      "index.html",
+      "learn.html",
+      "memorygame.html",
+      "numbers.html",
+      "plants.html",
+      "translator_img.html"
+    ],
+    "https://js.puter.com/v2/": [
+      "appchalupaxx.html",
+      "translator.html",
+      "translator_putterhidden.html"
+    ],
+    "https://www.youtube.com/results?search_query=gatitos": [
+      "error.html"
+    ]
+  },
+  "assets_folder_structure": {
+    "assets": [
+      ".DS_Store",
+      "diagramaDidxazapp.jpg",
+      "favicon.ico",
+      "player2.png",
+      "qr-didxaza-telegram.jpeg",
+      "replicas.jpg",
+      "traductor App.png",
+      "traductor Voz.png",
+      "traductor.png",
+      "traductorImagenes.png",
+      "traductorapp_prod.jpg",
+      "traductorapp_test.jpg",
+      "traductoraudio.jpg",
+      "traductorservicioweb.jpg",
+      "traductorvideo.jpg",
+      "traductorweb.jpg"
+    ],
+    "assets/audios": [],
+    "assets/audios/numeros": [
+      "cero.mp3",
+      "cien.mp3",
+      "cinco.mp3",
+      "cincuenta.mp3",
+      "cuarenta.mp3",
+      "cuatro.mp3",
+      "diez.mp3",
+      "dos.mp3",
+      "mil.mp3",
+      "noventa.mp3",
+      "nueve.mp3",
+      "ochenta.mp3",
+      "ocho.mp3",
+      "seis.mp3",
+      "sesenta.mp3",
+      "setenta.mp3",
+      "siete.mp3",
+      "treinta.mp3",
+      "tres.mp3",
+      "uno.mp3",
+      "veinte.mp3"
+    ],
+    "assets/css": [
+      "Footer-Basic.css",
+      "Full-Screen-Hero-Image.css",
+      "Highlight-Blue.css",
+      "Highlight-Phone.css",
+      "Login-Form-Dark.css",
+      "best-carousel-slide.css",
+      "ebs-contact-form.css",
+      "ml-video.css"
+    ],
+    "assets/img": [
+      ".DS_Store",
+      "123.png",
+      "14067652_10205296393169028_87404893789576148_n.jpg",
+      "1484737_239097359766871_4601203402402548145_n.jpg",
+      "20993913_10203608324883972_744476329956496412_n.jpg",
+      "Captura de pantalla 2017-12-27 a la(s) 12.02.24 p. m..png",
+      "Captura de pantalla 2017-12-30 a la(s) 7.46.51 p. m..png",
+      "Captura de pantalla 2017-12-30 a la(s) 8.15.59 p. m..png",
+      "Captura de pantalla 2017-12-30 a la(s) 8.29.07 p. m..png",
+      "Captura de pantalla 2017-12-30 a la(s) 8.56.26 p. m..png",
+      "Captura de pantalla 2017-12-30 a la(s) 9.04.52 p. m..png",
+      "Captura de pantalla 2018-07-19 a la(s) 2.31.32 p. m..png",
+      "Captura de pantalla 2018-07-19 a la(s) 5.02.31 p. m..png",
+      "Captura de pantalla 2018-07-19 a la(s) 5.09.25 p. m..png",
+      "Captura de pantalla 2018-07-20 a la(s) 9.18.12 a. m..png",
+      "Dictionary-icon.png",
+      "Leon_mini.png",
+      "Presentación2.jpg",
+      "Presentación3.jpg",
+      "arbol.png",
+      "architect-at-the-construction.jpg",
+      "architects-and-worker.jpg",
+      "benito.png",
+      "brillo.png",
+      "commited-relatioships-696x435.png",
+      "corran.png",
+      "escuchar.png",
+      "estoy soñando.png",
+      "fondo.png",
+      "fondo_grande.png",
+      "gatito.png",
+      "huele rico.png",
+      "iconos_donar.png",
+      "iphone.svg",
+      "maxresdefault.png",
+      "me da miedo dormir.png",
+      "miedo.png",
+      "obedece.png",
+      "proceso traductor.gif",
+      "screen-content-iphone-6.jpg",
+      "sms.png",
+      "star-empty.svg",
+      "star-half-empty.svg",
+      "star-sky.jpg",
+      "star.svg",
+      "te amo preciosa.png",
+      "tenor.gif",
+      "todo el dia.png",
+      "todos los dias.png",
+      "trabajo.png",
+      "yo.jpg",
+      "young-college-students.jpg"
+    ],
+    "assets/img/animales": [
+      ".DS_Store",
+      "abeja.jpg",
+      "aguila.webp",
+      "alacran.png",
+      "alcaravan.jpg",
+      "araña.jpg",
+      "ardilla.png",
+      "armadillo.jpg",
+      "bagre.jpg",
+      "borrego.jpg",
+      "caballo.jpg",
+      "camaron.jpg",
+      "cerdo.jpg",
+      "cocodrilo.jpg",
+      "codorniz.jpg",
+      "colibri.jpg",
+      "conejo.jpg",
+      "correcaminos.jpg",
+      "gallina.webp",
+      "gallo.webp",
+      "gatito.png",
+      "gato.jpg",
+      "guajolote.jpg",
+      "hormiga.jpg",
+      "hormiga_leon.jpg",
+      "iguana.jpg",
+      "jabali.png",
+      "lechuza.jpg",
+      "leon.png",
+      "leon_old.png",
+      "libelula.jpg",
+      "liebre.jpg",
+      "luciernaga.jpg",
+      "mono.jpg",
+      "murcielago.jpg",
+      "nutria.webp",
+      "paloma.jpg",
+      "papamoscas.png",
+      "perro.jpg",
+      "salamanquesa.webp",
+      "sapo.webp",
+      "tlacuache.jpg",
+      "toro.jpg",
+      "tortuga.jpeg",
+      "venado.jpg",
+      "vibora_cascabel.webp",
+      "zopilote.jpg"
+    ],
+    "assets/img/avatars": [
+      "avatar1.jpg",
+      "avatar2.jpg",
+      "avatar3.jpg"
+    ],
+    "assets/img/numeros": [
+      "cero.png",
+      "cien.png",
+      "cinco.png",
+      "cincuenta.png",
+      "cuarenta.png",
+      "cuatro.png",
+      "cuatrocientos.png",
+      "diez.png",
+      "dos.png",
+      "doscientos.png",
+      "mil.png",
+      "novecientos.png",
+      "noventa.png",
+      "nueve.png",
+      "ochenta.png",
+      "ocho.png",
+      "ochocientos.png",
+      "quinientos.png",
+      "seis.png",
+      "seiscientos.png",
+      "sesenta.png",
+      "setecientos.png",
+      "setenta.png",
+      "siete.png",
+      "treinta.png",
+      "tres.png",
+      "trescientos.png",
+      "uno.png",
+      "veinte.png"
+    ],
+    "assets/img/scenery": [
+      "image1.jpg",
+      "image4.jpg",
+      "image5.jpg",
+      "image6.jpg"
+    ],
+    "assets/img/tech": [
+      "image1.jpg",
+      "image2.jpg",
+      "image3.png",
+      "image4.jpg"
+    ],
+    "assets/js": [
+      "bs-animation.js",
+      "footer-year.js",
+      "ml-video.js",
+      "page-config.js",
+      "theme.js"
+    ]
+  }
+}

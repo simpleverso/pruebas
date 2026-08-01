@@ -7,6 +7,13 @@
   background-color: #000;
 }
 
+.vplayer img {
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0.7;
+}
+
 .vplayer .plybtn {
   box-shadow: 0 0 30px rgba( 0, 0, 0, 0.6);
   width: 90px;
@@ -37,4 +44,12 @@
   left: 50%;
   transform: translate3d( -50%, -50%, 0);
 }
+
+.vplayer iframe {
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
 
