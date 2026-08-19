@@ -493,6 +493,13 @@
     <div id="common-methods" class="section">
         <h2 class="section-title">0. Common Data Structure Methods</h2>
         <p>A quick reference guide for common data structures and their methods in Python.</p>
+
+        <div class="explanation" style="margin-bottom: 1.5rem; border-left: 4px solid #ef4444; padding: 1rem; background-color: rgba(239, 68, 68, 0.05); border-radius: 0 0.5rem 0.5rem 0;">
+            <h4 style="margin-top: 0; color: #ef4444;">🔒 Are these Data Structures Thread-Safe?</h4>
+            <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">In Python (specifically CPython), individual operations on built-in collections (like <code>list.append()</code>, <code>dict[key] = val</code>, or <code>set.add()</code>) are "atomic". This means they won't corrupt memory if two threads call them at the same time, thanks to the <strong>Global Interpreter Lock (GIL)</strong>.</p>
+            <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">However, <strong>they are NOT truly thread-safe for your program's logic</strong>. If you do a compound operation like <code>if key not in my_dict: my_dict[key] = 1</code>, another thread can jump in right between your <code>if</code> check and your assignment!</p>
+            <p style="margin-bottom: 0; font-size: 0.95rem;"><strong>The Solution:</strong> If you need true thread-safety, you must wrap your data operations using <code>import threading; lock = threading.Lock()</code>. Also, if you need a thread-safe Queue or Heap, you should use Python's built-in <code>queue.Queue</code> or <code>queue.PriorityQueue</code> modules instead of standard lists/deques!</p>
+        </div>
         
         <h3>Data Structure: Array (List)</h3>
         <p>In Python, the standard array is implemented as a <code>list</code>. It is a dynamic array, meaning it automatically resizes itself when it gets full. They are contiguous blocks of memory, making index lookups incredibly fast.</p>
@@ -1703,6 +1710,15 @@ print(maxSlidingWindow([1,3,-1,-3,5,3,6,7], 3))
             <h4 style="margin-top: 0; color: var(--accent-color);">💡 Concept: <code>list[list[int]]</code></h4>
             <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">In Python, there is no built-in 2D array structure. Instead, a grid is built by creating a list that contains <em>other</em> lists! The notation <code>list[list[int]]</code> is just a Type Hint telling you: <strong>"This is a list of rows, and each row is a list of integers."</strong></p>
             <p style="margin-bottom: 0; font-size: 0.95rem;">You access elements using <code>grid[row][col]</code>. To loop over every cell, you typically use a nested <code>for</code> loop.</p>
+        </div>
+
+        <div class="explanation" style="margin-bottom: 1.5rem; border-left: 4px solid #8b5cf6; padding: 1rem; background-color: rgba(139, 92, 246, 0.05); border-radius: 0 0.5rem 0.5rem 0;">
+            <h4 style="margin-top: 0; color: #8b5cf6;">📏 Concept: Why <code>M, N = len(grid), len(grid[0])</code>?</h4>
+            <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">You will see this line in almost every 2D array problem. Because a grid is an array of arrays:</p>
+            <ul style="margin-bottom: 0; font-size: 0.95rem;">
+                <li style="margin-bottom: 0.25rem;"><strong><code>len(grid)</code></strong> counts the number of items in the <em>outer</em> list. Since each item is an entire row, this gives you the total number of <strong>Rows (M)</strong>.</li>
+                <li><strong><code>len(grid[0])</code></strong> looks inside the very first row (<code>grid[0]</code>) and counts its items. The number of items in a single row equals the total number of <strong>Columns (N)</strong>!</li>
+            </ul>
         </div>
 
         <div class="code-wrapper">
