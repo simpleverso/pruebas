@@ -468,6 +468,7 @@
             <li class="nav-item"><a href="#graphs" class="nav-link">10. Graphs</a></li>
             <li class="nav-item"><a href="#heaps" class="nav-link">11. Heaps (Priority Queue)</a></li>
             <li class="nav-item"><a href="#monotonic-deque" class="nav-link">12. Monotonic Deque</a></li>
+            <li class="nav-item"><a href="#grids" class="nav-link">12.5. Grids (Matrices)</a></li>
         </ul>
 
         <div class="sidebar-category">Algorithms</div>
@@ -1685,6 +1686,83 @@ def maxSlidingWindow(nums, k):
 
 print(maxSlidingWindow([1,3,-1,-3,5,3,6,7], 3)) 
 # Expected: [3, 3, 5, 5, 6, 7]
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRIDS SECTION -->
+    <div id="grids" class="section">
+        <h2 class="section-title">12.5. Grids & Matrices (2D Arrays)</h2>
+        
+        <div class="explanation" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-color); padding: 1rem; background-color: rgba(59, 130, 246, 0.05); border-radius: 0 0.5rem 0.5rem 0;">
+            <h4 style="margin-top: 0; color: var(--accent-color);">💡 Concept: <code>list[list[int]]</code></h4>
+            <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">In Python, there is no built-in 2D array structure. Instead, a grid is built by creating a list that contains <em>other</em> lists! The notation <code>list[list[int]]</code> is just a Type Hint telling you: <strong>"This is a list of rows, and each row is a list of integers."</strong></p>
+            <p style="margin-bottom: 0; font-size: 0.95rem;">You access elements using <code>grid[row][col]</code>. To loop over every cell, you typically use a nested <code>for</code> loop.</p>
+        </div>
+
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Defining a Grid (No type hinting needed!)
+grid = [
+    [1, 2, 3], # Row 0
+    [4, 5, 6], # Row 1
+    [7, 8, 9]  # Row 2
+]
+
+# 1. Accessing a specific cell
+row = 1
+col = 2
+print(f"Cell at row {row}, col {col}: {grid[row][col]}") # Output: 6
+
+# 2. Getting grid dimensions
+ROWS = len(grid)
+COLS = len(grid[0])
+print(f"Grid Size: {ROWS} rows, {COLS} columns")
+
+# 3. Iterating over the entire grid
+print("Grid Traversal:")
+for r in range(ROWS):
+    for c in range(COLS):
+        # We use end=' ' to print on the same line
+        print(grid[r][c], end=' ')
+    print() # Newline after each row
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false" placeholder="Write your code here...">
+# Defining a Grid (No type hinting needed!)
+grid = [
+    [1, 2, 3], # Row 0
+    [4, 5, 6], # Row 1
+    [7, 8, 9]  # Row 2
+]
+
+# 1. Accessing a specific cell
+row = 1
+col = 2
+print(f"Cell at row {row}, col {col}: {grid[row][col]}") # Output: 6
+
+# 2. Getting grid dimensions
+ROWS = len(grid)
+COLS = len(grid[0])
+print(f"Grid Size: {ROWS} rows, {COLS} columns")
+
+# 3. Iterating over the entire grid
+print("Grid Traversal:")
+for r in range(ROWS):
+    for c in range(COLS):
+        # We use end=' ' to print on the same line
+        print(grid[r][c], end=' ')
+    print() # Newline after each row
 </textarea>
                 <div class="practice-actions">
                     <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
