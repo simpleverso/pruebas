@@ -454,6 +454,7 @@
             <li class="nav-item"><a href="#big-o" class="nav-link">1. Big O & Complexity</a></li>
             <li class="nav-item"><a href="#flashcards" class="nav-link">2. Big O Flashcards</a></li>
             <li class="nav-item"><a href="#basics" class="nav-link">3. Basics & Math</a></li>
+            <li class="nav-item"><a href="#control-flow" class="nav-link">3.5. Control Flow (Loops & If)</a></li>
             <li class="nav-item"><a href="#classes" class="nav-link">4. Classes</a></li>
             <li class="nav-item"><a href="#recursion" class="nav-link">5. Recursion</a></li>
         </ul>
@@ -1119,6 +1120,100 @@ b = 3
 
 # Practice writing some math operations and print them out!
 print("Addition:", a + b)
+</textarea>
+                <div class="practice-actions">
+                    <span style="color: #64748b; font-size: 0.8rem; margin-right: auto; line-height: 2;">Note: Don't write infinite loops, it will freeze your browser!</span>
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROL FLOW SECTION -->
+    <div id="control-flow" class="section">
+        <h2 class="section-title">3.5. Control Flow (If, For, While)</h2>
+        
+        <div class="explanation" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-color); padding: 1rem; background-color: rgba(59, 130, 246, 0.05); border-radius: 0 0.5rem 0.5rem 0;">
+            <h4 style="margin-top: 0; color: var(--accent-color);">💡 Concept: Why does <code>range(1, 4)</code> stop at 3?</h4>
+            <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">In Python (and many other languages), the upper bound of a range is <strong>exclusive</strong>. This means it counts up to, but does <em>not</em> include, the stop number.</p>
+            <p style="margin-bottom: 0; font-size: 0.95rem;"><strong>Why?</strong> It's designed this way to make working with arrays easier! Because arrays are <strong>0-indexed</strong> (the first item is at index 0), an array with a length of 3 has indices <code>0, 1, 2</code>. By writing <code>range(3)</code>, Python gives you exactly <code>0, 1, 2</code>—perfectly aligning with the array's indices without throwing an "Out of Bounds" error!</p>
+        </div>
+
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># 1. If Statements
+x = 10
+if x > 15:
+    print("Greater than 15")
+elif x == 10:
+    print("Exactly 10")
+else:
+    print("Less than 10")
+
+# 2. For Loops (Iterating over a range)
+# range(stop) -> Implicitly starts at 0!
+for i in range(3):
+    print(f"Starts at zero: {i}") # Output: 0, 1, 2
+
+# range(start, stop) -> Stop is exclusive!
+for i in range(1, 4):
+    print(f"Looping: {i}") # Output: 1, 2, 3
+
+# range(start, stop, step) -> Jumping by 2!
+for i in range(0, 10, 2):
+    print(f"Evens: {i}") # Output: 0, 2, 4, 6, 8
+
+# 3. For Loops (Iterating over a collection)
+arr = ["apple", "banana", "cherry"]
+for index, fruit in enumerate(arr):
+    print(f"Index {index}: {fruit}")
+
+# 4. While Loops
+count = 3
+while count > 0:
+    print(f"Countdown: {count}")
+    count -= 1
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false" placeholder="Write your code here...">
+# 1. If Statements
+x = 10
+if x > 15:
+    print("Greater than 15")
+elif x == 10:
+    print("Exactly 10")
+else:
+    print("Less than 10")
+
+# 2. For Loops (Iterating over a range)
+# range(stop) -> Implicitly starts at 0!
+for i in range(3):
+    print(f"Starts at zero: {i}") # Output: 0, 1, 2
+
+# range(start, stop) -> Stop is exclusive!
+for i in range(1, 4):
+    print(f"Looping: {i}") # Output: 1, 2, 3
+
+# range(start, stop, step) -> Jumping by 2!
+for i in range(0, 10, 2):
+    print(f"Evens: {i}") # Output: 0, 2, 4, 6, 8
+
+# 3. For Loops (Iterating over a collection)
+arr = ["apple", "banana", "cherry"]
+for index, fruit in enumerate(arr):
+    print(f"Index {index}: {fruit}")
+
+# 4. While Loops
+count = 3
+while count > 0:
+    print(f"Countdown: {count}")
+    count -= 1
 </textarea>
                 <div class="practice-actions">
                     <span style="color: #64748b; font-size: 0.8rem; margin-right: auto; line-height: 2;">Note: Don't write infinite loops, it will freeze your browser!</span>
