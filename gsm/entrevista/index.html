@@ -444,6 +444,11 @@
     </div>
     
     <div>
+        <div class="sidebar-category">Reference</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a href="#common-methods" class="nav-link">0. Common DS Methods</a></li>
+        </ul>
+
         <div class="sidebar-category">Fundamentals</div>
         <ul class="nav-list">
             <li class="nav-item"><a href="#big-o" class="nav-link">1. Big O & Complexity</a></li>
@@ -455,7 +460,7 @@
 
         <div class="sidebar-category">Data Structures</div>
         <ul class="nav-list">
-            <li class="nav-item"><a href="#hashmaps" class="nav-link">6. Hash Maps</a></li>
+            <li class="nav-item"><a href="#hashmaps" class="nav-link">6. Hash Maps & Sets</a></li>
             <li class="nav-item"><a href="#linked-lists" class="nav-link">7. Linked Lists</a></li>
             <li class="nav-item"><a href="#trees" class="nav-link">8. Trees</a></li>
             <li class="nav-item"><a href="#tries" class="nav-link">9. Tries</a></li>
@@ -481,6 +486,392 @@
 </aside>
 
 <main class="main-content">
+
+    <!-- COMMON METHODS SECTION -->
+    <div id="common-methods" class="section">
+        <h2 class="section-title">0. Common Data Structure Methods</h2>
+        <p>A quick reference guide for common data structures and their methods in Python.</p>
+        
+        <h3>Data Structure: Dictionary (Hash Map)</h3>
+        <p>Dictionaries are used to store data values in key:value pairs. They are highly optimized for retrieving data when you know the key.</p>
+        <div class="explanation">
+            <h4>Common Methods:</h4>
+            <ul>
+                <li><strong><code>dict[key] = value</code></strong>: Adds or updates the key-value pair. (Time: O(1))</li>
+                <li><strong><code>dict.get(key, default)</code></strong>: Returns the value for the key. If not found, returns the default value without throwing an error. (Time: O(1))</li>
+                <li><strong><code>del dict[key]</code></strong>: Removes the specified key. Throws KeyError if not found. (Time: O(1))</li>
+                <li><strong><code>dict.pop(key, default)</code></strong>: Removes the key and returns its value. Returns default if not found. (Time: O(1))</li>
+                <li><strong><code>key in dict</code></strong>: Checks if the key exists in the dictionary. (Time: O(1))</li>
+                <li><strong><code>dict.keys() / dict.values() / dict.items()</code></strong>: Returns views of keys, values, or (key, value) tuples respectively. (Time: O(1) to get view, O(N) to iterate)</li>
+            </ul>
+        </div>
+        
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Dictionary implementation and usage
+student_grades = {} # Initialization
+
+# Add / Update
+student_grades["Alice"] = 95
+student_grades["Bob"] = 85
+student_grades["Charlie"] = 90
+
+print("Initial grades:", student_grades)
+
+# Get
+print("Bob's grade:", student_grades.get("Bob"))
+print("David's grade:", student_grades.get("David", "Not found"))
+
+# Check existence
+if "Alice" in student_grades:
+    print("Alice is a student.")
+
+# Remove
+removed_grade = student_grades.pop("Charlie")
+print(f"Removed Charlie (grade: {removed_grade})")
+
+# Iteration
+for student, grade in student_grades.items():
+    print(f"{student}: {grade}")
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+# Dictionary implementation and usage
+student_grades = {} # Initialization
+
+# Add / Update
+student_grades["Alice"] = 95
+student_grades["Bob"] = 85
+student_grades["Charlie"] = 90
+
+print("Initial grades:", student_grades)
+
+# Get
+print("Bob's grade:", student_grades.get("Bob"))
+print("David's grade:", student_grades.get("David", "Not found"))
+
+# Check existence
+if "Alice" in student_grades:
+    print("Alice is a student.")
+
+# Remove
+removed_grade = student_grades.pop("Charlie")
+print(f"Removed Charlie (grade: {removed_grade})")
+
+# Iteration
+for student, grade in student_grades.items():
+    print(f"{student}: {grade}")
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+
+        <h3>Data Structure: Stack</h3>
+        <p>A Stack follows the Last-In-First-Out (LIFO) principle. In Python, lists are commonly used as stacks.</p>
+        <div class="explanation">
+            <h4>Common Methods:</h4>
+            <ul>
+                <li><strong><code>append(item)</code> (Push)</strong>: Adds an item to the top (end) of the stack. (Time: O(1) amortized)</li>
+                <li><strong><code>pop()</code> (Pop)</strong>: Removes and returns the top (last) item of the stack. Throws IndexError if empty. (Time: O(1))</li>
+                <li><strong><code>stack[-1]</code> (Peek/Top)</strong>: Returns the top item without removing it. Throws IndexError if empty. (Time: O(1))</li>
+                <li><strong><code>len(stack) == 0</code></strong>: Checks if the stack is empty. (Time: O(1))</li>
+            </ul>
+        </div>
+
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Stack implementation using a List
+stack = [] # Initialization
+
+# Push
+stack.append("Page 1")
+stack.append("Page 2")
+stack.append("Page 3")
+print("Stack after pushes:", stack)
+
+# Peek (Top)
+top_element = stack[-1] if stack else None
+print("Top of stack (Peek):", top_element)
+
+# Pop
+popped_element = stack.pop()
+print("Popped element:", popped_element)
+print("Stack after pop:", stack)
+
+# Check if empty
+is_empty = len(stack) == 0
+print("Is stack empty?", is_empty)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+# Stack implementation using a List
+stack = [] # Initialization
+
+# Push
+stack.append("Page 1")
+stack.append("Page 2")
+stack.append("Page 3")
+print("Stack after pushes:", stack)
+
+# Peek (Top)
+top_element = stack[-1] if stack else None
+print("Top of stack (Peek):", top_element)
+
+# Pop
+popped_element = stack.pop()
+print("Popped element:", popped_element)
+print("Stack after pop:", stack)
+
+# Check if empty
+is_empty = len(stack) == 0
+print("Is stack empty?", is_empty)
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+
+        <h3>Data Structure: Queue / Deque</h3>
+        <p>A Queue follows First-In-First-Out (FIFO). In Python, you should use <code>collections.deque</code> (Double-Ended Queue) for O(1) operations from both ends.</p>
+        <div class="explanation">
+            <h4>Common Methods:</h4>
+            <ul>
+                <li><strong><code>append(item)</code></strong>: Adds an item to the right (end). (Time: O(1))</li>
+                <li><strong><code>appendleft(item)</code></strong>: Adds an item to the left (front). (Time: O(1))</li>
+                <li><strong><code>popleft()</code> (Dequeue)</strong>: Removes and returns the left (front) item. (Time: O(1))</li>
+                <li><strong><code>pop()</code></strong>: Removes and returns the right (end) item. (Time: O(1))</li>
+                <li><strong><code>deque[0] / deque[-1]</code> (Peek)</strong>: Returns the front or end item without removing it. (Time: O(1))</li>
+            </ul>
+        </div>
+
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">from collections import deque
+
+# Queue initialization
+queue = deque()
+
+# Enqueue (Add to end)
+queue.append("Customer 1")
+queue.append("Customer 2")
+queue.append("Customer 3")
+print("Queue:", queue)
+
+# Dequeue (Remove from front)
+served = queue.popleft()
+print(f"Served: {served}")
+print("Queue after serving:", queue)
+
+# Peek (Front of queue)
+front = queue[0] if queue else None
+print("Next in line (Peek):", front)
+
+# Add to front (Deque specific)
+queue.appendleft("VIP Customer")
+print("Queue after VIP arrived:", queue)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+from collections import deque
+
+# Queue initialization
+queue = deque()
+
+# Enqueue (Add to end)
+queue.append("Customer 1")
+queue.append("Customer 2")
+queue.append("Customer 3")
+print("Queue:", queue)
+
+# Dequeue (Remove from front)
+served = queue.popleft()
+print(f"Served: {served}")
+print("Queue after serving:", queue)
+
+# Peek (Front of queue)
+front = queue[0] if queue else None
+print("Next in line (Peek):", front)
+
+# Add to front (Deque specific)
+queue.appendleft("VIP Customer")
+print("Queue after VIP arrived:", queue)
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+
+        <h3>Data Structure: Set</h3>
+        <p>A Set is an unordered collection of unique elements. It is highly optimized for fast membership testing and eliminating duplicate entries.</p>
+        <div class="explanation">
+            <h4>Common Methods:</h4>
+            <ul>
+                <li><strong><code>add(item)</code></strong>: Adds an item to the set. Does nothing if it already exists. (Time: O(1))</li>
+                <li><strong><code>remove(item)</code></strong>: Removes the item. Throws KeyError if not found. (Time: O(1))</li>
+                <li><strong><code>discard(item)</code></strong>: Removes the item if it exists. Does nothing if not found. (Time: O(1))</li>
+                <li><strong><code>item in set</code></strong>: Fast membership check. (Time: O(1))</li>
+            </ul>
+        </div>
+
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Set implementation
+seen_numbers = set()
+
+# Add elements
+seen_numbers.add(10)
+seen_numbers.add(20)
+seen_numbers.add(10) # Duplicate, won't be added twice
+
+print("Set contents:", seen_numbers)
+
+# Fast membership testing
+if 20 in seen_numbers:
+    print("20 is in the set!")
+
+# Discard (safe removal)
+seen_numbers.discard(30) # Does nothing, no error
+seen_numbers.remove(10) # Removes 10
+
+print("Set after removal:", seen_numbers)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+# Set implementation
+seen_numbers = set()
+
+# Add elements
+seen_numbers.add(10)
+seen_numbers.add(20)
+seen_numbers.add(10) # Duplicate, won't be added twice
+
+print("Set contents:", seen_numbers)
+
+# Fast membership testing
+if 20 in seen_numbers:
+    print("20 is in the set!")
+
+# Discard (safe removal)
+seen_numbers.discard(30) # Does nothing, no error
+seen_numbers.remove(10) # Removes 10
+
+print("Set after removal:", seen_numbers)
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+
+        <h3>Data Structure: Heap (Priority Queue)</h3>
+        <p>A Heap is a specialized tree-based structure commonly used for Priority Queues. Python provides the <code>heapq</code> module which implements a Min-Heap using standard lists.</p>
+        <div class="explanation">
+            <h4>Common Methods (<code>import heapq</code>):</h4>
+            <ul>
+                <li><strong><code>heapq.heappush(heap, item)</code></strong>: Pushes a new item onto the heap, maintaining the heap invariant. (Time: O(log N))</li>
+                <li><strong><code>heapq.heappop(heap)</code></strong>: Pops and returns the smallest item from the heap. (Time: O(log N))</li>
+                <li><strong><code>heap[0]</code></strong>: Peeks at the smallest item without popping it. (Time: O(1))</li>
+                <li><strong><code>heapq.heapify(list)</code></strong>: Transforms a populated list into a heap in-place. (Time: O(N))</li>
+            </ul>
+        </div>
+
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">import heapq
+
+# Heap initialization
+min_heap = []
+
+# Push elements
+heapq.heappush(min_heap, 5)
+heapq.heappush(min_heap, 1)
+heapq.heappush(min_heap, 3)
+
+print("Heap after pushes:", min_heap)
+
+# Peek the smallest
+smallest = min_heap[0]
+print("Smallest element (Peek):", smallest)
+
+# Pop the smallest
+popped = heapq.heappop(min_heap)
+print("Popped smallest:", popped)
+print("Heap after pop:", min_heap)
+
+# Heapify an existing list
+numbers = [9, 2, 7, 4, 6]
+heapq.heapify(numbers)
+print("Heapified list:", numbers)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+import heapq
+
+# Heap initialization
+min_heap = []
+
+# Push elements
+heapq.heappush(min_heap, 5)
+heapq.heappush(min_heap, 1)
+heapq.heappush(min_heap, 3)
+
+print("Heap after pushes:", min_heap)
+
+# Peek the smallest
+smallest = min_heap[0]
+print("Smallest element (Peek):", smallest)
+
+# Pop the smallest
+popped = heapq.heappop(min_heap)
+print("Popped smallest:", popped)
+print("Heap after pop:", min_heap)
+
+# Heapify an existing list
+numbers = [9, 2, 7, 4, 6]
+heapq.heapify(numbers)
+print("Heapified list:", numbers)
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+
+    </div>
 
     <!-- BIG O SECTION -->
     <div id="big-o" class="section">
@@ -743,7 +1134,18 @@ print("Fibonacci of 6:", fibonacci(6)) # Expected: 8
 
     <!-- HASH MAPS SECTION -->
     <div id="hashmaps" class="section">
-        <h2 class="section-title">6. Hash Maps (Dictionaries)</h2>
+        <h2 class="section-title">6. Hash Maps (Dictionaries) & Sets</h2>
+        
+        <div class="explanation" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-color); padding: 1rem; background-color: rgba(59, 130, 246, 0.05); border-radius: 0 0.5rem 0.5rem 0;">
+            <h4 style="margin-top: 0; color: var(--accent-color);">💡 Concept: Hash Maps vs Dictionaries vs Sets</h4>
+            <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">These terms are often used interchangeably in interviews. Here is how they relate in Python:</p>
+            <ul style="margin-bottom: 0; font-size: 0.9rem;">
+                <li style="margin-bottom: 0.25rem;"><strong>Hash Map</strong>: The underlying theoretical computer science concept (an engine powered by hashing that allows O(1) average lookups).</li>
+                <li style="margin-bottom: 0.25rem;"><strong>Dictionary (<code>dict</code>)</strong>: Python's implementation of a Hash Map that stores <strong>Key-Value pairs</strong> (like a cargo van carrying data). Example: <code>{"Alice": 95}</code>.</li>
+                <li><strong>Set (<code>set</code>)</strong>: Python's implementation of a Hash Map that stores <strong>Only Keys</strong> (like a sports car built only for speed). It is used purely to answer "does this item exist?" extremely fast. Example: <code>{"Alice", "Bob"}</code>.</li>
+            </ul>
+        </div>
+
         <div class="code-wrapper">
             <div class="code-header">
                 <span>Python</span>
