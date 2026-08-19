@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Algorithms Practice Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Pyodide to run Python in the browser! -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <!-- CodeMirror for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #3b82f6;
+            --border-color: #334155;
+            --sidebar-width: 320px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-category {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--accent-color);
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 3rem 5rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .section {
+            margin-bottom: 6rem;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
+        }
+
+        h2.section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            letter-spacing: -0.025em;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #e2e8f0;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        /* Practice Environment CSS */
+        .code-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background-color: #1d1f21;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #2d3748;
+            border-bottom: 1px solid #1a202c;
+        }
+        
+        .code-header span {
+            color: #a0aec0;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .practice-btn {
+            background-color: transparent;
+            border: 1px solid #718096;
+            color: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .practice-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .practice-btn.active {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: #fff;
+        }
+
+        .CodeMirror {
+            height: 300px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .practice-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1.5rem;
+            background-color: #1a202c;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .run-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 0.4rem 1.2rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .run-btn:hover {
+            background-color: #059669;
+        }
+
+        .run-btn:disabled {
+            background-color: #4b5563;
+            cursor: not-allowed;
+        }
+
+        .console-output {
+            background-color: #0f172a;
+            color: #a78bfa;
+            font-family: 'Fira Code', monospace;
+            padding: 1rem 1.5rem;
+            font-size: 0.85rem;
+            min-height: 20px;
+            white-space: pre-wrap;
+            border-top: 1px solid var(--border-color);
+        }
+
+        pre[class*="language-"] {
+            margin: 0 !important;
+            padding: 1.5rem !important;
+            background: transparent !important;
+        }
+
+        code[class*="language-"] {
+            font-family: 'Fira Code', monospace !important;
+            font-size: 0.95rem !important;
+            line-height: 1.6 !important;
+        }
+
+        /* Flashcards CSS */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .flashcard {
+            background-color: transparent;
+            width: 100%;
+            height: 180px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .flashcard-front {
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+        }
+        
+        .flashcard-front:hover {
+            border-color: var(--accent-color);
+        }
+
+        .flashcard-back {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--text-primary);
+            transform: rotateY(180deg);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .flashcard h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+        }
+
+        .flashcard p {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .flashcard-back p {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .flashcard-back strong {
+            color: #10b981;
+            font-size: 1.2rem;
+        }
+
+        /* Other Styles */
+        .explanation {
+            background-color: rgba(59, 130, 246, 0.05);
+            padding: 1.5rem 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .explanation h4 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+        
+        .explanation ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .explanation li {
+            margin-bottom: 0.75rem;
+        }
+
+        .complexity-box {
+            background-color: rgba(16, 185, 129, 0.05);
+            padding: 1.5rem 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .complexity-box h4 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #10b981;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .complexity-box p, .complexity-box ul {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-top: 0;
+        }
+
+        .complexity-box strong {
+            color: #e2e8f0;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: rgba(0,0,0,0.3);
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+            color: #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div>
+        <h2>🐍 Python Practice</h2>
+        <p style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0; color: var(--text-secondary)">Ultimate coding interview notebook.</p>
+    </div>
+    
+    <div>
+        <div class="sidebar-category">Fundamentals</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a href="#big-o" class="nav-link">1. Big O & Complexity</a></li>
+            <li class="nav-item"><a href="#flashcards" class="nav-link">2. Big O Flashcards</a></li>
+            <li class="nav-item"><a href="#basics" class="nav-link">3. Basics & Math</a></li>
+            <li class="nav-item"><a href="#classes" class="nav-link">4. Classes</a></li>
+            <li class="nav-item"><a href="#recursion" class="nav-link">5. Recursion</a></li>
+        </ul>
+
+        <div class="sidebar-category">Data Structures</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a href="#hashmaps" class="nav-link">6. Hash Maps</a></li>
+            <li class="nav-item"><a href="#linked-lists" class="nav-link">7. Linked Lists</a></li>
+            <li class="nav-item"><a href="#trees" class="nav-link">8. Trees</a></li>
+            <li class="nav-item"><a href="#tries" class="nav-link">9. Tries</a></li>
+            <li class="nav-item"><a href="#graphs" class="nav-link">10. Graphs</a></li>
+            <li class="nav-item"><a href="#heaps" class="nav-link">11. Heaps (Priority Queue)</a></li>
+            <li class="nav-item"><a href="#monotonic-deque" class="nav-link">12. Monotonic Deque</a></li>
+        </ul>
+
+        <div class="sidebar-category">Algorithms</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a href="#sliding-window" class="nav-link">13. Sliding Window</a></li>
+            <li class="nav-item"><a href="#two-pointers" class="nav-link">14. Two Pointers</a></li>
+            <li class="nav-item"><a href="#prefix-sum" class="nav-link">15. Prefix Sum</a></li>
+            <li class="nav-item"><a href="#kadane" class="nav-link">16. Kadane's Algorithm</a></li>
+            <li class="nav-item"><a href="#binary-search" class="nav-link">17. Binary Search</a></li>
+            <li class="nav-item"><a href="#sorting" class="nav-link">18. Sorting</a></li>
+            <li class="nav-item"><a href="#dfs" class="nav-link">19. Depth First Search (DFS)</a></li>
+            <li class="nav-item"><a href="#bfs" class="nav-link">20. Breadth First Search (BFS)</a></li>
+            <li class="nav-item"><a href="#backtracking" class="nav-link">21. Backtracking</a></li>
+            <li class="nav-item"><a href="#dp" class="nav-link">22. Dynamic Programming</a></li>
+        </ul>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <!-- BIG O SECTION -->
+    <div id="big-o" class="section">
+        <h2 class="section-title">1. Big O Notation & Complexity Analysis</h2>
+        <p>Before diving into algorithms, you must know how to identify their efficiency. Big O notation expresses how the runtime or space requirements scale as the input size (N) grows.</p>
+        
+        <h3>How to Calculate Complexity</h3>
+        <div class="explanation">
+            <h4>Rules for identifying Big O:</h4>
+            <ul>
+                <li><strong>Drop Constants:</strong> <code>O(2N)</code> becomes <code>O(N)</code>. We only care about how it scales, not exact operation counts.</li>
+                <li><strong>Drop Non-Dominant Terms:</strong> <code>O(N² + N)</code> becomes <code>O(N²)</code> because as N grows large, the N² term dominates.</li>
+                <li><strong>Addition vs Multiplication:</strong> If your algorithm does step A <em>then</em> step B, you add: <code>O(A + B)</code>. If it does step B <em>inside</em> step A (nested loops), you multiply: <code>O(A * B)</code>.</li>
+                <li><strong>Space Complexity:</strong> Count the <em>auxiliary</em> space you allocate (arrays, hash maps) PLUS the size of the <em>Call Stack</em> if using recursion. Memory used to hold the input itself does not count.</li>
+            </ul>
+        </div>
+
+        <h3>Common Complexities (Best to Worst)</h3>
+        <table>
+            <tr><th>Complexity</th><th>Name</th><th>How to Identify It</th></tr>
+            <tr><td><code>O(1)</code></td><td>Constant</td><td>Hash map lookups, array index access, math operations.</td></tr>
+            <tr><td><code>O(log N)</code></td><td>Logarithmic</td><td>Input is cut in half every step (Binary Search, Tree traversal down a single path).</td></tr>
+            <tr><td><code>O(N)</code></td><td>Linear</td><td>A single loop through the input.</td></tr>
+            <tr><td><code>O(N log N)</code></td><td>Log-Linear</td><td>Efficient sorting algorithms (Merge Sort, Python's <code>.sort()</code>).</td></tr>
+            <tr><td><code>O(N²)</code></td><td>Quadratic</td><td>Nested loops over the same input.</td></tr>
+            <tr><td><code>O(2^N)</code></td><td>Exponential</td><td>Recursive algorithms where each step branches into 2 paths (e.g. naive Fibonacci, Subsets).</td></tr>
+            <tr><td><code>O(N!)</code></td><td>Factorial</td><td>Generating all permutations of a sequence.</td></tr>
+        </table>
+    </div>
+
+    <!-- FLASHCARDS SECTION -->
+    <div id="flashcards" class="section">
+        <h2 class="section-title">2. Big O Flashcards</h2>
+        <p>Click on the cards to flip them and test your memory of common Time and Space complexities.</p>
+        
+        <div class="flashcard-grid">
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Binary Search</h3>
+                        <p>Time & Space?</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(log N)</strong></p>
+                        <p>Space: <strong>O(1)</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Hash Map (Dict)</h3>
+                        <p>Insert / Lookup Time?</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(1)</strong> Avg</p>
+                        <p>Space: <strong>O(N)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>DFS / BFS (Graph)</h3>
+                        <p>Adjacency List Traversal</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(V + E)</strong></p>
+                        <p>Space: <strong>O(V)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Python .sort()</h3>
+                        <p>Timsort Time & Space?</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(N log N)</strong></p>
+                        <p>Space: <strong>O(N)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Heap (Priority Queue)</h3>
+                        <p>Push / Pop Time?</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(log N)</strong></p>
+                        <p>Space: <strong>O(1)</strong> aux</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Backtracking</h3>
+                        <p>Subsets / Power Set</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(N * 2^N)</strong></p>
+                        <p>Space: <strong>O(N)</strong> stack</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Monotonic Deque</h3>
+                        <p>Sliding Window Max</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(N)</strong></p>
+                        <p>Space: <strong>O(K)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <h3>Kadane's Algorithm</h3>
+                        <p>Max Subarray</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Time: <strong>O(N)</strong></p>
+                        <p>Space: <strong>O(1)</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BASICS SECTION -->
+    <div id="basics" class="section">
+        <h2 class="section-title">3. Python Basics, Math & Operations</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Variable assignment and basic types
+a = 10
+b = 3
+my_list = [1, 2, 3]
+
+# Basic Math Operations
+addition = a + b        # 13
+floor_division = a // b # 3 (integer division, drops remainder)
+modulo = a % b          # 1 (remainder)
+power = a ** b          # 1000 (10^3)
+
+# Infinity (Great for initializing max/min variables)
+inf_pos = float('inf')       
+inf_neg = float('-inf')      
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false" placeholder="Write your code here...">
+a = 10
+b = 3
+
+# Practice writing some math operations and print them out!
+print("Addition:", a + b)
+</textarea>
+                <div class="practice-actions">
+                    <span style="color: #64748b; font-size: 0.8rem; margin-right: auto; line-height: 2;">Note: Don't write infinite loops, it will freeze your browser!</span>
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLASSES SECTION -->
+    <div id="classes" class="section">
+        <h2 class="section-title">4. Classes in Python</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">class Node:
+    # __init__ is the constructor. 'self' refers to the instance.
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+# Instantiating a class
+my_node = Node(5)
+print(my_node.val) # Output: 5
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+class Node:
+    # Write your __init__ method here
+    pass
+
+# Test it
+# node = Node(5)
+# print(node.val) # Should print 5
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECURSION SECTION -->
+    <div id="recursion" class="section">
+        <h2 class="section-title">5. Recursion</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Example: N-th Fibonacci Number
+def fibonacci(n):
+    # BASE CASE 1: If n is 0, the 0th Fibonacci number is 0
+    if n == 0: return 0
+    # BASE CASE 2: If n is 1, the 1st Fibonacci number is 1
+    if n == 1: return 1
+    
+    # RECURSIVE STEP: The N-th number is the sum of the previous two numbers
+    # We call the function itself with smaller inputs (n-1 and n-2)
+    return fibonacci(n - 1) + fibonacci(n - 2)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def fibonacci(n):
+    # Base cases and recursive step here
+    pass
+
+print("Fibonacci of 5:", fibonacci(5)) # Expected: 5
+print("Fibonacci of 6:", fibonacci(6)) # Expected: 8
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HASH MAPS SECTION -->
+    <div id="hashmaps" class="section">
+        <h2 class="section-title">6. Hash Maps (Dictionaries)</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">from collections import Counter, defaultdict
+
+# 1. Standard Dictionary
+my_map = {}
+my_map["apple"] = 5
+# O(1) lookup time!
+print("apple" in my_map) 
+
+# 2. Counter
+# Automatically counts the frequencies of elements in an iterable
+nums = [1, 2, 2, 3, 3, 3]
+counts = Counter(nums) 
+print(counts) # Output: Counter({3: 3, 2: 2, 1: 1})
+
+# 3. DefaultDict
+# Prevents KeyError. If a key is missing, it creates a default value (like an empty list)
+adj_list = defaultdict(list)
+adj_list["NodeA"].append("NodeB")
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+from collections import Counter, defaultdict
+
+# Create a frequency map using a standard dict or Counter
+nums = [1, 2, 2, 3, 3, 3]
+
+# Write your code here
+
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LINKED LISTS SECTION -->
+    <div id="linked-lists" class="section">
+        <h2 class="section-title">7. Linked Lists</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Reversing a Linked List
+def reverse_list(head):
+    # 'prev' keeps track of the reversed portion. Initially empty.
+    prev = None
+    # 'curr' is the node we are currently looking at
+    curr = head
+    
+    while curr:
+        # 1. TEMPORARY STORE: Save the next node so we don't lose the rest of the list
+        next_node = curr.next
+        
+        # 2. REVERSE THE POINTER: Point the current node BACKWARDS to 'prev'
+        curr.next = prev
+        
+        # 3. MOVE FORWARD: Shift 'prev' to be the current node
+        prev = curr
+        
+        # 4. MOVE FORWARD: Shift 'curr' to the saved next node to continue
+        curr = next_node
+        
+    # When 'curr' is None, 'prev' is pointing to the new head of the reversed list
+    return prev 
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+class Node:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def reverse_list(head):
+    # Write your reversal logic here
+    pass
+
+# Setup a test list: 1 -> 2 -> 3
+head = Node(1, Node(2, Node(3)))
+res = reverse_list(head)
+# Expected output: 3, 2, 1
+# while res:
+#     print(res.val)
+#     res = res.next
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TREES SECTION -->
+    <div id="trees" class="section">
+        <h2 class="section-title">8. Trees</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+# Inorder Traversal (Left, Node, Right)
+def inorder_traversal(root):
+    res = [] # This array will store the values in order
+    
+    # We define a helper recursive function for Depth First Search (DFS)
+    def dfs(node):
+        # BASE CASE: If the node doesn't exist, stop.
+        if not node: return
+        
+        # 1. Traverse the LEFT subtree first
+        dfs(node.left)
+        
+        # 2. Process the CURRENT node (add its value to our result list)
+        res.append(node.val)
+        
+        # 3. Traverse the RIGHT subtree
+        dfs(node.right)
+        
+    # Start the recursive traversal from the root
+    dfs(root)
+    return res
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def inorder_traversal(root):
+    # Write your DFS traversal here
+    return []
+
+# Test:     2
+#          / \
+#         1   3
+root = TreeNode(2, TreeNode(1), TreeNode(3))
+print("Inorder:", inorder_traversal(root)) # Expected: [1, 2, 3]
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRIES SECTION -->
+    <div id="tries" class="section">
+        <h2 class="section-title">9. Tries (Prefix Trees)</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">class TrieNode:
+    def __init__(self):
+        # Maps a character to another TrieNode. e.g. {'a': TrieNode}
+        self.children = {}
+        # Boolean to check if a complete word ends at this node
+        self.is_end_of_word = False
+
+class Trie:
+    def __init__(self):
+        # The root node is always an empty character that starts the tree
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        # Start at the root for every new word
+        curr = self.root
+        for char in word:
+            # If the letter doesn't exist in children, create it
+            if char not in curr.children:
+                curr.children[char] = TrieNode()
+            # Move down the tree to the child node
+            curr = curr.children[char]
+            
+        # After inserting all characters, mark final node as end of a word
+        curr.is_end_of_word = True
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+class TrieNode:
+    pass
+
+class Trie:
+    def __init__(self):
+        pass
+
+    def insert(self, word: str) -> None:
+        pass
+        
+    def search(self, word: str) -> bool:
+        pass
+
+trie = Trie()
+trie.insert("apple")
+print("Search 'apple':", trie.search("apple"))   # Expected: True
+print("Search 'app':", trie.search("app"))       # Expected: False
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRAPHS SECTION -->
+    <div id="graphs" class="section">
+        <h2 class="section-title">10. Graphs</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">import collections
+
+# Given a list of edges: Node 0 connects to Node 1
+edges = [[0,1], [1,2], [2,0]]
+
+# Build an Adjacency List: A dict where key=Node, value=List of connected nodes
+# We use defaultdict so if a key doesn't exist, it automatically creates an empty list
+adj = collections.defaultdict(list)
+
+for u, v in edges:
+    # Add 'v' to 'u's list of neighbors
+    adj[u].append(v)
+    # Add 'u' to 'v's list of neighbors (ONLY do this if the graph is UNDIRECTED)
+    adj[v].append(u) 
+
+# adj is now: {0: [1, 2], 1: [0, 2], 2: [1, 0]}
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+import collections
+
+edges = [[0,1], [1,2], [2,0]]
+adj = collections.defaultdict(list)
+
+# Build the adjacency list here
+
+
+print(dict(adj)) # Expected output matching the edges
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEAPS SECTION -->
+    <div id="heaps" class="section">
+        <h2 class="section-title">11. Heaps (Priority Queues)</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">import heapq
+
+nums = [5, 7, 9, 1, 3]
+
+# 1. heapify() transforms a standard list into a Min-Heap IN-PLACE in O(N) time
+heapq.heapify(nums)
+
+# 2. heappush() adds an element while maintaining the heap property in O(log N)
+heapq.heappush(nums, 2)
+
+# 3. heappop() removes and returns the SMALLEST element in O(log N)
+smallest = heapq.heappop(nums) 
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+import heapq
+
+nums = [5, 7, 9, 1, 3]
+
+# Turn nums into a min-heap and pop the smallest element
+
+
+print(nums)
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MONOTONIC DEQUE SECTION -->
+    <div id="monotonic-deque" class="section">
+        <h2 class="section-title">12. Monotonic Deque</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">import collections
+
+# Sliding Window Maximum
+def maxSlidingWindow(nums, k):
+    res = []
+    # Deque stores INDICES of array elements, not the values themselves
+    # The elements inside the deque will always be strictly DECREASING
+    q = collections.deque() 
+
+    for i, num in enumerate(nums):
+        # 1. MAINTAIN MONOTONIC PROPERTY:
+        # If current number is bigger than numbers at the end of the deque,
+        # those smaller numbers are useless (can never be max), so pop them.
+        while q and nums[q[-1]] <= num:
+            q.pop()
+        
+        # Add the current index to the right side of the deque
+        q.append(i)
+
+        # 2. REMOVE OUT-OF-BOUNDS ELEMENTS:
+        # If the index at the front of the deque is outside our window 'k', remove it.
+        if q[0] == i - k:
+            q.popleft()
+
+        # 3. ADD TO RESULT:
+        # Once window has reached size 'k', the biggest element is always at the front.
+        if i >= k - 1:
+            res.append(nums[q[0]])
+
+    return res
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+import collections
+
+def maxSlidingWindow(nums, k):
+    # Write your monotonic deque logic here
+    pass
+
+print(maxSlidingWindow([1,3,-1,-3,5,3,6,7], 3)) 
+# Expected: [3, 3, 5, 5, 6, 7]
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDING WINDOW SECTION -->
+    <div id="sliding-window" class="section">
+        <h2 class="section-title">13. Sliding Window Technique</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Example: Longest Substring Without Repeating Characters (Variable Window)
+def lengthOfLongestSubstring(s):
+    # Set to keep track of characters inside our current window
+    char_set = set()
+    left = 0
+    max_len = 0
+
+    # 'right' pointer iterates through the string, expanding the window
+    for right in range(len(s)):
+        # If we encounter a duplicate character, our window is invalid.
+        # Shrink the window from the 'left' until the duplicate is gone.
+        while s[right] in char_set:
+            char_set.remove(s[left])
+            left += 1
+            
+        # Add the new unique character to the set
+        char_set.add(s[right])
+        
+        # Update our max length (right - left + 1 is current window size)
+        max_len = max(max_len, right - left + 1)
+        
+    return max_len
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def lengthOfLongestSubstring(s):
+    # Write your sliding window logic here
+    pass
+
+print(lengthOfLongestSubstring("abcabcbb")) # Expected: 3 ("abc")
+print(lengthOfLongestSubstring("bbbbb"))    # Expected: 1 ("b")
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TWO POINTERS SECTION -->
+    <div id="two-pointers" class="section">
+        <h2 class="section-title">14. Two Pointers</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Example: Two Sum on a Sorted Array
+def two_sum_sorted(nums, target):
+    # Initialize one pointer at the start and one at the end
+    left, right = 0, len(nums) - 1
+
+    while left < right:
+        # Calculate the sum of the elements at the two pointers
+        current_sum = nums[left] + nums[right]
+        
+        # If we hit the target, return the indices
+        if current_sum == target:
+            return [left, right]
+            
+        # If sum is TOO SMALL, we need a bigger number. Move left pointer to the right.
+        elif current_sum < target:
+            left += 1
+            
+        # If sum is TOO BIG, we need a smaller number. Move right pointer to the left.
+        else:
+            right -= 1
+            
+    return []
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def two_sum_sorted(nums, target):
+    # Write your two pointers logic here
+    pass
+
+print(two_sum_sorted([2, 7, 11, 15], 9)) # Expected: [0, 1]
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREFIX SUM SECTION -->
+    <div id="prefix-sum" class="section">
+        <h2 class="section-title">15. Prefix Sum</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Subarray Sum Equals K
+def subarray_sum(nums, k):
+    count = 0
+    current_sum = 0
+    
+    # Hash map to store {prefix_sum: frequency}
+    # Initialize with 0:1 to account for a subarray starting from index 0 matching 'k'
+    prefix_sums = {0: 1} 
+
+    for num in nums:
+        # Calculate the running prefix sum
+        current_sum += num
+        
+        # If (current_sum - k) exists in our map, it means there is a previous 
+        # chunk of the array we can chop off to get a subarray summing exactly to 'k'
+        difference = current_sum - k
+        if difference in prefix_sums:
+            count += prefix_sums[difference]
+            
+        # Add the current running sum to the map for future lookups
+        prefix_sums[current_sum] = prefix_sums.get(current_sum, 0) + 1
+
+    return count
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def subarray_sum(nums, k):
+    # Write your prefix sum logic here
+    pass
+
+print(subarray_sum([1, 1, 1], 2)) # Expected: 2
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KADANE SECTION -->
+    <div id="kadane" class="section">
+        <h2 class="section-title">16. Kadane's Algorithm</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Maximum Subarray
+def max_subarray(nums):
+    # Initialize both variables to the first element
+    max_current = nums[0]
+    max_global = nums[0]
+
+    for i in range(1, len(nums)):
+        # KADANE'S LOGIC: At each step, we have two choices:
+        # 1. Extend the previous subarray: max_current + nums[i]
+        # 2. Start a brand new subarray from current element: nums[i]
+        # We always pick the larger of the two.
+        max_current = max(nums[i], max_current + nums[i])
+        
+        # Update the global max if our current contiguous sum is the highest seen
+        max_global = max(max_global, max_current)
+            
+    return max_global
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def max_subarray(nums):
+    # Write Kadane's algorithm here
+    pass
+
+print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4])) # Expected: 6
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BINARY SEARCH SECTION -->
+    <div id="binary-search" class="section">
+        <h2 class="section-title">17. Binary Search</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">def binary_search(nums, target):
+    # Initialize pointers to the start and end of the array
+    left, right = 0, len(nums) - 1
+    
+    # Continue searching as long as the search space is valid
+    while left <= right:
+        # Using (left + (right-left)//2) prevents integer overflow bugs
+        mid = left + (right - left) // 2 
+        
+        # If we found the target, return its index
+        if nums[mid] == target:
+            return mid
+            
+        # If mid value is too small, target must be on the RIGHT. Discard left half.
+        elif nums[mid] < target:
+            left = mid + 1
+            
+        # If mid value is too big, target must be on the LEFT. Discard right half.
+        else:
+            right = mid - 1
+            
+    # Target was not found
+    return -1
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def binary_search(nums, target):
+    # Write your binary search logic here
+    pass
+
+print(binary_search([1, 2, 3, 4, 5], 4)) # Expected: 3
+print(binary_search([1, 2, 3, 4, 5], 10)) # Expected: -1
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SORTING SECTION -->
+    <div id="sorting" class="section">
+        <h2 class="section-title">18. Sorting in Python</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">nums = [5, 2, 9, 1]
+
+# 1. In-place sorting: Modifies the original list. O(N log N)
+nums.sort() 
+
+# 2. Return a new sorted list: Original list is untouched
+new_nums = sorted(nums)
+
+# 3. Custom sorting with Lambda
+intervals = [[1, 3], [8, 10], [2, 6]]
+# Sort the nested arrays based on the very first element (index 0) of each sub-array
+intervals.sort(key=lambda x: x[0]) 
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+intervals = [[1, 3], [8, 10], [2, 6]]
+
+# Sort based on the first element of each sub-array
+
+
+print(intervals) # Expected: [[1, 3], [2, 6], [8, 10]]
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DFS SECTION -->
+    <div id="dfs" class="section">
+        <h2 class="section-title">19. Depth First Search (DFS)</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># DFS on an Adjacency List graph
+def dfs_graph(graph, start):
+    # Set to keep track of nodes we have already visited to avoid infinite loops
+    visited = set()
+    
+    def dfs(node):
+        # Base Case / Cycle check: If node is already visited, do nothing
+        if node in visited:
+            return
+            
+        # Mark the current node as visited
+        visited.add(node)
+        print("Visited:", node)
+        
+        # Recursively visit all unvisited neighbors
+        for neighbor in graph[node]:
+            dfs(neighbor)
+            
+    # Start the recursion from the initial node
+    dfs(start)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def dfs_graph(graph, start):
+    # Write your recursive DFS here
+    pass
+
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [], 'E': ['F'], 'F': []
+}
+dfs_graph(graph, 'A') 
+# Expected: Visited nodes in depth-first order
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BFS SECTION -->
+    <div id="bfs" class="section">
+        <h2 class="section-title">20. Breadth First Search (BFS)</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python">import collections
+
+# BFS traverses layer by layer (useful for shortest path)
+def bfs_graph(graph, start):
+    # Set to track visited nodes
+    visited = set([start])
+    
+    # Use a Deque (Double Ended Queue) for O(1) pops from the front
+    queue = collections.deque([start])
+    
+    while queue:
+        # Loop exactly the number of elements in the CURRENT layer
+        for _ in range(len(queue)):
+            # Pop the first element in line
+            node = queue.popleft() 
+            
+            # Look at all neighbors of the current node
+            for neighbor in graph[node]:
+                # If we haven't seen the neighbor, mark it visited and queue it up
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+import collections
+
+def bfs_graph(graph, start):
+    # Write your queue-based BFS here
+    pass
+
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [], 'E': ['F'], 'F': []
+}
+bfs_graph(graph, 'A') 
+# Expected: Visited nodes layer by layer
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BACKTRACKING SECTION -->
+    <div id="backtracking" class="section">
+        <h2 class="section-title">21. Backtracking</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Example: Generate all Subsets (Power Set)
+def subsets(nums):
+    res = []
+    
+    # idx keeps track of which elements we are allowed to use
+    # path is the current subset we are building
+    def backtrack(idx, path):
+        # 1. ADD TO RESULT: Every combination generated is a valid subset
+        res.append(path.copy()) # Must copy because lists are passed by reference!
+        
+        # 2. ITERATE CHOICES: Try adding every available number from 'idx' onwards
+        for i in range(idx, len(nums)):
+            # 3. MAKE A CHOICE: Add the number to our current path
+            path.append(nums[i])
+            
+            # 4. RECURSE: Move forward, exploring paths that include this number
+            backtrack(i + 1, path)
+            
+            # 5. UNDO THE CHOICE (Backtrack): Remove the number to explore other paths
+            path.pop()
+            
+    # Start recursion at index 0 with an empty subset
+    backtrack(0, [])
+    return res
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def subsets(nums):
+    # Write your backtracking template here
+    pass
+
+print(subsets([1, 2, 3]))
+# Expected: [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DP SECTION -->
+    <div id="dp" class="section">
+        <h2 class="section-title">22. Dynamic Programming</h2>
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Approach: Tabulation (Bottom-Up) Space Optimized
+def climbStairsTab(n):
+    # Base cases: 1 step = 1 way, 2 steps = 2 ways
+    if n <= 2: return n
+    
+    # Instead of an entire array, we only keep track of the last two steps
+    # to achieve O(1) Space Complexity.
+    one, two = 1, 2
+    
+    for i in range(3, n + 1):
+        # The current step is the sum of the ways to reach the previous two steps
+        temp = one + two
+        
+        # Shift our variables forward for the next iteration
+        one = two
+        two = temp
+        
+    return two
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+def climbStairsTab(n):
+    # Write your Tabulation logic here
+    pass
+
+print(climbStairsTab(2)) # Expected: 2
+print(climbStairsTab(3)) # Expected: 3
+print(climbStairsTab(5)) # Expected: 8
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script>
+    // Scroll Spy Logic
+    const mainContent = document.querySelector('.main-content');
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    mainContent.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (mainContent.scrollTop >= (sectionTop - 150)) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current) && current !== '') {
+                link.classList.add('active');
+            }
+        });
+    }, { passive: true });
+
+    // Practice Mode Toggle Logic
+    function togglePractice(btn) {
+        const wrapper = btn.closest('.code-wrapper');
+        const codeContent = wrapper.querySelector('.code-content');
+        const practiceContent = wrapper.querySelector('.practice-content');
+        
+        if (practiceContent.style.display === 'none') {
+            practiceContent.style.display = 'block';
+            codeContent.style.display = 'none';
+            btn.textContent = 'Show Solution';
+            btn.classList.add('active');
+            
+            const textarea = practiceContent.querySelector('textarea');
+            if (textarea.cm) {
+                textarea.cm.refresh();
+                textarea.cm.focus();
+            }
+        } else {
+            practiceContent.style.display = 'none';
+            codeContent.style.display = 'block';
+            btn.textContent = 'Practice Mode';
+            btn.classList.remove('active');
+        }
+    }
+
+    // Initialize CodeMirror on all practice textareas
+    document.querySelectorAll('.practice-content textarea').forEach(textarea => {
+        const editor = CodeMirror.fromTextArea(textarea, {
+            mode: "python",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            matchBrackets: true,
+            indentWithTabs: false,
+            extraKeys: {
+                Tab: function(cm) {
+                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                    cm.replaceSelection(spaces);
+                }
+            }
+        });
+        textarea.cm = editor;
+    });
+
+    // Pyodide Execution Logic
+    async function runPython(btn) {
+        const wrapper = btn.closest('.practice-content');
+        const textarea = wrapper.querySelector('textarea');
+        const code = textarea.cm ? textarea.cm.getValue() : textarea.value;
+        const outputEl = wrapper.querySelector('.console-output');
+        const originalBtnText = btn.innerHTML;
+        
+        btn.innerHTML = '⏳ Running...';
+        btn.disabled = true;
+        outputEl.style.color = '#a78bfa';
+        
+        try {
+            if (!window.pyodide) {
+                outputEl.textContent = "Initializing Python environment in your browser (this takes ~3-5 seconds the first time)...\n";
+                window.pyodide = await loadPyodide();
+            }
+            
+            outputEl.textContent = "";
+            
+            // Redirect stdout and stderr using Python's sys.stdout
+            window.pyodide.runPython(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+            `);
+            
+            // Run the user's code
+            await window.pyodide.runPythonAsync(code);
+            
+            // Fetch the captured output
+            let stdout = window.pyodide.runPython("sys.stdout.getvalue()");
+            let stderr = window.pyodide.runPython("sys.stderr.getvalue()");
+            
+            let combinedOutput = stdout + stderr;
+            if (combinedOutput.trim() === "") {
+                outputEl.textContent = "Code executed successfully (no output printed).";
+            } else {
+                outputEl.textContent = combinedOutput;
+            }
+        } catch (err) {
+            outputEl.style.color = '#ef4444'; // Red color for errors
+            outputEl.textContent = err.toString();
+        } finally {
+            btn.innerHTML = originalBtnText;
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
