@@ -492,6 +492,79 @@
         <h2 class="section-title">0. Common Data Structure Methods</h2>
         <p>A quick reference guide for common data structures and their methods in Python.</p>
         
+        <h3>Data Structure: Array (List)</h3>
+        <p>In Python, the standard array is implemented as a <code>list</code>. It is a dynamic array, meaning it automatically resizes itself when it gets full. They are contiguous blocks of memory, making index lookups incredibly fast.</p>
+        <div class="explanation">
+            <h4>Common Methods & Big O Complexity:</h4>
+            <ul>
+                <li><strong><code>arr[i]</code> (Access)</strong>: Gets the element at the index. <strong>(Time: O(1))</strong></li>
+                <li><strong><code>arr.append(val)</code></strong>: Adds an element to the very end of the array. <strong>(Time: O(1) amortized)</strong></li>
+                <li><strong><code>arr.pop()</code></strong>: Removes and returns the very last element. <strong>(Time: O(1))</strong></li>
+                <li><strong><code>arr.insert(i, val)</code></strong>: Inserts an element at a specific index. <strong>(Time: O(N))</strong> - <em>Why? Because every element after it must shift over by one!</em></li>
+                <li><strong><code>arr.pop(i)</code> / <code>del arr[i]</code></strong>: Removes an element at a specific index. <strong>(Time: O(N))</strong> - <em>Why? Because every element after it must shift back to fill the gap.</em></li>
+                <li><strong><code>val in arr</code> (Search)</strong>: Checks if a value exists. <strong>(Time: O(N))</strong> - <em>Must scan the entire array.</em></li>
+                <li><strong><code>len(arr)</code></strong>: Gets the number of elements. <strong>(Time: O(1))</strong></li>
+            </ul>
+        </div>
+        
+        <div class="code-wrapper">
+            <div class="code-header">
+                <span>Python</span>
+                <button class="practice-btn" onclick="togglePractice(this)">Practice Mode</button>
+            </div>
+            <div class="code-content">
+<pre><code class="language-python"># Array (List) initialization
+nums = [10, 20, 30]
+
+# O(1) Operations
+print("Access index 1:", nums[1])
+nums.append(40) # Add to end
+print("After append:", nums)
+last = nums.pop() # Remove from end
+print("Popped last item:", last)
+
+# O(N) Operations
+nums.insert(0, 5) # Insert at beginning (shifts everything right)
+print("After insert at index 0:", nums)
+
+nums.pop(1) # Remove at index 1 (shifts everything left)
+print("After pop at index 1:", nums)
+
+# Search is O(N)
+if 30 in nums:
+    print("Found 30!")
+</code></pre>
+            </div>
+            <div class="practice-content" style="display: none;">
+                <textarea spellcheck="false">
+# Array (List) initialization
+nums = [10, 20, 30]
+
+# O(1) Operations
+print("Access index 1:", nums[1])
+nums.append(40) # Add to end
+print("After append:", nums)
+last = nums.pop() # Remove from end
+print("Popped last item:", last)
+
+# O(N) Operations
+nums.insert(0, 5) # Insert at beginning (shifts everything right)
+print("After insert at index 0:", nums)
+
+nums.pop(1) # Remove at index 1 (shifts everything left)
+print("After pop at index 1:", nums)
+
+# Search is O(N)
+if 30 in nums:
+    print("Found 30!")
+</textarea>
+                <div class="practice-actions">
+                    <button class="run-btn" onclick="runPython(this)">▶ Run Code</button>
+                </div>
+                <div class="console-output">Output will appear here...</div>
+            </div>
+        </div>
+
         <h3>Data Structure: Dictionary (Hash Map)</h3>
         <p>Dictionaries are used to store data values in key:value pairs. They are highly optimized for retrieving data when you know the key.</p>
         <div class="explanation">
