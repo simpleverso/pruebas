@@ -1,0 +1,12 @@
+# Core runtime (required)
+requests==2.32.3
+tqdm==4.66.5
+
+# Vector backend (optional but recommended).
+# Without these the pipeline automatically falls back to the raw Overpass
+# client, which needs nothing beyond `requests`. Installing osmnx additionally
+# yields a routable street graph (GraphML) and shapely-cleaned geometry.
+osmnx==1.9.4
+geopandas==0.14.4
+networkx==3.2.1
+shapely==2.0.6
